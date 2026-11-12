@@ -4,14 +4,14 @@
 
 ## Goal
 
-The therapist can set up the tablet (PIN, proxy address and secret, consent), add children, and run any of the 15 tasks / 147 steps in locked child mode with an illustration, one Egyptian Arabic sentence and audio. Every fact is saved encrypted on the tablet, and an interrupted session can continue. The epic also covers the content pipeline (catalogue builder, art, audio, stickers, sound effects). Exit: all 147 steps play with illustration, Arabic text and audio, and the builder tests pass. Camera judging of real steps comes in Epic 3. Here, verifiers are fakes, or `none` for steps with no detector.
+The therapist can set up the tablet, add children, and run any of the 15 tasks / 147 steps in locked child mode with a character (boy or girl), Egyptian Arabic text and audio; every fact is saved encrypted on the tablet and an interrupted session can continue. The epic also builds the content pipeline (catalogue builder, character reaction and step demonstration clips, audio, stickers, sfx). Exit: all 147 steps play with still frame/clip, Arabic text and audio, and builder tests pass. Camera judging comes in Epic 3; in Epic 2 every step uses the `none` verifier.
 
 ## Stories
 
 - Story 2.1: Catalogue builder parses the 147 assessment steps
 - Story 2.2: Catalogue builder parses the 148 activities
-- Story 2.3: Character sheet and Rive character (art pipeline)
-- Story 2.4: Step and activity illustrations with export script
+- Story 2.3: Character reaction clips (boy and girl)
+- Story 2.4: Step demonstration clips (video modeling) and still frames
 - Story 2.5: Arabic strings and ElevenLabs audio generation
 - Story 2.6: Stickers and sound effects
 - Story 2.7: Catalogue validation, merge and version stamp
@@ -28,79 +28,46 @@ The therapist can set up the tablet (PIN, proxy address and secret, consent), ad
 
 ## Requirements & Constraints
 
-- **Catalogue source:** content comes only from `docs/reference/`. Expected counts: 147 steps in 15 tasks (eating 42, drinking 38, hygiene 27, dressing 40) and 148 activities (mild 48, moderate 50, severe 50). Domain tags are copied verbatim; "A + B" becomes two tags, and "Not tagged in source" becomes `[]`.
-- **Build failures:** the build fails, naming the row or ID, on any of these: an unknown tag, a duplicate ID, a detector that fails the schema, or a step missing Arabic text, normal audio, slow audio or its illustration. A missing activity audio file does not fail the build. Never invent clinical content.
-- **Setup and PIN:** therapist mode cannot open before a PIN exists. The PIN is stored only as a salted PBKDF2 hash, and changing it requires the current PIN. The secret is always masked. The consent text names DeepSeek as the receiver of cropped frames and is acknowledged at setup and per child profile.
-- **Child profiles:** each child has a name, a unique code and an age. Effect level is `full`, `calm` or `off` (default `calm`). Deleting a child cascades to every child-owned row and to the child's frame folders in the same operation. The hidden eval child is never listed.
-- **Attempt window:** opens when the audio ends. It closes on Done, at 45 s, or once at least 20 s have passed with no movement for 2 s. Movement means the maximum wrist or elbow displacement over the last 0.5 s is strictly greater than 0.03 x shoulder width.
-- **Prompt ladder:** levels 1 to 3. Help moves to the next level, counts as a prompt and sets `helpPressed`. Repeat replays the current level and does not count as a prompt.
-- **Rule 1:** done on attempt 1 at prompt level 1 gives level 3. Done later, or after Help, gives level 2. Three not-done attempts give level 1. Cannot tell repeats the attempt once, and a second cannot tell means not scored. Method `none` gives not scored. A failed step never stops the task, and doubt is never `not_done`.
-- **Saving and resume:** every state change is saved immediately. Pause or resume restarts the current attempt. A Continue card after the app closes discards the interrupted attempt. Content-only tasks run fully, with every step not scored. A walkthrough of the whole task plays at the end.
-- **Privacy:** all data is encrypted with Keystore keys, backup is disabled, and there is no external store. Logs never contain a child name, code, frame or request body.
-- **Child UI:** RTL Egyptian Arabic, no red or orange, and no scores, levels, countdowns, errors or network states. Touch targets are at least 120 dp, and Done is at least 220x160 dp.
+- Catalogue only from `docs/reference/`: 147 steps over 15 tasks (eat 42, drink 38, hygiene 27, dress 40), 148 activities (mild/moderate/severe 48/50/50). Domain tags copied verbatim ("A + B" -> `[A, B]`, "Not tagged in source" -> `[]`). No invented clinical content, ever; if source is missing, stop and say so.
+- Build fails on: unknown tag, duplicate ID, wrong counts, a step missing Arabic text, normal or slow audio, still frame, or `step_clips.json` entry for either character variant; an activity missing text or still frame (activity audio optional).
+- `catalogVersion` changes on any change to a step, tag, detector setting or activity.
+- Setup: PIN (twice), proxy URL and shared secret (masked, never shown in clear), consent naming DeepSeek as receiver of cropped frames; therapist mode unreachable without a PIN; PIN stored only as PBKDF2 + salt; PIN changeable with current PIN.
+- Child profile: name, unique code, age; effect level `full|calm|off` (default calm); character variant per child; delete cascades all owned rows and frame folders. Hidden eval child never listed.
+- Attempt window opens at audio end; closes on Done, or >= 20 s and no movement for 2 s, or 45 s. Movement = max wrist/elbow displacement over last 0.5 s > 0.03 x shoulder width (strictly greater).
+- Prompt ladder 1-3: Help raises level (cap 3), sets `helpPressed`, keeps attempt number; Repeat changes nothing.
+- Doubt is never failure: uncertainty is `cannot_tell`, never `not_done`. Content-only tasks run fully with all steps not scored. A failed step never stops the task.
+- Child mode: locked via screen pinning; Bluetooth HID key = Done (debounced 1 s); no errors, cannot-tell, network state, scores, levels, countdowns, red/orange visible to the child. RTL Egyptian Arabic.
+- Privacy: all data encrypted on tablet; no backup; never log child name, code, frame or request body. `ELEVENLABS_API_KEY` env var only, never written to a file.
 
 ## Technical Decisions
 
-- **Content as data (AD-1):** build order is audio-gen, then `tools/art/export_illustrations.py`, then `tools/catalog-builder/build_catalog.py`. The generated `assets/catalog/*.json` are never hand-edited. Kotlin outside tests has no step or activity ID literals, and a test enforces this.
-- **IDs and versions (AD-2):**
-  - Step IDs are `<area>.<task>.<NN>`, with areas `dress|eat|drink|hygiene` and the task IDs listed in the spine's Conventions.
-  - Activity IDs are `<plan>.<domain>.<NN>`, with domains `rom|coord|hand|midline|planning`.
-  - `catalogVersion` is the first 12 hex characters of SHA-256 over `assessment.json` bytes followed by `activities.json` bytes. It lives in a separate `version.json`.
-  - `RULES_VERSION` is a constant in `RulesEngine`.
-  - Each session stores `catalogVersion` and `rulesVersion`.
-- **Check model (AD-4):** `Check` is a sealed type with discriminator `type`, and `Criterion` uses `kind` (`reps|hold`). The JSON Schema in `tools/catalog-builder/schema/` is the contract. An unknown type fails both the Python build and the Kotlin load. `detectors.json` defaults every step to `none` in this epic.
-- **Data (AD-8):**
-  - Room over SQLCipher (`SupportOpenHelperFactory`).
-  - The passphrase is 32 random bytes, encrypted with the Keystore AES-256-GCM key `dls_master` and kept in DataStore `SecureSettings`, together with the PIN hash and salt, proxy URL, encrypted secret and zones.
-  - Frame files are `IV(12) || AES-GCM(JPEG)` at `files/frames/<sessionId>/<attemptId>-<n>.bin`. They are written only together with their attempt row.
-  - Tables `child`, `session` and `attempt` start at version 1, with nullable `attempt.clipFile` and `child.isEval`.
-  - `exportSchema = true` with committed schemas, explicit migrations and no destructive migration.
-  - Enums serialise as lower_snake. `allowBackup="false"`. Only `data/` touches DAOs.
-- **One writer per table (AD-9):** only `AssessmentRunner` writes `session` and `attempt`, including `session.state`. There is at most one running or paused session per child, and starting a new one sets the old one to `abandoned`. Only the therapist profile screens write `child`.
-- **Runner (AD-10):** `StateFlow<RunnerState>` with the events `AudioEnded`, `Done`, `Help`, `Repeat`, `Pause`, `Resume`, `WindowTimeout` and `VerdictReady`. It runs SHOW → LISTEN → ATTEMPT → JUDGE with an injected clock. `stepIndex`, `attemptNumber` and `promptLevel` are persisted before each emit. The runner advances only by calling `stepLevel` on saved rows. A Bluetooth key press maps to `Done`, debounced 1 s.
-- **Attempt row fields (AD-6):** number, promptLevel, helpPressed, verdict, reason, verifier, modelId, promptVersion, latencyMs, framePaths, createdAt.
-- **Rewards in this epic (AD-11):** the Rive state machine inputs are `idle, talk, point, celebrate, celebrateSmall, celebrateBig, encourage`. Reward effects themselves are Epic 4; in this epic, StarBar is display only.
-- **UI (AD-13):** one ViewModel per screen exposing a sealed UiState (`Loading`, `Empty`, `Content`, `Error`) via `stateIn(WhileSubscribed(5_000))`. One-off events go through a Channel. Navigation 3 uses typed keys. The therapist shell uses a NavigationSuiteScaffold rail and list-detail panes. Child mode is a single destination driven by `RunnerState`.
-- **Tools:** Python 3.11 with `pytest tools/` and `ruff check tools`. `ELEVENLABS_API_KEY` comes from the environment only. Audio is regenerated only when the text hash changes.
+- Content as data: `assessment.json`/`activities.json` generated by `tools/catalog-builder`, never hand-edited. Build order: `tools/audio-gen` -> `tools/art/export_illustrations.py` -> `python tools/catalog-builder/build_catalog.py`. No step/activity ID, threshold or question literal in Kotlin outside tests (test-enforced).
+- IDs: step `<area>.<task>.<NN>` (areas `dress|eat|drink|hygiene`), activity `<plan>.<domain>.<NN>` (domains `rom|coord|hand|midline|planning`); never change once released. `catalogVersion` = first 12 hex of SHA-256 over `assessment.json` then `activities.json` bytes, written to `version.json`. `RULES_VERSION` constant in `RulesEngine`. Sessions store both.
+- Detector/check types are sealed (`Check`, `Criterion`) validated by JSON Schema in `tools/catalog-builder/schema/`; unknown check type fails loading. In M2 `detectors.json` sets every step to `none`.
+- Characters (updated 2026-11-12, no Rive): two original characters `boy` and `girl`, pre-rendered clips generated by image-to-video (Google Flow) from approved model sheets and per-object reference images. (a) Reaction clips `idle, talk, point, encourage, celebrateSmall, celebrate, celebrateBig`, ~4 s, start and end on the same idle frame (seamless loop). (b) Step demonstration clips: one clip per real action, not per step; look-alike consecutive micro-steps share a clip; each step maps to `{clip, startSec, endSec}` or still-only in hand-written `tools/art/step_clips.json` (presentation only; every step is still scored as in source). Still frame = frame at `startSec`. Eating/drinking scenes have table and chair; other tasks show the character standing with items in front; same objects and camera angle across a task.
+- Matting: `tools/art/cutout_video.py` mats to alpha with Robust Video Matting on the local GPU (temporally stable edges) and outputs looping transparent animated WebP (~24 fps, long side 960 px), no halo on dark/light backgrounds. Note: Story 2.3's AC text and the spine's structural seed still say rembg ISNet; the binding AD-11 says RVM, and recent commits decode via ffmpeg (no PyAV).
+- Asset paths: `assets/audio/ar-eg/<id>.mp3` and `<id>.slow.mp3` (lower speaking rate, not slowed playback); `assets/character/<variant>/react/<state>.webp`; `assets/character/<variant>/steps/<stepId>.webp` and `<stepId>.still.webp`; `assets/character/<variant>/activities/<activityId>.webp`. Tool, model and prompt for all generated media recorded in `art/README.md`.
+- Playback: one `CharacterView(variant, clip)` composable using Coil 3 / AnimatedImageDrawable; never two moving clips at once; effect `off` shows still frame. Help and level 3 play only the step's segment; walkthrough plays the task's action clips back to back.
+- Audio-gen: fixed voice and model IDs in `config.json`; text hashes in `manifest.json` so unchanged text makes no API call (mocked-SDK test); `review.csv` tracks approved/regenerated.
+- Data: Room over SQLCipher (`SupportOpenHelperFactory`); 32-byte passphrase encrypted with Keystore AES-256-GCM key `dls_master`, stored in DataStore `SecureSettings` with PIN hash, proxy URL, encrypted secret, zones. `exportSchema = true`, schemas in `android/app/schemas/`, version 1, explicit migrations only, destructive forbidden; `allowBackup="false"`. Enums serialise lower_snake. `FrameStore` writes `files/frames/<sessionId>/<attemptId>-<n>.bin` = `IV(12) || AES-GCM(JPEG)`, only together with the attempt row. Only `data/` touches DAOs.
+- One writer per table: `session`/`attempt` only by `AssessmentRunner`; `child` only by therapist profile screens; at most one running/paused session per child, starting new sets others `abandoned`.
+- Attempt semantics / Rule 1: one row per closed window; repeat after `cannot_tell` reuses the number. `stepLevel`: first `done` -> 3 if number 1 and promptLevel 1, else 2; three `not_done` numbers -> 1; two consecutive `cannot_tell` on one number or verifier `none` -> not scored (`none` row: outcome `cannot_tell`, reason `not_judgeable`). Runner advances only by calling `stepLevel` on saved rows. `RulesEngine` is pure (no Android/Room/coroutines); levels never stored.
+- Runner: `AssessmentRunner` exposes `StateFlow<RunnerState>`, events `AudioEnded, Done, Help, Repeat, Pause, Resume, WindowTimeout, VerdictReady`; states SHOW -> LISTEN -> ATTEMPT -> JUDGE; injected clock; `stepIndex/attemptNumber/promptLevel` saved before each next state; resume restarts the saved attempt.
+- UI pattern: ViewModel with `StateFlow<XxxUiState>` (sealed Loading/Empty/Content/Error), stateless screens with previews, Navigation 3 typed keys, Material 3 adaptive rail in therapist mode; child mode is one full-screen destination driven by `RunnerState`. Strings in `res/values-ar/strings.xml`; start/end modifiers only.
+- Verification (done only when all pass): gradle `test lint ktlintCheck koverVerify`, `pytest tools/`, `ruff check tools eval`; instrumented tests for Keystore, SQLCipher, cascade delete; Konsist dependency test.
 
 ## UX & Interaction Patterns
 
-- **Tokens:** child palette is sage Done #5E9C8A, sky Help #7FA7C9, lavender Repeat #B9A6D3, star #E8C26A, sand, and ink #2E3A40 on warm off-white. The therapist palette has a level ramp and a corrected purple. Cairo font is bundled. Type sizes are 40 / 32 / 96 sp for the child and 28 / 20 / 16 / 14 sp for the therapist. 8 dp grid, landscape only, light theme only.
-- **Step screen:**
-  - A 64 dp top band holds the star bar, the schedule dots and the adult corner.
-  - The illustration takes about 60% of the width, with the character beside it and the sentence below.
-  - The bottom band has Done at the start side and Help and Repeat at the end side, labelled خلصت / ساعدني / تاني.
-  - Done is dimmed, not hidden, while audio plays.
-- **Prompt levels:** level 1 is the character in `talk`. Level 2 replays the audio, switches the character to `point` and enlarges the illustration by 15%. Level 3 shows the illustration full screen with the movement animation and slow audio.
-- **Child-facing states:** judging shows the idle "thinking" pose with no text. Cannot tell and network loss appear only as a neutral retry line. Paused means the character sits and the screen dims.
-- **Starting and pausing:** the task start screen shows the character greeting and يلا نبدأ. A 2 s long-press on the adult corner opens the pause sheet (pause, resume, or exit with PIN). Screen pinning locks child mode.
-- **Therapist shell:** RTL, with a start-side rail (Children, Replay & evaluation, Diagnostics, Settings). Empty states show one message and one primary action. The Continue card appears in the child list.
-- **Copy:** child copy never says wrong, no or try harder.
+- Tokens: child palette sage Done #5E9C8A, sky Help #7FA7C9, lavender Repeat #B9A6D3, star #E8C26A, sand, ink #2E3A40, warm off-white; Cairo font; child-instruction 40sp, child-button 32sp; 8dp grid; light theme; landscape only, 8-11 inch tablets.
+- Step screen zones: 64dp top band (star bar, schedule dots, adult corner), still frame/clip ~60% width with character beside, sentence below, bottom band Done at start, Help/Repeat at end; targets >= 120dp, Done >= 220x160dp; Done dimmed (not hidden) while audio plays; labels خلصت / ساعدني / تاني.
+- Prompts: L1 still frame + sentence + audio, character `talk`; L2 audio replay + `point` + visual +15%; Help or L3 full-screen demonstration segment + slow audio, buttons visible.
+- Character states: idle default, talk during audio, point at L2; judging = idle "thinking" with soft dots, no text; paused = screen dims. Cannot tell/network loss invisible to the child.
+- Task start screen (character greets, task picture, يلا نبدأ); adult pause sheet via 2 s long-press on adult corner (pause / resume / exit with PIN). Therapist shell: start-side rail (Children, Replay & evaluation, Diagnostics, Settings), empty states with one message + action, "Continue" card for interrupted sessions.
+- Walkthrough at task end plays the action clips with audio, then session becomes `done`. Jacket option: on, off, or both (two sessions).
 
 ## Cross-Story Dependencies
 
-- **Content chain:**
-  - 2.1 and 2.2 come before 2.7.
-  - 2.3 comes before 2.4.
-  - 2.4, 2.5 and 2.6 provide the assets 2.7 validates.
-  - 2.7 comes before 2.8, which uses the existing `catalog/CatalogModels.kt`.
-  - 2.17 needs everything.
-- **App chain:**
-  - 2.9 comes before 2.10, 2.11 and 2.13.
-  - 2.12 comes before 2.13, which comes before 2.14, 2.15 and 2.16.
-  - 2.10 provides the PIN used by the 2.15 exit and by gating Diagnostics.
-- **Epic 1 code reused:** Hilt, Navigation 3, the UiState pattern, `vision/` (VisibilityGate and CloudVerifier, wired into the runner only in Epic 3), and the Diagnostics screen.
-- **Deferred Epic 1 work to absorb:**
-  - **2.10 (setup and shell):**
-    - Move the proxy URL and shared secret from debug BuildConfig into encrypted settings entered at first-run setup.
-    - Bundle the Cairo font, complete the type scale and add RTL/ar previews.
-    - Expose the level and status colours through an extended colour scheme CompositionLocal.
-    - Move Diagnostics behind the therapist PIN and shell; it is currently the start destination, and child mode must never open on it.
-    - Optionally handle a first camera denial with a rationale before sending the user to settings.
-  - **2.9 (data):** add the Konsist rules that only `data/` uses DAOs and that production code has no `android.util.Log` or `println`.
-  - **2.7 and 2.8 (catalogue):**
-    - Use shared JSON fixtures validated by both `check.schema.json` (pytest) and Kotlin decoding. Add `Step` to the schema, and align the zone enum and the reps target type.
-    - At build and decode time, reject side-less landmarks without `side`, unknown landmark names and method/check mismatches.
-  - **2.12 and 2.13 (runner):** optionally move the pure vision code into a dedicated package so the Konsist purity rule does not rely on file names.
-  - **Any story touching Compose:** add Compose UI test setup (Empty/Error states send Retry; the skeleton stays hidden before 150 ms).
-  - **Left for Epic 3:** model URL pinning and SHA-256 checks, an offline switch for model downloads, overlay ratio, bitmap reuse, Diagnostics ViewModel tests and proxy prompt tuning.
+- 2.1, 2.2 -> 2.7 (merge/validate) -> 2.8 (app loads catalogue). 2.7 requires assets from 2.3/2.4 (still frames, `step_clips.json`), 2.5 (strings, audio) and 2.6 (stickers/sfx copied by `export_illustrations.py`).
+- 2.4 depends on step IDs from 2.1 and on the character sheets from 2.3.
+- 2.9 (DB, SecureSettings, FrameStore) underpins 2.10, 2.11, 2.13, 2.15. 2.12 (pure window/ladder) feeds 2.13 (runner) -> 2.14 (step screen) -> 2.15, 2.16. 2.17 checks everything.
+- Epic 3 plugs real verifiers, framing and evidence frames into this runner; Epic 4 builds rewards (`RewardEffects`, stickers, sfx) and Rule 2 on the facts saved here. Epic 1 provides camera/landmarker and proxy groundwork.

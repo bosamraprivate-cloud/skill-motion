@@ -423,7 +423,7 @@ Files: `art/characters/*`, `art/poses/<variant>/idle*.png`, `art/animations/<var
 
 **Given** a generated clip
 **When** `cutout_video.py` runs
-**Then** the background is removed (rembg ISNet matting) into a looping transparent animated WebP (long side 960 px) with no halo on a dark and a light test background.
+**Then** the background is removed (Robust Video Matting on the local GPU) into a looping transparent animated WebP (long side 960 px) with no halo on a dark and a light test background.
 
 **Given** any generated media
 **When** recorded
@@ -446,7 +446,7 @@ Files: `art/objects/*.png` (reference images for every object the steps use), `a
 
 **Given** a step clip
 **When** exported
-**Then** it is matted to alpha, each step's still frame is exported from its `startSec` as `<stepId>.still.webp`, and the catalogue build fails if any step lacks a `step_clips.json` entry or still frame for either variant.
+**Then** it keeps its plain off-white background (the table and objects must stay visible; no matting), is encoded for the app, each step's still frame is exported from its `startSec` as `<stepId>.still.webp`, and the catalogue build fails if any step lacks a `step_clips.json` entry or still frame for either variant.
 
 **Given** the 148 activities
 **When** the step clips are complete
