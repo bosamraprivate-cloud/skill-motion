@@ -100,7 +100,7 @@ NFR-8: Localisation: RTL; all child-facing text and audio in Egyptian Arabic.
 - AD-8 Room + SQLCipher, Keystore key `dls_master`, DataStore `SecureSettings`, `FrameStore` encrypted frames, `exportSchema = true`, explicit migrations, `allowBackup="false"`, hidden eval child for replay.
 - AD-9 one writer per facts table.
 - AD-10 runner state machine with persisted resume point, injected clock; Bluetooth key -> Done.
-- AD-11 single `RewardEffects` entry point; `CharacterView(variant, state)` states `idle, talk, point, celebrate, celebrateSmall, celebrateBig, encourage` (boy/girl pose images, Compose motion).
+- AD-11 single `RewardEffects` entry point; Rive inputs `idle, talk, point, celebrate, celebrateSmall, celebrateBig, encourage`.
 - AD-12 JVM tests for core, instrumented tests for Keystore/SQLCipher/migrations, MockWebServer, Vitest, Kover >= 90%, Konsist dependency test.
 - Secrets: `DEEPSEEK_API_KEY`, `SHARED_SECRET` as Worker secrets; `ELEVENLABS_API_KEY` env var only; monthly DeepSeek spend limit.
 - Logging: no child name, code, frame or request body in Logcat or Worker logs.
@@ -221,7 +221,7 @@ Files: `android/settings.gradle.kts`, `android/build.gradle.kts`, `android/gradl
 
 **Given** the version catalogue
 **When** it is inspected
-**Then** Kotlin, Compose BOM, CameraX, MediaPipe Tasks Vision (latest stable), Room + KSP, SQLCipher 4.x (>= 4.18), kotlinx-serialization, OkHttp, Vico, Konfetti, Kover, ktlint, Konsist, Material 3 + adaptive (navigation suite, navigation3), Navigation 3, Hilt, Lifecycle Compose, Coil 3 and compose-shimmer are pinned to exact versions (AD-13).
+**Then** Kotlin, Compose BOM, CameraX, MediaPipe Tasks Vision (latest stable), Room + KSP, SQLCipher 4.x (>= 4.18), kotlinx-serialization, OkHttp, Vico, Rive, Konfetti, Kover, ktlint, Konsist, Material 3 + adaptive (navigation suite, navigation3), Navigation 3, Hilt, Lifecycle Compose, Coil 3 and compose-shimmer are pinned to exact versions (AD-13).
 
 **Given** the `ui/components` package
 **When** the project builds
@@ -406,32 +406,28 @@ Files: `tools/catalog-builder/build_catalog.py`, `tools/catalog-builder/test_bui
 **When** parsed
 **Then** it has ID `<plan>.<domain>.<NN>` and verbatim fields tools, how to perform, goal, measurement criterion.
 
-### Story 2.3: Boy and girl characters with animated poses
+### Story 2.3: Character sheet and Rive character (art pipeline)
 
 As the author,
-I want two original characters (boy and girl) with model sheets and transparent pose images, animated in Compose,
-So that every screen and illustration shares one polished look and the therapist can pick the character per child.
+I want one original character sheet and a Rive file with the required state machine,
+So that all illustrations and animations share one look.
 
-Implements: FR-9, FR-11, FR-12 (level-3 movement), UX-DR6; AD-11 (updated 2026-11-12: pose images + Compose, no Rive).
-Files: `art/characters/{boy,girl}-sheet.png`, `art/poses/<variant>/<state>.png`, `art/README.md`, `android/app/src/main/assets/character/<variant>/<state>.webp`, `<pkg>/ui/components/CharacterView.kt`, `<test>/CharacterStateTest.kt`.
+Implements: FR-9, FR-11, FR-12 (level-3 movement), UX-DR6; AD-11.
+Files: `art/character-sheet.png`, `art/character.riv`, `art/README.md` (style notes, palette, generation prompts and model used).
 
 **Acceptance Criteria:**
 
-**Given** the model sheets
+**Given** the character sheet
 **When** reviewed
-**Then** each character shows front, 3/4, side and back views, hands and five expressions in the DESIGN palette (done: `035db9d`).
+**Then** it shows the boy front, side, back and hands close-up in flat style with the DESIGN palette.
 
-**Given** each variant
-**When** the pose set is inspected
-**Then** there is one transparent image per state `idle, talk, point, celebrate, celebrateSmall, celebrateBig, encourage` plus `talk-open` and `blink`, identical in character, scale and framing.
+**Given** `character.riv`
+**When** opened in the Rive editor
+**Then** its state machine has inputs `idle, talk, point, celebrate, celebrateSmall, celebrateBig, encourage`, plus movement animations for camera-scored steps where useful (list recorded in `art/README.md`).
 
-**Given** `CharacterView(variant, state)`
-**When** the state changes or audio plays
-**Then** poses crossfade ≤ 300 ms, idle breathes and blinks, talk toggles the mouth only while audio plays, celebrate hops gently, effect level `off` shows a still pose, and nothing flashes more than 3 times per second.
-
-**Given** any generated image
+**Given** any image-model output used
 **When** recorded
-**Then** the prompt and tool are noted in `art/README.md`, and no third-party character or brand is used.
+**Then** the prompt and tool are noted, and no third-party character or brand is used.
 
 ### Story 2.4: Step and activity illustrations with export script
 
@@ -440,7 +436,7 @@ I want one corrected illustration per step and activity, exported to the app,
 So that every step shows the character doing exactly the step text.
 
 Implements: FR-9, FR-35 (activity illustration), SM-4; AD-1.
-Files: `art/steps/<stepId>.png` (147), `art/activities/<activityId>.png` (148), `tools/art/export_illustrations.py`, `tools/art/test_export_illustrations.py`, `android/app/src/main/assets/illustr/*.webp`, `android/app/src/main/assets/character/<variant>/*.webp`.
+Files: `art/steps/<stepId>.png` (147), `art/activities/<activityId>.png` (148), `tools/art/export_illustrations.py`, `tools/art/test_export_illustrations.py`, `android/app/src/main/assets/illustr/*.webp`, `android/app/src/main/res/raw/character.riv`.
 
 **Acceptance Criteria:**
 
@@ -450,7 +446,7 @@ Files: `art/steps/<stepId>.png` (147), `art/activities/<activityId>.png` (148), 
 
 **Given** all PNGs
 **When** `python tools/art/export_illustrations.py` runs
-**Then** each is resized to 1280 px WebP into `assets/illustr/<variant>/<id>.webp` and the pose PNGs into `assets/character/<variant>/<state>.webp`
+**Then** each is resized to 1280 px WebP into `assets/illustr/<id>.webp` and `character.riv` is copied to `res/raw/`
 **And** a missing or misnamed file is reported with its ID.
 
 ### Story 2.5: Arabic strings and ElevenLabs audio generation
