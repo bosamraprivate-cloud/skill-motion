@@ -154,7 +154,14 @@ kover {
                         "com.aitherapist.dls.vision.VisibilityGate*",
                         "com.aitherapist.dls.vision.FrameCropper*",
                         "com.aitherapist.dls.scoring.RulesEngine*",
-                        "com.aitherapist.dls.training.RepCounter*"
+                        "com.aitherapist.dls.training.RepCounter*",
+                        "com.aitherapist.dls.session.WindowRules",
+                        "com.aitherapist.dls.session.Movement",
+                        "com.aitherapist.dls.session.PoseSample",
+                        "com.aitherapist.dls.session.AttemptWindow",
+                        "com.aitherapist.dls.session.CloseReason",
+                        "com.aitherapist.dls.session.PromptLadder",
+                        "com.aitherapist.dls.session.PromptState"
                     )
                 }
             }

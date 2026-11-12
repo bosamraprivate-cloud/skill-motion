@@ -2,7 +2,8 @@
 title: 'Story 2.12: Attempt window and prompt ladder (pure)'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'done'
+baseline_commit: '1cb8e004fffef7dd03b253fe6d8970cc37dba424'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -51,20 +52,36 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `session/WindowRules.kt` -- constants (20 s, 2 s, 45 s, 0.5 s, 0.03) + `RULES_VERSION`.
-- [ ] `session/Movement.kt` -- `PoseSample(tMs, joints)` ring of recent samples; `moved(samples, nowMs): Boolean`.
-- [ ] `session/AttemptWindow.kt` -- `Clock` interface; `AttemptWindow(openedAtMs)` with `onSample`, `onDone`, `check(nowMs): CloseReason?` (`done`/`still`/`timeout`).
-- [ ] `session/PromptLadder.kt` -- `PromptState(level, helpPressed, attempt)`; `onHelp`, `onRepeat`.
-- [ ] `test/.../session/AttemptWindowTest.kt`, `MovementTest.kt`, `PromptLadderTest.kt` -- every matrix row, fake clock.
+- [x] `session/WindowRules.kt` -- constants (20 s, 2 s, 45 s, 0.5 s, 0.03) + `RULES_VERSION`.
+- [x] `session/Movement.kt` -- `PoseSample(tMs, joints)` ring of recent samples; `moved(samples, nowMs): Boolean`.
+- [x] `session/AttemptWindow.kt` -- `Clock` interface; `AttemptWindow(openedAtMs)` with `onSample`, `onDone`, `check(nowMs): CloseReason?` (`done`/`still`/`timeout`).
+- [x] `session/PromptLadder.kt` -- `PromptState(level, helpPressed, attempt)`; `onHelp`, `onRepeat`.
+- [x] `test/.../session/AttemptWindowTest.kt`, `MovementTest.kt`, `PromptLadderTest.kt` -- every matrix row, fake clock.
 
 **Acceptance Criteria:**
 - Given the gate, when `./gradlew test lint ktlintCheck koverVerifyCore` runs, then it passes and the new classes are covered by `koverVerifyCore`.
 
 ## Implementation Notes
 
+- Movement is detected over a trailing 0.5 s, so a window closes as `still` 2 s after the last *detected* movement, which is up to 0.5 s after the last actual jump. Tests encode the matrix rows that way (last jump 17.5 s -> closes 20 s).
+- Shoulder width = latest sample in the 0.5 s span with both shoulders visible. Added `LEFT_ELBOW`/`RIGHT_ELBOW` to `PoseLandmarkIndex`; Konsist rule added for pure session files; session classes added to the `koverVerifyCore` filter.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | closed window reopens; late Done overrides timeout | medium | no latch in check(); patch |
+| 2 | out-of-order / pre-open samples corrupt the deque | low | caller contract only; patch (drop) |
+| 3 | PromptState accepts invalid level/attempt | low | patch (require) |
+| 4 | CloseReason lower_snake promised, not built | low | patch (storageName) |
+| 5 | equality boundary and right joints untested | medium | `>` vs `>=` and joint set unpinned; patch tests |
+| 6 | kover wildcard filters | low | patch (exact names) |
+| 7 | matrix reread: movement dated by 0.5 s lookback | false | FR-13 defines movement over the last 0.5 s; "no movement for 2 s" = test false for 2 s; Implementation Notes record it |
+| 8 | no new-attempt transition in the ladder | low | attempt progression belongs to the runner (2.13); rejected here |
+| 9 | Clock used unevenly; RULES_VERSION not persisted | low | runner (2.13) owns time source and stores rulesVersion on the session; rejected |
+| 10 | status files disagree | false | synced at story close |
 
 ## Verification
 

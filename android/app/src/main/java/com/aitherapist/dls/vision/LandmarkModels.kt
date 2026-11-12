@@ -13,6 +13,8 @@ object PoseLandmarkIndex {
     const val MOUTH_RIGHT = 10
     const val LEFT_SHOULDER = 11
     const val RIGHT_SHOULDER = 12
+    const val LEFT_ELBOW = 13
+    const val RIGHT_ELBOW = 14
     const val LEFT_WRIST = 15
     const val RIGHT_WRIST = 16
 
