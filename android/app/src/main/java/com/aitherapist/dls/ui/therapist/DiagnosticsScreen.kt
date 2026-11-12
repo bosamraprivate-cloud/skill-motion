@@ -165,7 +165,7 @@ private fun PermissionMessage(messageRes: Int, actionRes: Int, onAction: () -> U
 @Composable
 private fun Content(state: DiagnosticsUiState.Content, onEvent: (DiagnosticsEvent) -> Unit, cameraPreview: @Composable (Modifier) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.fillMaxHeight().aspectRatio(PREVIEW_ASPECT)) {
+        Box(modifier = Modifier.fillMaxHeight().aspectRatio(state.frameAspect)) {
             cameraPreview(Modifier.fillMaxSize())
             LandmarkOverlay(state.posePoints, state.handPoints, Modifier.fillMaxSize())
         }
@@ -203,8 +203,10 @@ private fun Metric(label: String, value: String) {
 }
 
 /**
- * Draws landmarks over the (mirrored) preview. Landmarks are un-mirrored, so x is flipped back
- * for display only. Wrists are coloured by side: RIGHT_WRIST in red, LEFT_WRIST in blue.
+ * Draws landmarks over the (mirrored) preview. The overlay shares one box with the PreviewView whose aspect
+ * ratio is the upright analysis frame's width / height, and the PreviewView uses FIT_CENTER, so the image
+ * fills the box exactly (no crop, no letterbox). Mapping: screenX = (1 - x) * boxWidth (the single mirror,
+ * because the preview is mirrored), screenY = y * boxHeight. Inference itself is never flipped. Wrists are coloured by side: RIGHT_WRIST in red, LEFT_WRIST in blue.
  */
 @Composable
 private fun LandmarkOverlay(pose: List<LandmarkPoint>, hands: List<List<LandmarkPoint>>, modifier: Modifier = Modifier) {
@@ -224,12 +226,13 @@ private fun LandmarkOverlay(pose: List<LandmarkPoint>, hands: List<List<Landmark
 }
 
 private fun DrawScope.drawPoint(point: LandmarkPoint, color: Color, radius: Float) {
+    // MediaPipe can estimate landmarks outside the frame (x or y outside 0..1); never draw outside the preview.
+    if (point.x !in 0f..1f || point.y !in 0f..1f) return
     drawCircle(color, radius, Offset(Mirror.flipX(point.x) * size.width, point.y * size.height))
 }
 
 private fun fps(value: Double) = String.format(Locale.ROOT, "%.1f", value)
 
-private const val PREVIEW_ASPECT = 4f / 3f
 private const val RUN_SEC = (FpsMeter.RUN_DURATION_MS / 1_000L).toInt()
 private const val RETENTION_SEC = (FrameBuffer.DEFAULT_RETENTION_MS / 1_000L).toInt()
 
@@ -240,6 +243,7 @@ private val previewContent =
         handFps = 18.0,
         combinedFps = 17.0,
         visiblePercent = 92,
+        frameAspect = 4f / 3f,
         posePoints = List(33) { LandmarkPoint(0.3f + it * 0.01f, 0.2f + it * 0.02f) },
         handPoints = emptyList(),
         run = RunState.Idle

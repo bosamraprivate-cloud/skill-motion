@@ -2,7 +2,7 @@
 title: 'Story 1.2: Camera feed and landmarkers with frame-rate probe'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-review'
+status: 'done'
 baseline_commit: '2761c0fd65ed0e2af79e2b65413e97c85b6c83b6'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -81,6 +81,8 @@ context:
 - Environment: same as Story 1.1 (JDK 21 at `C:\Program Files\Microsoft\jdk-21.0.13.21-hotspot`, SDK at `%LOCALAPPDATA%\Android\Sdk`). Test device over adb: Xiaomi 21061110AG, Android 13 (API 33), 2400×1080. Install with `adb install -r`, grant camera with `adb shell pm grant com.aitherapist.dls android.permission.CAMERA`, read fps via screenshot or a debug-only Logcat line that contains numbers only.
 
 ## Spec Change Log
+
+- 2026-11-12, device test: the frozen Boundaries line "front-camera frames are flipped horizontally before inference" was wrong. CameraX front ImageAnalysis frames are already un-mirrored, so the flip swapped left/right (raised right wrist was labelled LEFT_WRIST, overlay mirrored). Amended in code with the user's goal kept: inference frames are rotated only; the overlay applies the single mirror for the mirrored preview; overlay box takes the real analysis aspect with PreviewView FIT_CENTER. Verified on device: all points on the subject, RIGHT_WRIST on the raised right wrist. KEEP: FrameTransform pure helper + tests encoding "subject's right = image left in inference frame".
 
 ## Review Triage Log
 

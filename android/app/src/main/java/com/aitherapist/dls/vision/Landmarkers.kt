@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-/** Normalised landmark position in un-mirrored image space (x to the subject's left grows). */
+/** Normalised landmark position in un-mirrored image space (subject's right side has the smaller x). */
 data class LandmarkPoint(val x: Float, val y: Float)
 
 /** One landmarker result for the frame captured at [timestampMs]; one point list per person or hand. */
@@ -51,7 +51,7 @@ object PoseLandmarkIndex {
 
 /**
  * Pose + Hand landmarkers in LIVE_STREAM mode. Frames passed to [detect] must already be
- * un-mirrored (see `camera/Mirror`). Never logs frames or landmarks.
+ * un-mirrored: raw front-camera analysis frames, rotated upright and not flipped. Never logs frames or landmarks.
  */
 class Landmarkers
 @Inject

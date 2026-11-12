@@ -49,6 +49,8 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
     private val run = MutableStateFlow<RunState>(RunState.Idle)
     private var collectorJobs: List<Job> = emptyList()
     private var startJob: Job? = null
+
+    @Volatile private var frameAspect = DEFAULT_FRAME_ASPECT
     private var stopJob: Job? = null
     private var runJob: Job? = null
 
@@ -131,8 +133,9 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
         setEngine(Engine.Failed(reason))
     }
 
-    /** Called on the camera analysis thread with an un-mirrored frame. */
+    /** Called on the camera analysis thread with an upright, un-flipped (already un-mirrored) frame. */
     fun onFrame(bitmap: Bitmap, timestampMs: Long) {
+        frameAspect = bitmap.width.toFloat() / bitmap.height
         if (engine.value !is Engine.Ready) return
         if (landmarkers.detect(bitmap, timestampMs)) frameBuffer.addFrame(timestampMs, timestampMs)
     }
@@ -204,6 +207,7 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
             handFps = fpsMeter.fps(FpsStream.HAND),
             combinedFps = fpsMeter.fps(FpsStream.COMBINED),
             visiblePercent = visible,
+            frameAspect = frameAspect,
             posePoints = latest.pose,
             handPoints = latest.hands,
             run = shownRun
@@ -229,5 +233,6 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
         const val PERCENT = 100
         const val RUN_SEC = (FpsMeter.RUN_DURATION_MS / 1_000L).toInt()
         const val LOG_TAG = "DlsFps"
+        const val DEFAULT_FRAME_ASPECT = 4f / 3f
     }
 }

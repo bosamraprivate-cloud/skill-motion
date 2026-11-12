@@ -19,6 +19,8 @@ sealed interface DiagnosticsUiState {
         val handFps: Double,
         val combinedFps: Double,
         val visiblePercent: Int,
+        /** Width / height of the upright analysis frame; preview and overlay share a box of this aspect. */
+        val frameAspect: Float,
         val posePoints: List<LandmarkPoint>,
         val handPoints: List<List<LandmarkPoint>>,
         val run: RunState

@@ -6,7 +6,9 @@ data class NormPoint(val x: Float, val y: Float)
 /**
  * Pure model of the analysis-frame transform: rotate clockwise by [rotationDegrees]
  * (0/90/180/270, as reported by CameraX) to make the frame upright, then flip horizontally
- * when [flip] is set (un-mirroring for the front camera). `CameraController` builds its
+ * when [flip] is set. Inference uses `flip = false`: CameraX front-camera analysis frames are
+ * already un-mirrored (as others see the subject), so the subject's right side is on the image
+ * left. `flip = true` maps into the mirrored preview space. `CameraController` builds its
  * bitmap matrix from this function, so the JVM test covers the real camera path.
  */
 object FrameTransform {

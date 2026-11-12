@@ -15,7 +15,7 @@
  *
  * Modified by the Daily Living Skills app authors, 2026: adapted from mediapipe-samples
  * CameraFragment.kt and PoseLandmarkerHelper.detectLiveStream; Compose-friendly controller,
- * front camera only, frames rotated and flipped horizontally (un-mirrored) before delivery.
+ * front camera only, frames rotated upright before delivery (raw front frames are already un-mirrored).
  */
 package com.aitherapist.dls.camera
 
@@ -39,8 +39,8 @@ import java.util.concurrent.Executors
 
 /**
  * Binds the front camera: a preview for the user (may stay mirrored) and an analysis stream
- * (RGBA, keep-only-latest, about 640x480) whose frames are rotated upright and flipped
- * horizontally, then handed to [onFrame] with an uptime timestamp in ms. Never saves frames.
+ * (RGBA, keep-only-latest, about 640x480) whose frames are rotated upright (not flipped:
+ * raw front frames are already un-mirrored), then handed to [onFrame] with an uptime timestamp in ms. Never saves frames.
  */
 class CameraController(private val context: Context) {
     private var provider: ProcessCameraProvider? = null
@@ -90,7 +90,7 @@ class CameraController(private val context: Context) {
                 .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()
         analysis.setAnalyzer(analysisExecutor) { proxy ->
-            proxy.use { onFrame(unmirroredBitmap(it), SystemClock.uptimeMillis()) }
+            proxy.use { onFrame(uprightBitmap(it), SystemClock.uptimeMillis()) }
         }
         cameraProvider.unbindAll()
         cameraProvider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, preview, analysis)
@@ -105,7 +105,7 @@ class CameraController(private val context: Context) {
         executor = null
     }
 
-    private fun unmirroredBitmap(proxy: ImageProxy): Bitmap {
+    private fun uprightBitmap(proxy: ImageProxy): Bitmap {
         val source = proxy.toBitmap()
         val matrix = transformMatrix(source.width, source.height, proxy.imageInfo.rotationDegrees)
         val upright = Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
@@ -113,7 +113,7 @@ class CameraController(private val context: Context) {
         return upright
     }
 
-    /** Rotate upright + un-mirror, built from the pure [FrameTransform] by mapping three corners. */
+    /** Rotate upright only (no flip: raw front frames are already un-mirrored), built from the pure [FrameTransform] by mapping three corners. */
     private fun transformMatrix(width: Int, height: Int, rotation: Int): Matrix {
         val w = width.toFloat()
         val h = height.toFloat()
@@ -123,7 +123,7 @@ class CameraController(private val context: Context) {
         val src = corners.flatMap { listOf(it.x * w, it.y * h) }.toFloatArray()
         val dst =
             corners
-                .map { FrameTransform.map(it, rotation, flip = true) }
+                .map { FrameTransform.map(it, rotation, flip = false) }
                 .flatMap { listOf(it.x * outW, it.y * outH) }
                 .toFloatArray()
         return Matrix().apply { setPolyToPoly(src, 0, dst, 0, corners.size) }

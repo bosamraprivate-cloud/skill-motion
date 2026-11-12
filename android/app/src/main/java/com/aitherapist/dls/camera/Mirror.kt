@@ -1,8 +1,8 @@
 package com.aitherapist.dls.camera
 
 /**
- * Front-camera un-mirroring. Frames are flipped horizontally before inference so the subject's
- * right side is MediaPipe's RIGHT_*; this maps a normalised x between mirrored and un-mirrored space.
+ * Maps a normalised x between the un-mirrored inference frame (raw front-camera analysis frames,
+ * not flipped) and the mirrored preview. Used for display only, never before inference.
  */
 object Mirror {
     fun flipX(x: Float): Float = 1f - x
