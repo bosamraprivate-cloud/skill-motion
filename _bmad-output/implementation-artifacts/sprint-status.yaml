@@ -44,7 +44,7 @@ development_status:
   epic-1-retrospective: optional
 
   epic-2: in-progress
-  2-1-catalogue-builder-parses-the-147-assessment-steps: in-progress
+  2-1-catalogue-builder-parses-the-147-assessment-steps: done
   2-2-catalogue-builder-parses-the-148-activities: backlog
   2-3-character-sheet-and-rive-character-art-pipeline: backlog
   2-4-step-and-activity-illustrations-with-export-script: backlog

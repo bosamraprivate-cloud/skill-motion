@@ -2,7 +2,8 @@
 title: 'Story 2.1: Catalogue builder parses the 147 assessment steps'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-progress'
+status: 'done'
+baseline_commit: '9119dc5adc43c69921e1db452076fb1a8a6f8627'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -56,9 +57,9 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `tools/catalog-builder/build_catalog.py` -- parser, map, validation, `--check` CLI -- FR-7
-- [ ] `tools/catalog-builder/test_build_catalog.py` -- real-source counts + every matrix row with small fixture strings -- verification
-- [ ] `tools/requirements.txt`, root `pyproject.toml` -- pinned pytest/ruff, ruff config, `requires-python >= 3.14` -- tooling
+- [x] `tools/catalog-builder/build_catalog.py` -- parser, map, validation, `--check` CLI -- FR-7
+- [x] `tools/catalog-builder/test_build_catalog.py` -- real-source counts + every matrix row with small fixture strings -- verification
+- [x] `tools/requirements.txt`, root `pyproject.toml` -- pinned pytest/ruff, ruff config, `requires-python >= 3.14` -- tooling
 - [ ] spine Stack + `AGENTS.md` -- Python 3.14 -- latest-version policy
 
 **Acceptance Criteria:**
@@ -72,6 +73,20 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---|---|---|---|
+| 1 | Mismatched header / blank line under a task heading silently drops rows | medium | patch | non-header tables skipped as legends |
+| 2 | Unicode digits crash int() | low | patch | isdigit() |
+| 3 | Duplicate tags / "A+B" spacing | low | patch | split on " + " only |
+| 4 | Escaped pipe breaks cell count | low | patch | naive split |
+| 5 | validate compares counts only; errors lack source | medium | patch | task set / areas not compared |
+| 6 | Mutable tags in frozen Step; BOM; counts uncited; --check output thin | low | patch | dataclass list, read_text |
+| 7 | Fragile test hooks (__defaults__, manual importlib), dead noqa | low | patch | test file |
+| 8 | Missing negative tests for error paths | medium | patch | only 4 error paths tested |
+| 9 | Python 3.14 vs AGENTS.md 3.11 | false | rejected | spine and AGENTS.md updated to 3.14 in this story |
+| 10 | Score/Performance columns unchecked; empty sub-skills accepted | low | rejected | columns empty by design in sources; sub-skills empty for untagged rows |
+| 11 | --check labels differ from spec wording | low | rejected | area keys are the IDs; counts identical |
 
 ## Verification
 

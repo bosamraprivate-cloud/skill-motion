@@ -204,7 +204,7 @@ Arrows mean "may depend on". Nothing depends on `ui`. `scoring`, `rewards` and `
 | Coil 3 (`coil-compose`), `com.valentinilk.shimmer:compose-shimmer` (Apache-2.0) | latest stable at M1 |
 | Proxy: Cloudflare Workers, TypeScript, `openai` npm SDK, wrangler, vitest | latest stable at M1, pinned in `proxy/package-lock.json` |
 | Online model | DeepSeek `deepseek-flash` (V4.1 Flash, multimodal) via `MODEL_ID` |
-| Python tools | 3.11; pytest, ruff; `elevenlabs` SDK |
+| Python tools | 3.14; pytest, ruff; `elevenlabs` SDK |
 
 ## Structural Seed
 
