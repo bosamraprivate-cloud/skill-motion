@@ -17,7 +17,7 @@ In Skillmotion, the therapist can set up the tablet, add children, and run any o
 - Story 2.7: Catalogue validation, merge and version stamp
 - Story 2.8: Catalogue repository in the app
 - Story 2.9: Encrypted database, secure settings and frame store
-- Story 2.10: First-run setup, PIN gate and consent
+- Story 2.10: First-run setup and PIN gate
 - Story 2.11: Child profiles with effect level and cascade delete
 - Story 2.12: Attempt window and prompt ladder (pure)
 - Story 2.13: Assessment runner state machine with Rule 1
@@ -31,7 +31,7 @@ In Skillmotion, the therapist can set up the tablet, add children, and run any o
 - Catalogue only from `docs/reference/`: 147 steps over 15 tasks (eat 42, drink 38, hygiene 27, dress 40), 148 activities (mild/moderate/severe 48/50/50). Domain tags copied verbatim ("A + B" -> `[A, B]`, "Not tagged in source" -> `[]`). No invented clinical content, ever; if source is missing, stop and say so.
 - Build fails on: unknown tag, duplicate ID, wrong counts, a step missing Arabic text, normal or slow audio, still frame, or `step_clips.json` entry for either character variant; an activity missing text or still frame (activity audio optional).
 - `catalogVersion` changes on any change to a step, tag, detector setting or activity.
-- Setup: PIN (twice), proxy URL and shared secret (masked, never shown in clear), consent naming DeepSeek as receiver of cropped frames; therapist mode unreachable without a PIN; PIN stored only as PBKDF2 + salt; PIN changeable with current PIN.
+- Setup: PIN (twice), proxy URL and shared secret (masked, never shown in clear); no consent screen in the app (guardian consent, including cropped frames going to DeepSeek, is obtained verbally outside the app); therapist mode unreachable without a PIN; PIN stored only as PBKDF2 + salt; PIN changeable with current PIN.
 - Child profile: name, unique code, age; effect level `full|calm|off` (default calm); character variant per child; delete cascades all owned rows and frame folders. Hidden eval child never listed.
 - Attempt window opens at audio end; closes on Done, or >= 20 s and no movement for 2 s, or 45 s. Movement = max wrist/elbow displacement over last 0.5 s > 0.03 x shoulder width (strictly greater).
 - Prompt ladder 1-3: Help raises level (cap 3), sets `helpPressed`, keeps attempt number; Repeat changes nothing.
