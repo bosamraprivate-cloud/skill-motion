@@ -2,7 +2,7 @@
 title: 'Story 2.7: Catalogue validation, merge and version stamp'
 type: 'feature'
 created: '2026-11-13'
-status: 'in-progress'
+status: 'done'
 baseline_commit: 'a02899b5aae6dc73c1c2ba268032a9e6448c0c57'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -67,6 +67,20 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | step audio paths written even when missing (dev mode) | medium | app would load absent files; catalogVersion blind to audio fill; patch |
+| 2 | malformed inputs raise tracebacks (index, strings, paths, ids, jsonschema import) | low | patch (CatalogError) |
+| 3 | unknown ids in strings/index accepted | medium | typos/stale text unnoticed; patch |
+| 4 | framing unvalidated | low | patch |
+| 5 | non-atomic multi-file write | low | patch |
+| 6 | clip/still/activity-audio-present/detector+counter rejection branches untested | medium | patch tests |
+| 7 | Paths copy via __dict__, duplicate reference_dir kwarg, mid-file import | low | patch |
+| 8 | generated catalogue, detectors.json, check.schema.json missing from diff | false | excluded from the review diff on purpose; committed in 0984ac7 |
+| 9 | counter contents have no schema | low | counters stay empty until Story 4.4; deferred there |
+| 10 | tests read real docs/reference and shipped schema | low | parser enforces 147/148 totals by design; rejected |
+| 11 | status files disagree | false | synced at story close |
 
 ## Design Notes
 
