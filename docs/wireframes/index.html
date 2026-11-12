@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DLS Wireframes</title>
+<title>Skillmotion Wireframes</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* Tokens from _bmad-output/planning-artifacts/ux-designs/.../DESIGN.md */
@@ -377,7 +377,7 @@ function render(){
   let html=(R[S.screen]||R.children)();
   if(S.overlay==='pause'&&S.screen!=='pause')html+=pauseSheet();
   d.innerHTML=html;
-  document.getElementById('index').innerHTML=`<h1>Wireframes</h1><p class="s">AI therapist · Daily Living Skills<br>Demo: one assessment (Handwashing, 13 steps) and one plan section (Mild → Hand skills). Click inside the tablet to follow the flow, or jump here.</p>`+
+  document.getElementById('index').innerHTML=`<h1>Wireframes</h1><p class="s">Skillmotion · Daily Living Skills<br>Demo: one assessment (Handwashing, 13 steps) and one plan section (Mild → Hand skills). Click inside the tablet to follow the flow, or jump here.</p>`+
    SCREENS.map(([g,list])=>`<h2>${g}</h2>`+list.map(([k,l])=>`<button dir="ltr" style="text-align:left" class="${S.screen===k?'on':''}" onclick="jump('${k}')">${l}</button>`).join('')).join('')+
    `<h2>Reset</h2><button dir="ltr" style="text-align:left" onclick="resetDemo()">Reset demo data</button>`;
 }

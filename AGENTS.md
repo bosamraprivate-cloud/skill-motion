@@ -1,7 +1,7 @@
 <!-- bmad:context -->
 <!-- Verified 2026-11-11 against no commit (repository not yet under git). Managed by bmad-project-context; edits inside this block are replaced on refresh. Keep anything you want preserved outside the markers. -->
 
-## Daily Living Skills App (Ai therapist)
+## Skillmotion (daily living skills app; repo folder "Ai therapist")
 
 Tablet app that assesses and trains daily living skills (dressing, eating/drinking, hygiene) for children, in Egyptian Arabic. Native Android (Kotlin, Jetpack Compose) with on-device MediaPipe scoring, a stateless Cloudflare Worker proxy to DeepSeek for doubtful steps, and Python build tools. Planning only so far: architecture `_bmad-output/planning-artifacts/architecture/architecture-Ai therapist-2026-11-11/ARCHITECTURE-SPINE.md` (binding decisions AD-1..AD-12), PRD `_bmad-output/planning-artifacts/prds/prd-Ai therapist-2026-11-11/`, epics `_bmad-output/planning-artifacts/epics.md`, design `docs/designs/daily-living-skills-app.md`.
 

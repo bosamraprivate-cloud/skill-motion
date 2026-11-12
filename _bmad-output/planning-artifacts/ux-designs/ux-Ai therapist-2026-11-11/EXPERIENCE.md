@@ -1,5 +1,5 @@
 ---
-name: Daily Living Skills (Ai therapist)
+name: Skillmotion (daily living skills)
 status: final
 created: 2026-11-11
 updated: 2026-11-11

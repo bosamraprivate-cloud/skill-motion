@@ -1,4 +1,4 @@
-# Docs
+# Skillmotion docs
 
 | Folder | Contents |
 |---|---|

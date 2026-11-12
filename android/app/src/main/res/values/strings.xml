@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Daily Living Skills</string>
+    <string name="app_name">Skillmotion</string>
     <string name="sample_title">Sample items</string>
     <string name="sample_empty_message">Nothing here yet</string>
     <string name="sample_empty_action">Reload</string>

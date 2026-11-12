@@ -1,5 +1,5 @@
 ---
-name: Daily Living Skills (Ai therapist)
+name: Skillmotion (daily living skills)
 description: Android tablet app in Egyptian Arabic (RTL). Child mode is a calm, predictable game for autistic children; therapist mode is a clean, data-focused dashboard.
 status: final
 created: 2026-11-11

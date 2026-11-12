@@ -11,7 +11,7 @@ inputDocuments:
   - docs/designs/daily-living-skills-app.md
 ---
 
-# Ai therapist - Epic Breakdown
+# Skillmotion - Epic Breakdown
 
 ## Overview
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">مهارات الحياة اليومية</string>
+    <string name="app_name">Skillmotion</string>
     <string name="sample_title">عناصر تجريبية</string>
     <string name="sample_empty_message">مفيش حاجة هنا لسه</string>
     <string name="sample_empty_action">حمّل تاني</string>

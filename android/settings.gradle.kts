@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DailyLivingSkills"
+rootProject.name = "Skillmotion"
 include(":app")

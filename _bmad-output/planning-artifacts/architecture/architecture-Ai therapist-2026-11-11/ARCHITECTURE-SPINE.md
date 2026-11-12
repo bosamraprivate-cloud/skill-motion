@@ -1,5 +1,5 @@
 ---
-name: 'Daily Living Skills App'
+name: 'Skillmotion'
 type: architecture-spine
 purpose: build-substrate
 altitude: initiative
@@ -17,7 +17,7 @@ sources:
 companions: []
 ---
 
-# Architecture Spine: Daily Living Skills App
+# Architecture Spine: Skillmotion (daily living skills app)
 
 ## Design Paradigm
 
