@@ -21,3 +21,8 @@ elephant-goldfish-model/
 # Proxy build output
 proxy/dist/
 proxy/.wrangler/
+
+# Python tooling
+tools/.venv/
+.pytest_cache/
+.ruff_cache/
