@@ -3,13 +3,13 @@ package com.aitherapist.dls.ui.therapist
 import com.aitherapist.dls.data.ChildCharacter
 import com.aitherapist.dls.data.ChildEntity
 import com.aitherapist.dls.data.ChildProfiles
-import com.aitherapist.dls.data.normalizeChildCode
+import com.aitherapist.dls.data.nextChildCode
 import java.io.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
-/** In-memory [ChildProfiles] mirroring the DAO: eval hidden, ordered by name, code unique ignoring case. */
+/** In-memory [ChildProfiles] mirroring the DAO: eval hidden, ordered by name, code unique, generated like the repository. */
 class FakeChildProfiles(vararg initial: ChildEntity) : ChildProfiles {
     val rows = MutableStateFlow(initial.toList())
     var failReads = false
@@ -28,16 +28,18 @@ class FakeChildProfiles(vararg initial: ChildEntity) : ChildProfiles {
 
     override suspend fun add(child: ChildEntity) {
         failWrites?.let { throw it }
-        check(!codeExists(child.code, null)) { "unique" }
+        check(rows.value.none { it.code == child.code }) { "unique" }
         rows.value = rows.value + child
+    }
+
+    override suspend fun addWithGeneratedCode(child: ChildEntity): ChildEntity {
+        failWrites?.let { throw it }
+        return child.copy(code = nextChildCode(rows.value.map { it.code })).also { add(it) }
     }
 
     override suspend fun update(child: ChildEntity) {
         rows.value = rows.value.map { if (it.id == child.id) child else it }
     }
-
-    override suspend fun codeExists(code: String, excludeId: String?): Boolean =
-        rows.value.any { it.id != excludeId && it.code == normalizeChildCode(code) }
 
     override suspend fun delete(id: String) {
         failWrites?.let { throw it }

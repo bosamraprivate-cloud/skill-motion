@@ -1,5 +1,6 @@
 package com.aitherapist.dls.data
 
+import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import androidx.room.withTransaction
 import javax.inject.Inject
@@ -10,8 +11,23 @@ import kotlinx.coroutines.flow.flow
 
 private const val TAG = "DlsData"
 
-/** Stored form of a child code: trimmed, upper case in the root locale. Codes are ASCII only, so SQLite `=` matches. */
-fun normalizeChildCode(code: String): String = code.trim().uppercase(java.util.Locale.ROOT)
+private const val CODE_PREFIX = "C-"
+private const val CODE_DIGITS = 3
+
+/**
+ * Next background child code: "C-" + zero-padded sequence, one above the highest numeric suffix in [existing]
+ * (codes that are not "C-<digits>" are ignored). Used later for the anonymised export; never shown in the form.
+ */
+fun nextChildCode(existing: Collection<String>): String {
+    val highest =
+        existing
+            .filter { it.startsWith(CODE_PREFIX) }
+            .map { it.substring(CODE_PREFIX.length) }
+            .filter { it.isNotEmpty() && it.all(Char::isDigit) }
+            .mapNotNull { it.toLongOrNull() }
+            .maxOrNull() ?: 0L
+    return CODE_PREFIX + (highest + 1).toString().padStart(CODE_DIGITS, '0')
+}
 
 /** Child profiles as the therapist screens see them (implemented by [ChildRepository]; faked in unit tests). */
 interface ChildProfiles {
@@ -20,12 +36,14 @@ interface ChildProfiles {
 
     suspend fun get(id: String): ChildEntity?
 
+    /** Inserts [child] as given (its code included). */
     suspend fun add(child: ChildEntity)
 
-    suspend fun update(child: ChildEntity)
+    /** Inserts [child] with a generated unique code (see [nextChildCode]), ignoring its code; returns the stored row. */
+    suspend fun addWithGeneratedCode(child: ChildEntity): ChildEntity
 
-    /** True when another child (not [excludeId]) already uses [code] after [normalizeChildCode]. */
-    suspend fun codeExists(code: String, excludeId: String?): Boolean
+    /** Updates the row; callers keep the stored code (it never changes on edit). */
+    suspend fun update(child: ChildEntity)
 
     /** Deletes the child, cascading its sessions and attempts, then removes their frame folders. */
     suspend fun delete(id: String)
@@ -44,8 +62,16 @@ internal constructor(private val holder: DatabaseHolder, private val frames: Fra
 
     override suspend fun update(child: ChildEntity) = holder.get().childDao().update(child)
 
-    override suspend fun codeExists(code: String, excludeId: String?): Boolean =
-        holder.get().childDao().codeExists(normalizeChildCode(code), excludeId.orEmpty())
+    override suspend fun addWithGeneratedCode(child: ChildEntity): ChildEntity {
+        val dao = holder.get().childDao()
+        val first = child.copy(code = nextChildCode(dao.generatedCodes()))
+        return try {
+            first.also { dao.insert(it) }
+        } catch (_: SQLiteConstraintException) {
+            // A concurrent insert took the code: generate once more.
+            child.copy(code = nextChildCode(dao.generatedCodes())).also { dao.insert(it) }
+        }
+    }
 
     override suspend fun delete(id: String) {
         val db = holder.get()

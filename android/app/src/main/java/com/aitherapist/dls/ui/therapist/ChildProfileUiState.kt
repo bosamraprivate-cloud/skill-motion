@@ -39,8 +39,6 @@ sealed interface ChildProfileUiState {
 sealed interface ChildProfileEvent {
     data class NameChanged(val value: String) : ChildProfileEvent
 
-    data class CodeChanged(val value: String) : ChildProfileEvent
-
     data class AgeChanged(val value: String) : ChildProfileEvent
 
     data class CharacterChanged(val value: ChildCharacter) : ChildProfileEvent

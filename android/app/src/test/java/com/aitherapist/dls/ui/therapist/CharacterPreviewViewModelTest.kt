@@ -66,12 +66,12 @@ class CharacterPreviewViewModelTest {
         vm.onEvent(CharacterPreviewEvent.SelectStep("unknown"))
         vm.onEvent(CharacterPreviewEvent.SelectReaction("unknown"))
         assertEquals(ClipSelection.Step(step2), content(vm).selection)
-        vm.onEvent(CharacterPreviewEvent.SetEffectOff(true))
+        vm.onEvent(CharacterPreviewEvent.SetStillFrames(true))
         vm.onEvent(CharacterPreviewEvent.SelectVariant("v2"))
         val c = content(vm)
         assertEquals("v2", c.variant.id)
         assertEquals(null, c.taskId)
-        assertTrue("effect level is kept across variants", c.effectOff)
+        assertTrue("still frames are kept across variants", c.stillFrames)
     }
 
     @Test
@@ -84,18 +84,18 @@ class CharacterPreviewViewModelTest {
     }
 
     @Test
-    fun `retry keeps the effects-off switch`() {
+    fun `retry keeps the still-frames switch`() {
         val vm = CharacterPreviewViewModel { index }
-        vm.onEvent(CharacterPreviewEvent.SetEffectOff(true))
+        vm.onEvent(CharacterPreviewEvent.SetStillFrames(true))
         vm.onEvent(CharacterPreviewEvent.Retry)
-        assertTrue(content(vm).effectOff)
+        assertTrue(content(vm).stillFrames)
     }
 
     @Test
-    fun `toggling effects clears a failed clip`() {
+    fun `toggling still frames clears a failed clip`() {
         val vm = CharacterPreviewViewModel { index }
         vm.onEvent(CharacterPreviewEvent.ClipFailed)
-        vm.onEvent(CharacterPreviewEvent.SetEffectOff(true))
+        vm.onEvent(CharacterPreviewEvent.SetStillFrames(true))
         assertFalse(content(vm).clipFailed)
     }
 

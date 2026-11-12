@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -68,7 +67,6 @@ internal constructor(
         if (current.busy) return
         when (event) {
             is ChildProfileEvent.NameChanged -> editForm(current) { it.copy(name = event.value) }
-            is ChildProfileEvent.CodeChanged -> editForm(current) { it.copy(code = event.value) }
             is ChildProfileEvent.AgeChanged -> editForm(current) { it.copy(age = event.value) }
             is ChildProfileEvent.CharacterChanged -> editForm(current) { it.copy(character = event.value) }
             is ChildProfileEvent.EffectChanged -> editForm(current) { it.copy(effectLevel = event.value) }
@@ -102,79 +100,67 @@ internal constructor(
             state.value =
                 ChildProfileUiState.Content(
                     childId = id,
-                    form = ChildForm(child.name, child.code, child.ageYears.toString(), child.characterVariant, child.effectLevel)
+                    form = ChildForm(child.name, child.ageYears.toString(), child.characterVariant, child.effectLevel)
                 )
         }
     }
 
     private fun save(current: ChildProfileUiState.Content) {
         val form = current.form
-        val basic = ChildValidation.validate(form)
-        if (!basic.isEmpty) {
-            state.value = current.copy(errors = basic)
+        val errors = ChildValidation.validate(form)
+        if (!errors.isEmpty) {
+            state.value = current.copy(errors = errors)
             return
         }
         state.value = current.copy(busy = true, message = null)
-        guarded(onError = { e -> writeFailed(current, e, ProfileMessage.SAVE_FAILED) }) {
-            val code = ChildValidation.normalizeCode(form.code)
-            val inUse = withContext(io) { children.codeExists(code, current.childId) }
-            val errors = ChildValidation.validate(form, codeInUse = inUse)
-            if (!errors.isEmpty) {
-                state.update { if (it is ChildProfileUiState.Content) it.copy(errors = errors, busy = false) else it }
-                return@guarded
-            }
-            val saved = persist(form, code)
+        guarded(onError = { writeFailed(current, ProfileMessage.SAVE_FAILED) }) {
+            val saved = persist(form)
             original = saved
             loadedId = saved.id
             state.value =
                 ChildProfileUiState.Content(
                     childId = saved.id,
-                    form = form.copy(name = saved.name, code = saved.code, age = saved.ageYears.toString()),
+                    form = form.copy(name = saved.name, age = saved.ageYears.toString()),
                     saved = true,
                     result = ProfileResult.Saved(saved.id)
                 )
         }
     }
 
-    private suspend fun persist(form: ChildForm, code: String): ChildEntity {
+    private suspend fun persist(form: ChildForm): ChildEntity {
         val age = requireNotNull(ChildValidation.parseAge(form.age))
         val character = requireNotNull(form.character)
         val existing = original
-        return if (existing == null) {
-            ChildEntity(
+        if (existing == null) {
+            val draft = ChildEntity(
                 id = newId(),
                 name = form.name.trim(),
-                code = code,
+                code = "",
                 ageYears = age,
                 effectLevel = form.effectLevel,
                 characterVariant = character,
                 createdAt = clock()
-            ).also { withContext(io) { children.add(it) } }
-        } else {
-            existing
-                .copy(name = form.name.trim(), code = code, ageYears = age, effectLevel = form.effectLevel, characterVariant = character)
-                .also { withContext(io) { children.update(it) } }
+            )
+            return withContext(io) { children.addWithGeneratedCode(draft) }
         }
+        val edited = existing.copy(name = form.name.trim(), ageYears = age, effectLevel = form.effectLevel, characterVariant = character)
+        withContext(io) { children.update(edited) }
+        return edited
     }
 
     private fun delete(current: ChildProfileUiState.Content) {
         val id = current.childId ?: return
         state.value = current.copy(busy = true, confirmDelete = false, message = null)
-        guarded(onError = { e -> writeFailed(current, e, ProfileMessage.DELETE_FAILED) }) {
+        guarded(onError = { writeFailed(current, ProfileMessage.DELETE_FAILED) }) {
             withContext(io) { children.delete(id) }
             original = null
             state.value = ChildProfileUiState.Deleted
         }
     }
 
-    /** A failed write keeps the typed form; a unique-code violation (race) becomes the code field error. */
-    private fun writeFailed(current: ChildProfileUiState.Content, e: Exception, message: ProfileMessage) {
-        state.value =
-            if (e::class.simpleName == "SQLiteConstraintException") {
-                current.copy(busy = false, confirmDelete = false, errors = ChildFormErrors(code = ChildFieldError.CODE_IN_USE))
-            } else {
-                current.copy(busy = false, confirmDelete = false, message = message)
-            }
+    /** A failed write keeps the typed form and shows [message]. */
+    private fun writeFailed(current: ChildProfileUiState.Content, message: ProfileMessage) {
+        state.value = current.copy(busy = false, confirmDelete = false, message = message)
     }
 
     /** Never crash; the reason is the exception type only (messages may carry data). */

@@ -10,11 +10,16 @@ class ConvertersTest {
     fun `enums are stored lower_snake`() {
         assertEquals("not_done", c.fromVerdict(AttemptVerdict.NOT_DONE))
         assertEquals("cannot_tell", c.fromVerdict(AttemptVerdict.CANNOT_TELL))
-        assertEquals(listOf("full", "calm", "off"), EffectLevel.entries.map(c::fromEffectLevel))
+        assertEquals(listOf("full", "calm"), EffectLevel.entries.map(c::fromEffectLevel))
         assertEquals(listOf("boy", "girl"), ChildCharacter.entries.map(c::fromCharacter))
         assertEquals("abandoned", c.fromSessionState(SessionState.ABANDONED))
         assertEquals("replay", c.fromSessionKind(SessionKind.REPLAY))
         assertEquals("none", c.fromVerifier(VerifierKind.NONE))
+    }
+
+    @Test
+    fun `legacy off effect reads as calm`() {
+        assertEquals(EffectLevel.CALM, c.toEffectLevel("off"))
     }
 
     @Test

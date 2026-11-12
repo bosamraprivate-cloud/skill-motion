@@ -101,7 +101,6 @@ private fun ChildProfileForm(state: ChildProfileUiState.Content, onEvent: (Child
             style = MaterialTheme.typography.headlineSmall
         )
         FormField(form.name, R.string.child_name, state.errors.name, KeyboardType.Text) { onEvent(ChildProfileEvent.NameChanged(it)) }
-        FormField(form.code, R.string.child_code, state.errors.code, KeyboardType.Text) { onEvent(ChildProfileEvent.CodeChanged(it)) }
         FormField(form.age, R.string.child_age, state.errors.age, KeyboardType.Number) { onEvent(ChildProfileEvent.AgeChanged(it)) }
 
         Text(stringResource(R.string.child_character), style = MaterialTheme.typography.titleMedium)
@@ -195,7 +194,7 @@ private fun CharacterCard(character: ChildCharacter, selected: Boolean, modifier
             CharacterView(
                 clip = characterStillPath(character),
                 loop = false,
-                effectLevel = EffectLevel.OFF,
+                stillMode = true,
                 modifier = Modifier.fillMaxWidth().height(200.dp)
             )
             Text(
@@ -209,14 +208,11 @@ private fun CharacterCard(character: ChildCharacter, selected: Boolean, modifier
 private fun effectLabel(level: EffectLevel): Int = when (level) {
     EffectLevel.FULL -> R.string.child_effect_full
     EffectLevel.CALM -> R.string.child_effect_calm
-    EffectLevel.OFF -> R.string.child_effect_off
 }
 
 private fun errorText(error: ChildFieldError): Int = when (error) {
     ChildFieldError.REQUIRED -> R.string.child_error_required
-    ChildFieldError.CODE_IN_USE -> R.string.child_error_code_in_use
     ChildFieldError.AGE_RANGE -> R.string.child_error_age
-    ChildFieldError.INVALID -> R.string.child_error_code_chars
     ChildFieldError.TOO_LONG -> R.string.child_error_too_long
 }
 
@@ -228,7 +224,7 @@ private fun ChildProfilePreview() {
             state =
             ChildProfileUiState.Content(
                 childId = null,
-                form = ChildForm(name = "Mariam", code = "A1", age = "x"),
+                form = ChildForm(name = "Mariam", age = "x"),
                 errors = ChildFormErrors(age = ChildFieldError.AGE_RANGE, character = ChildFieldError.REQUIRED)
             ),
             onEvent = {}

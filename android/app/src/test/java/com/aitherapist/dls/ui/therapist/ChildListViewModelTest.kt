@@ -42,13 +42,15 @@ class ChildListViewModelTest {
     }
 
     @Test
-    fun `search filters by name or code ignoring case`() = runTest(dispatcher) {
+    fun `search filters by name only ignoring case`() = runTest(dispatcher) {
         val repo = FakeChildProfiles(child("1", "Youssef", "A1"), child("2", "Mariam", "XB7"))
         val vm = ChildListViewModel(repo, dispatcher)
         backgroundScope.launch { vm.uiState.collect {} }
         vm.onQueryChange("yo")
         assertEquals(listOf("1"), vm.ids())
         vm.onQueryChange("b7")
+        assertTrue("code is not searchable", vm.ids().isEmpty())
+        vm.onQueryChange("MAR")
         assertEquals(listOf("2"), vm.ids())
         vm.onQueryChange("zzz")
         assertTrue(vm.ids().isEmpty())

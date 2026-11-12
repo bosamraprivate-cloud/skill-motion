@@ -35,7 +35,6 @@ import com.aitherapist.dls.catalog.CharacterVariant
 import com.aitherapist.dls.catalog.ReactionClip
 import com.aitherapist.dls.catalog.StepClip
 import com.aitherapist.dls.catalog.StepClipTask
-import com.aitherapist.dls.data.EffectLevel
 import com.aitherapist.dls.ui.child.CharacterView
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.components.ErrorState
@@ -93,7 +92,7 @@ private fun Content(state: CharacterPreviewUiState.Content, onEvent: (CharacterP
                         onRetry = { onEvent(reselect(selection)) }
                     )
                 // key(): a new selection restarts playback from the first frame. One moving clip at a time.
-                else -> key(selection) { Clip(selection, state.effectOff, onEvent) }
+                else -> key(selection) { Clip(selection, state.stillFrames, onEvent) }
             }
         }
         Controls(state, onEvent, Modifier.width(CONTROLS_WIDTH.dp).fillMaxHeight())
@@ -106,15 +105,14 @@ private fun reselect(selection: ClipSelection): CharacterPreviewEvent = when (se
 }
 
 @Composable
-private fun Clip(selection: ClipSelection, effectOff: Boolean, onEvent: (CharacterPreviewEvent) -> Unit) {
-    val effect = if (effectOff) EffectLevel.OFF else EffectLevel.CALM
+private fun Clip(selection: ClipSelection, stillFrames: Boolean, onEvent: (CharacterPreviewEvent) -> Unit) {
     val onError = { onEvent(CharacterPreviewEvent.ClipFailed) }
     when (selection) {
         is ClipSelection.Reaction ->
             CharacterView(
                 clip = selection.clip.file,
                 loop = true,
-                effectLevel = effect,
+                stillMode = stillFrames,
                 modifier = Modifier.fillMaxSize(),
                 onError = onError
             )
@@ -123,7 +121,7 @@ private fun Clip(selection: ClipSelection, effectOff: Boolean, onEvent: (Charact
                 clip = selection.clip.clip,
                 still = selection.clip.still,
                 loop = false,
-                effectLevel = effect,
+                stillMode = stillFrames,
                 modifier = Modifier.fillMaxSize(),
                 onError = onError
             )
@@ -144,8 +142,8 @@ private fun Controls(state: CharacterPreviewUiState.Content, onEvent: (Character
             }
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Switch(checked = state.effectOff, onCheckedChange = { onEvent(CharacterPreviewEvent.SetEffectOff(it)) })
-            Text(stringResource(R.string.character_preview_effect_off))
+            Switch(checked = state.stillFrames, onCheckedChange = { onEvent(CharacterPreviewEvent.SetStillFrames(it)) })
+            Text(stringResource(R.string.character_preview_still_frames))
         }
         Text(stringResource(R.string.character_preview_reactions), style = MaterialTheme.typography.titleMedium)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

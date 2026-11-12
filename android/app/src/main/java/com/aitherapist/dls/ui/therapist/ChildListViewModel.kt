@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-/** Children home: the visible (non-eval) children, filtered by a name/code search. */
+/** Children home: the visible (non-eval) children, filtered by a name search. */
 @HiltViewModel
 class ChildListViewModel
 internal constructor(private val children: ChildProfiles, private val io: CoroutineDispatcher) : ViewModel() {
@@ -35,7 +35,7 @@ internal constructor(private val children: ChildProfiles, private val io: Corout
                     children
                         .observeChildren()
                         .map { list ->
-                            list.filterNot { it.isEval }.map { ChildRow(it.id, it.name, it.code, it.ageYears, it.characterVariant) }
+                            list.filterNot { it.isEval }.map { ChildRow(it.id, it.name, it.ageYears, it.characterVariant) }
                         }
                         .flowOn(io)
                 combine(rows, query) { all, q ->

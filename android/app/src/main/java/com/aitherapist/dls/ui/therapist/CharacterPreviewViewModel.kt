@@ -48,9 +48,9 @@ constructor(private val source: CharacterIndexSource) : ViewModel() {
     private val state = MutableStateFlow<CharacterPreviewUiState>(CharacterPreviewUiState.Loading)
     val uiState: StateFlow<CharacterPreviewUiState> = state.asStateFlow()
     private var index: CharacterIndex? = null
-    private var effectOff = false
+    private var stillFrames = false
 
-    private fun currentEffectOff() = (state.value as? CharacterPreviewUiState.Content)?.effectOff ?: effectOff
+    private fun currentStillFrames() = (state.value as? CharacterPreviewUiState.Content)?.stillFrames ?: stillFrames
 
     init {
         load()
@@ -71,13 +71,13 @@ constructor(private val source: CharacterIndexSource) : ViewModel() {
                 c.steps.firstOrNull { it.id == event.id }
                     ?.let { c.copy(selection = ClipSelection.Step(it), clipFailed = false) } ?: c
             }
-            is CharacterPreviewEvent.SetEffectOff -> updateContent { it.copy(effectOff = event.off, clipFailed = false) }
+            is CharacterPreviewEvent.SetStillFrames -> updateContent { it.copy(stillFrames = event.on, clipFailed = false) }
             CharacterPreviewEvent.ClipFailed -> updateContent { it.copy(clipFailed = true) }
         }
     }
 
     private fun load() {
-        effectOff = currentEffectOff() // keep the switch across Retry; Loading below would lose it
+        stillFrames = currentStillFrames() // keep the switch across Retry; Loading below would lose it
         state.value = CharacterPreviewUiState.Loading
         viewModelScope.launch {
             state.value =
@@ -98,13 +98,13 @@ constructor(private val source: CharacterIndexSource) : ViewModel() {
 
     private fun initial(idx: CharacterIndex, variantId: String?): CharacterPreviewUiState {
         val variant = idx.variants.firstOrNull { it.id == variantId } ?: return CharacterPreviewUiState.Empty
-        if (state.value is CharacterPreviewUiState.Content) effectOff = currentEffectOff()
+        if (state.value is CharacterPreviewUiState.Content) stillFrames = currentStillFrames()
         return CharacterPreviewUiState.Content(
             variants = idx.variants.map { it.id },
             variant = variant,
             taskId = variant.tasks.firstOrNull()?.id,
             selection = variant.reactions.firstOrNull()?.let { ClipSelection.Reaction(it) },
-            effectOff = effectOff
+            stillFrames = stillFrames
         )
     }
 

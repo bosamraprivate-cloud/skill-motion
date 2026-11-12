@@ -9,7 +9,7 @@ import kotlinx.serialization.json.Json
 class Converters {
     @TypeConverter fun fromEffectLevel(v: EffectLevel): String = v.storageName()
 
-    @TypeConverter fun toEffectLevel(v: String): EffectLevel = enumFromStorage(v)
+    @TypeConverter fun toEffectLevel(v: String): EffectLevel = if (v == LEGACY_EFFECT_OFF) EffectLevel.CALM else enumFromStorage(v)
 
     @TypeConverter fun fromCharacter(v: ChildCharacter): String = v.storageName()
 
@@ -39,3 +39,6 @@ class Converters {
         val PATHS = ListSerializer(String.serializer())
     }
 }
+
+/** Effect level removed on 2026-11-12; rows saved with it read as CALM (no migration: the column is text). */
+private const val LEGACY_EFFECT_OFF = "off"

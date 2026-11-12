@@ -1,7 +1,7 @@
 package com.aitherapist.dls.data
 
-/** Child effect level (per child profile). `OFF` shows still frames only. Stored lower_snake. */
-enum class EffectLevel { FULL, CALM, OFF }
+/** Child effect level (per child profile), default CALM. Stored lower_snake; a legacy stored `off` reads as CALM. */
+enum class EffectLevel { FULL, CALM }
 
 /** Character chosen on the child profile (AD-11). Stored lower_snake (`boy`, `girl`). */
 enum class ChildCharacter { BOY, GIRL }

@@ -127,12 +127,14 @@ class ChildDeleteTest {
     }
 
     @Test
-    fun codeExistsIgnoresCaseAndExcludesSelf() = runBlocking {
-        val c = child("AB1")
-        children.add(c)
-        assertTrue(children.codeExists("aB1", null))
-        assertTrue(children.codeExists(" AB1 ", "other"))
-        assertFalse(children.codeExists("ab1", c.id))
-        assertFalse(children.codeExists("zz", null))
+    fun generatedCodesAreSequentialAndEditKeepsTheCode() = runBlocking {
+        children.add(child("C-041"))
+        val first = children.addWithGeneratedCode(child("ignored"))
+        val second = children.addWithGeneratedCode(child("ignored"))
+        assertEquals("C-042", first.code)
+        assertEquals("C-043", second.code)
+        assertEquals("C-042", children.get(first.id)!!.code)
+        children.update(first.copy(name = "Renamed"))
+        assertEquals("C-042", children.get(first.id)!!.code)
     }
 }

@@ -32,14 +32,8 @@ class ChildProfileViewModelTest {
 
     private val ChildProfileViewModel.content get() = uiState.value as ChildProfileUiState.Content
 
-    private fun ChildProfileViewModel.fill(
-        name: String = "Mariam",
-        code: String = "A1",
-        age: String = "6",
-        character: ChildCharacter? = ChildCharacter.GIRL
-    ) {
+    private fun ChildProfileViewModel.fill(name: String = "Mariam", age: String = "6", character: ChildCharacter? = ChildCharacter.GIRL) {
         onEvent(ChildProfileEvent.NameChanged(name))
-        onEvent(ChildProfileEvent.CodeChanged(code))
         onEvent(ChildProfileEvent.AgeChanged(age))
         character?.let { onEvent(ChildProfileEvent.CharacterChanged(it)) }
     }
@@ -49,12 +43,12 @@ class ChildProfileViewModelTest {
         val repo = FakeChildProfiles()
         val vm = vm(repo)
         assertTrue(vm.content.isNew)
-        vm.fill(name = "  Mariam ", code = " A1 ")
+        vm.fill(name = "  Mariam ")
         vm.onEvent(ChildProfileEvent.Save)
         val saved = repo.rows.value.single()
         assertEquals("new-id", saved.id)
         assertEquals("Mariam", saved.name)
-        assertEquals("A1", saved.code)
+        assertEquals("C-001", saved.code)
         assertEquals(6, saved.ageYears)
         assertEquals(ChildCharacter.GIRL, saved.characterVariant)
         assertEquals(EffectLevel.CALM, saved.effectLevel)
@@ -68,7 +62,6 @@ class ChildProfileViewModelTest {
         val repo = FakeChildProfiles()
         listOf(
             Triple("name", { v: ChildProfileViewModel -> v.fill(name = "") }, { e: ChildFormErrors -> e.name }),
-            Triple("code", { v: ChildProfileViewModel -> v.fill(code = "") }, { e: ChildFormErrors -> e.code }),
             Triple("age", { v: ChildProfileViewModel -> v.fill(age = "") }, { e: ChildFormErrors -> e.age }),
             Triple("character", { v: ChildProfileViewModel -> v.fill(character = null) }, { e: ChildFormErrors -> e.character })
         ).forEach { (label, fill, field) ->
@@ -82,16 +75,17 @@ class ChildProfileViewModelTest {
     }
 
     @Test
-    fun `duplicate code in any case is refused`() = runTest {
-        val repo = FakeChildProfiles(child("1", "Youssef", "A1"))
-        val vm = vm(repo)
-        vm.fill(code = "a1")
+    fun `new codes follow the highest existing sequence number`() = runTest {
+        val repo =
+            FakeChildProfiles(child("1", "Youssef", "C-007"), child("2", "Eval", "C-002", isEval = true), child("3", "Old", "AB1"))
+        var ids = 0
+        val vm = ChildProfileViewModel(repo, dispatcher, { 1L }, { "n-${++ids}" }).apply { load(null) }
+        vm.fill()
         vm.onEvent(ChildProfileEvent.Save)
-        assertEquals(ChildFieldError.CODE_IN_USE, vm.content.errors.code)
-        assertFalse(vm.content.busy)
-        assertEquals(1, repo.rows.value.size)
-        vm.onEvent(ChildProfileEvent.CodeChanged("A2"))
-        assertNull(vm.content.errors.code)
+        vm.consumeResult()
+        vm.fill(name = "Salma")
+        vm.onEvent(ChildProfileEvent.Save)
+        assertEquals(listOf("C-008", "C-009"), repo.rows.value.filter { it.id.startsWith("n-") }.map { it.code })
     }
 
     @Test
@@ -112,27 +106,25 @@ class ChildProfileViewModelTest {
         val vm = vm(repo, "1")
         assertEquals("Mariam", vm.content.form.name)
         assertEquals("6", vm.content.form.age)
-        vm.onEvent(ChildProfileEvent.EffectChanged(EffectLevel.OFF))
+        vm.onEvent(ChildProfileEvent.EffectChanged(EffectLevel.FULL))
         vm.onEvent(ChildProfileEvent.CharacterChanged(ChildCharacter.BOY))
         vm.onEvent(ChildProfileEvent.Save)
         val saved = repo.rows.value.single()
-        assertEquals(EffectLevel.OFF, saved.effectLevel)
+        assertEquals(EffectLevel.FULL, saved.effectLevel)
         assertEquals(ChildCharacter.BOY, saved.characterVariant)
         assertEquals(1L, saved.createdAt)
         assertEquals(ProfileResult.Saved("1"), vm.content.result)
     }
 
     @Test
-    fun `edit keeping own code is allowed but another child's code is refused`() = runTest {
-        val repo = FakeChildProfiles(child("1", "Mariam", "A1"), child("2", "Youssef", "B2"))
+    fun `edit never changes the code`() = runTest {
+        val repo = FakeChildProfiles(child("1", "Mariam", "C-004"))
         val vm = vm(repo, "1")
-        vm.onEvent(ChildProfileEvent.CodeChanged("a1"))
+        vm.onEvent(ChildProfileEvent.NameChanged("Mariam Ali"))
         vm.onEvent(ChildProfileEvent.Save)
         assertEquals(ProfileResult.Saved("1"), vm.content.result)
-        vm.onEvent(ChildProfileEvent.CodeChanged("b2"))
-        vm.onEvent(ChildProfileEvent.Save)
-        assertEquals(ChildFieldError.CODE_IN_USE, vm.content.errors.code)
-        assertEquals("A1", repo.rows.value.first { it.id == "1" }.code)
+        assertEquals("C-004", repo.rows.value.single().code)
+        assertEquals("Mariam Ali", repo.rows.value.single().name)
     }
 
     @Test
@@ -198,7 +190,7 @@ class ChildProfileViewModelTest {
         assertTrue(vm.content.isNew)
         assertNull(vm.content.result)
         assertEquals(ChildForm(), vm.content.form)
-        vm.fill(name = "Youssef", code = "B2")
+        vm.fill(name = "Youssef")
         vm.onEvent(ChildProfileEvent.Save)
         assertEquals(listOf("id-1", "id-2"), repo.rows.value.map { it.id })
     }
@@ -217,12 +209,12 @@ class ChildProfileViewModelTest {
     fun `write failure keeps typed input with a message`() = runTest {
         val repo = FakeChildProfiles().apply { failWrites = java.io.IOException("disk") }
         val vm = vm(repo)
-        vm.fill(name = "Mariam", code = "c9")
+        vm.fill(name = "Mariam")
         vm.onEvent(ChildProfileEvent.Save)
         assertEquals(ProfileMessage.SAVE_FAILED, vm.content.message)
         assertFalse(vm.content.busy)
         assertEquals("Mariam", vm.content.form.name)
-        assertEquals("c9", vm.content.form.code)
+        assertEquals("6", vm.content.form.age)
     }
 
     @Test
@@ -235,27 +227,4 @@ class ChildProfileViewModelTest {
         assertEquals(ProfileMessage.DELETE_FAILED, vm.content.message)
         assertEquals(1, repo.rows.value.size)
     }
-
-    @Test
-    fun `unique constraint race maps to code in use`() = runTest {
-        val repo = FakeChildProfiles().apply { failWrites = SQLiteConstraintException() }
-        val vm = vm(repo)
-        vm.fill()
-        vm.onEvent(ChildProfileEvent.Save)
-        assertEquals(ChildFieldError.CODE_IN_USE, vm.content.errors.code)
-        assertNull(vm.content.message)
-        assertFalse(vm.content.busy)
-    }
-
-    @Test
-    fun `code is stored normalised`() = runTest {
-        val repo = FakeChildProfiles()
-        val vm = vm(repo)
-        vm.fill(code = " ab-1 ")
-        vm.onEvent(ChildProfileEvent.Save)
-        assertEquals("AB-1", repo.rows.value.single().code)
-    }
-
-    /** Same simple name as the SQLite/SQLCipher exception the ViewModel recognises. */
-    private class SQLiteConstraintException : RuntimeException()
 }

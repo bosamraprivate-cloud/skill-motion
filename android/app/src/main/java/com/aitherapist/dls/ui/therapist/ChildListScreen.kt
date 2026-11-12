@@ -34,7 +34,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.data.ChildCharacter
-import com.aitherapist.dls.data.EffectLevel
 import com.aitherapist.dls.ui.child.CharacterView
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.components.ErrorState
@@ -118,12 +117,12 @@ private fun ChildListContent(
 private fun ChildListRow(row: ChildRow, selected: Boolean, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(row.name, style = MaterialTheme.typography.titleMedium) },
-        supportingContent = { Text(stringResource(R.string.child_row_details, row.code, row.ageYears)) },
+        supportingContent = { Text(stringResource(R.string.child_row_details, row.ageYears)) },
         leadingContent = {
             CharacterView(
                 clip = characterStillPath(row.character),
                 loop = false,
-                effectLevel = EffectLevel.OFF,
+                stillMode = true,
                 modifier = Modifier.size(56.dp)
             )
         },
@@ -135,7 +134,7 @@ private fun ChildListRow(row: ChildRow, selected: Boolean, onClick: () -> Unit) 
     )
 }
 
-/** The character's idle clip; with effects off [CharacterView] shows its first frame, the picture the child will see. */
+/** The character's idle clip; in still mode [CharacterView] shows its first frame, the picture the child will see. */
 fun characterStillPath(character: ChildCharacter): String = "character/${character.name.lowercase()}/react/idle.webp"
 
 @Preview(device = Devices.TABLET)
@@ -147,8 +146,8 @@ private fun ChildListPreview() {
             ChildListUiState.Content(
                 query = "",
                 children = listOf(
-                    ChildRow("1", "Youssef", "A1", 6, ChildCharacter.BOY),
-                    ChildRow("2", "Mariam", "B2", 8, ChildCharacter.GIRL)
+                    ChildRow("1", "Youssef", 6, ChildCharacter.BOY),
+                    ChildRow("2", "Mariam", 8, ChildCharacter.GIRL)
                 )
             ),
             selectedId = "1",

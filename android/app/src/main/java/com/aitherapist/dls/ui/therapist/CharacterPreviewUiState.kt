@@ -16,7 +16,7 @@ sealed interface CharacterPreviewUiState {
         /** Selected eating task ID, or null when the variant has no step clips. */
         val taskId: String?,
         val selection: ClipSelection?,
-        val effectOff: Boolean = false,
+        val stillFrames: Boolean = false,
         /** The selected clip's asset failed to load. */
         val clipFailed: Boolean = false
     ) : CharacterPreviewUiState {
@@ -41,7 +41,7 @@ sealed interface CharacterPreviewEvent {
 
     data class SelectStep(val id: String) : CharacterPreviewEvent
 
-    data class SetEffectOff(val off: Boolean) : CharacterPreviewEvent
+    data class SetStillFrames(val on: Boolean) : CharacterPreviewEvent
 
     data object ClipFailed : CharacterPreviewEvent
 

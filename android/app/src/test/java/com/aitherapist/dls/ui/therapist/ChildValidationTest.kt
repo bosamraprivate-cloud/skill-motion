@@ -9,7 +9,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ChildValidationTest {
-    private val valid = ChildForm(name = "Mariam", code = "A1", age = "6", character = ChildCharacter.GIRL)
+    private val valid = ChildForm(name = "Mariam", age = "6", character = ChildCharacter.GIRL)
 
     @Test
     fun `valid form has no errors and default effect is calm`() {
@@ -19,9 +19,8 @@ class ChildValidationTest {
 
     @Test
     fun `missing fields are required`() {
-        val errors = ChildValidation.validate(ChildForm(name = "  ", code = " "))
+        val errors = ChildValidation.validate(ChildForm(name = "  "))
         assertEquals(ChildFieldError.REQUIRED, errors.name)
-        assertEquals(ChildFieldError.REQUIRED, errors.code)
         assertEquals(ChildFieldError.REQUIRED, errors.age)
         assertEquals(ChildFieldError.REQUIRED, errors.character)
         assertFalse(errors.isEmpty)
@@ -37,29 +36,13 @@ class ChildValidationTest {
     }
 
     @Test
-    fun `code in use is refused`() {
-        assertEquals(ChildFieldError.CODE_IN_USE, ChildValidation.validate(valid, codeInUse = true).code)
-    }
-
-    @Test
-    fun `form toString hides name and code`() {
+    fun `form toString hides the name`() {
         assertFalse(valid.toString().contains("Mariam"))
-        assertFalse(valid.toString().contains("A1"))
     }
 
     @Test
-    fun `code allows only ascii letters digits and hyphen`() {
-        assertNull(ChildValidation.validate(valid.copy(code = " ab-12 ")).code)
-        listOf("A 1", "A_1", "اب", "é1").forEach {
-            assertEquals(it, ChildFieldError.INVALID, ChildValidation.validate(valid.copy(code = it)).code)
-        }
-        assertEquals("AB-12", ChildValidation.normalizeCode(" ab-12 "))
-    }
-
-    @Test
-    fun `name and code have length limits`() {
-        assertNull(ChildValidation.validate(valid.copy(name = "n".repeat(40), code = "C".repeat(16))).name)
+    fun `name has a length limit`() {
+        assertNull(ChildValidation.validate(valid.copy(name = "n".repeat(40))).name)
         assertEquals(ChildFieldError.TOO_LONG, ChildValidation.validate(valid.copy(name = "n".repeat(41))).name)
-        assertEquals(ChildFieldError.TOO_LONG, ChildValidation.validate(valid.copy(code = "C".repeat(17))).code)
     }
 }

@@ -18,8 +18,8 @@ internal interface ChildDao {
     @Query("SELECT * FROM child WHERE isEval = 0 ORDER BY name")
     fun observeVisible(): Flow<List<ChildEntity>>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM child WHERE code = :code AND id != :excludeId)")
-    suspend fun codeExists(code: String, excludeId: String): Boolean
+    @Query("SELECT code FROM child WHERE code LIKE 'C-%'")
+    suspend fun generatedCodes(): List<String>
 
     @Query("DELETE FROM child WHERE id = :id")
     suspend fun delete(id: String)
