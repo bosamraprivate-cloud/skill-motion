@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">مهارات الحياة اليومية</string>
+    <string name="sample_title">عناصر تجريبية</string>
+    <string name="sample_empty_message">مفيش حاجة هنا لسه</string>
+    <string name="sample_empty_action">حمّل تاني</string>
+    <string name="sample_error_message">حصلت مشكلة</string>
+    <string name="action_retry">جرّب تاني</string>
+    <string name="loading_description">بيحمّل</string>
+</resources>

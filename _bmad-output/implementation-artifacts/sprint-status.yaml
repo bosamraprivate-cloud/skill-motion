@@ -1,0 +1,101 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 11-11-2026 12:00
+last_updated: 12-11-2026 12:00
+project: Ai therapist
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+development_status:
+  epic-1: in-progress
+  1-1-android-project-skeleton-with-quality-gates: review
+  1-2-camera-feed-and-landmarkers-with-frame-rate-probe: in-progress
+  1-3-geometry-check-model-and-first-local-verdict: backlog
+  1-4-stateless-verify-proxy-on-cloudflare-workers: backlog
+  1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-catalogue-builder-parses-the-147-assessment-steps: backlog
+  2-2-catalogue-builder-parses-the-148-activities: backlog
+  2-3-character-sheet-and-rive-character-art-pipeline: backlog
+  2-4-step-and-activity-illustrations-with-export-script: backlog
+  2-5-arabic-strings-and-elevenlabs-audio-generation: backlog
+  2-6-stickers-and-sound-effects: backlog
+  2-7-catalogue-validation-merge-and-version-stamp: backlog
+  2-8-catalogue-repository-in-the-app: backlog
+  2-9-encrypted-database-secure-settings-and-frame-store: backlog
+  2-10-first-run-setup-pin-gate-and-consent: backlog
+  2-11-child-profiles-with-effect-level-and-cascade-delete: backlog
+  2-12-attempt-window-and-prompt-ladder-pure: backlog
+  2-13-assessment-runner-state-machine-with-rule-1: backlog
+  2-14-child-step-screen-with-audio-prompts-and-locked-mode: backlog
+  2-15-pause-resume-and-continue-after-interruption: backlog
+  2-16-start-assessment-content-only-tasks-and-character-walkthroug: backlog
+  2-17-m2-content-completeness-check: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-all-body-check-evaluators: backlog
+  3-2-hand-verifier-and-hands-rubbing: backlog
+  3-3-detector-settings-for-the-41-steps-and-setup-zones: backlog
+  3-4-framing-check-screen: backlog
+  3-5-live-verifiers-in-the-runner-with-evidence-frames: backlog
+  3-6-network-loss-becomes-cannot-tell: backlog
+  3-7-replay-mode-through-the-same-runner: backlog
+  3-8-volunteer-clip-recording-and-manifest: backlog
+  3-9-threshold-tuning-and-first-deepseek-flash-measurement: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-rule-2-corrections-aware-levels-and-recalculation: backlog
+  4-2-functional-report-screen: backlog
+  4-3-treatment-plan-and-activity-picker: backlog
+  4-4-camera-counted-activity-selection-data: backlog
+  4-5-repetition-and-hold-counter: backlog
+  4-6-training-runner-screens-and-saved-results: backlog
+  4-7-reward-rules-and-recorder: backlog
+  4-8-reward-effects-by-effect-level: backlog
+  4-9-task-reward-screen-and-sticker-book: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-session-list-and-session-detail-with-evidence: backlog
+  5-2-correct-a-step-level: backlog
+  5-3-compare-two-assessments: backlog
+  5-4-training-history: backlog
+  5-5-diagnostics-screen: backlog
+  5-6-anonymised-csv-export: backlog
+  5-7-blind-review: backlog
+  5-8-accuracy-metrics-script-and-dashboard: backlog
+  5-9-evaluation-run-and-goal-8-report: backlog
+  5-10-readme-and-final-verification-gate: backlog
+  epic-5-retrospective: optional

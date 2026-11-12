@@ -1,0 +1,19 @@
+# Build outputs
+build/
+.gradle/
+.kotlin/
+local.properties
+node_modules/
+__pycache__/
+.venv/
+# Secrets
+.env
+.dev.vars
+# IDE and local
+.idea/
+*.iml
+.claude/
+# BMAD and Claude tooling (installed locally, not project code)
+_bmad/
+# Unrelated plugin clone (see AGENTS.md)
+elephant-goldfish-model/

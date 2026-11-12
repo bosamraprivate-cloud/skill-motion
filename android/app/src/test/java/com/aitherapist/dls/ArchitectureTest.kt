@@ -1,0 +1,39 @@
+package com.aitherapist.dls
+
+import com.lemonappdev.konsist.api.Konsist
+import com.lemonappdev.konsist.api.ext.list.withPackage
+import com.lemonappdev.konsist.api.verify.assertFalse
+import org.junit.Test
+
+/** Package rules from the architecture spine (Invariants & Rules diagram, AD-12). */
+class ArchitectureTest {
+    private val productionFiles = Konsist.scopeFromProduction().files
+
+    @Test
+    fun `core packages import nothing from android or androidx`() {
+        productionFiles
+            .withPackage(*CORE_PACKAGES)
+            .assertFalse(additionalMessage = "Core packages must stay pure Kotlin (no android.* or androidx.* imports).") { file ->
+                file.imports.any { it.name.startsWith("android.") || it.name.startsWith("androidx.") }
+            }
+    }
+
+    @Test
+    fun `no spine package outside ui depends on ui`() {
+        // The app entry points in the root package (Application, Activity) host the UI and are exempt.
+        productionFiles
+            .withPackage(*NON_UI_PACKAGES)
+            .assertFalse(additionalMessage = "Nothing depends on ui; move the dependency the other way.") { file ->
+                file.imports.any { it.name.startsWith("$ROOT.ui.") }
+            }
+    }
+
+    private companion object {
+        const val ROOT = "com.aitherapist.dls"
+        val CORE_PACKAGES = arrayOf("$ROOT.scoring..", "$ROOT.rewards..", "$ROOT.catalog..")
+        val NON_UI_PACKAGES =
+            arrayOf("catalog", "data", "camera", "vision", "session", "scoring", "training", "rewards", "audio", "replay")
+                .map { "$ROOT.$it.." }
+                .toTypedArray()
+    }
+}

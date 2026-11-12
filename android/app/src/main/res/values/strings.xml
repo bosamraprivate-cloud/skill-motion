@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Daily Living Skills</string>
+    <string name="sample_title">Sample items</string>
+    <string name="sample_empty_message">Nothing here yet</string>
+    <string name="sample_empty_action">Reload</string>
+    <string name="sample_error_message">Something went wrong</string>
+    <string name="action_retry">Retry</string>
+    <string name="loading_description">Loading</string>
+</resources>

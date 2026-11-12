@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DLS Wireframes</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tokens from _bmad-output/planning-artifacts/ux-designs/.../DESIGN.md */
+:root{
+  --child-canvas:#F6F4EE;--child-surface:#FFFFFF;--child-ink:#2E3A40;--child-ink-soft:#5C6B70;
+  --done:#5E9C8A;--done-pressed:#4C8473;--help:#7FA7C9;--repeat:#B9A6D3;--star:#E8C26A;--star-empty:#E4E0D6;
+  --sched-done:#A9CFC2;--sched-todo:#E4E0D6;
+  --t-canvas:#F7F8FA;--t-surface:#FFFFFF;--t-ink:#1F2933;--t-ink2:#52606D;--t-border:#E1E5EA;--t-primary:#2F6F8F;
+  --l3:#3E8E6E;--l2:#D2A03C;--l1:#C46B4E;--ns:#9AA5B1;--ct:#7B8794;--corr:#6B5BA8;
+  --p-strength:#3E8E6E;--p-mild:#8DB86B;--p-moderate:#D2A03C;--p-severe:#C46B4E;--warn:#B7791F;
+  --page:#E9ECEF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Cairo,system-ui,sans-serif;background:var(--page);color:var(--t-ink);min-height:100vh;display:flex;gap:16px;padding:16px;overflow:hidden}
+/* Side index (outside the tablet) */
+#index{width:250px;flex:none;background:#fff;border-radius:14px;padding:14px;overflow:auto;height:calc(100vh - 32px);font-size:13px}
+#index h1{font-size:16px;margin-bottom:2px}#index p.s{color:var(--t-ink2);font-size:12px;margin-bottom:10px;line-height:1.5}
+#index h2{font-size:12px;color:var(--t-ink2);margin:12px 0 4px;letter-spacing:.3px}
+#index button{display:block;width:100%;text-align:right;border:0;background:none;padding:5px 8px;border-radius:8px;font:inherit;cursor:pointer;color:var(--t-ink)}
+#index button:hover{background:#F0F3F6}#index button.on{background:#E3EEF3;color:var(--t-primary);font-weight:700}
+#index .n{display:inline-block;width:22px;color:var(--ns)}
+#stage{flex:1;display:flex;align-items:center;justify-content:center;min-width:0}
+#bezel{background:#1d2226;border-radius:34px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.25);transform-origin:center}
+#device{width:1280px;height:800px;border-radius:14px;overflow:hidden;position:relative;background:var(--t-canvas)}
+#cap{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);color:#aab;font-size:11px;direction:ltr}
+/* ---------- therapist shell ---------- */
+.t{display:flex;height:100%;background:var(--t-canvas)}
+.rail{width:88px;background:var(--t-surface);border-left:1px solid var(--t-border);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px}
+.rail .logo{width:44px;height:44px;border-radius:12px;background:var(--t-primary);color:#fff;display:grid;place-items:center;font-weight:800;margin-bottom:14px}
+.rail button{width:72px;border:0;background:none;border-radius:14px;padding:8px 0;font:600 11px Cairo;color:var(--t-ink2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.rail button .ic{width:52px;height:30px;border-radius:15px;display:grid;place-items:center;font-size:18px}
+.rail button.on .ic{background:#DCEAF1}.rail button.on{color:var(--t-primary)}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:68px;display:flex;align-items:center;padding:0 28px;gap:14px;border-bottom:1px solid var(--t-border);background:var(--t-surface)}
+.topbar h2{font-size:22px;font-weight:700}.topbar .sp{flex:1}
+.crumb{color:var(--t-ink2);font-size:14px;cursor:pointer}
+.content{flex:1;padding:24px 28px;overflow:auto}
+.btn{border:0;border-radius:22px;padding:10px 22px;font:700 15px Cairo;cursor:pointer;background:var(--t-primary);color:#fff;display:inline-flex;align-items:center;gap:8px}
+.btn.o{background:#fff;color:var(--t-primary);border:1.5px solid var(--t-primary)}
+.btn.g{background:#EEF2F5;color:var(--t-ink)}
+.card{background:var(--t-surface);border:1px solid var(--t-border);border-radius:16px;padding:18px}
+.grid{display:grid;gap:16px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;white-space:nowrap}
+.muted{color:var(--t-ink2)}.small{font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{color:var(--t-ink2);font-weight:600;text-align:right;padding:10px 12px;border-bottom:1px solid var(--t-border);font-size:13px}
+td{padding:11px 12px;border-bottom:1px solid #F0F2F5;vertical-align:middle}
+tr.click{cursor:pointer}tr.click:hover td{background:#F7FAFC}
+.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff}
+.input{border:1.5px solid var(--t-border);border-radius:12px;padding:10px 14px;font:15px Cairo;background:#fff;width:100%}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--t-border);margin-bottom:18px}
+.tabs button{border:0;background:none;padding:10px 18px;font:600 15px Cairo;color:var(--t-ink2);cursor:pointer;border-bottom:3px solid transparent}
+.tabs button.on{color:var(--t-primary);border-color:var(--t-primary)}
+.bar{height:10px;border-radius:5px;background:#EEF1F4;overflow:hidden}.bar>i{display:block;height:100%;border-radius:5px}
+.scrim{position:absolute;inset:0;background:rgba(20,30,40,.45);display:flex;align-items:center;justify-content:center;z-index:20}
+.dialog{background:#fff;border-radius:24px;padding:28px;width:560px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.opt{border:1.5px solid var(--t-border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;margin-top:10px}
+.opt.on{border-color:var(--t-primary);background:#F0F7FA}
+.opt.dis{opacity:.45;cursor:default}
+.ph{background:repeating-linear-gradient(45deg,#EEF1F4,#EEF1F4 8px,#E6EAEE 8px,#E6EAEE 16px);border-radius:10px;display:grid;place-items:center;color:var(--t-ink2);font-size:12px}
+.note{background:#FFF8E6;border:1px dashed #E3C77A;color:#7A5B12;border-radius:10px;padding:8px 12px;font-size:12px}
+/* ---------- child shell ---------- */
+.c{height:100%;background:var(--child-canvas);color:var(--child-ink);position:relative;display:flex;flex-direction:column}
+.corner{position:absolute;top:0;left:0;width:64px;height:64px;cursor:pointer;z-index:5}
+.corner::after{content:"";position:absolute;top:14px;left:14px;width:10px;height:10px;border-radius:50%;background:#E4E0D6}
+.sched{display:flex;gap:8px;justify-content:center;padding:22px 0 6px}
+.sched i{width:18px;height:18px;border-radius:50%;background:var(--sched-todo)}
+.sched i.d{background:var(--sched-done)}.sched i.c{background:var(--done);transform:scale(1.35)}
+.starbar{position:absolute;top:18px;right:28px;display:flex;align-items:center;gap:8px;font-size:22px;font-weight:800;background:#fff;border-radius:999px;padding:4px 16px}
+.cbtn{border:0;border-radius:28px;font:800 26px Cairo;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;color:var(--child-ink)}
+.illu{background:#fff;border-radius:32px;display:grid;place-items:center;position:relative;overflow:hidden}
+.illu .lab{position:absolute;bottom:14px;font-size:13px;color:var(--child-ink-soft)}
+.say{font-size:40px;font-weight:800;text-align:center}
+.speaker{width:64px;height:64px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:28px;cursor:pointer}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.pop{animation:pop .5s ease-out}.floaty{animation:floaty 3s ease-in-out infinite}
+</style>
+</head>
+<body>
+<nav id="index"></nav>
+<div id="stage"><div id="bezel"><div id="device"></div></div></div>
+<div id="cap">11-inch tablet · 1280 × 800 dp landscape · approximate wireframe, not final art</div>
+
+<script>
+/* ===================== DEMO DATA =====================
+   Task: Handwashing, 13 steps, from docs/reference/personal-hygiene-assessment-scale.md.
+   Domain tags copied from that table. "Visual-motor coordination" counts as Motor coordination
+   (docs/reference/scoring-rules.md). Arabic sentences are DRAFT UI text for review.
+   Plan: Mild plan, Hand skills section, docs/reference/treatment-plans.md. */
+const MP='Motor planning',MC='Motor coordination',HS='Hand skills',ROM='Range of motion';
+const DOM_AR={[MP]:'التخطيط الحركي',[MC]:'التآزر الحركي',[HS]:'مهارات اليد',[ROM]:'المدى الحركي'};
+const STEPS=[
+ {n:1,en:'Look at the sink',ar:'بص على الحوض',tags:[MC],vm:true,ic:'👀'},
+ {n:2,en:'Go to the sink',ar:'روح عند الحوض',tags:[MP,MC],ic:'🚶'},
+ {n:3,en:'Turn on the tap',ar:'افتح الحنفية',tags:[HS,ROM],ic:'🚰'},
+ {n:4,en:'Wet your hands with water',ar:'بلّ إيديك بالمية',tags:[MC,ROM],ic:'💧'},
+ {n:5,en:'Get the soap',ar:'هات الصابونة',tags:[MP,HS],ic:'🧼'},
+ {n:6,en:'Put soap on your hands',ar:'حط صابون على إيديك',tags:[HS,MC],ic:'🫧'},
+ {n:7,en:'Rub your palms together',ar:'افرك كفوفك في بعض',tags:[MC,HS],ic:'🤲'},
+ {n:8,en:'Rub between your fingers',ar:'افرك بين صوابعك',tags:[HS,MC],ic:'🖐️'},
+ {n:9,en:'Rub the backs of your hands and around your nails',ar:'افرك ضهر إيديك وحوالين ضوافرك',tags:[HS,MC],ic:'✋'},
+ {n:10,en:'Rinse your hands with water',ar:'اشطف إيديك بالمية',tags:[MC,ROM],ic:'🚿'},
+ {n:11,en:'Turn off the tap',ar:'اقفل الحنفية',tags:[HS,ROM],ic:'🔒'},
+ {n:12,en:'Get the towel',ar:'هات الفوطة',tags:[MP,HS],ic:'🧺'},
+ {n:13,en:'Dry your hands well',ar:'نشّف إيديك كويس',tags:[HS,MC],ic:'✨'},
+];
+// Preset demo result (used if the child flow is skipped). level: 3 = attempt 1, 2 = attempt 2/3 after help, 1 = not done.
+const PRESET=[3,3,3,3,3,2,3,2,2,3,3,3,3];
+const ACTIVITIES=[
+ {t:'Transferring small balls with tongs',ar:'نقل كور صغيرة بالملقاط',tools:'Tongs, cotton or sponge balls, two containers',crit:'Transferring 10 balls successfully without dropping them in 4 attempts out of 5',goal:'Improve finger control and visual-motor coordination'},
+ {t:'Picking up large beads',ar:'التقاط خرز كبير',tools:'Large safe beads, thick string',crit:'Threading 5 consecutive pieces onto the string with slight assistance or without assistance',goal:'Improve eye-hand coordination and accuracy of finger movement'},
+ {t:'Shaping playdough',ar:'تشكيل الصلصال',tools:'Safe playdough',crit:'Making 3 different shapes using hand and finger movements',goal:'Improve finger control and object manipulation'},
+ {t:'Opening and closing clothespins',ar:'فتح وقفل مشابك الغسيل',tools:'Light-resistance clothespins, box edge or thick cardboard',crit:'Attaching and removing 10 clothespins with control of the movement',goal:'Improve finger coordination and strengthen the precision grasp'},
+ {t:'Inserting coins or discs into a slot',ar:'إدخال عملات أو أقراص في فتحة',tools:'Box with a wide slot, large discs',crit:'Inserting 8 discs out of 10 without physical assistance',goal:'Improve precision grasp and finger direction control'},
+ {t:'Assembling blocks',ar:'تركيب المكعبات',tools:'Large or medium building blocks',crit:'Building a tower of 6 blocks without it falling',goal:'Improve hand control and accuracy of placing objects'},
+ {t:'Tracing lines with a pen',ar:'تتبع الخطوط بالقلم',tools:'Paper, thick easy-to-hold pen',crit:'Tracing 4 paths while staying within the boundaries for most of the path',goal:'Improve pen control and finger-wrist coordination'},
+ {t:'Using the pincer grasp with the thumb and index finger',ar:'المسك بالإبهام والسبابة',tools:'Small sponge pieces or easy-to-pick objects',crit:'(see treatment-plans.md, Mild plan, Hand skills, activity 8)',goal:'(see source)'},
+];
+const MC_ACTS=['Passing the ball between the hands','Throwing and catching the ball','Walking between the cones','Walking while moving the arms','Hitting the balloon with the hand','Stepping up and down floor steps','Imitating a sequence of movements','Kicking the ball toward a target','Walking while carrying a light object','Touching the coloured targets'];
+const CHILDREN=[
+ {name:'يوسف أحمد',code:'C-014',age:7,col:'#5E9C8A',last:'اليوم',status:'تقييم غسيل الإيدين'},
+ {name:'مريم خالد',code:'C-009',age:6,col:'#7FA7C9',last:'أمس',status:'تدريب'},
+ {name:'عمر حسن',code:'C-021',age:9,col:'#B9A6D3',last:'من 3 أيام',status:'تقييم شرب من كوباية'},
+ {name:'ليلى محمود',code:'C-017',age:8,col:'#E8C26A',last:'من أسبوع',status:'—'},
+];
+
+/* ===================== STATE ===================== */
+const S={screen:'welcome',step:0,attempt:1,helped:false,levels:PRESET.slice(),corrected:{},stars:0,effect:'calm',
+  selected:new Set([3,4]),detailStep:5,trainIdx:3,trainCount:0,trainSec:0,pinFor:'therapist',overlay:null,tab:'sessions'};
+let timer=null;
+
+/* ===================== SCORING (docs/reference/scoring-rules.md) ===================== */
+const lvl=i=>S.corrected[i]??S.levels[i];
+function domainAverages(){
+  const acc={};[MP,MC,HS,ROM].forEach(d=>acc[d]={sum:0,n:0});
+  STEPS.forEach((s,i)=>s.tags.forEach(d=>{acc[d].sum+=lvl(i);acc[d].n++;}));
+  return [MP,MC,HS,ROM].map(d=>({d,avg:acc[d].n?acc[d].sum/acc[d].n:null,n:acc[d].n}));
+}
+function band(a){ if(a>=3)return{k:'strength',ar:'نقطة قوة',c:'var(--p-strength)'};
+  if(a>=2.5)return{k:'mild',ar:'ضعف بسيط',c:'var(--p-mild)'};
+  if(a>=1.5)return{k:'moderate',ar:'ضعف متوسط',c:'var(--p-moderate)'};
+  return{k:'severe',ar:'ضعف شديد',c:'var(--p-severe)'}; }
+const LCOL={3:'var(--l3)',2:'var(--l2)',1:'var(--l1)'};
+const LAR={3:'عمله من أول مرة',2:'عمله بمساعدة',1:'ماعملوش'};
+function levelChip(i){
+  const c=S.corrected[i];
+  if(c!=null) return `<span class="chip" style="background:#EEEAF7;color:var(--corr)"><s style="color:var(--ns)">${S.levels[i]}</s> ${c} · اتراجعت</span>`;
+  const l=S.levels[i];return `<span class="chip" style="background:${LCOL[l]}22;color:${LCOL[l]}">${l} · ${LAR[l]}</span>`;
+}
+
+/* ===================== SCREEN REGISTRY ===================== */
+const SCREENS=[
+ ['Setup & entry',[['welcome','First-run setup'],['pin','PIN screen'],['children','Child list'],['profile','Child profile'],['newSession','New session dialog'],['framing','Framing check']]],
+ ['Child mode — assessment',[['taskStart','Task start'],['step','Step screen'],['stepHelp','Step — help prompt'],['reward','Step reward moment'],['walk','Character walkthrough'],['taskReward','Task reward'],['stickers','Sticker book'],['pause','Adult pause sheet']]],
+ ['Therapist — results',[['session','Session detail + correct'],['report','Functional report'],['plan','Plan + activity picker'],['compare','Compare assessments']]],
+ ['Training',[['trainStart','Training hand-off'],['train','Training activity'],['history','Training history']]],
+ ['Tools',[['eval','Replay & blind review'],['diag','Diagnostics'],['settings','Settings']]],
+];
+function go(s,extra){Object.assign(S,extra||{});S.screen=s;S.overlay=null;render();}
+
+/* ===================== THERAPIST SHELL ===================== */
+function shell(active,title,body,actions='',crumb=''){
+  const items=[['children','👥','الأطفال'],['eval','🎞️','التقييم والمراجعة'],['diag','📶','التشخيص'],['settings','⚙️','الإعدادات']];
+  return `<div class="t"><aside class="rail"><div class="logo">DLS</div>
+  ${items.map(([k,ic,l])=>`<button class="${active===k?'on':''}" onclick="go('${k}')"><span class="ic">${ic}</span>${l}</button>`).join('')}
+  <div style="flex:1"></div><button onclick="go('pin')"><span class="ic">🔒</span>قفل</button></aside>
+  <section class="main"><header class="topbar">${crumb}<h2>${title}</h2><div class="sp"></div>${actions}</header>
+  <div class="content">${body}</div></section></div>`;
+}
+const crumbChild=`<span class="crumb" onclick="go('children')">الأطفال ‹</span><span class="crumb" onclick="go('profile')">يوسف أحمد ‹</span>`;
+
+/* ===================== SCREENS ===================== */
+const R={};
+R.welcome=()=>`<div class="t" style="align-items:center;justify-content:center;background:linear-gradient(160deg,#F7F8FA,#E3EEF3)">
+ <div class="card" style="width:760px;padding:36px">
+  <div style="display:flex;gap:10px;margin-bottom:26px">${['أهلاً','الـ PIN','السيرفر','الموافقة','المناطق','الكاميرا'].map((x,i)=>`<div style="flex:1"><div class="bar"><i style="width:${i<4?100:0}%;background:var(--t-primary)"></i></div><div class="small ${i===3?'':'muted'}" style="margin-top:6px;${i===3?'font-weight:700;color:var(--t-primary)':''}">${i+1}. ${x}</div></div>`).join('')}</div>
+  <h2 style="font-size:26px;margin-bottom:8px">موافقة على تحليل الصور</h2>
+  <p class="muted" style="line-height:1.9;margin-bottom:16px">في الخطوات اللي الكاميرا مش متأكدة منها، التابلت بيبعت صورة مقصوصة من غير اسم أو كود الطفل لنموذج DeepSeek عن طريق السيرفر بتاعنا. السيرفر مش بيحفظ أي حاجة. كل بيانات الأطفال بتفضل على التابلت ومتشفرة.</p>
+  <label style="display:flex;gap:10px;align-items:center;margin-bottom:22px"><input type="checkbox" checked style="width:20px;height:20px"> قريت النص ده، وعندي موافقة اللجنة وأولياء الأمور</label>
+  <div class="note" style="margin-bottom:22px">Wireframe: steps 1–3 (PIN twice, proxy address + secret) and 5–6 (draw zones, framing check) are shown here as the progress bar only.</div>
+  <div style="display:flex;gap:10px"><button class="btn" onclick="go('pin')">موافق، كمّل</button><button class="btn g">رجوع</button></div>
+ </div></div>`;
+R.pin=()=>`<div class="t" style="align-items:center;justify-content:center;flex-direction:column;gap:18px">
+ <div class="logo" style="width:64px;height:64px;border-radius:18px;background:var(--t-primary);color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px">DLS</div>
+ <h2>${S.pinFor==='exit'?'اكتب الـ PIN علشان تخرج من وضع الطفل':'اكتب الـ PIN'}</h2>
+ <div style="display:flex;gap:14px">${[1,1,0,0].map(f=>`<i style="width:18px;height:18px;border-radius:50%;background:${f?'var(--t-primary)':'#D5DBE1'}"></i>`).join('')}</div>
+ <div style="display:grid;grid-template-columns:repeat(3,88px);gap:14px;direction:ltr">
+ ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>k===''?'<span></span>':`<button onclick="go('${S.pinFor==='exit'?'session':'children'}')" style="height:72px;border-radius:50%;border:0;background:#fff;font:700 26px Cairo;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08)">${k}</button>`).join('')}</div>
+ <span class="muted small">اضغط أي رقم للمتابعة (demo)</span></div>`;
+R.children=()=>shell('children','الأطفال',`
+ <div class="card" style="display:flex;align-items:center;gap:16px;margin-bottom:18px;background:#F0F7FA;border-color:#CFE3EC">
+  <div style="font-size:28px">⏸️</div><div style="flex:1"><b>جلسة متقطعة: عمر حسن · شرب من كوباية</b><div class="small muted">وقفت عند الخطوة 6 من 38 · من 3 أيام</div></div><button class="btn o">كمّل الجلسة</button></div>
+ <div style="display:flex;gap:12px;margin-bottom:16px"><input class="input" placeholder="🔍  دوّر بالاسم أو الكود" style="max-width:420px"></div>
+ <div class="card" style="padding:6px 6px"><table><tr><th></th><th>الاسم</th><th>الكود</th><th>السن</th><th>آخر جلسة</th><th>آخر نشاط</th><th></th></tr>
+ ${CHILDREN.map((c,i)=>`<tr class="click" onclick="${i===0?"go('profile')":''}"><td style="width:60px"><div class="avatar" style="background:${c.col}">${c.name[0]}</div></td><td><b>${c.name}</b></td><td class="muted">${c.code}</td><td>${c.age} سنين</td><td>${c.last}</td><td class="muted">${c.status}</td><td style="color:var(--ns)">‹</td></tr>`).join('')}
+ </table></div>`,`<button class="btn">＋ ضيف طفل</button>`);
+R.profile=()=>{
+ const t=S.tab;
+ const sessions=`<table><tr><th>التاريخ</th><th>النوع</th><th>المهمة</th><th>الخطوات</th><th>متوسط</th><th>الحالة</th></tr>
+  <tr class="click" onclick="go('session')"><td>12 نوفمبر 2026</td><td>تقييم</td><td><b>غسيل الإيدين</b></td><td>13 / 13</td><td>${(STEPS.reduce((a,_,i)=>a+lvl(i),0)/13).toFixed(2)}</td><td><span class="chip" style="background:#E7F3EE;color:var(--l3)">خلصت</span></td></tr>
+  <tr><td>3 نوفمبر 2026</td><td>تقييم</td><td>غسيل الإيدين</td><td>13 / 13</td><td>2.38</td><td><span class="chip" style="background:#E7F3EE;color:var(--l3)">خلصت</span></td></tr>
+  <tr><td>3 نوفمبر 2026</td><td>تقييم</td><td>شرب من كوباية</td><td>21 / 38</td><td>—</td><td><span class="chip" style="background:#FDF3E1;color:var(--warn)">متقطعة</span></td></tr></table>`;
+ return shell('children','يوسف أحمد',`
+ <div class="grid" style="grid-template-columns:300px 1fr">
+  <div class="grid" style="align-content:start">
+   <div class="card" style="text-align:center"><div class="avatar" style="width:84px;height:84px;margin:0 auto 10px;font-size:32px;background:#5E9C8A">ي</div><h3>يوسف أحمد</h3><div class="muted small">C-014 · 7 سنين</div>
+    <div style="text-align:right;margin-top:16px" class="small"><div class="muted">مستوى المؤثرات</div>
+    <div style="display:flex;gap:6px;margin-top:6px">${[['full','كامل'],['calm','هادي'],['off','مقفول']].map(([k,l])=>`<button onclick="S.effect='${k}';render()" class="btn ${S.effect===k?'':'g'}" style="padding:6px 14px;font-size:13px">${l}</button>`).join('')}</div></div></div>
+   <div class="card small"><div class="muted">الملصقات</div><div style="font-size:28px;margin-top:6px">⭐ 🐢 <span style="opacity:.25">🦋</span></div><div class="muted">2 ملصقات · مهمتين لحد الجاي</div></div>
+  </div>
+  <div class="card"><div class="tabs">${[['sessions','الجلسات'],['report','التقرير'],['plan','الخطة'],['history','سجل التدريب'],['compare','مقارنة']].map(([k,l])=>`<button class="${t===k?'on':''}" onclick="${k==='sessions'?"S.tab='sessions';render()":`go('${k}')`}">${l}</button>`).join('')}</div>${sessions}</div>
+ </div>`,`<button class="btn" onclick="go('newSession')">＋ جلسة جديدة</button>`,`<span class="crumb" onclick="go('children')">الأطفال ‹</span>`);
+};
+R.newSession=()=>R.profile()+`<div class="scrim"><div class="dialog"><h2 style="margin-bottom:4px">جلسة جديدة</h2><div class="muted small" style="margin-bottom:8px">اختار المهمة. المهام اللي عليها "كاميرا" بتتقيّم بالكاميرا في النسخة الأولى.</div>
+ ${[['🧥','لبس الجاكيت / خلعه','كاميرا',0],['🥤','شرب من كوباية','كاميرا',0],['🧼','غسيل الإيدين','كاميرا',1],['🍽️','الأكل بالمعلقة','الأخصائي بيقيّم',0],['🏋️','تدريب من الخطة','',0]].map(([ic,l,tag,on],i)=>`<div class="opt ${on?'on':''}" ${i===4?`onclick="go('trainStart')"`:''}><span style="font-size:26px">${ic}</span><b style="flex:1">${l}</b>${tag?`<span class="chip" style="background:#EEF2F5;color:var(--t-ink2)">${tag}</span>`:''}</div>`).join('')}
+ <div class="note" style="margin-top:12px">Demo: only Handwashing is wired. Task list is abbreviated (15 tasks in the catalog).</div>
+ <div style="display:flex;gap:10px;margin-top:18px"><button class="btn" onclick="go('framing')">ابدأ</button><button class="btn g" onclick="go('profile')">إلغاء</button></div></div></div>`;
+R.framing=()=>shell('children','ظبط الكاميرا · غسيل الإيدين',`
+ <div class="grid" style="grid-template-columns:1fr 320px;height:100%">
+  <div style="background:#2A3238;border-radius:18px;position:relative;overflow:hidden;min-height:560px">
+   <div style="position:absolute;inset:0;display:grid;place-items:center;color:#8C979E">معاينة الكاميرا</div>
+   <div style="position:absolute;left:28%;top:12%;width:44%;height:80%;border:4px dashed var(--done);border-radius:120px 120px 30px 30px"></div>
+   <div style="position:absolute;right:6%;bottom:8%;width:26%;height:30%;border:2px solid #7FA7C9;border-radius:10px;color:#7FA7C9;font-size:12px;padding:6px">منطقة: الحوض</div>
+   <div style="position:absolute;top:16px;right:16px" class="chip"><span style="background:var(--done);color:#fff;border-radius:999px;padding:4px 14px">✓ الطفل في المكان الصح</span></div>
+  </div>
+  <div class="grid" style="align-content:start">
+   <div class="card"><b>قبل ما تدّي التابلت للطفل</b><ul class="small muted" style="margin:10px 18px 0;line-height:2"><li>جسم الطفل كله جوه الإطار</li><li>الحوض والصابونة والفوطة باينين</li><li>الإضاءة كويسة · السيرفر متصل ✓</li></ul></div>
+   <div class="card small"><div class="muted">المسافة</div><b>حوالي 1.5 متر · زرار البلوتوث متوصل</b></div>
+   <button class="btn" style="justify-content:center;padding:16px" onclick="go('taskStart',{step:0,attempt:1,helped:false,stars:0})">ادّي التابلت للطفل ›</button>
+   <span class="small muted">بيشغّل تثبيت الشاشة (screen pinning)</span>
+  </div></div>`,'',crumbChild);
+
+/* ---------- child mode ---------- */
+const character=(size=180,mood='')=>`<svg width="${size}" height="${size}" viewBox="0 0 200 200" class="floaty"><circle cx="100" cy="112" r="70" fill="#A9CFC2"/><circle cx="100" cy="100" r="62" fill="#FCE9D8"/><path d="M40 92 Q100 20 160 92 Q150 55 100 48 Q50 55 40 92Z" fill="#5C4A3D"/><circle cx="78" cy="104" r="7" fill="#2E3A40"/><circle cx="122" cy="104" r="7" fill="#2E3A40"/><circle cx="66" cy="124" r="9" fill="#F5C6B5" opacity=".7"/><circle cx="134" cy="124" r="9" fill="#F5C6B5" opacity=".7"/><path d="${mood==='big'?'M76 128 Q100 158 124 128Z':'M82 130 Q100 146 118 130'}" stroke="#2E3A40" stroke-width="5" fill="${mood==='big'?'#fff':'none'}" stroke-linecap="round"/></svg>`;
+const childWrap=(inner,sched=true)=>`<div class="c"><div class="corner" title="Long-press 2 s (adult)" onclick="S.overlay='pause';render()"></div>
+ ${sched?`<div class="sched">${STEPS.map((_,i)=>`<i class="${i<S.step?'d':i===S.step?'c':''}"></i>`).join('')}</div>`:''}
+ <div class="starbar"><span style="color:var(--star)">★</span>${S.stars}</div>${inner}</div>`;
+R.taskStart=()=>childWrap(`<div style="flex:1;display:flex;align-items:center;justify-content:center;gap:70px">
+ <div>${character(260)}</div>
+ <div style="text-align:center"><div class="illu" style="width:340px;height:260px;margin:0 auto 22px;font-size:120px">🧼<span class="lab">صورة المهمة</span></div>
+ <div class="say" style="margin-bottom:24px">يلا نغسل إيدينا!</div>
+ <button class="cbtn" style="background:var(--done);color:#fff;width:340px;height:120px;font-size:36px" onclick="go('step')">يلا نبدأ ▶</button></div></div>`,false);
+function stepScreen(help){
+ const s=STEPS[S.step];
+ return childWrap(`<div style="flex:1;display:flex;gap:28px;padding:16px 40px 34px">
+  <div style="flex:1;display:flex;flex-direction:column;gap:18px">
+   <div class="illu ${help?'pop':''}" style="flex:1;font-size:${help?220:170}px">${s.ic}
+    ${help?`<div style="position:absolute;top:18px;right:18px">${character(120)}</div><div style="position:absolute;top:30px;left:30px;font-size:60px">👉</div>`:''}
+    <span class="lab">رسمة الخطوة ${s.n} — ${s.en}</span></div>
+   <div style="display:flex;align-items:center;gap:18px;justify-content:center"><div class="say">${help?'شوف كده… '+s.ar:s.ar}</div><div class="speaker" title="Audio replays">🔊</div></div>
+  </div>
+  <div style="width:330px;display:flex;flex-direction:column;gap:16px">
+   <button class="cbtn" style="flex:1;background:var(--done);color:#fff;font-size:38px;flex-direction:column" onclick="doneTap()"><span style="font-size:64px">✓</span>خلصت</button>
+   <button class="cbtn" style="height:120px;background:var(--help)" onclick="go('stepHelp',{helped:true,attempt:Math.max(S.attempt,2)})">✋ ساعدني</button>
+   <button class="cbtn" style="height:120px;background:var(--repeat)" onclick="render()">↻ تاني</button>
+  </div></div>`);
+}
+R.step=()=>stepScreen(false);R.stepHelp=()=>stepScreen(true);
+window.doneTap=()=>{const l=S.helped?2:3;S.levels[S.step]=l;S.stars+=1+(l===3?1:0);go('reward');
+ clearTimeout(timer);timer=setTimeout(()=>{if(S.screen!=='reward')return;
+  if(S.step<12){S.step++;S.helped=false;S.attempt=1;go('step');}else go('walk',{step:13});},S.effect==='off'?700:1800);};
+R.reward=()=>stepScreen(S.helped)+`<div class="scrim" style="background:rgba(246,244,238,.75)"><div style="text-align:center" class="pop">${character(220,'big')}
+ <div style="font-size:${S.effect==='off'?60:110}px;color:var(--star);${S.effect==='calm'?'transition:opacity 1s':''}">★${S.helped?'':'★'}</div>
+ <div class="say">${S.helped?'شاطر!':'برافو عليك!'}</div>
+ ${S.effect==='full'?'<div style="font-size:40px;margin-top:8px">🎉 ✨ 🎊</div>':''}</div></div>`;
+R.walk=()=>{const i=S.walkI??0;const s=STEPS[i];
+ return childWrap(`<div style="flex:1;display:flex;align-items:center;justify-content:center;gap:50px;padding:20px 50px 40px">
+  <div>${character(240)}</div>
+  <div style="flex:1;text-align:center"><div class="muted" style="color:var(--child-ink-soft);font-size:20px;margin-bottom:10px">تعالى نشوف المهمة كلها مع بعض</div>
+  <div class="illu" style="height:420px;font-size:170px">${s.ic}<span class="lab">الشخصية بتعمل الخطوة ${s.n}</span></div>
+  <div class="say" style="margin-top:16px">${s.ar}</div>
+  <div style="display:flex;gap:6px;justify-content:center;margin-top:16px">${STEPS.map((_,k)=>`<i style="width:28px;height:6px;border-radius:3px;background:${k<=i?'var(--done)':'var(--sched-todo)'}"></i>`).join('')}</div>
+  <div style="margin-top:16px"><button class="btn" style="background:var(--done)" onclick="${i<12?`S.walkI=${i+1};render()`:"S.walkI=0;go('taskReward')"}">${i<12?'التالي (demo)':'خلاص ›'}</button></div></div></div>`,false);};
+R.taskReward=()=>{const st=S.stars||PRESET.reduce((a,l)=>a+1+(l===3?1:0),0);
+ return childWrap(`<div style="flex:1;display:flex;align-items:center;justify-content:center;gap:70px">
+ <div class="pop">${character(300,'big')}</div>
+ <div style="text-align:center"><div class="say" style="font-size:52px">خلصت المهمة كلها!</div>
+ <div style="font-size:84px;color:var(--star);margin:10px 0">★ ${st}</div>
+ <div class="card" style="border-radius:24px;border:0;padding:20px 26px;margin-bottom:22px"><div style="font-size:20px;font-weight:700;margin-bottom:12px">الملصق الجاي</div>
+  <div style="display:flex;gap:14px;justify-content:center">${[1,1,0].map((f,i)=>`<div style="width:86px;height:86px;border-radius:24px;display:grid;place-items:center;font-size:44px;background:${f?'var(--sched-done)':'var(--sched-todo)'}">${f?'✔':'🦋'}</div>`).join('')}</div>
+  <div style="color:var(--child-ink-soft);margin-top:10px">باقي مهمة واحدة!</div></div>
+ <button class="cbtn" style="background:var(--repeat);width:320px;height:90px;margin:0 auto" onclick="go('stickers')">📒 ملصقاتي</button></div></div>`,false);};
+R.stickers=()=>childWrap(`<div style="flex:1;padding:40px 70px"><div class="say" style="margin-bottom:26px">ملصقاتي</div>
+ <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px">${['⭐','🐢','🦋','🐳','🌈','🚀','🦁','🌻','🐝','🎈','🍎','🐙'].map((e,i)=>`<div class="illu" style="height:150px;font-size:72px;${i>1?'filter:grayscale(1);opacity:.3':''}">${i===2?'<span style="font-size:30px;opacity:1">…</span>':e}</div>`).join('')}</div>
+ <div style="text-align:center;margin-top:28px;color:var(--child-ink-soft);font-size:20px">ملصق جديد كل 3 مهام</div></div>`,false);
+const pauseSheet=()=>`<div class="scrim"><div class="dialog" style="text-align:center"><div class="muted small">للكبار بس</div><h2 style="margin:6px 0 18px">الجلسة متوقفة</h2>
+ <div style="display:flex;gap:10px;justify-content:center"><button class="btn" onclick="S.overlay=null;render()">كمّل</button><button class="btn o" onclick="go('pin',{pinFor:'exit'})">اخرج لوضع الأخصائي (PIN)</button></div>
+ <div class="note" style="margin-top:16px">Real app: long-press the top-left corner for 2 s opens this sheet.</div></div></div>`;
+R.pause=()=>R.step()+pauseSheet();
+
+/* ---------- therapist results ---------- */
+R.session=()=>{const i=S.detailStep;const s=STEPS[i];const l=lvl(i);
+ const atts=S.levels[i]===3?[['done','✓ عمله','تم التأكد من الحركة على التابلت']]:S.levels[i]===2?[['not','لم يُنفذ','الإيدين ماوصلتش للمنطقة المطلوبة'],['done','✓ عمله بعد المساعدة','DeepSeek: الطفل بيحط صابون على إيده']]:[['not','لم يُنفذ',''],['not','لم يُنفذ',''],['not','لم يُنفذ','']];
+ return shell('children','جلسة 12 نوفمبر · غسيل الإيدين',`
+ <div class="grid" style="grid-template-columns:430px 1fr;height:100%">
+  <div class="card" style="padding:6px;overflow:auto"><table>${STEPS.map((st,k)=>`<tr class="click" onclick="S.detailStep=${k};render()" style="${k===i?'background:#F0F7FA':''}"><td style="width:30px" class="muted">${st.n}</td><td>${st.en}</td><td style="text-align:left">${levelChip(k)}</td></tr>`).join('')}</table></div>
+  <div class="card" style="overflow:auto"><div style="display:flex;align-items:center;gap:12px"><h3 style="flex:1">${s.n}. ${s.en}</h3>${levelChip(i)}</div>
+   <div class="small muted" style="margin:4px 0 14px">${s.tags.map(d=>DOM_AR[d]).join(' · ')}${s.vm?' (التآزر البصري الحركي يتحسب تآزر حركي)':''}</div>
+   ${atts.map((a,k)=>`<div style="border:1px solid var(--t-border);border-radius:14px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:10px"><b>المحاولة ${k+1}</b><span class="chip" style="background:${a[0]==='done'?'#E7F3EE':'#F3F4F6'};color:${a[0]==='done'?'var(--l3)':'var(--t-ink2)'}">${a[1]}</span></div>
+    <div style="display:flex;gap:10px">${[1,2,3].map(()=>`<div class="ph" style="flex:1;height:110px">صورة دليل</div>`).join('')}</div>${a[2]?`<div class="small muted" style="margin-top:8px">السبب: ${a[2]}</div>`:''}</div>`).join('')}
+   <div style="display:flex;gap:10px;align-items:center;margin-top:6px"><span class="muted small">تصحيح المستوى:</span>${[3,2,1].map(v=>`<button class="btn ${l===v?'':'g'}" style="padding:6px 16px" onclick="S.corrected[${i}]=${v};if(${v}===S.levels[${i}])delete S.corrected[${i}];render()">${v}</button>`).join('')}
+   <span class="small muted">· المستوى الأصلي بيتحفظ جنب التصحيح، والتقرير والخطة بيتحدّثوا فوراً</span></div>
+  </div></div>`,`<button class="btn o" onclick="go('report')">التقرير ›</button>`,crumbChild);};
+R.report=()=>{const da=domainAverages();
+ const strengths=da.filter(x=>band(x.avg).k==='strength'),needs=da.filter(x=>band(x.avg).k!=='strength');
+ return shell('children','التقرير الوظيفي · غسيل الإيدين',`
+ <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+  ${[[STEPS.length,'خطوات اتقيّمت'],[STEPS.filter((_,i)=>lvl(i)===3).length,'من أول مرة'],[STEPS.filter((_,i)=>lvl(i)===2).length,'بمساعدة'],[STEPS.filter((_,i)=>lvl(i)===1).length,'ماعملهاش']].map(([v,l],k)=>`<div class="card"><div style="font-size:34px;font-weight:800;color:${['var(--t-ink)','var(--l3)','var(--l2)','var(--l1)'][k]}">${v}</div><div class="muted small">${l}</div></div>`).join('')}
+ </div>
+ <div class="grid" style="grid-template-columns:1.4fr 1fr">
+  <div class="card"><h3 style="margin-bottom:14px">متوسط كل مجال</h3>
+   ${da.map(x=>{const b=band(x.avg);return `<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px"><div style="width:130px;font-weight:600">${DOM_AR[x.d]}</div>
+    <div class="bar" style="flex:1;height:16px"><i style="width:${(x.avg/3)*100}%;background:${b.c}"></i></div><b style="width:44px">${x.avg.toFixed(2)}</b><span class="chip" style="background:${b.c}22;color:${b.c};width:96px;justify-content:center">${b.ar}</span></div>`;}).join('')}
+   <div class="small muted">الحدود من scoring-rules.md: 3 قوة · 2.5 لأقل من 3 بسيط · 1.5 لأقل من 2.5 متوسط · أقل من 1.5 شديد. عدد الخطوات لكل مجال: ${da.map(x=>DOM_AR[x.d]+' '+x.n).join('، ')}.</div></div>
+  <div class="grid" style="align-content:start">
+   <div class="card"><h3 style="color:var(--p-strength);margin-bottom:8px">نقاط القوة</h3>${strengths.map(x=>`<div>• ${DOM_AR[x.d]}</div>`).join('')||'<div class="muted">—</div>'}</div>
+   <div class="card"><h3 style="color:var(--l2);margin-bottom:8px">محتاج تدريب</h3>${needs.map(x=>`<div>• ${DOM_AR[x.d]} — ${band(x.avg).ar}</div>`).join('')||'<div class="muted">—</div>'}</div>
+   <button class="btn" style="justify-content:center" onclick="go('plan')">افتح الخطة العلاجية ›</button>
+  </div></div>`,`<button class="btn g">تصدير CSV</button>`,crumbChild);};
+R.plan=()=>{const da=domainAverages();const hs=da.find(x=>x.d===HS),mc=da.find(x=>x.d===MC);
+ return shell('children','الخطة العلاجية',`
+ <div class="note" style="margin-bottom:14px">Demo shows one plan section in full: <b>Mild plan → Hand skills</b> (treatment-plans.md). The therapist picks which activities to run; the app suggests none.</div>
+ <div class="card" style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:12px"><h3 style="flex:1">مهارات اليد</h3><span class="chip" style="background:${band(hs.avg).c}22;color:${band(hs.avg).c}">${band(hs.avg).ar} · ${hs.avg.toFixed(2)}</span></div>
+  <div class="muted small" style="margin:4px 0 10px">General goal: improve control of hand and finger movements and the ability to hold, move and handle objects accurately.</div>
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">${ACTIVITIES.map((a,k)=>`<div class="opt ${S.selected.has(k)?'on':''}" style="margin:0;align-items:flex-start" onclick="S.selected.has(${k})?S.selected.delete(${k}):S.selected.add(${k});render()">
+   <span style="font-size:20px">${S.selected.has(k)?'☑':'☐'}</span><div><b>${k+1}. ${a.t}</b><div class="small muted">${a.ar}</div><div class="small" style="margin-top:4px">معيار القياس: ${a.crit}</div></div></div>`).join('')}</div></div>
+ <div class="card" style="opacity:.8"><div style="display:flex;align-items:center;gap:12px"><h3 style="flex:1">التآزر الحركي</h3><span class="chip" style="background:${band(mc.avg).c}22;color:${band(mc.avg).c}">${band(mc.avg).ar} · ${mc.avg.toFixed(2)}</span><span class="muted small">مطوي في الديمو</span></div>
+  <div class="small muted" style="margin-top:6px">${MC_ACTS.join(' · ')}</div></div>`,
+ `<span class="muted small">${S.selected.size} مختارين</span><button class="btn" onclick="go('trainStart')">ابدأ التدريب ›</button>`,crumbChild);};
+R.compare=()=>{const da=domainAverages();const prev={[MP]:2.67,[MC]:2.22,[HS]:2.33,[ROM]:2.75};
+ return shell('children','مقارنة تقييمين · غسيل الإيدين',`
+ <div class="card"><table><tr><th>المجال</th><th>3 نوفمبر</th><th>12 نوفمبر</th><th>الفرق</th><th style="width:40%"></th></tr>
+ ${da.map(x=>{const d=x.avg-prev[x.d];return `<tr><td><b>${DOM_AR[x.d]}</b></td><td>${prev[x.d].toFixed(2)}</td><td>${x.avg.toFixed(2)}</td><td style="color:${d>=0?'var(--l3)':'var(--l1)'};font-weight:700">${d>=0?'+':''}${d.toFixed(2)}</td>
+  <td><div style="position:relative;height:22px"><div class="bar" style="position:absolute;inset:6px 0"><i style="width:${prev[x.d]/3*100}%;background:#CBD2D9"></i></div><div class="bar" style="position:absolute;inset:6px 0;background:none"><i style="width:${x.avg/3*100}%;background:var(--t-primary);opacity:.7"></i></div></div></td></tr>`;}).join('')}</table>
+ <div class="small muted" style="margin-top:12px">بيقارن بس الخطوات اللي اتقيّمت في المرتين. (Earlier values are demo numbers.)</div></div>`,'',crumbChild);};
+R.trainStart=()=>shell('children','تدريب · يوسف أحمد',`
+ <div class="grid" style="grid-template-columns:1fr 1fr">${[...S.selected].map((k,j)=>{const a=ACTIVITIES[k];return `<div class="card"><div class="muted small">النشاط ${j+1}</div><h3>${a.t}</h3><div class="small muted">${a.ar}</div>
+  <div class="small" style="margin-top:10px;line-height:1.8"><b>الأدوات:</b> ${a.tools}<br><b>المعيار:</b> ${a.crit}<br><b>النوع:</b> موجَّه (رسمة + تايمر + خلصت)</div></div>`;}).join('')||'<div class="muted">مفيش أنشطة مختارة — ارجع للخطة.</div>'}</div>
+ <div style="margin-top:18px;display:flex;gap:10px"><button class="btn" onclick="S.trainIdx=[...S.selected][0]??3;S.trainSec=0;go('train')">ادّي التابلت للطفل ›</button><button class="btn g" onclick="go('plan')">رجوع للخطة</button></div>`,'',crumbChild);
+R.train=()=>{const a=ACTIVITIES[S.trainIdx];
+ clearInterval(window._ti);window._ti=setInterval(()=>{if(S.screen!=='train'||S.overlay){clearInterval(window._ti);return;}S.trainSec++;const el=document.getElementById('tsec');if(el)el.textContent=fmt(S.trainSec);},1000);
+ return childWrap(`<div style="flex:1;display:flex;gap:30px;padding:30px 50px 40px;align-items:stretch">
+  <div style="flex:1;display:flex;flex-direction:column;gap:18px"><div class="illu" style="flex:1;font-size:150px">🧷<span class="lab">رسمة النشاط — ${a.t}</span></div><div class="say">${a.ar}</div></div>
+  <div style="width:330px;display:flex;flex-direction:column;gap:16px;align-items:center">
+   <div style="width:250px;height:250px;border-radius:50%;background:#fff;border:16px solid var(--sched-done);display:grid;place-items:center;text-align:center"><div><div id="tsec" style="font-size:52px;font-weight:800">${fmt(S.trainSec)}</div><div style="color:var(--child-ink-soft)">وقت</div></div></div>
+   <div class="starbar" style="position:static;font-size:20px">${character(60)} أنت شاطر!</div>
+   <button class="cbtn" style="width:100%;flex:1;background:var(--done);color:#fff;font-size:38px;flex-direction:column" onclick="go('history')"><span style="font-size:60px">✓</span>خلصت</button></div></div>`,false);};
+const fmt=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+R.history=()=>shell('children','سجل التدريب',`
+ <div class="card" style="padding:6px"><table><tr><th>التاريخ</th><th>النشاط</th><th>العد</th><th>المدة</th><th>المعيار</th></tr>
+ <tr><td>12 نوفمبر 2026</td><td><b>${ACTIVITIES[S.trainIdx].t}</b></td><td>—</td><td>${fmt(S.trainSec||252)}</td><td><span class="chip" style="background:#EEF2F5;color:var(--t-ink2)">الأخصائي يحدد</span></td></tr>
+ <tr><td>10 نوفمبر 2026</td><td>Inserting coins or discs into a slot</td><td>7 / 10</td><td>5:10</td><td><span class="chip" style="background:#FDF3E1;color:var(--warn)">لسه</span></td></tr>
+ <tr><td>8 نوفمبر 2026</td><td>Assembling blocks</td><td>6</td><td>3:45</td><td><span class="chip" style="background:#E7F3EE;color:var(--l3)">اتحقق</span></td></tr></table></div>
+ <div class="note" style="margin-top:14px">Which activities are camera-counted is decided in M4; all are shown as guided here.</div>`,'',crumbChild);
+R.eval=()=>shell('eval','التقييم والمراجعة العمياء',`
+ <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">${[['86%','اتفاق مع الأخصائي','≥ 80%'],['0.71','Weighted kappa','≥ 0.6'],['9%','مش قادر يحكم','≤ 15%'],['124','محاولة اتراجعت','']].map(([v,l,g])=>`<div class="card"><div style="font-size:30px;font-weight:800">${v}</div><div class="small muted">${l}</div>${g?`<div class="small" style="color:var(--l3)">الهدف ${g} ✓</div>`:''}</div>`).join('')}</div>
+ <div class="grid" style="grid-template-columns:1fr 1fr"><div class="card"><h3 style="margin-bottom:10px">مراجعة عمياء · محاولة 37 من 124</h3><div class="ph" style="height:260px;margin-bottom:12px">مقطع المحاولة (حكم التطبيق مخفي)</div>
+  <div style="display:flex;gap:8px">${['عمله','ماعملوش','مش واضح'].map(x=>`<button class="btn g" style="flex:1;justify-content:center">${x}</button>`).join('')}</div></div>
+  <div class="card"><h3 style="margin-bottom:10px">المقاطع</h3><table><tr><th>المقطع</th><th>المهمة</th><th>الحالة</th></tr>${['vol-01','vol-02','vol-03','vol-04','vol-05'].map((v,k)=>`<tr><td>${v}</td><td>${['غسيل الإيدين','شرب من كوباية','لبس الجاكيت','خلع الجاكيت','غسيل الإيدين'][k]}</td><td class="muted">${k<3?'اتراجع':'مستني'}</td></tr>`).join('')}</table><button class="btn o" style="margin-top:12px">استيراد مقاطع</button></div></div>
+ <div class="note" style="margin-top:14px">All numbers on this screen are placeholders.</div>`);
+R.diag=()=>shell('diag','التشخيص',`<div class="grid" style="grid-template-columns:repeat(3,1fr)">${[['معدل الكاميرا','29 fps','ok'],['ظهور نقاط الجسم','94%','ok'],['السيرفر','متصل · 820 ms','ok'],['مش قادر يحكم (آخر 7 أيام)','9%','ok'],['مساحة التخزين','12.4 GB فاضية','ok'],['زرار البلوتوث','متوصل','ok']].map(([l,v])=>`<div class="card"><div class="small muted">${l}</div><div style="font-size:24px;font-weight:800;margin-top:6px">${v}</div><div class="small" style="color:var(--l3)">● سليم</div></div>`).join('')}</div>`);
+R.settings=()=>shell('settings','الإعدادات',`<div class="grid" style="grid-template-columns:1fr 1fr">
+ <div class="card"><h3 style="margin-bottom:12px">الأمان</h3><div class="small muted">الـ PIN</div><button class="btn g" style="margin:6px 0 14px">غيّر الـ PIN</button>
+ <div class="small muted">عنوان السيرفر</div><input class="input" value="https://dls-proxy.example.workers.dev" style="direction:ltr;margin:6px 0 10px"><div class="small muted">السر المشترك</div><input class="input" value="••••••••••••" style="margin-top:6px"></div>
+ <div class="card"><h3 style="margin-bottom:12px">الكاميرا والبيانات</h3><button class="btn g">ارسم المناطق تاني (الحصيرة، الحوض، المكان)</button><div style="height:12px"></div><button class="btn o">تصدير النتايج CSV من غير أسماء</button><div class="small muted" style="margin-top:12px">البيانات كلها على التابلت ومتشفرة (SQLCipher).</div></div></div>`);
+
+/* ===================== RENDER ===================== */
+function render(){
+  const d=document.getElementById('device');
+  let html=(R[S.screen]||R.children)();
+  if(S.overlay==='pause'&&S.screen!=='pause')html+=pauseSheet();
+  d.innerHTML=html;
+  document.getElementById('index').innerHTML=`<h1>Wireframes</h1><p class="s">AI therapist · Daily Living Skills<br>Demo: one assessment (Handwashing, 13 steps) and one plan section (Mild → Hand skills). Click inside the tablet to follow the flow, or jump here.</p>`+
+   SCREENS.map(([g,list])=>`<h2>${g}</h2>`+list.map(([k,l])=>`<button dir="ltr" style="text-align:left" class="${S.screen===k?'on':''}" onclick="jump('${k}')">${l}</button>`).join('')).join('')+
+   `<h2>Reset</h2><button dir="ltr" style="text-align:left" onclick="resetDemo()">Reset demo data</button>`;
+}
+window.jump=k=>{const ex={};if(k==='step'||k==='stepHelp')ex.helped=k==='stepHelp';if(k==='reward')ex.helped=false;if(k==='pause')ex.overlay=null;if(k==='pin')ex.pinFor='therapist';if(k==='profile')ex.tab='sessions';go(k,ex);};
+window.resetDemo=()=>{Object.assign(S,{levels:PRESET.slice(),corrected:{},stars:0,step:0,helped:false,selected:new Set([3,4]),trainSec:0});go('welcome');};
+function fit(){const st=document.getElementById('stage');const s=Math.min((st.clientWidth-10)/1324,(st.clientHeight-10)/844,1);document.getElementById('bezel').style.transform=`scale(${s})`;}
+window.addEventListener('resize',fit);render();fit();
+</script>
+</body>
+</html>
