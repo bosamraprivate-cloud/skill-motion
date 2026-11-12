@@ -11,9 +11,7 @@ import coil3.gif.AnimatedImageDecoder
 import coil3.gif.MovieDrawable
 import coil3.gif.repeatCount
 import coil3.request.ImageRequest
-
-/** Child effect level (per child profile). `OFF` shows still frames only. */
-enum class EffectLevel { FULL, CALM, OFF }
+import com.aitherapist.dls.data.EffectLevel
 
 /** What [CharacterView] shows: an asset [path] (null = nothing), whether it animates, and Coil's repeat count. */
 data class ClipPlayback(val path: String?, val animate: Boolean, val repeatCount: Int)

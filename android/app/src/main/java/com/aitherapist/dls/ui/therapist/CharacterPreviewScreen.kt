@@ -35,8 +35,8 @@ import com.aitherapist.dls.catalog.CharacterVariant
 import com.aitherapist.dls.catalog.ReactionClip
 import com.aitherapist.dls.catalog.StepClip
 import com.aitherapist.dls.catalog.StepClipTask
+import com.aitherapist.dls.data.EffectLevel
 import com.aitherapist.dls.ui.child.CharacterView
-import com.aitherapist.dls.ui.child.EffectLevel
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.components.Skeleton

@@ -64,3 +64,12 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-3-character-clips-in-the-app.md`
   summary: Accessibility labels for character clips and readable step names in the preview chips.
   evidence: contentDescription is null and chips show raw step IDs.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-9-encrypted-database-secure-settings-and-frame-store.md`
+  summary: Recovery path when the Keystore key or the settings file is lost (DB can no longer open).
+  evidence: databasePassphrase() throws on decrypt failure every launch; Story 2.10 first-run/reset flow should offer a guarded "reset all data" path.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-9-encrypted-database-secure-settings-and-frame-store.md`
+  summary: Sweep orphan frame folders with no session row at startup; Hilt test pinning DataModule wiring (filesDir/frames, dls_master).
+  evidence: frames are deleted after the DB transaction; a crash in between leaves encrypted orphans; no test uses the real module yet (first injection comes in 2.10/2.11).
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-9-encrypted-database-secure-settings-and-frame-store.md`
+  summary: Add connectedDebugAndroidTest to the AGENTS.md verification table.
+  evidence: encryption behaviour is only asserted in instrumented tests, which the documented gate does not run.

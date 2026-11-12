@@ -1,6 +1,7 @@
 package com.aitherapist.dls.ui.child
 
 import coil3.gif.MovieDrawable
+import com.aitherapist.dls.data.EffectLevel
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

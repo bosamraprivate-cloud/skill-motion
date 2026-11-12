@@ -38,7 +38,20 @@ class ArchitectureTest {
             }
     }
 
+    @Test
+    fun `only data touches DAOs`() {
+        productionFiles
+            .filter { file -> file.packagee?.name.orEmpty().let { it != "$ROOT.data" && !it.startsWith("$ROOT.data.") } }
+            .assertFalse(additionalMessage = "Only data/ may use DAOs or the database; go through a repository.") { file ->
+                file.imports.any {
+                    it.name == "$ROOT.data.*" ||
+                        (it.name.startsWith("$ROOT.data.") && it.name.substringAfterLast('.') in DATA_INTERNALS)
+                }
+            }
+    }
+
     private companion object {
+        val DATA_INTERNALS = setOf("ChildDao", "SessionDao", "AttemptDao", "AppDatabase")
         const val ROOT = "com.aitherapist.dls"
         val CORE_PACKAGES = arrayOf("$ROOT.scoring..", "$ROOT.rewards..", "$ROOT.catalog..")
         val PURE_VISION_FILES = setOf("Geometry", "Verifier", "VisibilityGate", "PoseVerifier", "LandmarkModels", "FrameCropper")

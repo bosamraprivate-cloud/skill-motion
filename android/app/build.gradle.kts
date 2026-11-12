@@ -113,6 +113,7 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     implementation(libs.sqlcipher.android)
+    implementation(libs.datastore.preferences)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
@@ -127,6 +128,10 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.konsist)
     testImplementation(libs.okhttp.mockwebserver)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
 }
 
 // Core classes with a >= 90% line-coverage rule (AD-12), checked by koverVerifyCore. Geometry landed in 1.3;

@@ -15,7 +15,6 @@ __pycache__/
 .claude/
 # BMAD and Claude tooling (installed locally, not project code)
 _bmad/
-# Unrelated plugin clone (see AGENTS.md)
 
 # Proxy build output
 proxy/dist/

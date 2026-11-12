@@ -2,7 +2,8 @@
 title: 'Story 2.9: Encrypted database, secure settings and frame store'
 type: 'feature'
 created: '2026-11-12'
-status: 'draft'
+status: 'done'
+baseline_commit: '4e1f59aaaad2490737cc94990f2a58827c8f8363'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -49,16 +50,16 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `libs.versions.toml`, `app/build.gradle.kts` -- add DataStore preferences and androidx.test runner/ext-junit (latest stable).
-- [ ] `data/Entities.kt` -- `child` (design columns + `characterVariant` `boy`/`girl`, required, and `isEval` bool default false), `session`, `attempt` (design columns + nullable `clipFile`); FKs with CASCADE; index (`sessionId`,`stepId`); unique `child.code`.
-- [ ] `data/Converters.kt` -- lower_snake enum converters, `framePaths` JSON list.
-- [ ] `data/Daos.kt`, `data/AppDatabase.kt` -- DAOs (insert/query/delete child, session, attempt); DB v1, `exportSchema = true`, SQLCipher `SupportOpenHelperFactory`.
-- [ ] `data/KeyManager.kt` -- Keystore `dls_master` create/get, encrypt/decrypt (IV ‖ ciphertext).
-- [ ] `data/SecureSettings.kt` -- DataStore: passphrase (encrypted), PIN hash+salt, proxy URL, shared secret (encrypted), zones.
-- [ ] `data/FrameStore.kt` -- write/read/deleteSession per the matrix.
-- [ ] `data/Repositories.kt`, Hilt module -- provide DB, DAOs (internal to `data/`), repositories.
-- [ ] `android/app/schemas/` -- commit generated v1 JSON.
-- [ ] `<itest>/DatabaseTest.kt`, `SecureSettingsTest.kt`, `FrameStoreTest.kt` -- every matrix row; unit tests for converters.
+- [x] `libs.versions.toml`, `app/build.gradle.kts` -- add DataStore preferences and androidx.test runner/ext-junit (latest stable).
+- [x] `data/Entities.kt` -- `child` (design columns + `characterVariant` `boy`/`girl`, required, and `isEval` bool default false), `session`, `attempt` (design columns + nullable `clipFile`); FKs with CASCADE; index (`sessionId`,`stepId`); unique `child.code`.
+- [x] `data/Converters.kt` -- lower_snake enum converters, `framePaths` JSON list.
+- [x] `data/Daos.kt`, `data/AppDatabase.kt` -- DAOs (insert/query/delete child, session, attempt); DB v1, `exportSchema = true`, SQLCipher `SupportOpenHelperFactory`.
+- [x] `data/KeyManager.kt` -- Keystore `dls_master` create/get, encrypt/decrypt (IV ‖ ciphertext).
+- [x] `data/SecureSettings.kt` -- DataStore: passphrase (encrypted), PIN hash+salt, proxy URL, shared secret (encrypted), zones.
+- [x] `data/FrameStore.kt` -- write/read/deleteSession per the matrix.
+- [x] `data/Repositories.kt`, Hilt module -- provide DB, DAOs (internal to `data/`), repositories.
+- [x] `android/app/schemas/` -- commit generated v1 JSON.
+- [x] `<itest>/DatabaseTest.kt`, `SecureSettingsTest.kt`, `FrameStoreTest.kt` -- every matrix row; unit tests for converters.
 
 **Acceptance Criteria:**
 - Given the phone connected, when `./gradlew connectedDebugAndroidTest` runs, then all three instrumented test classes pass.
@@ -71,6 +72,26 @@ context:
 
 ## Review Triage Log
 
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | FrameStore path traversal via ids | medium | no id validation before File(); patch |
+| 2 | runBlocking DB provider on main thread | medium | DataStore+Keystore I/O in @Singleton provider; patch (lazy holder) |
+| 3 | DAOs/AppDatabase/KeyManager public | medium | spec says internal to data/; patch |
+| 4 | Konsist rule misses star imports | low | direct fix; patch |
+| 5 | session delete leaves frames; deleteSession result ignored | medium | no repository path; patch |
+| 6 | FrameStore read of missing/short file | low | contract mismatch; patch |
+| 7 | attempt order ties | low | direct fix; patch |
+| 8 | zones unvalidated | low | direct fix; patch |
+| 9 | enum error omits value | low | direct fix; patch |
+| 10 | allowBackup=false misses device transfer | medium | Android 12+ dataExtractionRules; patch |
+| 11 | Keystore key loss crash-loops | medium | needs reset flow; deferred to 2.10 |
+| 12 | orphan frames after crash; DataModule wiring untested | low | deferred |
+| 13 | instrumented tests not in documented gate | medium | run on phone this story; AGENTS.md update deferred |
+| 14 | stale .gitignore comment | low | fixed directly |
+| 15 | PinHash equals, KDF params, SecureRandom per call, renameTo, test cleanup | low | negligible; rejected |
+| 16 | status inconsistency | false | sprint status syncs at story close |
+| 17 | testInstrumentationRunner missing | false | already set in defaultConfig (build.gradle.kts:37) |
+
 ## Design Notes
 
 `characterVariant` is added now because AD-11 stores the chosen character on the child profile; making it required (no default) forces Story 2.11 to ask the therapist. `KeyManager` is shared by the passphrase, the secret and frames so there is one key path to test.
@@ -80,3 +101,7 @@ context:
 **Commands:**
 - `cd android && ./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` -- expected: BUILD SUCCESSFUL
 - `cd android && ./gradlew connectedDebugAndroidTest` -- expected: all instrumented tests pass on the phone
+
+## Implementation Notes
+
+Instrumented run on the phone (2026-11-12): 13/13 passed (DatabaseTest 5, FrameStoreTest 6, SecureSettingsTest 2).
