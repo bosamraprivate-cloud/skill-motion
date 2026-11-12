@@ -2,17 +2,22 @@
 
 Story 2.1 scope: parse and validate the 147 assessment steps (`--check`).
 Story 2.2 scope: parse and validate the 148 activities in treatment-plans.md.
-JSON output is added by Story 2.7, which consumes `parse_steps()` and `parse_activities()`.
+Story 2.7 scope: merge steps/activities with Arabic strings, detectors, activity counters and
+the character media index, validate, and write assessment.json, activities.json and
+version.json (catalogVersion = first 12 hex of SHA-256 over both catalogue files).
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import re
 import sys
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REFERENCE_DIR = REPO_ROOT / "docs" / "reference"
@@ -480,17 +485,245 @@ def parse_activities(reference_dir: Path = REFERENCE_DIR) -> list[Activity]:
     return activities
 
 
-def main(argv: list[str] | None = None, reference_dir: Path | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="parse, validate and print counts")
-    parser.add_argument("--reference-dir", type=Path, default=None, help="folder with the scale files")
-    args = parser.parse_args(argv)
-    if not args.check:
-        parser.error("only --check is available until Story 2.7 adds JSON output")
+TOOL_DIR = Path(__file__).resolve().parent
+ASSETS_DIR = REPO_ROOT / "android" / "app" / "src" / "main" / "assets"
+VARIANTS = ("boy", "girl")
+AUDIO_SUBDIR = "audio/ar-eg"
+
+
+@dataclass(frozen=True)
+class Paths:
+    """All build inputs and the output folder; overridable for tests."""
+
+    reference_dir: Path = REFERENCE_DIR
+    strings: Path = TOOL_DIR / "strings.ar-eg.json"
+    detectors: Path = TOOL_DIR / "detectors.json"
+    activity_counters: Path = TOOL_DIR / "activity_counters.json"
+    check_schema: Path = TOOL_DIR / "schema" / "check.schema.json"
+    assets_dir: Path = ASSETS_DIR  # holds audio/ar-eg/ and character/index.json + files
+    out_dir: Path = ASSETS_DIR / "catalog"
+
+
+def _load_json(path: Path) -> Any:
+    if not path.is_file():
+        raise CatalogError(f"{path.name}: input file not found at {path}")
     try:
-        ref = args.reference_dir or reference_dir or REFERENCE_DIR
-        steps = parse_steps(ref)
-        activities = parse_activities(ref)
+        return json.loads(path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as exc:
+        raise CatalogError(f"{path.name}: invalid JSON: {exc}") from exc
+
+
+def _dump(data: Any) -> bytes:
+    return (json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def _validate_detectors(detectors: Any, step_ids: list[str], schema_path: Path) -> dict[str, dict]:
+    import jsonschema  # local import: --check works without it
+
+    if not isinstance(detectors, dict):
+        raise CatalogError("detectors.json: top level must be an object of step id -> detector")
+    detectors = {k: v for k, v in detectors.items() if not k.startswith("_")}
+    unknown = sorted(set(detectors) - set(step_ids))
+    if unknown:
+        raise CatalogError(f"detectors.json: unknown step id(s): {', '.join(unknown)}")
+    schema = _load_json(schema_path)
+    validator = jsonschema.Draft202012Validator(schema)
+    bad: list[str] = []
+    out: dict[str, dict] = {}
+    for sid in step_ids:
+        d = detectors.get(sid, {"method": "none", "framing": None, "check": None})
+        if not isinstance(d, dict) or set(d) - {"method", "framing", "check"} or "method" not in d:
+            bad.append(f"{sid} (expected keys method, framing, check)")
+            continue
+        method, check = d["method"], d.get("check")
+        if not isinstance(method, str) or not method:
+            bad.append(f"{sid} (method must be a non-empty string)")
+            continue
+        if method == "none" and check is not None:
+            bad.append(f"{sid} (method none must have check null)")
+            continue
+        if check is not None:
+            errors = list(validator.iter_errors(check))
+            if errors:
+                bad.append(f"{sid} (check fails schema: {errors[0].message})")
+                continue
+        out[sid] = {"method": method, "framing": d.get("framing"), "check": check}
+    if bad:
+        raise CatalogError("detectors.json: bad detector(s): " + "; ".join(bad))
+    return out
+
+
+def _media_index(assets_dir: Path) -> dict[str, dict[str, dict]]:
+    """variant -> step id -> {clip, still} from character/index.json (absent file = no media)."""
+    path = assets_dir / "character" / "index.json"
+    if not path.is_file():
+        return {}
+    data = _load_json(path)
+    index: dict[str, dict[str, dict]] = {}
+    for variant in data.get("variants", []):
+        steps = index.setdefault(variant["id"], {})
+        for task in variant.get("tasks", []):
+            for step in task.get("steps", []):
+                steps[step["id"]] = {"clip": step.get("clip"), "still": step.get("still")}
+    return index
+
+
+def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str, bytes], list[str]]:
+    """Merge and validate; return {file name: bytes} and the media warnings."""
+    steps = parse_steps(paths.reference_dir)
+    activities = parse_activities(paths.reference_dir)
+    strings = _load_json(paths.strings)
+    step_text = strings.get("steps", {})
+    activity_text = strings.get("activities", {})
+    step_ids = [s.id for s in steps]
+    detectors = _validate_detectors(_load_json(paths.detectors), step_ids, paths.check_schema)
+
+    counters_raw = _load_json(paths.activity_counters)
+    if not isinstance(counters_raw, list):
+        raise CatalogError("activity_counters.json: top level must be a list")
+    activity_ids = {a.id for a in activities}
+    counters: dict[str, Any] = {}
+    for entry in counters_raw:
+        aid = entry.get("activityId") if isinstance(entry, dict) else None
+        if aid not in activity_ids:
+            raise CatalogError(f"activity_counters.json: unknown or missing activityId {aid!r}")
+        if aid in counters:
+            raise CatalogError(f"activity_counters.json: duplicate activityId {aid}")
+        counters[aid] = {k: v for k, v in entry.items() if k != "activityId"}
+
+    missing_text = [sid for sid in step_ids if not str(step_text.get(sid, "")).strip()]
+    missing_text += [a.id for a in activities if not str(activity_text.get(a.id, "")).strip()]
+    if missing_text:
+        raise CatalogError("missing Arabic text for: " + ", ".join(missing_text))
+
+    audio_dir = paths.assets_dir / AUDIO_SUBDIR
+    media = _media_index(paths.assets_dir)
+    problems: list[str] = []
+
+    def asset(rel: str | None) -> bool:
+        return bool(rel) and (paths.assets_dir / rel).is_file()
+
+    step_entries = []
+    for s in steps:
+        normal, slow = f"{s.id}.mp3", f"{s.id}.slow.mp3"
+        for name in (normal, slow):
+            if not (audio_dir / name).is_file():
+                problems.append(f"{s.id}: missing audio {name}")
+        step_media: dict[str, Any] = {}
+        for variant in VARIANTS:
+            m = media.get(variant, {}).get(s.id)
+            if m is None:
+                problems.append(f"{s.id}: no media mapping for variant {variant}")
+                step_media[variant] = None
+                continue
+            ok = True
+            if not asset(m["still"]):
+                problems.append(f"{s.id}: missing still for variant {variant}")
+                ok = False
+            if m["clip"] is not None and not asset(m["clip"]):
+                problems.append(f"{s.id}: missing clip {m['clip']} for variant {variant}")
+                ok = False
+            step_media[variant] = {"clip": m["clip"], "still": m["still"]} if ok else None
+        step_entries.append(
+            {
+                "id": s.id,
+                "area": s.area,
+                "task": s.task,
+                "number": s.number,
+                "textEn": s.textEn,
+                "textAr": step_text[s.id],
+                "tags": list(s.tags),
+                "subSkills": s.subSkills,
+                "source": s.source,
+                "detector": detectors[s.id],
+                "audio": {"normal": f"{AUDIO_SUBDIR}/{normal}", "slow": f"{AUDIO_SUBDIR}/{slow}"},
+                "media": step_media,
+            }
+        )
+
+    activity_entries = []
+    for a in activities:
+        normal, slow = f"{a.id}.mp3", f"{a.id}.slow.mp3"
+        has_audio = (audio_dir / normal).is_file() and (audio_dir / slow).is_file()
+        activity_entries.append(
+            {
+                "id": a.id,
+                "plan": a.plan,
+                "domain": a.domain,
+                "number": a.number,
+                "title": a.title,
+                "tools": a.tools,
+                "howToPerform": a.howToPerform,
+                "goal": a.goal,
+                "criterion": a.criterion,
+                "generalGoal": a.generalGoal,
+                "source": a.source,
+                "textAr": activity_text[a.id],
+                "audio": (
+                    {"normal": f"{AUDIO_SUBDIR}/{normal}", "slow": f"{AUDIO_SUBDIR}/{slow}"}
+                    if has_audio
+                    else None
+                ),
+                "counter": counters.get(a.id),
+            }
+        )
+
+    if problems and not allow_missing_media:
+        raise CatalogError("missing media (strict mode):\n  " + "\n  ".join(problems))
+
+    assessment = _dump({"steps": step_entries})
+    activities_bytes = _dump({"activities": activity_entries})
+    version = hashlib.sha256(assessment + activities_bytes).hexdigest()[:12]
+    version_bytes = _dump(
+        {
+            "catalogVersion": version,
+            "complete": not problems,
+            "steps": len(step_entries),
+            "activities": len(activity_entries),
+        }
+    )
+    files = {
+        "assessment.json": assessment,
+        "activities.json": activities_bytes,
+        "version.json": version_bytes,
+    }
+    return files, problems
+
+
+def main(argv: list[str] | None = None, reference_dir: Path | None = None, paths: Paths | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="parse, validate and print counts only")
+    parser.add_argument("--reference-dir", type=Path, default=None, help="folder with the scale files")
+    parser.add_argument(
+        "--allow-missing-media",
+        action="store_true",
+        help="dev/pilot only: missing audio/visuals become warnings and version.json gets complete=false",
+    )
+    args = parser.parse_args(argv)
+    paths = paths or Paths()
+    ref = args.reference_dir or reference_dir
+    if ref is not None:
+        paths = Paths(**{**paths.__dict__, "reference_dir": ref})
+    if not args.check:
+        try:
+            files, warnings = build(paths, allow_missing_media=args.allow_missing_media)
+        except CatalogError as exc:
+            print(f"catalog error: {exc}", file=sys.stderr)
+            return 1
+        for w in warnings:
+            print(f"warning: {w}", file=sys.stderr)
+        paths.out_dir.mkdir(parents=True, exist_ok=True)
+        for name, data in files.items():
+            (paths.out_dir / name).write_bytes(data)
+        version = json.loads(files["version.json"])
+        print(
+            f"wrote {paths.out_dir}: catalogVersion {version['catalogVersion']}, "
+            f"complete={str(version['complete']).lower()}, {len(warnings)} warning(s)"
+        )
+        return 0
+    try:
+        steps = parse_steps(paths.reference_dir)
+        activities = parse_activities(paths.reference_dir)
     except CatalogError as exc:
         print(f"catalog error: {exc}", file=sys.stderr)
         return 1

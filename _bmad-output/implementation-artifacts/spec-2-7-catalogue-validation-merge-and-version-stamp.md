@@ -2,7 +2,8 @@
 title: 'Story 2.7: Catalogue validation, merge and version stamp'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'in-progress'
+baseline_commit: 'a02899b5aae6dc73c1c2ba268032a9e6448c0c57'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -51,11 +52,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `tools/catalog-builder/detectors.json` -- every step id → `{"method":"none","framing":null,"check":null}` (structure only).
-- [ ] `tools/catalog-builder/activity_counters.json` -- `[]`.
-- [ ] `build_catalog.py` -- merge, validate, strict/dev modes, write outputs, version stamp; paths overridable for tests.
-- [ ] `test_build_catalog.py` -- every matrix row with tmp fixtures.
-- [ ] Run the builder with `--allow-missing-media` once and commit the generated assets (complete=false) so Story 2.8 has real input.
+- [x] `tools/catalog-builder/detectors.json` -- every step id → `{"method":"none","framing":null,"check":null}` (structure only).
+- [x] `tools/catalog-builder/activity_counters.json` -- `[]`.
+- [x] `build_catalog.py` -- merge, validate, strict/dev modes, write outputs, version stamp; paths overridable for tests.
+- [x] `test_build_catalog.py` -- every matrix row with tmp fixtures.
+- [x] Run the builder with `--allow-missing-media` once and commit the generated assets (complete=false) so Story 2.8 has real input.
 
 **Acceptance Criteria:**
 - Given `pytest tools/` and `ruff check tools`, when run, then they pass.

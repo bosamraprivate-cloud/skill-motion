@@ -1,0 +1,4077 @@
+{
+  "steps": [
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.01.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.01",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.01.webp",
+          "still": "character/boy/steps/eat.sandwich.01.still.webp"
+        },
+        "girl": null
+      },
+      "number": 1,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Directing gaze, visually locating the sandwich",
+      "tags": [
+        "Visual-motor coordination"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نبص على الساندوتش.",
+      "textEn": "Look at the sandwich"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.02.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.02",
+      "media": {
+        "boy": {
+          "clip": null,
+          "still": "character/boy/steps/eat.sandwich.02.still.webp"
+        },
+        "girl": null
+      },
+      "number": 2,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Identifying the place, organizing movement to reach it",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نروح مكان الأكل.",
+      "textEn": "Go to the eating place"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.03.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.03",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.03.webp",
+          "still": "character/boy/steps/eat.sandwich.03.still.webp"
+        },
+        "girl": null
+      },
+      "number": 3,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Organizing the transition to sitting, moving the body's joints",
+      "tags": [
+        "Motor planning",
+        "Range of motion"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نقعد على الكرسي قعدة مظبوطة.",
+      "textEn": "Sit on the chair in a suitable position"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.04.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.04",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.04.webp",
+          "still": "character/boy/steps/eat.sandwich.04.still.webp"
+        },
+        "girl": null
+      },
+      "number": 4,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Carrying the sandwich, determining where to place it, release",
+      "tags": [
+        "Hand skills",
+        "Motor planning"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نحط الساندوتش قدامنا.",
+      "textEn": "Put the sandwich in front of you"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.05.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.05",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.05.webp",
+          "still": "character/boy/steps/eat.sandwich.05.still.webp"
+        },
+        "girl": null
+      },
+      "number": 5,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Extending the shoulder and elbow, directing the hand toward the target",
+      "tags": [
+        "Range of motion",
+        "Visual-motor coordination"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نمد إيدنا ناحية الساندوتش.",
+      "textEn": "Reach your hand toward the sandwich"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.06.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.06",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.06.webp",
+          "still": "character/boy/steps/eat.sandwich.06.still.webp"
+        },
+        "girl": null
+      },
+      "number": 6,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Palmar grasp, controlling grip pressure, stabilizing the food",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نمسك الساندوتش بالطريقة اللي تريحنا.",
+      "textEn": "Hold the sandwich in a way that suits your motor abilities"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.07.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.07",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.07.webp",
+          "still": "character/boy/steps/eat.sandwich.07.still.webp"
+        },
+        "girl": null
+      },
+      "number": 7,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Directing the hand toward the mouth, coordinating hand and eye movement",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نقرب الساندوتش من بقنا.",
+      "textEn": "Bring the sandwich close to your mouth"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.08.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.08",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.08.webp",
+          "still": "character/boy/steps/eat.sandwich.08.still.webp"
+        },
+        "girl": null
+      },
+      "number": 8,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Opening the jaw and moving the mouth muscles",
+      "tags": [
+        "Range of motion"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نفتح بقنا.",
+      "textEn": "Open your mouth"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.09.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.09",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.09.webp",
+          "still": "character/boy/steps/eat.sandwich.09.still.webp"
+        },
+        "girl": null
+      },
+      "number": 9,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Coordination between hand and mouth movement, controlling the size of the bite",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا ناخد قطمة صغيرة من الساندوتش.",
+      "textEn": "Take a small bite of the sandwich"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.10.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.10",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.10.webp",
+          "still": "character/boy/steps/eat.sandwich.10.still.webp"
+        },
+        "girl": null
+      },
+      "number": 10,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Coordinating jaw movement, lateral and alternating chewing",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نمضغ الأكل كويس.",
+      "textEn": "Chew the food well"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.11.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.11.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.11",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.11.webp",
+          "still": "character/boy/steps/eat.sandwich.11.still.webp"
+        },
+        "girl": null
+      },
+      "number": 11,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Organizing the eating sequence, coordinating the swallowing process",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نبلع الأكل قبل ما ناخد قطمة تانية.",
+      "textEn": "Swallow the food before taking another bite"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.sandwich.12.mp3",
+        "slow": "audio/ar-eg/eat.sandwich.12.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.sandwich.12",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.sandwich.12.webp",
+          "still": "character/boy/steps/eat.sandwich.12.still.webp"
+        },
+        "girl": null
+      },
+      "number": 12,
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich",
+      "subSkills": "Remembering the sequence of steps, repeating the movement pattern",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.sandwich",
+      "textAr": "يلا نكرر الخطوات لحد ما نخلص الساندوتش.",
+      "textEn": "Repeat the steps until you finish eating the sandwich"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.01.mp3",
+        "slow": "audio/ar-eg/eat.spoon.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.01",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.01.webp",
+          "still": "character/boy/steps/eat.spoon.01.still.webp"
+        },
+        "girl": null
+      },
+      "number": 1,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Locating the plate and the spoon, distinguishing between utensils",
+      "tags": [
+        "Visual-motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نبص على الطبق والمعلقة.",
+      "textEn": "Look at the plate and the spoon"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.02.mp3",
+        "slow": "audio/ar-eg/eat.spoon.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.02",
+      "media": {
+        "boy": {
+          "clip": null,
+          "still": "character/boy/steps/eat.spoon.02.still.webp"
+        },
+        "girl": null
+      },
+      "number": 2,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Identifying the place, organizing movement to reach it",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نروح مكان الأكل.",
+      "textEn": "Go to the eating place"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.03.mp3",
+        "slow": "audio/ar-eg/eat.spoon.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.03",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.03.webp",
+          "still": "character/boy/steps/eat.spoon.03.still.webp"
+        },
+        "girl": null
+      },
+      "number": 3,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Organizing the transition to sitting, moving the body's joints",
+      "tags": [
+        "Motor planning",
+        "Range of motion"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نقعد على الكرسي قعدة مظبوطة.",
+      "textEn": "Sit on the chair in a suitable position"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.04.mp3",
+        "slow": "audio/ar-eg/eat.spoon.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.04",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.04.webp",
+          "still": "character/boy/steps/eat.spoon.04.still.webp"
+        },
+        "girl": null
+      },
+      "number": 4,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Carrying the plate, determining its position, release and controlling its placement",
+      "tags": [
+        "Hand skills",
+        "Motor planning"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نحط الطبق قدامنا على حاجة ثابتة.",
+      "textEn": "Put the plate in front of you on a stable surface"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.05.mp3",
+        "slow": "audio/ar-eg/eat.spoon.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.05",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.05.webp",
+          "still": "character/boy/steps/eat.spoon.05.still.webp"
+        },
+        "girl": null
+      },
+      "number": 5,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Grasping the spoon, finger control, functional grip",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نمسك المعلقة مسكة مظبوطة.",
+      "textEn": "Hold the spoon in a suitable way"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.06.mp3",
+        "slow": "audio/ar-eg/eat.spoon.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.06",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.06.webp",
+          "still": "character/boy/steps/eat.spoon.06.still.webp"
+        },
+        "girl": null
+      },
+      "number": 6,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Directing the hand toward the target, moving the shoulder, elbow, and wrist",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نوجه المعلقة ناحية الطبق.",
+      "textEn": "Direct the spoon toward the plate"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.07.mp3",
+        "slow": "audio/ar-eg/eat.spoon.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.07",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.07.webp",
+          "still": "character/boy/steps/eat.spoon.07.still.webp"
+        },
+        "girl": null
+      },
+      "number": 7,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Controlling the spoon, moving the wrist, adjusting the amount of food",
+      "tags": [
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نغرف شوية أكل مناسبين.",
+      "textEn": "Scoop a suitable amount of food"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.08.mp3",
+        "slow": "audio/ar-eg/eat.spoon.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.08",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.08.webp",
+          "still": "character/boy/steps/eat.spoon.08.still.webp"
+        },
+        "girl": null
+      },
+      "number": 8,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Raising the arm, keeping the spoon's orientation steady, controlling the movement",
+      "tags": [
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نرفع المعلقة بالراحة.",
+      "textEn": "Lift the spoon slowly"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.09.mp3",
+        "slow": "audio/ar-eg/eat.spoon.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.09",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.09.webp",
+          "still": "character/boy/steps/eat.spoon.09.still.webp"
+        },
+        "girl": null
+      },
+      "number": 9,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Directing the spoon toward the mouth, eye-hand coordination",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نقرب المعلقة من بقنا.",
+      "textEn": "Bring the spoon close to your mouth"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.10.mp3",
+        "slow": "audio/ar-eg/eat.spoon.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.10",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.10.webp",
+          "still": "character/boy/steps/eat.spoon.10.still.webp"
+        },
+        "girl": null
+      },
+      "number": 10,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Opening the jaw",
+      "tags": [
+        "Range of motion"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نفتح بقنا.",
+      "textEn": "Open your mouth"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.11.mp3",
+        "slow": "audio/ar-eg/eat.spoon.11.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.11",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.11.webp",
+          "still": "character/boy/steps/eat.spoon.11.still.webp"
+        },
+        "girl": null
+      },
+      "number": 11,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Organizing the spoon's direction, coordinating hand and mouth movement",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا ندخل الأكل بقنا بحرص.",
+      "textEn": "Put the food into your mouth carefully"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.12.mp3",
+        "slow": "audio/ar-eg/eat.spoon.12.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.12",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.12.webp",
+          "still": "character/boy/steps/eat.spoon.12.still.webp"
+        },
+        "girl": null
+      },
+      "number": 12,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Pulling the spoon outward, controlling wrist and arm movement",
+      "tags": [
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نطلع المعلقة من بقنا بالراحة.",
+      "textEn": "Take the spoon out of your mouth gently"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.13.mp3",
+        "slow": "audio/ar-eg/eat.spoon.13.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.13",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.13.webp",
+          "still": "character/boy/steps/eat.spoon.13.still.webp"
+        },
+        "girl": null
+      },
+      "number": 13,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Coordinating jaw movement, chewing",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نمضغ الأكل كويس.",
+      "textEn": "Chew the food well"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.14.mp3",
+        "slow": "audio/ar-eg/eat.spoon.14.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.14",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.14.webp",
+          "still": "character/boy/steps/eat.spoon.14.still.webp"
+        },
+        "girl": null
+      },
+      "number": 14,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Ordering the eating steps, coordinating swallowing",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نبلع الأكل قبل ما ناخد معلقة تانية.",
+      "textEn": "Swallow the food before taking another spoonful"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.spoon.15.mp3",
+        "slow": "audio/ar-eg/eat.spoon.15.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.spoon.15",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.spoon.15.webp",
+          "still": "character/boy/steps/eat.spoon.15.still.webp"
+        },
+        "girl": null
+      },
+      "number": 15,
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon",
+      "subSkills": "Remembering the sequence of steps, repeating the performance pattern",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.spoon",
+      "textAr": "يلا نكرر الخطوات لحد ما نخلص الأكل.",
+      "textEn": "Repeat the steps until you finish eating the food"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.01.mp3",
+        "slow": "audio/ar-eg/eat.fork.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.01",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.01.webp",
+          "still": "character/boy/steps/eat.fork.01.still.webp"
+        },
+        "girl": null
+      },
+      "number": 1,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Locating the plate and the fork",
+      "tags": [
+        "Visual-motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نبص على الطبق والشوكة.",
+      "textEn": "Look at the plate and the fork"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.02.mp3",
+        "slow": "audio/ar-eg/eat.fork.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.02",
+      "media": {
+        "boy": {
+          "clip": null,
+          "still": "character/boy/steps/eat.fork.02.still.webp"
+        },
+        "girl": null
+      },
+      "number": 2,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Identifying the place, organizing movement",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نروح مكان الأكل.",
+      "textEn": "Go to the eating place"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.03.mp3",
+        "slow": "audio/ar-eg/eat.fork.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.03",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.03.webp",
+          "still": "character/boy/steps/eat.fork.03.still.webp"
+        },
+        "girl": null
+      },
+      "number": 3,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Transitioning to sitting, moving the body's joints",
+      "tags": [
+        "Motor planning",
+        "Range of motion"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نقعد على الكرسي قعدة مظبوطة.",
+      "textEn": "Sit on the chair in a suitable position"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.04.mp3",
+        "slow": "audio/ar-eg/eat.fork.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.04",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.04.webp",
+          "still": "character/boy/steps/eat.fork.04.still.webp"
+        },
+        "girl": null
+      },
+      "number": 4,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Carrying the plate, determining its position, release",
+      "tags": [
+        "Hand skills",
+        "Motor planning"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نحط الطبق قدامنا على حاجة ثابتة.",
+      "textEn": "Put the plate in front of you on a stable surface"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.05.mp3",
+        "slow": "audio/ar-eg/eat.fork.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.05",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.05.webp",
+          "still": "character/boy/steps/eat.fork.05.still.webp"
+        },
+        "girl": null
+      },
+      "number": 5,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Functional grasp, finger control, stabilizing the fork",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نمسك الشوكة مسكة مظبوطة.",
+      "textEn": "Hold the fork in a suitable way"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.06.mp3",
+        "slow": "audio/ar-eg/eat.fork.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.06",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.06.webp",
+          "still": "character/boy/steps/eat.fork.06.still.webp"
+        },
+        "girl": null
+      },
+      "number": 6,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Directing the hand toward the food, moving the shoulder, elbow, and wrist",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نوجه الشوكة ناحية الأكل.",
+      "textEn": "Direct the fork toward the food"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.07.mp3",
+        "slow": "audio/ar-eg/eat.fork.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.07",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.07.webp",
+          "still": "character/boy/steps/eat.fork.07.still.webp"
+        },
+        "girl": null
+      },
+      "number": 7,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Controlling grip pressure, directing the fork, adjusting the force used",
+      "tags": [
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نشبك الشوكة في حتة أكل مناسبة.",
+      "textEn": "Stick the fork into a suitable piece of food"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.08.mp3",
+        "slow": "audio/ar-eg/eat.fork.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.08",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.08.webp",
+          "still": "character/boy/steps/eat.fork.08.still.webp"
+        },
+        "girl": null
+      },
+      "number": 8,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Raising the arm, controlling the fork's direction",
+      "tags": [
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نرفع الشوكة بالراحة.",
+      "textEn": "Lift the fork slowly"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.09.mp3",
+        "slow": "audio/ar-eg/eat.fork.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.09",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.09.webp",
+          "still": "character/boy/steps/eat.fork.09.still.webp"
+        },
+        "girl": null
+      },
+      "number": 9,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Directing the fork toward the mouth, eye-hand coordination",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نقرب الشوكة من بقنا.",
+      "textEn": "Bring the fork close to your mouth"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.10.mp3",
+        "slow": "audio/ar-eg/eat.fork.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.10",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.10.webp",
+          "still": "character/boy/steps/eat.fork.10.still.webp"
+        },
+        "girl": null
+      },
+      "number": 10,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Opening the jaw",
+      "tags": [
+        "Range of motion"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نفتح بقنا.",
+      "textEn": "Open your mouth"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.11.mp3",
+        "slow": "audio/ar-eg/eat.fork.11.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.11",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.11.webp",
+          "still": "character/boy/steps/eat.fork.11.still.webp"
+        },
+        "girl": null
+      },
+      "number": 11,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Organizing the direction of movement, hand-mouth coordination",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا ندخل الأكل بقنا بحرص.",
+      "textEn": "Put the food into your mouth carefully"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.12.mp3",
+        "slow": "audio/ar-eg/eat.fork.12.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.12",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.12.webp",
+          "still": "character/boy/steps/eat.fork.12.still.webp"
+        },
+        "girl": null
+      },
+      "number": 12,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Pulling the fork out, controlling arm and wrist movement",
+      "tags": [
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نطلع الشوكة من بقنا بالراحة.",
+      "textEn": "Take the fork out of your mouth gently"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.13.mp3",
+        "slow": "audio/ar-eg/eat.fork.13.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.13",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.13.webp",
+          "still": "character/boy/steps/eat.fork.13.still.webp"
+        },
+        "girl": null
+      },
+      "number": 13,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Coordinating jaw movement, chewing",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نمضغ الأكل كويس.",
+      "textEn": "Chew the food well"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.14.mp3",
+        "slow": "audio/ar-eg/eat.fork.14.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.14",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.14.webp",
+          "still": "character/boy/steps/eat.fork.14.still.webp"
+        },
+        "girl": null
+      },
+      "number": 14,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Organizing the eating sequence, coordinating swallowing",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نبلع الأكل قبل ما ناخد حتة تانية.",
+      "textEn": "Swallow the food before taking another piece"
+    },
+    {
+      "area": "eat",
+      "audio": {
+        "normal": "audio/ar-eg/eat.fork.15.mp3",
+        "slow": "audio/ar-eg/eat.fork.15.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "eat.fork.15",
+      "media": {
+        "boy": {
+          "clip": "character/boy/steps/eat.fork.15.webp",
+          "still": "character/boy/steps/eat.fork.15.still.webp"
+        },
+        "girl": null
+      },
+      "number": 15,
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork",
+      "subSkills": "Remembering the sequence, repeating the performance",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "eat.fork",
+      "textAr": "يلا نكرر الخطوات لحد ما نخلص الأكل.",
+      "textEn": "Repeat the steps until you finish eating the food"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.01.mp3",
+        "slow": "audio/ar-eg/drink.cup.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Visually locating the cup",
+      "tags": [
+        "Visual-motor coordination"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نبص على الكوباية.",
+      "textEn": "Look at the cup"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.02.mp3",
+        "slow": "audio/ar-eg/drink.cup.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Extending the shoulder and elbow, directing the hand toward the cup",
+      "tags": [
+        "Range of motion",
+        "Visual-motor coordination"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نمد إيدنا للكوباية.",
+      "textEn": "Reach your hand to the cup"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.03.mp3",
+        "slow": "audio/ar-eg/drink.cup.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Palmar grasp, controlling grip pressure, stabilizing the cup",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نمسك الكوباية.",
+      "textEn": "Hold the cup"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.04.mp3",
+        "slow": "audio/ar-eg/drink.cup.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Raising the arm, controlling wrist movement",
+      "tags": [
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نرفع الكوباية.",
+      "textEn": "Lift the cup"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.05.mp3",
+        "slow": "audio/ar-eg/drink.cup.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Directing the cup toward the mouth, eye-hand coordination",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نقرب الكوباية من بقنا.",
+      "textEn": "Bring the cup close to your mouth"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.06.mp3",
+        "slow": "audio/ar-eg/drink.cup.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Determining the cup's point of contact, adjusting the hand's direction",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نحط الكوباية على شفايفنا.",
+      "textEn": "Place the cup on your lips"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.07.mp3",
+        "slow": "audio/ar-eg/drink.cup.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.07",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 7,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Controlling wrist and arm movement, adjusting the tilt angle",
+      "tags": [
+        "Motor coordination",
+        "Range of motion"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نميل الكوباية بالراحة.",
+      "textEn": "Tilt the cup slowly"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.08.mp3",
+        "slow": "audio/ar-eg/drink.cup.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.08",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 8,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Coordinating the movement of the lips, tongue, and mouth while drinking",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نشرب شوية مية.",
+      "textEn": "Drink a little water"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.09.mp3",
+        "slow": "audio/ar-eg/drink.cup.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.09",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 9,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Coordinating the swallowing process",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نبلع المية.",
+      "textEn": "Swallow the water"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.10.mp3",
+        "slow": "audio/ar-eg/drink.cup.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.10",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 10,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Reversing the tilt direction, returning the wrist and arm to the previous position",
+      "tags": [
+        "Motor planning",
+        "Range of motion"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نرجع الكوباية زي ما كانت.",
+      "textEn": "Return the cup to its normal position"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.11.mp3",
+        "slow": "audio/ar-eg/drink.cup.11.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.11",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 11,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Moving the arm back, controlling the cup's path",
+      "tags": [
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نبعد الكوباية عن بقنا.",
+      "textEn": "Move the cup away from your mouth"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.12.mp3",
+        "slow": "audio/ar-eg/drink.cup.12.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.12",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 12,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Directing the cup toward the table surface, controlling the lowering of the arm",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا ننزل الكوباية على الترابيزة.",
+      "textEn": "Lower the cup onto the table"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.cup.13.mp3",
+        "slow": "audio/ar-eg/drink.cup.13.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.cup.13",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 13,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup",
+      "subSkills": "Opening the grip, voluntary release",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "drink.cup",
+      "textAr": "يلا نسيب الكوباية.",
+      "textEn": "Let go of the cup"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.01.mp3",
+        "slow": "audio/ar-eg/drink.bottle.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Locating the bottle",
+      "tags": [
+        "Visual-motor coordination"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نبص على الإزازة.",
+      "textEn": "Look at the bottle"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.02.mp3",
+        "slow": "audio/ar-eg/drink.bottle.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Extending the arm, directing the hand toward the target",
+      "tags": [
+        "Range of motion",
+        "Visual-motor coordination"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نمد إيدنا للإزازة.",
+      "textEn": "Reach your hand to the bottle"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.03.mp3",
+        "slow": "audio/ar-eg/drink.bottle.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Palmar grasp, controlling grip pressure",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نمسك الإزازة.",
+      "textEn": "Hold the bottle"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.04.mp3",
+        "slow": "audio/ar-eg/drink.bottle.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Raising the arm, stabilizing the bottle during movement",
+      "tags": [
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نرفع الإزازة.",
+      "textEn": "Lift the bottle"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.05.mp3",
+        "slow": "audio/ar-eg/drink.bottle.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Directing the bottle toward the mouth",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نقرب الإزازة من بقنا.",
+      "textEn": "Bring the bottle close to your mouth"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.06.mp3",
+        "slow": "audio/ar-eg/drink.bottle.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Determining the position of the opening, adjusting the bottle's direction",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نحط بق الإزازة على شفايفنا.",
+      "textEn": "Place the opening of the bottle on your lips"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.07.mp3",
+        "slow": "audio/ar-eg/drink.bottle.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.07",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 7,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Controlling the tilt angle, wrist and arm movement",
+      "tags": [
+        "Motor coordination",
+        "Range of motion"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نميل الإزازة بالراحة.",
+      "textEn": "Tilt the bottle slowly"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.08.mp3",
+        "slow": "audio/ar-eg/drink.bottle.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.08",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 8,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Coordinating the movement of the lips, tongue, and mouth",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نشرب شوية مية.",
+      "textEn": "Drink a little water"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.09.mp3",
+        "slow": "audio/ar-eg/drink.bottle.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.09",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 9,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Coordinating the swallowing process",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نبلع المية.",
+      "textEn": "Swallow the water"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.10.mp3",
+        "slow": "audio/ar-eg/drink.bottle.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.10",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 10,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Reversing the tilt direction, returning the arm and wrist",
+      "tags": [
+        "Motor planning",
+        "Range of motion"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نرجع الإزازة زي ما كانت.",
+      "textEn": "Return the bottle to its normal position"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.11.mp3",
+        "slow": "audio/ar-eg/drink.bottle.11.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.11",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 11,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Moving the arm back, controlling the bottle's path",
+      "tags": [
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نبعد الإزازة عن بقنا.",
+      "textEn": "Move the bottle away from your mouth"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.12.mp3",
+        "slow": "audio/ar-eg/drink.bottle.12.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.12",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 12,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Directing the bottle toward the surface, controlling the lowering of the arm",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا ننزل الإزازة على الترابيزة.",
+      "textEn": "Lower the bottle onto the table"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.bottle.13.mp3",
+        "slow": "audio/ar-eg/drink.bottle.13.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.bottle.13",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 13,
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle",
+      "subSkills": "Opening the grip, voluntary release",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "drink.bottle",
+      "textAr": "يلا نسيب الإزازة.",
+      "textEn": "Let go of the bottle"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.01.mp3",
+        "slow": "audio/ar-eg/drink.straw.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Locating the cup or juice box",
+      "tags": [
+        "Visual-motor coordination"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نبص على الكوباية أو علبة العصير.",
+      "textEn": "Look at the cup or juice box"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.02.mp3",
+        "slow": "audio/ar-eg/drink.straw.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Extending the arm, directing the hand toward the cup or juice box",
+      "tags": [
+        "Range of motion",
+        "Visual-motor coordination"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نمد إيدنا للكوباية أو علبة العصير.",
+      "textEn": "Reach your hand to the cup or juice box"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.03.mp3",
+        "slow": "audio/ar-eg/drink.straw.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Palmar grasp, stabilizing the cup",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نمسك الكوباية أو علبة العصير.",
+      "textEn": "Hold the cup or juice box"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.04.mp3",
+        "slow": "audio/ar-eg/drink.straw.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Holding the straw, directing it toward the mouth",
+      "tags": [
+        "Hand skills",
+        "Visual-motor coordination"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نقرب الشفاطة من بقنا.",
+      "textEn": "Bring the straw close to your mouth"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.05.mp3",
+        "slow": "audio/ar-eg/drink.straw.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Determining the straw's position, directing the movement",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نحط الشفاطة بين شفايفنا.",
+      "textEn": "Place the straw between your lips"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.06.mp3",
+        "slow": "audio/ar-eg/drink.straw.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Closing the lips and controlling the mouth muscles",
+      "tags": [
+        "Range of motion"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نقفل شفايفنا عليها.",
+      "textEn": "Close your lips around it"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.07.mp3",
+        "slow": "audio/ar-eg/drink.straw.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.07",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 7,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Coordinating the lips, tongue, and oral muscles during sucking",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نشفط المية أو العصير بالشفاطة.",
+      "textEn": "Suck the water or juice through the straw"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.08.mp3",
+        "slow": "audio/ar-eg/drink.straw.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.08",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 8,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Coordinating the swallowing process",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نبلع المية أو العصير.",
+      "textEn": "Swallow the water or juice"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.09.mp3",
+        "slow": "audio/ar-eg/drink.straw.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.09",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 9,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Determining the direction for removing the straw, controlling mouth and hand movement",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نطلع الشفاطة من بقنا.",
+      "textEn": "Take the straw out of your mouth"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.10.mp3",
+        "slow": "audio/ar-eg/drink.straw.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.10",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 10,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Organizing head and mouth movement",
+      "tags": [
+        "Motor planning",
+        "Range of motion"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نبعد بقنا عن الشفاطة.",
+      "textEn": "Move your mouth away from the straw"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.11.mp3",
+        "slow": "audio/ar-eg/drink.straw.11.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.11",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 11,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Directing the cup toward the surface, controlling the lowering of the arm",
+      "tags": [
+        "Visual-motor coordination",
+        "Range of motion"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا ننزل الكوباية أو علبة العصير على الترابيزة.",
+      "textEn": "Lower the cup or juice box onto the table"
+    },
+    {
+      "area": "drink",
+      "audio": {
+        "normal": "audio/ar-eg/drink.straw.12.mp3",
+        "slow": "audio/ar-eg/drink.straw.12.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "drink.straw.12",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 12,
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw",
+      "subSkills": "Opening the grip, voluntary release",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "drink.straw",
+      "textAr": "يلا نسيب الكوباية أو علبة العصير.",
+      "textEn": "Let go of the cup or juice box"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.01.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Visually locating the sink",
+      "tags": [
+        "Visual-motor coordination"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نبص على الحوض.",
+      "textEn": "Look at the sink"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.02.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Identifying the place, organising the movement to reach it",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نروح عند الحوض.",
+      "textEn": "Go to the sink"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.03.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Grasping the tap handle, turning it, moving the wrist and fingers",
+      "tags": [
+        "Hand skills",
+        "Range of motion"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نفتح الحنفية.",
+      "textEn": "Turn on the tap"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.04.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Placing the hands under the water, moving the hands and fingers",
+      "tags": [
+        "Motor coordination",
+        "Range of motion"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نبل إيدينا بالمية.",
+      "textEn": "Wet your hands with water"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.05.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Locating the soap, reaching it, grasping it",
+      "tags": [
+        "Motor planning",
+        "Hand skills"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نجيب الصابونة.",
+      "textEn": "Get the soap"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.06.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Holding the soap, transferring it, controlling the hand movement",
+      "tags": [
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نحط صابون على إيدينا.",
+      "textEn": "Put soap on your hands"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.07.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.07",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 7,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Bilateral coordination, reciprocal movement of the hands, rubbing the palms against each other",
+      "tags": [
+        "Motor coordination",
+        "Hand skills"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نفرك كفوفنا في بعض.",
+      "textEn": "Rub your palms together"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.08.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.08",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 8,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Spreading the fingers, inserting the fingers of one hand between the fingers of the other, bilateral coordination",
+      "tags": [
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نفرك بين صوابعنا.",
+      "textEn": "Rub between your fingers"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.09.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.09",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 9,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Moving the fingers, using both hands together, controlling the hand movement",
+      "tags": [
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نفرك ضهر إيدينا وحوالين ضوافرنا.",
+      "textEn": "Rub the backs of your hands and around your nails"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.10.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.10",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 10,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Moving the hands under the water, rotating the hands and moving the wrist",
+      "tags": [
+        "Motor coordination",
+        "Range of motion"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نشطف إيدينا بالمية.",
+      "textEn": "Rinse your hands with water"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.11.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.11.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.11",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 11,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Grasping the handle, turning it, controlling the movement of the fingers and wrist",
+      "tags": [
+        "Hand skills",
+        "Range of motion"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نقفل الحنفية.",
+      "textEn": "Turn off the tap"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.12.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.12.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.12",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 12,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Locating the towel, reaching it, grasping it",
+      "tags": [
+        "Motor planning",
+        "Hand skills"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا نجيب الفوطة.",
+      "textEn": "Get the towel"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.handwash.13.mp3",
+        "slow": "audio/ar-eg/hygiene.handwash.13.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.handwash.13",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 13,
+      "source": "personal-hygiene-assessment-scale.md#Handwashing",
+      "subSkills": "Holding the towel, moving it over the palms, the backs of the hands and between the fingers",
+      "tags": [
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "hygiene.handwash",
+      "textAr": "يلا ننشف إيدينا كويس.",
+      "textEn": "Dry your hands well"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.01.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Locating the tools, visually discriminating between them",
+      "tags": [
+        "Visual-motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نبص على فرشة السنان والمعجون.",
+      "textEn": "Look at the toothbrush and the toothpaste"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.02.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Identifying the required tools, reaching them, grasping and carrying",
+      "tags": [
+        "Motor planning",
+        "Hand skills"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نجيب فرشة السنان والمعجون.",
+      "textEn": "Get the toothbrush and the toothpaste"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.03.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Precision grasp, turning the cap, using both hands together when needed",
+      "tags": [
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نفتح غطا المعجون.",
+      "textEn": "Open the toothpaste cap"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.04.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Controlling finger pressure, directing the toothpaste nozzle, adjusting the amount of toothpaste",
+      "tags": [
+        "Hand skills",
+        "Visual-motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نحط نقطة معجون صغيرة على الفرشة.",
+      "textEn": "Put a small dot of toothpaste on the brush"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.05.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Functional grasp, stabilising the brush, finger control",
+      "tags": [
+        "Hand skills"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نمسك الفرشة كويس.",
+      "textEn": "Hold the brush well"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.06.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Locating the teeth, directing the brush, organising the hand movement",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نغسل سناننا اللي قدام.",
+      "textEn": "Brush the front teeth"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.07.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.07",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 7,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Locating the back teeth, directing the brush inside the mouth, moving the wrist and arm",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نغسل سناننا اللي ورا.",
+      "textEn": "Brush the back teeth"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.08.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.08",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 8,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Changing the brush direction, organising the movement path, controlling the hand movement",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نغسل سناننا من جوه.",
+      "textEn": "Brush your teeth from the inside"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.09.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.09",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 9,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Locating the tooth surface, directing the brush to the required place",
+      "tags": [
+        "Motor planning",
+        "Visual-motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نغسل الحتة اللي بنمضغ عليها الأكل.",
+      "textEn": "Brush the surface you chew food on"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.10.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.10",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 10,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Organising the cleaning sequence, changing the brush direction, repeating the movement",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نخلص غسيل سناننا بالراحة.",
+      "textEn": "Finish brushing your teeth gently"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.11.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.11.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.11",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 11,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Directing the mouth towards the sink, coordinating the movement of the mouth muscles",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نتف المعجون في الحوض.",
+      "textEn": "Spit the toothpaste into the sink"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.12.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.12.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.12",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 12,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Coordinating the movement of the lips, tongue and cheeks, controlling rinsing and spitting",
+      "tags": [
+        "Motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نمضمض بقنا ونتف المية لو نقدر نعمل كده بأمان.",
+      "textEn": "Rinse your mouth and spit out the water if you can do so safely"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.13.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.13.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.13",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 13,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Grasping the brush, moving it under the water, rotating it to clean the bristles",
+      "tags": [
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نشطف الفرشة بالمية.",
+      "textEn": "Rinse the brush with water"
+    },
+    {
+      "area": "hygiene",
+      "audio": {
+        "normal": "audio/ar-eg/hygiene.teeth.14.mp3",
+        "slow": "audio/ar-eg/hygiene.teeth.14.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "hygiene.teeth.14",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 14,
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing",
+      "subSkills": "Locating the tools' place, carrying them, directing them to the place, releasing",
+      "tags": [
+        "Motor planning",
+        "Hand skills",
+        "Visual-motor coordination"
+      ],
+      "task": "hygiene.teeth",
+      "textAr": "يلا نرجع الفرشة والمعجون مكانهم.",
+      "textEn": "Return the brush and the toothpaste to their place"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.on.01.mp3",
+        "slow": "audio/ar-eg/dress.jacket.on.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.on.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Motor planning: spatial planning",
+      "tags": [
+        "Motor planning"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا نعرف قدام الجاكيت وورا الجاكيت.",
+      "textEn": "Identifies the front and the back of the jacket"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.on.02.mp3",
+        "slow": "audio/ar-eg/dress.jacket.on.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.on.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Hand skills: extends the hands to reach the jacket (reach); holds the edges of the jacket (grasp); lifts the jacket and moves it to the body (carry). Motor coordination: holds the jacket by both sides and spreads it out with both hands (symmetrical bilateral coordination)",
+      "tags": [
+        "Motor planning",
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا نفتح الجاكيت ونجهزه علشان نلبسه.",
+      "textEn": "Opens the jacket and prepares it for putting on"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.on.03.mp3",
+        "slow": "audio/ar-eg/dress.jacket.on.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.on.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Range of motion: extends the arms backward; bends and extends the elbows; inserts the arms into the sleeves. Motor coordination: stabilises the jacket with one hand and guides the other arm into the sleeve (asymmetrical bilateral coordination); follows the sleeve opening and the position of the arm with the eyes (visual-motor coordination). Midline crossing: extends one hand across the middle of the body to reach the sleeve on the opposite side",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Midline crossing"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا ندخل دراعنا الأولاني في الكم وبعدين الدراع التاني.",
+      "textEn": "Inserts the first arm into the sleeve and then the second arm"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.on.04.mp3",
+        "slow": "audio/ar-eg/dress.jacket.on.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.on.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Range of motion: moves the shoulders to adjust the jacket; pulls the jacket onto the body. Motor coordination: inserts the arms and then adjusts the jacket on the shoulders (sequential motor coordination). Midline crossing: reaches with the hand to the edge of the jacket on the other side to adjust it on the body. Hand skills: lets go of the jacket after putting it on and adjusting it (release)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Midline crossing",
+        "Hand skills"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا نسحب الجاكيت على كتافنا ونظبطه.",
+      "textEn": "Pulls the jacket onto the shoulders and adjusts it"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.on.05.mp3",
+        "slow": "audio/ar-eg/dress.jacket.on.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.on.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Motor planning: sequential planning",
+      "tags": [
+        "Motor planning"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا نقفل الجاكيت من تحت لفوق بالترتيب.",
+      "textEn": "Fastens the jacket from bottom to top in order"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.01.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.jacket.off",
+      "textAr": "يلا ندور على السوستة أو الزراير.",
+      "textEn": "Locate the zipper or the buttons"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.02.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نوصل للسوستة.",
+      "textEn": "Reach the zipper"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.03.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "Precision grasp; visual-motor coordination; identifying the grasping position and organising the start of the movement; reaching the zipper position, if that requires additional movement",
+      "tags": [
+        "Hand skills",
+        "Motor coordination",
+        "Motor planning",
+        "Range of motion"
+      ],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نمسك السوستة.",
+      "textEn": "Grasp the zipper"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.04.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "Precision grasp, finger control, manipulating small objects; visual-motor coordination, bilateral coordination between the two hands; organising the grasping and pulling movement, identifying the pulling direction",
+      "tags": [
+        "Hand skills",
+        "Motor coordination",
+        "Motor planning"
+      ],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نفتح السوستة.",
+      "textEn": "Open the zipper"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.05.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نمسك جنبين الجاكيت.",
+      "textEn": "Grasp both sides of the jacket"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.06.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.06.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نبعد الجاكيت عن جسمنا.",
+      "textEn": "Move the jacket away from the body"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.07.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.07.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.07",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 7,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نطلع دراعنا الأولاني من الكم.",
+      "textEn": "Take the first arm out of the sleeve"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.08.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.08.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.08",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 8,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نطلع دراعنا التاني من الكم.",
+      "textEn": "Take the second arm out of the sleeve"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.09.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.09.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.09",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 9,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نقلع الجاكيت خالص.",
+      "textEn": "Take the jacket off completely"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.jacket.off.10.mp3",
+        "slow": "audio/ar-eg/dress.jacket.off.10.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.jacket.off.10",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 10,
+      "source": "dressing-assessment-scale.md#Taking off the jacket",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.jacket.off",
+      "textAr": "يلا نحط الجاكيت في مكانه.",
+      "textEn": "Put the jacket in the designated place"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.tshirt.on.01.mp3",
+        "slow": "audio/ar-eg/dress.tshirt.on.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.tshirt.on.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "subSkills": "Hand skills: extends the hand toward the T-shirt to reach it (reach); holds the two edges of the T-shirt with the fingers and the palm (grasp). Motor coordination: holds the two edges of the T-shirt with both hands to open it (symmetrical bilateral coordination)",
+      "tags": [
+        "Motor planning",
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "dress.tshirt.on",
+      "textAr": "يلا نعرف اتجاه التيشيرت ونمسكه من المكان المناسب.",
+      "textEn": "Identifies the orientation of the T-shirt and holds it at the appropriate place"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.tshirt.on.02.mp3",
+        "slow": "audio/ar-eg/dress.tshirt.on.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.tshirt.on.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "subSkills": "Motor planning: motor planning",
+      "tags": [
+        "Motor planning"
+      ],
+      "task": "dress.tshirt.on",
+      "textAr": "يلا نعرف فتحة الراس والأكمام قبل ما نبدأ نلبس.",
+      "textEn": "Identifies the head opening and the sleeves before starting to dress"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.tshirt.on.03.mp3",
+        "slow": "audio/ar-eg/dress.tshirt.on.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.tshirt.on.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "subSkills": "Range of motion: raises the arms upward; bends and extends the elbows; raises the head to insert it into the T-shirt opening; inserts the arms into the sleeves. Motor coordination: stabilises the T-shirt with one hand and guides the other arm into the sleeve (asymmetrical bilateral coordination); directs the sleeve opening toward the arm while following the movement with the eyes (visual-motor coordination). Hand skills: lifts the T-shirt and moves it toward the body (carry). Midline crossing: extends the right hand across the middle of the body to reach the sleeve on the left side, and vice versa",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Hand skills",
+        "Midline crossing"
+      ],
+      "task": "dress.tshirt.on",
+      "textAr": "يلا ندخل راسنا في الفتحة بتاعتها، وبعدين ندخل دراعاتنا في الأكمام.",
+      "textEn": "Inserts the head through the opening intended for it, then inserts the arms into the sleeves"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.tshirt.on.04.mp3",
+        "slow": "audio/ar-eg/dress.tshirt.on.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.tshirt.on.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "subSkills": "Range of motion: pulls the T-shirt downward. Motor coordination: inserts the arms and then pulls the T-shirt downward in sequential order (sequential motor coordination)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "dress.tshirt.on",
+      "textAr": "يلا نسحب التيشيرت لتحت حركة ورا حركة بنظام.",
+      "textEn": "Pulls the T-shirt downward in a sequential, organised movement"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.tshirt.on.05.mp3",
+        "slow": "audio/ar-eg/dress.tshirt.on.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.tshirt.on.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "subSkills": "Midline crossing: uses one hand to reach the edge of the T-shirt on the opposite side and adjust it. Hand skills: opens the hands and lets go of the T-shirt after securing it in place (release)",
+      "tags": [
+        "Motor planning",
+        "Midline crossing",
+        "Hand skills"
+      ],
+      "task": "dress.tshirt.on",
+      "textAr": "يلا نظبط التيشيرت لحد ما يقعد على جسمنا.",
+      "textEn": "Adjusts the position of the T-shirt until it settles on the body"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shirt.on.01.mp3",
+        "slow": "audio/ar-eg/dress.shirt.on.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shirt.on.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "subSkills": "Hand skills: extends the hand to reach the shirt and the buttons (reach); holds the edges of the shirt and the buttons using the fingers (grasp); lifts the shirt and moves it to the body (carry). Motor coordination: spreads out the shirt and holds its two sides with both hands (symmetrical bilateral coordination)",
+      "tags": [
+        "Motor planning",
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "dress.shirt.on",
+      "textAr": "يلا نعرف اتجاه القميص وقدامه ووراه.",
+      "textEn": "Identifies the orientation of the shirt and its front and back"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shirt.on.02.mp3",
+        "slow": "audio/ar-eg/dress.shirt.on.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shirt.on.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "subSkills": "Range of motion: raises the arms; bends and extends the elbows; inserts the arms into the sleeves. Motor coordination: stabilises the shirt with one hand and inserts the other arm into the sleeve (asymmetrical bilateral coordination). Midline crossing: extends one hand across the middle of the body to reach the opposite sleeve",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Midline crossing"
+      ],
+      "task": "dress.shirt.on",
+      "textAr": "يلا ندخل دراعاتنا في الأكمام بالترتيب.",
+      "textEn": "Inserts the arms into the sleeves in order"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shirt.on.03.mp3",
+        "slow": "audio/ar-eg/dress.shirt.on.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shirt.on.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "subSkills": "Range of motion: moves the hands in front of the body; brings the two sides of the shirt together",
+      "tags": [
+        "Motor planning",
+        "Range of motion"
+      ],
+      "task": "dress.shirt.on",
+      "textAr": "يلا نظبط القميص على جسمنا.",
+      "textEn": "Adjusts the shirt on the body"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shirt.on.04.mp3",
+        "slow": "audio/ar-eg/dress.shirt.on.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shirt.on.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "subSkills": "Range of motion: fastens the buttons in order. Motor coordination: directs the buttons toward the buttonholes and follows their position with the eyes (visual-motor coordination). Midline crossing: reaches with one hand to the buttons on the opposite side of the shirt; reaches the opposite buttonhole to insert the button into it",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Midline crossing"
+      ],
+      "task": "dress.shirt.on",
+      "textAr": "يلا نبدأ نقفل الزراير من فوق لتحت.",
+      "textEn": "Begins fastening the buttons from top to bottom"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shirt.on.05.mp3",
+        "slow": "audio/ar-eg/dress.shirt.on.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shirt.on.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "subSkills": "Motor coordination: inserts the buttons into the buttonholes in sequence using both hands (sequential motor coordination). Hand skills: lets go of the shirt after adjusting it and fastening the buttons (release)",
+      "tags": [
+        "Motor planning",
+        "Motor coordination",
+        "Hand skills"
+      ],
+      "task": "dress.shirt.on",
+      "textAr": "يلا نقفل الزراير واحد ورا التاني بنفس السرعة.",
+      "textEn": "Fastens the buttons one after another at a regular rhythm"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.trousers.on.01.mp3",
+        "slow": "audio/ar-eg/dress.trousers.on.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.trousers.on.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "subSkills": "Motor planning: spatial planning",
+      "tags": [
+        "Motor planning"
+      ],
+      "task": "dress.trousers.on",
+      "textAr": "يلا نعرف اتجاه البنطلون وفتحات الرجلين.",
+      "textEn": "Identifies the orientation of the trousers and the leg openings"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.trousers.on.02.mp3",
+        "slow": "audio/ar-eg/dress.trousers.on.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.trousers.on.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "subSkills": "Hand skills: extends the hand to reach the trousers (reach); holds the two edges of the trousers (grasp); lifts the trousers and moves them toward the feet and the body (carry). Motor coordination: holds the two sides of the trousers with both hands and opens them (symmetrical bilateral coordination)",
+      "tags": [
+        "Motor planning",
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "dress.trousers.on",
+      "textAr": "يلا نمسك البنطلون ونجهزه علشان نلبسه.",
+      "textEn": "Holds the trousers and prepares them for putting on"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.trousers.on.03.mp3",
+        "slow": "audio/ar-eg/dress.trousers.on.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.trousers.on.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "subSkills": "Range of motion: leans the trunk forward; bends the knees; lifts each foot to insert it into the trousers. Motor coordination: stabilises the trousers with one hand and guides the foot with the other (asymmetrical bilateral coordination); directs the foot toward the trouser opening while following it with the eyes (visual-motor coordination)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "dress.trousers.on",
+      "textAr": "يلا ندخل رجلنا الأولانية وبعدين رجلنا التانية في الفتحات بتاعتها.",
+      "textEn": "Inserts the first foot and then the second foot into the appropriate openings"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.trousers.on.04.mp3",
+        "slow": "audio/ar-eg/dress.trousers.on.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.trousers.on.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "subSkills": "Range of motion: extends the body to the upright position; pulls the trousers up to waist level. Motor coordination: inserts the feet and then pulls the trousers upward in sequence (sequential motor coordination). Midline crossing: uses the hand to reach the edge of the trousers on the other side while pulling them upward",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Midline crossing"
+      ],
+      "task": "dress.trousers.on",
+      "textAr": "يلا نسحب البنطلون لفوق شوية شوية لحد وسطنا.",
+      "textEn": "Pulls the trousers upward gradually until they reach the waist"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.trousers.on.05.mp3",
+        "slow": "audio/ar-eg/dress.trousers.on.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.trousers.on.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "subSkills": "Midline crossing: extends one hand across the middle of the body to reach the opposite side of the trousers and adjust it. Hand skills: lets go of the trousers after adjusting them in place (release)",
+      "tags": [
+        "Motor planning",
+        "Midline crossing",
+        "Hand skills"
+      ],
+      "task": "dress.trousers.on",
+      "textAr": "يلا نظبط البنطلون حوالين وسطنا.",
+      "textEn": "Adjusts the position of the trousers around the waist"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.socks.on.01.mp3",
+        "slow": "audio/ar-eg/dress.socks.on.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.on.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "subSkills": "Hand skills: extends the hand to reach the sock (reach); holds the two edges of the sock with the fingers (grasp). Midline crossing: extends one hand across the middle of the body to reach the sock located beside the opposite foot",
+      "tags": [
+        "Motor planning",
+        "Hand skills",
+        "Midline crossing"
+      ],
+      "task": "dress.socks.on",
+      "textAr": "يلا نعرف فتحة الشراب واتجاهه الصح.",
+      "textEn": "Identifies the opening of the sock and its correct orientation"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.socks.on.02.mp3",
+        "slow": "audio/ar-eg/dress.socks.on.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.on.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "subSkills": "Range of motion: opens the sock. Motor coordination: holds the two edges of the sock with both hands and opens it (symmetrical bilateral coordination). Hand skills: lifts the sock and moves it toward the foot (carry)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Hand skills"
+      ],
+      "task": "dress.socks.on",
+      "textAr": "يلا نفتح الشراب ونجهزه علشان ندخل رجلنا.",
+      "textEn": "Opens the sock and prepares it for inserting the foot"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.socks.on.03.mp3",
+        "slow": "audio/ar-eg/dress.socks.on.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.on.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "subSkills": "Range of motion: leans the trunk forward; bends one knee; lifts the foot in order to reach it; extends the hands toward the foot; inserts the toes and pulls the sock over the heel. Motor coordination: stabilises the sock with one hand and guides the toes with the other (asymmetrical bilateral coordination); directs the toes into the sock opening while following them with the eyes (visual-motor coordination)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "dress.socks.on",
+      "textAr": "يلا ندخل صوابع رجلنا الأول وبعدين نسحب الشراب على كعبنا.",
+      "textEn": "Inserts the toes first and then pulls the sock over the heel"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.socks.on.04.mp3",
+        "slow": "audio/ar-eg/dress.socks.on.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.on.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "subSkills": "Motor coordination: pulls the sock gradually until it covers the foot (sequential motor coordination)",
+      "tags": [
+        "Motor planning",
+        "Motor coordination"
+      ],
+      "task": "dress.socks.on",
+      "textAr": "يلا نسحب الشراب شوية شوية لحد مكانه الصح.",
+      "textEn": "Pulls the sock gradually until it reaches its correct position"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.socks.on.05.mp3",
+        "slow": "audio/ar-eg/dress.socks.on.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.on.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "subSkills": "Midline crossing: reaches with the hand to the edge of the sock on the opposite side to adjust it. Hand skills: lets go of the sock after pulling it on and securing it on the foot (release)",
+      "tags": [
+        "Motor planning",
+        "Midline crossing",
+        "Hand skills"
+      ],
+      "task": "dress.socks.on",
+      "textAr": "يلا نظبط الشراب حوالين رجلنا.",
+      "textEn": "Adjusts the position of the sock around the foot"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shoes.on.01.mp3",
+        "slow": "audio/ar-eg/dress.shoes.on.01.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.on.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "subSkills": "Hand skills: extends the hand to reach the shoe (reach); holds the shoe by its edges (grasp). Midline crossing: extends one hand across the middle of the body to reach the shoe located beside the opposite foot",
+      "tags": [
+        "Motor planning",
+        "Hand skills",
+        "Midline crossing"
+      ],
+      "task": "dress.shoes.on",
+      "textAr": "يلا نعرف الجزمة المناسبة لكل رجل.",
+      "textEn": "Identifies the appropriate shoe for each foot"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shoes.on.02.mp3",
+        "slow": "audio/ar-eg/dress.shoes.on.02.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.on.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "subSkills": "Range of motion: opens the shoe. Motor coordination: holds the shoe with both hands and opens it (symmetrical bilateral coordination). Hand skills: lifts the shoe and moves it toward the foot (carry)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Hand skills"
+      ],
+      "task": "dress.shoes.on",
+      "textAr": "يلا نفتح الجزمة ونجهزها علشان ندخل رجلنا.",
+      "textEn": "Opens the shoe and prepares it for inserting the foot"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shoes.on.03.mp3",
+        "slow": "audio/ar-eg/dress.shoes.on.03.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.on.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "subSkills": "Range of motion: leans the trunk forward; bends the knee; lifts the foot; extends the hand toward the shoe; inserts the foot and adjusts the heel. Motor coordination: stabilises the shoe with one hand and guides the foot with the other (asymmetrical bilateral coordination); directs the foot into the shoe while following its position with the eyes (visual-motor coordination)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination"
+      ],
+      "task": "dress.shoes.on",
+      "textAr": "يلا ندخل رجلنا في الجزمة صح.",
+      "textEn": "Inserts the foot into the shoe in the correct way"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shoes.on.04.mp3",
+        "slow": "audio/ar-eg/dress.shoes.on.04.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.on.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "subSkills": "Midline crossing: reaches with the hand to the outer part of the shoe to adjust its position if it is on the opposite side",
+      "tags": [
+        "Motor planning",
+        "Midline crossing"
+      ],
+      "task": "dress.shoes.on",
+      "textAr": "يلا نظبط كعبنا جوه الجزمة.",
+      "textEn": "Adjusts the heel inside the shoe"
+    },
+    {
+      "area": "dress",
+      "audio": {
+        "normal": "audio/ar-eg/dress.shoes.on.05.mp3",
+        "slow": "audio/ar-eg/dress.shoes.on.05.slow.mp3"
+      },
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.on.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "subSkills": "Range of motion: fastens the shoe if it has a fastening mechanism. Motor coordination: adjusts the position of the shoe and fastens it if it has a lace or a hook-and-loop strap (sequential motor coordination). Hand skills: lets go of the shoe after putting it on and adjusting it (release)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Hand skills"
+      ],
+      "task": "dress.shoes.on",
+      "textAr": "يلا نقفل الجزمة بالاسكوتش أو بالرباط.",
+      "textEn": "Fastens the shoe using the hook-and-loop strap or the laces"
+    }
+  ]
+}

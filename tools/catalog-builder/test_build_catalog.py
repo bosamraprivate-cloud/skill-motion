@@ -389,3 +389,150 @@ def test_activity_id_snapshot(real_activities):
 def test_step_id_snapshot(real_steps):
     expected = (SNAPSHOT_DIR / "step_ids.snapshot.txt").read_text("utf-8").split()
     assert sorted(s.id for s in real_steps) == expected
+
+
+# --- Story 2.7: merge, validate, write, version stamp --------------------------
+
+import json  # noqa: E402
+
+STEP_IDS = [s.id for s in bc.parse_steps()]
+ACTIVITY_IDS = [a.id for a in bc.parse_activities()]
+
+
+@pytest.fixture
+def full(tmp_path):
+    """Complete tmp inputs (real docs/reference, fake strings/detectors/media/audio)."""
+    assets = tmp_path / "assets"
+    audio = assets / "audio" / "ar-eg"
+    audio.mkdir(parents=True)
+    for sid in STEP_IDS:
+        (audio / f"{sid}.mp3").write_bytes(b"x")
+        (audio / f"{sid}.slow.mp3").write_bytes(b"x")
+    variants = []
+    for v in bc.VARIANTS:
+        steps = []
+        for sid in STEP_IDS:
+            still = f"character/{v}/steps/{sid}.still.webp"
+            (assets / still).parent.mkdir(parents=True, exist_ok=True)
+            (assets / still).write_bytes(b"x")
+            steps.append({"id": sid, "clip": None, "still": still})
+        variants.append({"id": v, "reactions": [], "tasks": [{"id": "all", "steps": steps}]})
+    (assets / "character" / "index.json").write_text(json.dumps({"variants": variants}), encoding="utf-8")
+    strings = {"steps": {i: "نص" for i in STEP_IDS}, "activities": {i: "نص" for i in ACTIVITY_IDS}}
+    (tmp_path / "strings.json").write_text(json.dumps(strings, ensure_ascii=False), encoding="utf-8")
+    detectors = {i: {"method": "none", "framing": None, "check": None} for i in STEP_IDS}
+    (tmp_path / "detectors.json").write_text(json.dumps(detectors), encoding="utf-8")
+    (tmp_path / "counters.json").write_text("[]", encoding="utf-8")
+    return bc.Paths(
+        strings=tmp_path / "strings.json",
+        detectors=tmp_path / "detectors.json",
+        activity_counters=tmp_path / "counters.json",
+        assets_dir=assets,
+        out_dir=tmp_path / "out",
+    )
+
+
+def edit_json(path, fn):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    fn(data)
+    path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+
+def version_of(paths):
+    files, _ = bc.build(paths)
+    return json.loads(files["version.json"])["catalogVersion"]
+
+
+def test_all_present_writes_three_files(full):
+    assert bc.main([], paths=full) == 0
+    names = sorted(p.name for p in full.out_dir.iterdir())
+    assert names == ["activities.json", "assessment.json", "version.json"]
+    version = json.loads((full.out_dir / "version.json").read_text(encoding="utf-8"))
+    assert re.fullmatch(r"[0-9a-f]{12}", version["catalogVersion"])
+    assert version["complete"] is True
+    step = json.loads((full.out_dir / "assessment.json").read_text(encoding="utf-8"))["steps"][0]
+    assert step["detector"] == {"method": "none", "framing": None, "check": None}
+    assert step["audio"]["slow"].endswith(".slow.mp3")
+    assert step["media"]["girl"]["still"].endswith(".still.webp")
+
+
+def test_missing_arabic_fails_naming_id(full, capsys):
+    edit_json(full.strings, lambda d: d["steps"].pop("drink.cup.06"))
+    assert bc.main([], paths=full) == 1
+    assert "drink.cup.06" in capsys.readouterr().err
+    assert not full.out_dir.exists()
+
+
+def test_missing_slow_audio_strict_and_dev(full, capsys):
+    (full.assets_dir / "audio" / "ar-eg" / "eat.spoon.03.slow.mp3").unlink()
+    assert bc.main([], paths=full) == 1
+    assert "eat.spoon.03" in capsys.readouterr().err
+    assert bc.main(["--allow-missing-media"], paths=full) == 0
+    assert "eat.spoon.03" in capsys.readouterr().err
+    assert json.loads((full.out_dir / "version.json").read_text())["complete"] is False
+
+
+def test_missing_girl_mapping_names_id_and_variant(full):
+    index = full.assets_dir / "character" / "index.json"
+    edit_json(index, lambda d: d["variants"][1]["tasks"][0]["steps"].pop(0))
+    expected = rf"{re.escape(STEP_IDS[0])}: no media mapping for variant girl"
+    with pytest.raises(bc.CatalogError, match=expected):
+        bc.build(full)
+    files, warnings = bc.build(full, allow_missing_media=True)
+    assert warnings and json.loads(files["assessment.json"])["steps"][0]["media"]["girl"] is None
+
+
+def test_missing_activity_audio_never_fails(full):
+    files, warnings = bc.build(full)
+    assert not warnings
+    assert json.loads(files["activities.json"])["activities"][0]["audio"] is None
+
+
+def test_bad_detector_check_fails(full):
+    bad = {"method": "pose", "framing": "upper", "check": {"type": "angleAbove", "deg": 500}}
+    edit_json(full.detectors, lambda d: d.update({"eat.fork.02": bad}))
+    with pytest.raises(bc.CatalogError, match="eat.fork.02"):
+        bc.build(full)
+
+
+def test_valid_detector_check_passes(full):
+    check = {"type": "question", "text": "q"}
+    detector = {"method": "ai", "framing": None, "check": check}
+    edit_json(full.detectors, lambda d: d.update({"eat.fork.02": detector}))
+    files, _ = bc.build(full)
+    step = next(s for s in json.loads(files["assessment.json"])["steps"] if s["id"] == "eat.fork.02")
+    assert step["detector"]["check"] == check
+
+
+def test_unknown_detector_id_fails(full):
+    detector = {"method": "none", "framing": None, "check": None}
+    edit_json(full.detectors, lambda d: d.update({"eat.nope.01": detector}))
+    assert bc.main([], paths=full) == 1
+
+
+def test_version_changes_on_detector_activity_and_tag(full, tmp_path):
+    base = version_of(full)
+    detector = {"method": "x", "framing": None, "check": None}
+    edit_json(full.detectors, lambda d: d.update({"eat.fork.02": detector}))
+    v_detector = version_of(full)
+    edit_json(full.activity_counters, lambda d: d.append({"activityId": ACTIVITY_IDS[0], "kind": "reps"}))
+    v_activity = version_of(full)
+    ref = tmp_path / "ref"
+    ref.mkdir()
+    for f in (*bc.SOURCE_FILES, bc.ACTIVITIES_FILE):
+        (ref / f).write_text((bc.REFERENCE_DIR / f).read_text(encoding="utf-8-sig"), encoding="utf-8")
+    scale = ref / "eating-drinking-assessment-scale.md"
+    text = scale.read_text(encoding="utf-8")
+    row = next(line for line in text.splitlines() if line.startswith("| 6 | Place the cup on your lips"))
+    new_row = row.replace("Motor planning + Motor coordination", "Motor planning")
+    assert new_row != row
+    scale.write_text(text.replace(row, new_row), encoding="utf-8")
+    v_tag = version_of(bc.Paths(**{**full.__dict__, "reference_dir": ref}))
+    assert len({base, v_detector, v_activity, v_tag}) == 4
+
+
+def test_build_is_deterministic(full):
+    assert bc.main([], paths=full) == 0
+    first = {p.name: p.read_bytes() for p in full.out_dir.iterdir()}
+    assert bc.main([], paths=full) == 0
+    assert first == {p.name: p.read_bytes() for p in full.out_dir.iterdir()}

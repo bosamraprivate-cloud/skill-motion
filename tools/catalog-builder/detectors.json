@@ -1,0 +1,737 @@
+{
+  "dress.jacket.off.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.off.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.on.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.on.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.on.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.on.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.jacket.on.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shirt.on.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shirt.on.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shirt.on.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shirt.on.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shirt.on.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shoes.on.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shoes.on.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shoes.on.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shoes.on.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.shoes.on.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.socks.on.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.socks.on.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.socks.on.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.socks.on.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.socks.on.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.trousers.on.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.trousers.on.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.trousers.on.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.trousers.on.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.trousers.on.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.tshirt.on.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.tshirt.on.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.tshirt.on.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.tshirt.on.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "dress.tshirt.on.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.11": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.12": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.bottle.13": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.11": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.12": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.cup.13": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.11": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "drink.straw.12": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.11": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.12": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.13": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.14": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.fork.15": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.11": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.sandwich.12": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.11": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.12": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.13": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.14": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "eat.spoon.15": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.11": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.12": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.handwash.13": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.01": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.02": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.03": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.04": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.05": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.06": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.07": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.08": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.09": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.10": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.11": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.12": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.13": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  },
+  "hygiene.teeth.14": {
+    "check": null,
+    "framing": null,
+    "method": "none"
+  }
+}
