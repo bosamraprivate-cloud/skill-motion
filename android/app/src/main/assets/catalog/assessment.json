@@ -2,10 +2,7 @@
   "steps": [
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.01.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -31,10 +28,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.02.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -61,10 +55,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.03.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -91,10 +82,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.04.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -121,10 +109,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.05.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -151,10 +136,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.06.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -180,10 +162,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.07.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -210,10 +189,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.08.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -239,10 +215,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.09.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -268,10 +241,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.10.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -297,10 +267,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.11.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.11.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -327,10 +294,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.sandwich.12.mp3",
-        "slow": "audio/ar-eg/eat.sandwich.12.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -357,10 +321,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.01.mp3",
-        "slow": "audio/ar-eg/eat.spoon.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -386,10 +347,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.02.mp3",
-        "slow": "audio/ar-eg/eat.spoon.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -416,10 +374,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.03.mp3",
-        "slow": "audio/ar-eg/eat.spoon.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -446,10 +401,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.04.mp3",
-        "slow": "audio/ar-eg/eat.spoon.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -476,10 +428,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.05.mp3",
-        "slow": "audio/ar-eg/eat.spoon.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -505,10 +454,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.06.mp3",
-        "slow": "audio/ar-eg/eat.spoon.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -535,10 +481,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.07.mp3",
-        "slow": "audio/ar-eg/eat.spoon.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -565,10 +508,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.08.mp3",
-        "slow": "audio/ar-eg/eat.spoon.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -595,10 +535,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.09.mp3",
-        "slow": "audio/ar-eg/eat.spoon.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -625,10 +562,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.10.mp3",
-        "slow": "audio/ar-eg/eat.spoon.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -654,10 +588,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.11.mp3",
-        "slow": "audio/ar-eg/eat.spoon.11.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -684,10 +615,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.12.mp3",
-        "slow": "audio/ar-eg/eat.spoon.12.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -714,10 +642,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.13.mp3",
-        "slow": "audio/ar-eg/eat.spoon.13.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -743,10 +668,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.14.mp3",
-        "slow": "audio/ar-eg/eat.spoon.14.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -773,10 +695,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.spoon.15.mp3",
-        "slow": "audio/ar-eg/eat.spoon.15.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -803,10 +722,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.01.mp3",
-        "slow": "audio/ar-eg/eat.fork.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -832,10 +748,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.02.mp3",
-        "slow": "audio/ar-eg/eat.fork.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -862,10 +775,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.03.mp3",
-        "slow": "audio/ar-eg/eat.fork.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -892,10 +802,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.04.mp3",
-        "slow": "audio/ar-eg/eat.fork.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -922,10 +829,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.05.mp3",
-        "slow": "audio/ar-eg/eat.fork.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -951,10 +855,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.06.mp3",
-        "slow": "audio/ar-eg/eat.fork.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -981,10 +882,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.07.mp3",
-        "slow": "audio/ar-eg/eat.fork.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1011,10 +909,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.08.mp3",
-        "slow": "audio/ar-eg/eat.fork.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1041,10 +936,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.09.mp3",
-        "slow": "audio/ar-eg/eat.fork.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1071,10 +963,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.10.mp3",
-        "slow": "audio/ar-eg/eat.fork.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1100,10 +989,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.11.mp3",
-        "slow": "audio/ar-eg/eat.fork.11.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1130,10 +1016,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.12.mp3",
-        "slow": "audio/ar-eg/eat.fork.12.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1160,10 +1043,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.13.mp3",
-        "slow": "audio/ar-eg/eat.fork.13.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1189,10 +1069,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.14.mp3",
-        "slow": "audio/ar-eg/eat.fork.14.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1219,10 +1096,7 @@
     },
     {
       "area": "eat",
-      "audio": {
-        "normal": "audio/ar-eg/eat.fork.15.mp3",
-        "slow": "audio/ar-eg/eat.fork.15.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1275,10 +1149,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.02.mp3",
-        "slow": "audio/ar-eg/drink.cup.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1302,10 +1173,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.03.mp3",
-        "slow": "audio/ar-eg/drink.cup.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1328,10 +1196,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.04.mp3",
-        "slow": "audio/ar-eg/drink.cup.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1355,10 +1220,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.05.mp3",
-        "slow": "audio/ar-eg/drink.cup.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1382,10 +1244,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.06.mp3",
-        "slow": "audio/ar-eg/drink.cup.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1409,10 +1268,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.07.mp3",
-        "slow": "audio/ar-eg/drink.cup.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1436,10 +1292,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.08.mp3",
-        "slow": "audio/ar-eg/drink.cup.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1462,10 +1315,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.09.mp3",
-        "slow": "audio/ar-eg/drink.cup.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1488,10 +1338,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.10.mp3",
-        "slow": "audio/ar-eg/drink.cup.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1515,10 +1362,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.11.mp3",
-        "slow": "audio/ar-eg/drink.cup.11.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1542,10 +1386,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.12.mp3",
-        "slow": "audio/ar-eg/drink.cup.12.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1569,10 +1410,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.13.mp3",
-        "slow": "audio/ar-eg/drink.cup.13.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1595,10 +1433,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.01.mp3",
-        "slow": "audio/ar-eg/drink.bottle.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1621,10 +1456,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.02.mp3",
-        "slow": "audio/ar-eg/drink.bottle.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1648,10 +1480,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.03.mp3",
-        "slow": "audio/ar-eg/drink.bottle.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1674,10 +1503,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.04.mp3",
-        "slow": "audio/ar-eg/drink.bottle.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1701,10 +1527,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.05.mp3",
-        "slow": "audio/ar-eg/drink.bottle.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1728,10 +1551,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.06.mp3",
-        "slow": "audio/ar-eg/drink.bottle.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1755,10 +1575,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.07.mp3",
-        "slow": "audio/ar-eg/drink.bottle.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1782,10 +1599,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.08.mp3",
-        "slow": "audio/ar-eg/drink.bottle.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1808,10 +1622,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.09.mp3",
-        "slow": "audio/ar-eg/drink.bottle.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1834,10 +1645,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.10.mp3",
-        "slow": "audio/ar-eg/drink.bottle.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1861,10 +1669,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.11.mp3",
-        "slow": "audio/ar-eg/drink.bottle.11.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1888,10 +1693,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.12.mp3",
-        "slow": "audio/ar-eg/drink.bottle.12.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1915,10 +1717,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.bottle.13.mp3",
-        "slow": "audio/ar-eg/drink.bottle.13.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1941,10 +1740,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.01.mp3",
-        "slow": "audio/ar-eg/drink.straw.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1967,10 +1763,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.02.mp3",
-        "slow": "audio/ar-eg/drink.straw.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -1994,10 +1787,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.03.mp3",
-        "slow": "audio/ar-eg/drink.straw.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2020,10 +1810,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.04.mp3",
-        "slow": "audio/ar-eg/drink.straw.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2047,10 +1834,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.05.mp3",
-        "slow": "audio/ar-eg/drink.straw.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2074,10 +1858,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.06.mp3",
-        "slow": "audio/ar-eg/drink.straw.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2100,10 +1881,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.07.mp3",
-        "slow": "audio/ar-eg/drink.straw.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2126,10 +1904,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.08.mp3",
-        "slow": "audio/ar-eg/drink.straw.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2152,10 +1927,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.09.mp3",
-        "slow": "audio/ar-eg/drink.straw.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2179,10 +1951,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.10.mp3",
-        "slow": "audio/ar-eg/drink.straw.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2206,10 +1975,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.11.mp3",
-        "slow": "audio/ar-eg/drink.straw.11.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2233,10 +1999,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.straw.12.mp3",
-        "slow": "audio/ar-eg/drink.straw.12.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2259,10 +2022,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.01.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2285,10 +2045,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.02.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2312,10 +2069,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.03.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2339,10 +2093,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.04.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2366,10 +2117,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.05.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2393,10 +2141,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.06.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2420,10 +2165,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.07.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2447,10 +2189,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.08.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2474,10 +2213,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.09.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2501,10 +2237,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.10.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2528,10 +2261,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.11.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.11.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2555,10 +2285,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.12.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.12.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2582,10 +2309,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.handwash.13.mp3",
-        "slow": "audio/ar-eg/hygiene.handwash.13.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2609,10 +2333,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.01.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2635,10 +2356,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.02.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2662,10 +2380,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.03.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2689,10 +2404,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.04.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2716,10 +2428,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.05.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2742,10 +2451,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.06.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2769,10 +2475,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.07.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2797,10 +2500,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.08.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2824,10 +2524,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.09.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2851,10 +2548,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.10.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2878,10 +2572,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.11.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.11.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2905,10 +2596,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.12.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.12.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2931,10 +2619,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.13.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.13.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2958,10 +2643,7 @@
     },
     {
       "area": "hygiene",
-      "audio": {
-        "normal": "audio/ar-eg/hygiene.teeth.14.mp3",
-        "slow": "audio/ar-eg/hygiene.teeth.14.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -2986,10 +2668,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.on.01.mp3",
-        "slow": "audio/ar-eg/dress.jacket.on.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3012,10 +2691,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.on.02.mp3",
-        "slow": "audio/ar-eg/dress.jacket.on.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3040,10 +2716,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.on.03.mp3",
-        "slow": "audio/ar-eg/dress.jacket.on.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3069,10 +2742,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.on.04.mp3",
-        "slow": "audio/ar-eg/dress.jacket.on.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3099,10 +2769,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.on.05.mp3",
-        "slow": "audio/ar-eg/dress.jacket.on.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3125,10 +2792,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.01.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3149,10 +2813,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.02.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3173,10 +2834,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.03.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3202,10 +2860,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.04.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3230,10 +2885,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.05.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3254,10 +2906,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.06.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.06.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3278,10 +2927,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.07.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.07.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3302,10 +2948,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.08.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.08.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3326,10 +2969,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.09.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.09.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3350,10 +2990,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.jacket.off.10.mp3",
-        "slow": "audio/ar-eg/dress.jacket.off.10.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3374,10 +3011,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.tshirt.on.01.mp3",
-        "slow": "audio/ar-eg/dress.tshirt.on.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3402,10 +3036,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.tshirt.on.02.mp3",
-        "slow": "audio/ar-eg/dress.tshirt.on.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3428,10 +3059,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.tshirt.on.03.mp3",
-        "slow": "audio/ar-eg/dress.tshirt.on.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3458,10 +3086,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.tshirt.on.04.mp3",
-        "slow": "audio/ar-eg/dress.tshirt.on.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3486,10 +3111,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.tshirt.on.05.mp3",
-        "slow": "audio/ar-eg/dress.tshirt.on.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3514,10 +3136,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shirt.on.01.mp3",
-        "slow": "audio/ar-eg/dress.shirt.on.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3542,10 +3161,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shirt.on.02.mp3",
-        "slow": "audio/ar-eg/dress.shirt.on.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3571,10 +3187,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shirt.on.03.mp3",
-        "slow": "audio/ar-eg/dress.shirt.on.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3598,10 +3211,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shirt.on.04.mp3",
-        "slow": "audio/ar-eg/dress.shirt.on.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3627,10 +3237,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shirt.on.05.mp3",
-        "slow": "audio/ar-eg/dress.shirt.on.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3655,10 +3262,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.trousers.on.01.mp3",
-        "slow": "audio/ar-eg/dress.trousers.on.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3681,10 +3285,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.trousers.on.02.mp3",
-        "slow": "audio/ar-eg/dress.trousers.on.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3709,10 +3310,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.trousers.on.03.mp3",
-        "slow": "audio/ar-eg/dress.trousers.on.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3737,10 +3335,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.trousers.on.04.mp3",
-        "slow": "audio/ar-eg/dress.trousers.on.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3766,10 +3361,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.trousers.on.05.mp3",
-        "slow": "audio/ar-eg/dress.trousers.on.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3794,10 +3386,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.socks.on.01.mp3",
-        "slow": "audio/ar-eg/dress.socks.on.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3822,10 +3411,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.socks.on.02.mp3",
-        "slow": "audio/ar-eg/dress.socks.on.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3851,10 +3437,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.socks.on.03.mp3",
-        "slow": "audio/ar-eg/dress.socks.on.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3879,10 +3462,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.socks.on.04.mp3",
-        "slow": "audio/ar-eg/dress.socks.on.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3906,10 +3486,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.socks.on.05.mp3",
-        "slow": "audio/ar-eg/dress.socks.on.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3934,10 +3511,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shoes.on.01.mp3",
-        "slow": "audio/ar-eg/dress.shoes.on.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3962,10 +3536,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shoes.on.02.mp3",
-        "slow": "audio/ar-eg/dress.shoes.on.02.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -3991,10 +3562,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shoes.on.03.mp3",
-        "slow": "audio/ar-eg/dress.shoes.on.03.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -4019,10 +3587,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shoes.on.04.mp3",
-        "slow": "audio/ar-eg/dress.shoes.on.04.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,
@@ -4046,10 +3611,7 @@
     },
     {
       "area": "dress",
-      "audio": {
-        "normal": "audio/ar-eg/dress.shoes.on.05.mp3",
-        "slow": "audio/ar-eg/dress.shoes.on.05.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,

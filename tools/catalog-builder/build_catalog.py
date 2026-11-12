@@ -12,10 +12,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -518,7 +519,10 @@ def _dump(data: Any) -> bytes:
 
 
 def _validate_detectors(detectors: Any, step_ids: list[str], schema_path: Path) -> dict[str, dict]:
-    import jsonschema  # local import: --check works without it
+    try:
+        import jsonschema  # local import: --check works without it
+    except ImportError as exc:
+        raise CatalogError("jsonschema is not installed: install tools/requirements.txt") from exc
 
     if not isinstance(detectors, dict):
         raise CatalogError("detectors.json: top level must be an object of step id -> detector")
@@ -535,7 +539,10 @@ def _validate_detectors(detectors: Any, step_ids: list[str], schema_path: Path) 
         if not isinstance(d, dict) or set(d) - {"method", "framing", "check"} or "method" not in d:
             bad.append(f"{sid} (expected keys method, framing, check)")
             continue
-        method, check = d["method"], d.get("check")
+        method, check, framing = d["method"], d.get("check"), d.get("framing")
+        if framing is not None and not (isinstance(framing, str) and framing):
+            bad.append(f"{sid} (framing must be null or a non-empty string)")
+            continue
         if not isinstance(method, str) or not method:
             bad.append(f"{sid} (method must be a non-empty string)")
             continue
@@ -547,24 +554,45 @@ def _validate_detectors(detectors: Any, step_ids: list[str], schema_path: Path) 
             if errors:
                 bad.append(f"{sid} (check fails schema: {errors[0].message})")
                 continue
-        out[sid] = {"method": method, "framing": d.get("framing"), "check": check}
+        out[sid] = {"method": method, "framing": framing, "check": check}
     if bad:
         raise CatalogError("detectors.json: bad detector(s): " + "; ".join(bad))
     return out
 
 
-def _media_index(assets_dir: Path) -> dict[str, dict[str, dict]]:
+def _media_index(assets_dir: Path, step_ids: set[str]) -> dict[str, dict[str, dict]]:
     """variant -> step id -> {clip, still} from character/index.json (absent file = no media)."""
     path = assets_dir / "character" / "index.json"
     if not path.is_file():
         return {}
     data = _load_json(path)
+    err = "character/index.json: malformed"
+    if not isinstance(data, dict) or not isinstance(data.get("variants", []), list):
+        raise CatalogError(f"{err}: expected an object with a 'variants' list")
     index: dict[str, dict[str, dict]] = {}
+    unknown: set[str] = set()
     for variant in data.get("variants", []):
+        if not isinstance(variant, dict) or variant.get("id") not in VARIANTS:
+            raise CatalogError(f"{err}: variant must be an object with id in {VARIANTS}")
+        tasks = variant.get("tasks", [])
+        if not isinstance(tasks, list) or not all(isinstance(t, dict) for t in tasks):
+            raise CatalogError(f"{err}: variant {variant['id']} tasks must be a list of objects")
         steps = index.setdefault(variant["id"], {})
-        for task in variant.get("tasks", []):
-            for step in task.get("steps", []):
-                steps[step["id"]] = {"clip": step.get("clip"), "still": step.get("still")}
+        for task in tasks:
+            task_steps = task.get("steps", [])
+            if not isinstance(task_steps, list):
+                raise CatalogError(f"{err}: steps must be a list")
+            for step in task_steps:
+                if not isinstance(step, dict) or not isinstance(step.get("id"), str):
+                    raise CatalogError(f"{err}: step entry without a string id")
+                clip, still = step.get("clip"), step.get("still")
+                if not all(v is None or isinstance(v, str) for v in (clip, still)):
+                    raise CatalogError(f"{err}: {step['id']} clip/still must be strings or null")
+                if step["id"] not in step_ids:
+                    unknown.add(step["id"])
+                steps[step["id"]] = {"clip": clip, "still": still}
+    if unknown:
+        raise CatalogError(f"character/index.json: unknown step id(s): {', '.join(sorted(unknown))}")
     return index
 
 
@@ -573,9 +601,20 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
     steps = parse_steps(paths.reference_dir)
     activities = parse_activities(paths.reference_dir)
     strings = _load_json(paths.strings)
+    step_ids = [s.id for s in steps]
+    if not isinstance(strings, dict):
+        raise CatalogError("strings: top level must be an object")
     step_text = strings.get("steps", {})
     activity_text = strings.get("activities", {})
-    step_ids = [s.id for s in steps]
+    for section, table, known in (
+        ("steps", step_text, set(step_ids)),
+        ("activities", activity_text, {a.id for a in activities}),
+    ):
+        if not isinstance(table, dict) or not all(isinstance(v, str) for v in table.values()):
+            raise CatalogError(f"strings: '{section}' must be an object of id -> string")
+        unknown = sorted(set(table) - known)
+        if unknown:
+            raise CatalogError(f"strings: unknown {section} id(s): {', '.join(unknown)}")
     detectors = _validate_detectors(_load_json(paths.detectors), step_ids, paths.check_schema)
 
     counters_raw = _load_json(paths.activity_counters)
@@ -585,7 +624,7 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
     counters: dict[str, Any] = {}
     for entry in counters_raw:
         aid = entry.get("activityId") if isinstance(entry, dict) else None
-        if aid not in activity_ids:
+        if not isinstance(aid, str) or aid not in activity_ids:
             raise CatalogError(f"activity_counters.json: unknown or missing activityId {aid!r}")
         if aid in counters:
             raise CatalogError(f"activity_counters.json: duplicate activityId {aid}")
@@ -597,7 +636,7 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
         raise CatalogError("missing Arabic text for: " + ", ".join(missing_text))
 
     audio_dir = paths.assets_dir / AUDIO_SUBDIR
-    media = _media_index(paths.assets_dir)
+    media = _media_index(paths.assets_dir, set(step_ids))
     problems: list[str] = []
 
     def asset(rel: str | None) -> bool:
@@ -606,9 +645,14 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
     step_entries = []
     for s in steps:
         normal, slow = f"{s.id}.mp3", f"{s.id}.slow.mp3"
+        step_audio: dict[str, str] | None = {
+            "normal": f"{AUDIO_SUBDIR}/{normal}",
+            "slow": f"{AUDIO_SUBDIR}/{slow}",
+        }
         for name in (normal, slow):
             if not (audio_dir / name).is_file():
                 problems.append(f"{s.id}: missing audio {name}")
+                step_audio = None
         step_media: dict[str, Any] = {}
         for variant in VARIANTS:
             m = media.get(variant, {}).get(s.id)
@@ -636,7 +680,7 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
                 "subSkills": s.subSkills,
                 "source": s.source,
                 "detector": detectors[s.id],
-                "audio": {"normal": f"{AUDIO_SUBDIR}/{normal}", "slow": f"{AUDIO_SUBDIR}/{slow}"},
+                "audio": step_audio,
                 "media": step_media,
             }
         )
@@ -690,7 +734,23 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
     return files, problems
 
 
-def main(argv: list[str] | None = None, reference_dir: Path | None = None, paths: Paths | None = None) -> int:
+def _write_all(out_dir: Path, files: dict[str, bytes]) -> None:
+    """Write every file to a temp name first, then os.replace each, so a failed write keeps old files."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    temps = []
+    try:
+        for name, data in files.items():
+            tmp = out_dir / f".{name}.tmp"
+            tmp.write_bytes(data)
+            temps.append((tmp, out_dir / name))
+        for tmp, target in temps:
+            os.replace(tmp, target)
+    finally:
+        for tmp, _ in temps:
+            tmp.unlink(missing_ok=True)
+
+
+def main(argv: list[str] | None = None, paths: Paths | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="parse, validate and print counts only")
     parser.add_argument("--reference-dir", type=Path, default=None, help="folder with the scale files")
@@ -701,9 +761,8 @@ def main(argv: list[str] | None = None, reference_dir: Path | None = None, paths
     )
     args = parser.parse_args(argv)
     paths = paths or Paths()
-    ref = args.reference_dir or reference_dir
-    if ref is not None:
-        paths = Paths(**{**paths.__dict__, "reference_dir": ref})
+    if args.reference_dir is not None:
+        paths = replace(paths, reference_dir=args.reference_dir)
     if not args.check:
         try:
             files, warnings = build(paths, allow_missing_media=args.allow_missing_media)
@@ -712,9 +771,11 @@ def main(argv: list[str] | None = None, reference_dir: Path | None = None, paths
             return 1
         for w in warnings:
             print(f"warning: {w}", file=sys.stderr)
-        paths.out_dir.mkdir(parents=True, exist_ok=True)
-        for name, data in files.items():
-            (paths.out_dir / name).write_bytes(data)
+        try:
+            _write_all(paths.out_dir, files)
+        except OSError as exc:
+            print(f"catalog error: cannot write outputs: {exc}", file=sys.stderr)
+            return 1
         version = json.loads(files["version.json"])
         print(
             f"wrote {paths.out_dir}: catalogVersion {version['catalogVersion']}, "

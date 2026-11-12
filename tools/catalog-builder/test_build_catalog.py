@@ -1,3 +1,4 @@
+import json
 import re
 from dataclasses import replace
 
@@ -393,7 +394,6 @@ def test_step_id_snapshot(real_steps):
 
 # --- Story 2.7: merge, validate, write, version stamp --------------------------
 
-import json  # noqa: E402
 
 STEP_IDS = [s.id for s in bc.parse_steps()]
 ACTIVITY_IDS = [a.id for a in bc.parse_activities()]
@@ -527,7 +527,7 @@ def test_version_changes_on_detector_activity_and_tag(full, tmp_path):
     new_row = row.replace("Motor planning + Motor coordination", "Motor planning")
     assert new_row != row
     scale.write_text(text.replace(row, new_row), encoding="utf-8")
-    v_tag = version_of(bc.Paths(**{**full.__dict__, "reference_dir": ref}))
+    v_tag = version_of(replace(full, reference_dir=ref))
     assert len({base, v_detector, v_activity, v_tag}) == 4
 
 
@@ -536,3 +536,97 @@ def test_build_is_deterministic(full):
     first = {p.name: p.read_bytes() for p in full.out_dir.iterdir()}
     assert bc.main([], paths=full) == 0
     assert first == {p.name: p.read_bytes() for p in full.out_dir.iterdir()}
+
+
+def test_dev_mode_missing_step_audio_is_null_and_changes_version(full):
+    base = version_of(full)
+    (full.assets_dir / "audio" / "ar-eg" / f"{STEP_IDS[0]}.mp3").unlink()
+    files, _ = bc.build(full, allow_missing_media=True)
+    assert json.loads(files["assessment.json"])["steps"][0]["audio"] is None
+    assert json.loads(files["version.json"])["catalogVersion"] != base
+
+
+def test_clip_present_missing_and_still_missing(full):
+    index = full.assets_dir / "character" / "index.json"
+    clip = f"character/boy/steps/{STEP_IDS[0]}.webp"
+    edit_json(index, lambda d: d["variants"][0]["tasks"][0]["steps"][0].update({"clip": clip}))
+    with pytest.raises(bc.CatalogError, match="missing clip"):
+        bc.build(full)
+    files, _ = bc.build(full, allow_missing_media=True)
+    assert json.loads(files["assessment.json"])["steps"][0]["media"]["boy"] is None
+    (full.assets_dir / clip).write_bytes(b"x")
+    files, _ = bc.build(full)
+    assert json.loads(files["assessment.json"])["steps"][0]["media"]["boy"]["clip"] == clip
+    (full.assets_dir / f"character/girl/steps/{STEP_IDS[1]}.still.webp").unlink()
+    with pytest.raises(bc.CatalogError, match=rf"{re.escape(STEP_IDS[1])}: missing still for variant girl"):
+        bc.build(full)
+
+
+def test_activity_audio_present_sets_paths(full):
+    audio = full.assets_dir / "audio" / "ar-eg"
+    (audio / f"{ACTIVITY_IDS[0]}.mp3").write_bytes(b"x")
+    (audio / f"{ACTIVITY_IDS[0]}.slow.mp3").write_bytes(b"x")
+    files, _ = bc.build(full)
+    entry = json.loads(files["activities.json"])["activities"][0]
+    assert entry["audio"] == {
+        "normal": f"audio/ar-eg/{ACTIVITY_IDS[0]}.mp3",
+        "slow": f"audio/ar-eg/{ACTIVITY_IDS[0]}.slow.mp3",
+    }
+
+
+@pytest.mark.parametrize(
+    "detector",
+    [
+        {"method": "none", "framing": None, "check": {"type": "question", "text": "q"}},
+        {"method": "none", "framing": None, "check": None, "extra": 1},
+        {"framing": None, "check": None},
+        {"method": "pose", "framing": 3, "check": None},
+        {"method": "pose", "framing": "", "check": None},
+    ],
+)
+def test_detector_rejections(full, detector):
+    edit_json(full.detectors, lambda d: d.update({"eat.fork.02": detector}))
+    with pytest.raises(bc.CatalogError, match="eat.fork.02"):
+        bc.build(full)
+
+
+@pytest.mark.parametrize(
+    "counters",
+    [
+        [{"activityId": "mild.rom.99"}],
+        [{"activityId": ["unhashable"]}],
+        [{"activityId": "mild.rom.01"}, {"activityId": "mild.rom.01"}],
+    ],
+)
+def test_counter_rejections(full, counters):
+    full.activity_counters.write_text(json.dumps(counters), encoding="utf-8")
+    with pytest.raises(bc.CatalogError, match="activity_counters"):
+        bc.build(full)
+
+
+@pytest.mark.parametrize(
+    ("mutate", "match"),
+    [
+        (lambda d: d["steps"].update({"eat.nope.01": "x"}), "unknown steps id"),
+        (lambda d: d["activities"].update({"mild.rom.99": "x"}), "unknown activities id"),
+        (lambda d: d.update({"steps": ["x"]}), "must be an object"),
+    ],
+)
+def test_strings_rejections(full, mutate, match):
+    edit_json(full.strings, mutate)
+    with pytest.raises(bc.CatalogError, match=match):
+        bc.build(full)
+
+
+@pytest.mark.parametrize(
+    ("mutate", "match"),
+    [
+        (lambda d: d["variants"][0]["tasks"][0]["steps"].append({"id": "eat.nope.01"}), "unknown step id"),
+        (lambda d: d["variants"][0]["tasks"][0]["steps"][0].update({"still": 5}), "strings or null"),
+        (lambda d: d.update({"variants": "x"}), "malformed"),
+    ],
+)
+def test_index_rejections(full, mutate, match):
+    edit_json(full.assets_dir / "character" / "index.json", mutate)
+    with pytest.raises(bc.CatalogError, match=match):
+        bc.build(full)
