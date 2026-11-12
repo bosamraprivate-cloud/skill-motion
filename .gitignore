@@ -16,7 +16,6 @@ __pycache__/
 # BMAD and Claude tooling (installed locally, not project code)
 _bmad/
 # Unrelated plugin clone (see AGENTS.md)
-elephant-goldfish-model/
 
 # Proxy build output
 proxy/dist/

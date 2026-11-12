@@ -16,7 +16,6 @@ Tablet app that assesses and trains daily living skills (dressing, eating/drinki
 - The stack is fixed: Kotlin + Compose (Flutter rejected), Material 3 + adaptive, Navigation 3, Hilt, Coil 3, compose-shimmer, MediaPipe, Room + SQLCipher, character animation clips (animated WebP, no Rive), Konfetti, Vico, Cloudflare Worker (TypeScript, `openai` SDK) to DeepSeek `deepseek-flash`, ElevenLabs for one-time audio, Python 3.14 tools. Changing it goes through `bmad-architecture`, not an ad-hoc edit.
 - Reuse open source only when it is current and better than building the part; keep its license notices. Store written permissions from repo owners in `docs/permissions/`.
 - Work story by story with `bmad-build`, tracked in the sprint status file under `_bmad-output/implementation-artifacts/` (created by `bmad-sprint-planning`).
-- Ignore `elephant-goldfish-model/`: an unrelated plugin clone; exclude it from searches and never edit it.
 
 ## Where things are
 
