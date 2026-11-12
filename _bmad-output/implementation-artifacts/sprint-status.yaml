@@ -38,7 +38,7 @@ development_status:
   epic-1: in-progress
   1-1-android-project-skeleton-with-quality-gates: review
   1-2-camera-feed-and-landmarkers-with-frame-rate-probe: review
-  1-3-geometry-check-model-and-first-local-verdict: in-progress
+  1-3-geometry-check-model-and-first-local-verdict: review
   1-4-stateless-verify-proxy-on-cloudflare-workers: backlog
   1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step: backlog
   epic-1-retrospective: optional

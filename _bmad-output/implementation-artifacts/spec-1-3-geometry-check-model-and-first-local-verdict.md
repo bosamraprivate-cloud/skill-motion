@@ -2,7 +2,7 @@
 title: 'Story 1.3: Geometry, Check model and first local verdict'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-review'
+status: 'done'
 baseline_commit: '9f7fd763ec8faa051d2cb30635d5aa9ebfdeffbf'
 route: 'dispatch'
 review_loop_iteration: 0

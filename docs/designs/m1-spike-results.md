@@ -46,3 +46,16 @@ Not measured yet.
 - Subject raised the right hand: the large red dot (`RIGHT_WRIST`, index 16) sat on the raised right wrist. Left/right is correct.
 - Second 60 s run in better lighting: pose 10.0, hand 10.0, combined 10.0 fps (GPU). Decision unchanged: fallback on this device; provisional until the tablet is chosen.
 - Landmarks estimated outside the frame (x or y outside 0..1) are no longer drawn.
+
+## First local verdict, drink.cup.05 (Story 1.3, 2026-11-12)
+
+Debug "Try drink.cup.05" attempt (5 s window) on the Xiaomi, GPU, about 10 fps. Latency = pairing wait + evaluation.
+
+| Case | Verdict | Latency (wait + eval = total) |
+|---|---|---|
+| Camera covered | `cannot_tell` / `out_of_frame` | 101 + 2 = 103 ms |
+| Wrist held at the mouth | `done` / `check_passed` | 103 + 12 = 115 ms |
+| Hands below the frame (wrists not visible) | `cannot_tell` / `out_of_frame` | 102 + 3 = 105 ms |
+| Hand visible on the chest, away from the mouth | `not_done` / `check_failed` | 103 + 22 = 125 ms |
+
+NFR-1 (local verdict within 300 ms) met on this device: worst case 125 ms. The "hands below the frame" case confirms AD-3: what the camera cannot see becomes `cannot_tell`, never `not_done`.
