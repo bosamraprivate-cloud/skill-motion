@@ -10,20 +10,44 @@ import kotlinx.coroutines.flow.flow
 
 private const val TAG = "DlsData"
 
+/** Stored form of a child code: trimmed, upper case in the root locale. Codes are ASCII only, so SQLite `=` matches. */
+fun normalizeChildCode(code: String): String = code.trim().uppercase(java.util.Locale.ROOT)
+
+/** Child profiles as the therapist screens see them (implemented by [ChildRepository]; faked in unit tests). */
+interface ChildProfiles {
+    /** Non-eval children ordered by name. */
+    fun observeChildren(): Flow<List<ChildEntity>>
+
+    suspend fun get(id: String): ChildEntity?
+
+    suspend fun add(child: ChildEntity)
+
+    suspend fun update(child: ChildEntity)
+
+    /** True when another child (not [excludeId]) already uses [code] after [normalizeChildCode]. */
+    suspend fun codeExists(code: String, excludeId: String?): Boolean
+
+    /** Deletes the child, cascading its sessions and attempts, then removes their frame folders. */
+    suspend fun delete(id: String)
+}
+
 /** Child profiles. Deleting a child cascades its sessions and attempts and removes their frame folders. */
 @Singleton
 class ChildRepository
 @Inject
-internal constructor(private val holder: DatabaseHolder, private val frames: FrameStore) {
-    fun observeChildren(): Flow<List<ChildEntity>> = flow { emitAll(holder.get().childDao().observeVisible()) }
+internal constructor(private val holder: DatabaseHolder, private val frames: FrameStore) : ChildProfiles {
+    override fun observeChildren(): Flow<List<ChildEntity>> = flow { emitAll(holder.get().childDao().observeVisible()) }
 
-    suspend fun get(id: String): ChildEntity? = holder.get().childDao().byId(id)
+    override suspend fun get(id: String): ChildEntity? = holder.get().childDao().byId(id)
 
-    suspend fun add(child: ChildEntity) = holder.get().childDao().insert(child)
+    override suspend fun add(child: ChildEntity) = holder.get().childDao().insert(child)
 
-    suspend fun update(child: ChildEntity) = holder.get().childDao().update(child)
+    override suspend fun update(child: ChildEntity) = holder.get().childDao().update(child)
 
-    suspend fun delete(id: String) {
+    override suspend fun codeExists(code: String, excludeId: String?): Boolean =
+        holder.get().childDao().codeExists(normalizeChildCode(code), excludeId.orEmpty())
+
+    override suspend fun delete(id: String) {
         val db = holder.get()
         val sessionIds =
             db.withTransaction {

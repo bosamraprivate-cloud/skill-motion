@@ -54,7 +54,7 @@ development_status:
   2-8-catalogue-repository-in-the-app: backlog
   2-9-encrypted-database-secure-settings-and-frame-store: review
   2-10-first-run-setup-and-pin-gate: review
-  2-11-child-profiles-with-effect-level-and-cascade-delete: backlog
+  2-11-child-profiles-with-effect-level-and-cascade-delete: in-progress
   2-12-attempt-window-and-prompt-ladder-pure: backlog
   2-13-assessment-runner-state-machine-with-rule-1: backlog
   2-14-child-step-screen-with-audio-prompts-and-locked-mode: backlog

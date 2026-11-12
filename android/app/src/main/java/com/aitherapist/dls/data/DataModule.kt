@@ -30,6 +30,9 @@ internal object DataModule {
     fun therapistSettings(settings: SecureSettings): TherapistSettings = settings
 
     @Provides
+    fun childProfiles(repository: ChildRepository): ChildProfiles = repository
+
+    @Provides
     @Singleton
     fun frameStore(@ApplicationContext context: Context, keys: KeyManager): FrameStore = FrameStore(context.filesDir, keys)
 

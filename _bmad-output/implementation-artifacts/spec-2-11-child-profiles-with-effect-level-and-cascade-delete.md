@@ -2,7 +2,8 @@
 title: 'Story 2.11: Child profiles with effect level, character and cascade delete'
 type: 'feature'
 created: '2026-11-12'
-status: 'draft'
+status: 'in-review'
+baseline_commit: 'a86e9efa9daf169bfabff6079b769bf4049d35eb'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -54,11 +55,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `data/Daos.kt`, `Repositories.kt` -- non-eval observe, update, code-exists (case-insensitive, excluding self); keep internal DAOs.
-- [ ] `ui/therapist/ChildValidation.kt` -- pure validation per the matrix.
-- [ ] `ui/therapist/ChildList{Screen,ViewModel,UiState}.kt` -- search, list rows (name, code, age, character thumbnail), empty state, add button.
-- [ ] `ui/therapist/ChildProfile{Screen,ViewModel,UiState}.kt` -- add/edit form, character picker (two large cards with idle still), effect level segmented control, delete with confirm.
-- [ ] `TherapistShell.kt` -- Children uses list-detail (adaptive); phone-width falls back to list then detail.
+- [x] `data/Daos.kt`, `Repositories.kt` -- non-eval observe, update, code-exists (case-insensitive, excluding self); keep internal DAOs.
+- [x] `ui/therapist/ChildValidation.kt` -- pure validation per the matrix.
+- [x] `ui/therapist/ChildList{Screen,ViewModel,UiState}.kt` -- search, list rows (name, code, age, character thumbnail), empty state, add button.
+- [x] `ui/therapist/ChildProfile{Screen,ViewModel,UiState}.kt` -- add/edit form, character picker (two large cards with idle still), effect level segmented control, delete with confirm.
+- [x] `TherapistShell.kt` -- Children uses list-detail (adaptive); phone-width falls back to list then detail.
 - [ ] strings en + ar.
 - [ ] tests: `ChildValidationTest`, `ChildListViewModelTest` (search, empty, eval hidden), `ChildProfileViewModelTest` (every matrix row incl. duplicate code on edit), `androidTest/ChildDeleteTest` (cascade + frames, cancel keeps data).
 
@@ -71,6 +72,21 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | Save after delete re-inserts the child | high | original null -> add branch; patch (terminal state) |
+| 2 | navigateTo(List) after delete keeps stale detail / back stack; Saved pushes a second entry | medium | patch (navigateBack / replace) |
+| 3 | reused "new" ViewModel replays old Saved result | medium | patch (consumeResult) |
+| 4 | save/delete failure wipes form; constraint error generic | medium | patch (keep Content, map to CODE_IN_USE) |
+| 5 | SQLite lower() ASCII-only vs Kotlin ignoreCase; no length limits | medium | patch (normalise code, ASCII set, limits) |
+| 6 | raw exception class names in UI strings | low | patch (friendly text) |
+| 7 | cancelledDeleteKeepsEverything cannot fail | low | patch (remove; VM test covers cancel) |
+| 8 | real DAO/cascade only verified on device | medium | run connectedDebugAndroidTest at story close |
+| 9 | ChildrenRoute navigation untested | low | covered by phone check; deferred (no Compose UI test setup) |
+| 10 | age 1-18 has no clinical source | false | spec Design Notes records it as an agent choice; not a scoring parameter |
+| 11 | no dirty-check on leaving the form; IME actions; "Saved" a11y | low | therapist-only form; rejected |
+| 12 | delete during a running session; orphan frames after crash | low | sessions arrive in 2.13; orphan sweep already deferred (2.9) |
 
 ## Design Notes
 

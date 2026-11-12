@@ -48,7 +48,7 @@ fun TherapistShell(onOpenSample: () -> Unit, onOpenCharacterPreview: () -> Unit,
     var selected by rememberSaveable { mutableStateOf(ShellDestination.CHILDREN) }
     TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier) { destination ->
         when (destination) {
-            ShellDestination.CHILDREN -> PlaceholderDestination(Icons.Filled.Face, stringResource(R.string.children_empty))
+            ShellDestination.CHILDREN -> ChildrenRoute()
             ShellDestination.REPLAY -> PlaceholderDestination(Icons.Filled.PlayArrow, stringResource(R.string.replay_empty))
             ShellDestination.DIAGNOSTICS -> DiagnosticsRoute(onOpenSample = onOpenSample, onOpenCharacterPreview = onOpenCharacterPreview)
             ShellDestination.SETTINGS -> SettingsRoute()
