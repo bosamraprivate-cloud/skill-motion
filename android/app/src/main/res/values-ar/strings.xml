@@ -7,4 +7,19 @@
     <string name="sample_error_message">حصلت مشكلة</string>
     <string name="action_retry">جرّب تاني</string>
     <string name="loading_description">بيحمّل</string>
+    <string name="diagnostics_title">التشخيص</string>
+    <string name="diagnostics_open_sample">افتح العينة</string>
+    <string name="diagnostics_permission_needed">محتاجين الكاميرا عشان نقيس تتبع الجسم والإيدين.</string>
+    <string name="diagnostics_grant">اسمح بالكاميرا</string>
+    <string name="diagnostics_permission_denied">الكاميرا اترفضت. اسمح بيها من إعدادات التطبيق عشان تستخدم التشخيص.</string>
+    <string name="diagnostics_open_settings">افتح إعدادات التطبيق</string>
+    <string name="diagnostics_error">التتبع ماشتغلش (%1$s)</string>
+    <string name="diagnostics_delegate">المعالج</string>
+    <string name="diagnostics_pose_fps">إطارات الجسم/ث</string>
+    <string name="diagnostics_hand_fps">إطارات الإيد/ث</string>
+    <string name="diagnostics_combined_fps">الإطارات المشتركة/ث</string>
+    <string name="diagnostics_visible">إطارات الجسم الظاهرة (%1$d ث)</string>
+    <string name="diagnostics_run">قيس %1$d ث</string>
+    <string name="diagnostics_running">بنقيس %1$d / %2$d ث</string>
+    <string name="diagnostics_run_result">متوسط %1$d ث</string>
 </resources>

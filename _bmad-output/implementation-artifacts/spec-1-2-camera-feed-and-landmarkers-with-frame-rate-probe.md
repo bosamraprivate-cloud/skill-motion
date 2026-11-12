@@ -2,8 +2,8 @@
 title: 'Story 1.2: Camera feed and landmarkers with frame-rate probe'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-progress'
-baseline_commit: 'NO_VCS'
+status: 'in-review'
+baseline_commit: '2761c0fd65ed0e2af79e2b65413e97c85b6c83b6'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -60,16 +60,16 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `<pkg>/camera/CameraController.kt` -- CameraX front camera, ImageAnalysis (RGBA, keep-only-latest, ~640×480), flip horizontally, timestamp, hand bitmap+ts to Landmarkers -- feed
-- [ ] `<pkg>/camera/FrameBuffer.kt` -- pure pairing ring buffer per Boundaries -- AD-3
-- [ ] `<pkg>/vision/Landmarkers.kt` -- Pose + Hand LIVE_STREAM wrappers (adapted, licence header), GPU→CPU fallback, results as `Flow` with timestamps -- landmarks
-- [ ] `<pkg>/vision/FpsMeter.kt` -- pure rolling + run-average fps -- NFR-2
-- [ ] `<pkg>/ui/therapist/{DiagnosticsScreen,DiagnosticsViewModel,DiagnosticsUiState}.kt` -- preview + skeleton overlay of pose/hand points, fps per stream and combined, delegate, "Run 60 s" with results, permission states -- FR-29
-- [ ] `<pkg>/ui/AppNavigation.kt` -- Diagnostics as start destination -- reachability
-- [ ] `res/values/strings.xml`, `res/values-ar/strings.xml` -- new strings -- NFR-8
-- [ ] `<test>/camera/FrameBufferTest.kt`, `<test>/vision/FpsMeterTest.kt`, `<test>/camera/MirrorTest.kt` -- matrix rows -- verification
-- [ ] `THIRD_PARTY_NOTICES.md` (root) -- mediapipe-samples credit + Apache-2.0 notice -- licence
-- [ ] `docs/designs/m1-spike-results.md` -- device model, Android version, delegate, pose/hand/combined fps over 60 s, decision (combined ≥ 15 or fallback), marked provisional until the tablet is chosen -- spike record
+- [x] `<pkg>/camera/CameraController.kt` -- CameraX front camera, ImageAnalysis (RGBA, keep-only-latest, ~640×480), flip horizontally, timestamp, hand bitmap+ts to Landmarkers -- feed
+- [x] `<pkg>/camera/FrameBuffer.kt` -- pure pairing ring buffer per Boundaries -- AD-3
+- [x] `<pkg>/vision/Landmarkers.kt` -- Pose + Hand LIVE_STREAM wrappers (adapted, licence header), GPU→CPU fallback, results as `Flow` with timestamps -- landmarks
+- [x] `<pkg>/vision/FpsMeter.kt` -- pure rolling + run-average fps -- NFR-2
+- [x] `<pkg>/ui/therapist/{DiagnosticsScreen,DiagnosticsViewModel,DiagnosticsUiState}.kt` -- preview + skeleton overlay of pose/hand points, fps per stream and combined, delegate, "Run 60 s" with results, permission states -- FR-29
+- [x] `<pkg>/ui/AppNavigation.kt` -- Diagnostics as start destination -- reachability
+- [x] `res/values/strings.xml`, `res/values-ar/strings.xml` -- new strings -- NFR-8
+- [x] `<test>/camera/FrameBufferTest.kt`, `<test>/vision/FpsMeterTest.kt`, `<test>/camera/MirrorTest.kt` -- matrix rows -- verification
+- [x] `THIRD_PARTY_NOTICES.md` (root) -- mediapipe-samples credit + Apache-2.0 notice -- licence
+- [x] `docs/designs/m1-spike-results.md` -- device model, Android version, delegate, pose/hand/combined fps over 60 s, decision (combined ≥ 15 or fallback), marked provisional until the tablet is chosen -- spike record
 
 **Acceptance Criteria:**
 - Given the app on the connected device with permission granted, when "Run 60 s" completes, then pose, hand and combined average fps are shown.
@@ -83,6 +83,29 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---|---|---|---|
+| 1 | Camera can bind after unbind (listener race) | medium | patch | CameraController.bind listener has no disposed check |
+| 2 | Bind/provider exceptions crash app | medium | patch | future.get()/bindToLifecycle uncaught on main executor |
+| 3 | Rotate+flip matrix untested; MirrorTest tests unused helper | medium | patch | Mirror.flipX only used by overlay |
+| 4 | detectAsync exceptions uncaught on analysis thread | medium | patch | Landmarkers.detect has no try/catch |
+| 5 | CancellationException becomes Failed | medium | patch | catch (e: Exception) in start() |
+| 6 | Dropped frames counted invisible | medium | patch | onFrame adds before detect result known |
+| 7 | close() on main during model load; start/stop race leaks landmarkers | medium | patch | @Synchronized close, start on Default not joined |
+| 8 | Stale FrameBuffer/pending fps state across stop/startRun; run continues after engine failure | low | patch | not cleared |
+| 9 | Permission not re-checked after returning from settings | medium | patch | no ON_RESUME re-check |
+| 10 | "Visible frames" is pose-only; durations hard-coded in strings | low | patch | strings.xml |
+| 11 | Line-ending rewrite hides real diff | low | patch | AppNavigation.kt and strings.xml fully replaced |
+| 12 | Hand/combined fps count empty results | low | patch | doc clarifies inference rate |
+| 13 | No DiagnosticsViewModel / CameraController / fallback tests | medium | defer | Landmarkers is final with no seam; spike screen |
+| 14 | Overlay may misalign if analysis ratio is not 4:3 | low | defer | measurements unaffected |
+| 15 | Two bitmaps allocated per frame | low | defer | perf tuning after first measurement |
+| 16 | Diagnostics is the start destination for all builds | medium | defer | gated behind therapist PIN when the shell lands (Epic 2) |
+| 17 | First denial sends user to settings instead of re-prompt | low | defer | rationale handling with first-run setup story |
+| 18 | Manifest permission, CameraX deps, model download missing | false | rejected | present since Story 1.1 (baseline commit) |
+| 19 | 100 ms rule marks late results invisible | false | rejected | that is AD-3's rule as specified |
+| 20 | Spike results not measured | maybe-false | pending | requires device run; done before story closes |
 
 ## Verification
 

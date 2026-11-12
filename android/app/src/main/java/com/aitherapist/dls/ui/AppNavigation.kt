@@ -9,7 +9,12 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.aitherapist.dls.ui.sample.SampleRoute
+import com.aitherapist.dls.ui.therapist.DiagnosticsRoute
 import kotlinx.serialization.Serializable
+
+/** Typed navigation key for the therapist Diagnostics screen (start destination). */
+@Serializable
+data object DiagnosticsKey : NavKey
 
 /** Typed navigation key for the reference sample screen (AD-13). */
 @Serializable
@@ -18,7 +23,7 @@ data object SampleKey : NavKey
 /** Navigation 3 shell: the back stack is plain state holding typed `@Serializable` keys. */
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
-    val backStack = rememberNavBackStack(SampleKey)
+    val backStack = rememberNavBackStack(DiagnosticsKey)
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
@@ -30,6 +35,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         ),
         entryProvider =
         entryProvider {
+            entry<DiagnosticsKey> { DiagnosticsRoute(onOpenSample = { backStack.add(SampleKey) }) }
             entry<SampleKey> { SampleRoute() }
         }
     )

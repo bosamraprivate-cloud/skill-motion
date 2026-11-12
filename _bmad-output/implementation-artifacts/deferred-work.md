@@ -22,3 +22,18 @@
 - source_spec: `spec-1-1-android-project-skeleton-with-quality-gates.md`
   summary: Add app icon, release signing config and keep rules before minify.
   evidence: Lint warning; release not configured.
+- source_spec: `spec-1-2-camera-feed-and-landmarkers-with-frame-rate-probe.md`
+  summary: Add DiagnosticsViewModel, CameraController and GPU-to-CPU fallback tests (needs a Landmarkers seam).
+  evidence: No tests for the spike screen logic (review of 1.2).
+- source_spec: `spec-1-2-camera-feed-and-landmarkers-with-frame-rate-probe.md`
+  summary: Make the landmark overlay follow the real analysis frame ratio and PreviewView transform.
+  evidence: Overlay assumes 4:3.
+- source_spec: `spec-1-2-camera-feed-and-landmarkers-with-frame-rate-probe.md`
+  summary: Reuse bitmaps or use MediaPipe rotation to avoid two allocations per frame.
+  evidence: Per-frame allocation may lower measured fps.
+- source_spec: `spec-1-2-camera-feed-and-landmarkers-with-frame-rate-probe.md`
+  summary: Move Diagnostics behind the therapist PIN/shell; child mode must never open on it.
+  evidence: Diagnostics is currently the start destination.
+- source_spec: `spec-1-2-camera-feed-and-landmarkers-with-frame-rate-probe.md`
+  summary: Handle first camera denial with re-prompt (rationale) before sending to settings.
+  evidence: Currently goes straight to settings.
