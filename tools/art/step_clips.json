@@ -10,18 +10,57 @@
       "finish": "eat.sandwich.12"
     },
     "steps": {
-      "eat.sandwich.01": {"clip": "look"},
-      "eat.sandwich.02": {"still": "sit", "atSec": 0},
-      "eat.sandwich.03": {"clip": "sit"},
-      "eat.sandwich.04": {"clip": "plate"},
-      "eat.sandwich.05": {"clip": "reach-hold", "startSec": null, "endSec": null},
-      "eat.sandwich.06": {"clip": "reach-hold", "startSec": null, "endSec": null},
-      "eat.sandwich.07": {"clip": "bite", "startSec": null, "endSec": null},
-      "eat.sandwich.08": {"clip": "bite", "startSec": null, "endSec": null},
-      "eat.sandwich.09": {"clip": "bite", "startSec": null, "endSec": null},
-      "eat.sandwich.10": {"clip": "bite", "startSec": null, "endSec": null},
-      "eat.sandwich.11": {"clip": "bite", "startSec": null, "endSec": null},
-      "eat.sandwich.12": {"clip": "finish"}
+      "eat.sandwich.01": {
+        "clip": "look"
+      },
+      "eat.sandwich.02": {
+        "still": "sit",
+        "atSec": 0
+      },
+      "eat.sandwich.03": {
+        "clip": "sit"
+      },
+      "eat.sandwich.04": {
+        "clip": "plate"
+      },
+      "eat.sandwich.05": {
+        "clip": "reach-hold",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.sandwich.06": {
+        "clip": "reach-hold",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.sandwich.07": {
+        "clip": "bite",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.sandwich.08": {
+        "clip": "bite",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.sandwich.09": {
+        "clip": "bite",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.sandwich.10": {
+        "clip": "bite",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.sandwich.11": {
+        "clip": "bite",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.sandwich.12": {
+        "clip": "finish"
+      }
     }
   }
 }
