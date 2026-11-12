@@ -45,7 +45,7 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 |---|---|---|
 | First-run setup | First launch | PIN, proxy address + secret, zones, framing check |
 | PIN screen | App start, leaving child mode | Gate |
-| Child list | Rail "Children" (home) | Children, search by name/code, Add, "Continue" card for interrupted sessions |
+| Child list | Rail "Children" (home) | Children, search by name, Add, "Continue" card for interrupted sessions |
 | Child profile | Child list row | Details, effect level, sessions tab, report, plan, training history, compare |
 | New session dialog | Profile | Pick task (jacket: on/off/both), or Training → hand-off |
 | Session detail | Session row | Steps with levels, attempts, evidence frames, reasons, Correct |

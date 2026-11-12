@@ -225,7 +225,7 @@ The child mode looks and feels like a calm game, so children want to continue:
 *   **After each step:** when the step is done, a star flies into the star bar at the top, a short particle burst plays around the illustration, a chime sounds, and the character celebrates. When the step is not done after attempt 3, there is no negative sound or image: the character says an encouraging line ("we'll try it together next time") and the task moves on. Stars reward taking part and finishing, not the level, so a child who needs help still collects them: 1 star for a step done on any attempt, 1 star for a step finished with Done even if not done, and a bonus star for a step done on attempt 1.
 *   **After each task:** a reward screen with the stars earned, the character's big celebration animation, and progress toward the next sticker (a new sticker unlocks every 3 finished tasks).
 *   **Across sessions:** the sticker book and a simple progress path show how many tasks the child has finished; a new sticker unlocks every 3 tasks.
-*   **Effect levels:** many autistic children are sensitive to sound and motion, so each child profile has an effect level set by the therapist: **full** (particles, sounds, celebration), **calm** (slow fade and soft sound, no particles), **off** (star counter only, no sound). Effects never flash more than 3 times per second and never play while the instruction audio is speaking.
+*   **Effect levels:** many autistic children are sensitive to sound and motion, so each child profile has an effect level set by the therapist: **full** (particles, sounds, celebration), **calm** (slow fade and soft sound, no particles); level off was removed 2026-11-12. Effects never flash more than 3 times per second and never play while the instruction audio is speaking.
 *   **Scoring is not affected:** rewards are shown after the verdict is saved and do not change levels. During training, stars follow the same rules per repetition set.
 
 Effects are built with Rive (character celebrations) and Konfetti (particle bursts in Compose); sound effects are generated once with ElevenLabs sound effects and reviewed.
@@ -444,7 +444,7 @@ An activity is camera-counted only when its measurement criterion is a count of 
 
 | Table | Columns (type) | Keys |
 |---|---|---|
-| `child` | `id` (UUID text), `name` (text), `code` (text, unique), `ageYears` (int), `effectLevel` (`full`/`calm`/`off`, default `calm`), `createdAt` (epoch ms) | PK `id` |
+| `child` | `id` (UUID text), `name` (text), `code` (text, unique), `ageYears` (int), `effectLevel` (`full`/`calm`, default `calm`), `createdAt` (epoch ms) | PK `id` |
 | `reward` | `id`, `childId`, `sessionId` (nullable), `stars` (int), `stickerId` (nullable), `createdAt` | PK `id`; FK `childId` → `child.id` CASCADE |
 | `session` | `id` (UUID), `childId`, `taskId` (text), `kind` (`assessment`/`replay`), `state` (`running`/`paused`/`done`/`abandoned`), `startedAt`, `endedAt` (nullable), `catalogVersion`, `rulesVersion`, `stepIndex`, `attemptNumber`, `promptLevel` | PK `id`; FK `childId` → `child.id` ON DELETE CASCADE |
 | `attempt` | `id` (UUID), `sessionId`, `stepId`, `number` (1-3), `promptLevel` (1-3), `helpPressed` (bool), `verdict` (`done`/`not_done`/`cannot_tell`), `reason` (text), `verifier` (`pose`/`hand`/`cloud`/`none`), `modelId` (nullable), `promptVersion` (nullable), `latencyMs` (int), `framePaths` (JSON array), `createdAt` | PK `id`; FK `sessionId` → `session.id` CASCADE; index (`sessionId`, `stepId`) |

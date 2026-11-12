@@ -619,11 +619,11 @@ Files: `<pkg>/ui/therapist/ChildListScreen.kt`, `<pkg>/ui/therapist/ChildProfile
 **Acceptance Criteria:**
 
 **Given** the add form
-**When** name, code or age is missing, or the code exists
-**Then** save is refused with a message; otherwise the child appears in the list (searchable by name/code), effect level default `calm`.
+**When** name or age is missing
+**Then** save is refused with a message; otherwise the child appears in the list (searchable by name; the child code is generated in the background, unique, never typed or shown), effect level default `calm`.
 
 **Given** a profile
-**When** the effect level is set to full/calm/off
+**When** the effect level is set to full or calm
 **Then** it persists.
 
 **Given** a child with sessions, attempts and frame files
