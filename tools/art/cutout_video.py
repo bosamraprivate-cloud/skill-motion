@@ -18,12 +18,27 @@ from pathlib import Path
 import numpy as np
 import torch
 from PIL import Image
-from torchvision.io import read_video
+
+
+def read_video(src: Path) -> tuple[torch.Tensor, float]:
+    """Decode with ffmpeg into a uint8 TCHW tensor (no PyAV needed)."""
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+         "stream=width,height,r_frame_rate", "-of", "csv=p=0", str(src)],
+        capture_output=True, text=True, check=True,
+    ).stdout.strip().split(",")
+    w, h = int(probe[0]), int(probe[1])
+    num, den = probe[2].split("/")
+    raw = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", str(src), "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+        capture_output=True, check=True,
+    ).stdout
+    frames = np.frombuffer(raw, np.uint8).reshape(-1, h, w, 3)
+    return torch.from_numpy(frames.copy()).permute(0, 3, 1, 2), int(num) / int(den)
 
 
 def matte(src: Path, frames_dir: Path, size: int) -> float:
-    video, _, info = read_video(str(src), pts_unit="sec", output_format="TCHW")
-    fps = float(info["video_fps"])
+    video, fps = read_video(src)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = torch.hub.load("PeterL1n/RobustVideoMatting", "mobilenetv3", trust_repo=True)
     model = model.eval().to(device)
