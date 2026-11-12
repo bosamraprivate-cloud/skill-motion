@@ -331,8 +331,8 @@ All child data, sessions, attempts, corrections and settings are stored encrypte
 Only cropped frames and the step question for object steps leave the tablet, to the proxy.
 - Requests contain no name, child code or profile data.
 
-#### FR-43: Consent text
-The app shows consent text that names DeepSeek as the receiving service for cropped frames. [ASSUMPTION: shown in the therapist setup flow and recorded per child profile as acknowledged; the design names the consent text but not where it appears.]
+#### FR-43: Consent text (removed 2026-11-12)
+No consent screen in the app. Consent, including that cropped frames go to DeepSeek, is obtained verbally from guardians outside the app; using the app implies it was given.
 
 #### FR-44: Anonymised CSV export
 The therapist can export `results.csv` with per-attempt rows (session, child code, task, step, attempt, prompt level, verdict, reason, method, model ID, latency, level, corrected level, blind verdict, clip file).
@@ -385,7 +385,7 @@ The dashboard and evaluation script report per-attempt agreement, quadratic-weig
 
 - Tablet too slow for pose plus hand: measured in M1; run only the detector each step needs.
 - Online model changes or is withdrawn: model version stored per attempt; replay re-scores clips; open weights allow a self-hosted copy later.
-- Frames processed on DeepSeek's servers: committee and guardian approval; consent text names DeepSeek.
+- Frames processed on DeepSeek's servers: committee and guardian approval; guardians are told verbally (outside the app) that DeepSeek receives the frames.
 - Shared secret leaks: spend limit caps cost; rotate the secret in the proxy and settings.
 - Volunteer clips easier than children's movements: report as volunteer accuracy.
 - Audio service changes: audio generated once and shipped; voice and model IDs recorded.
@@ -447,6 +447,6 @@ FR-1 to FR-48: profiles, all 147 steps as content, camera scoring for 41 steps, 
 
 - §4.5 FR-22 — content-only task sessions appear in lists; report shows "no scored steps" unless corrected.
 - §4.10 FR-34 — camera-counted list fixed in M4; training may be mostly guided.
-- §4.12 FR-43 — consent text shown in therapist setup and acknowledged per child profile.
+- §4.12 FR-43 — removed 2026-11-12: consent is verbal, outside the app.
 - §2.1 (inferred, not tagged inline) — committee and guardians are the only external stakeholders (inferred from the approval statement).
 - §0 (inferred, not tagged inline) — no market sizing or monetization section: graduation project for a committee audience.

@@ -69,7 +69,7 @@ FR-39: Effect levels full / calm / off; never > 3 flashes per second; never duri
 FR-40: Rewards only after verdict saved; never change levels; training stars follow the same rules per repetition set.
 FR-41: All data encrypted on tablet with Keystore keys; frames encrypted in app-private storage; wrong key cannot open DB; backup disabled; no external data store.
 FR-42: Only cropped frames + step question for object steps leave the tablet; no name, code or profile data.
-FR-43: Consent text naming DeepSeek as receiver of cropped frames.
+FR-43: Removed 2026-11-12 (consent is obtained verbally outside the app; no consent screen).
 FR-44: Anonymised `results.csv` export with the defined per-attempt columns; names never exported.
 FR-45: Evidence frames kept until the child's profile is deleted.
 FR-46: Replay mode: import clips with file picker; one clip = one attempt; window = whole clip; Done implied; file name links to `eval/clips.csv`; re-score with new model or catalogue version.
@@ -170,7 +170,7 @@ FR-39: Epic 4 (4.8)
 FR-40: Epic 4 (4.7)
 FR-41: Epic 2 (2.9)
 FR-42: Epic 1 (1.4, 1.5) and Epic 3 (3.5)
-FR-43: Epic 2 (2.10)
+FR-43: removed
 FR-44: Epic 5 (5.6)
 FR-45: Epic 2 (2.9, 2.11)
 FR-46: Epic 3 (3.7)
@@ -185,7 +185,7 @@ The team can prove on the chosen tablet that pose and hand landmarks run at >= 1
 
 ### Epic 2: Every task runs for a child, safely stored (M2)
 The therapist can set up the tablet, add children, and run any of the 15 tasks / 147 steps in locked child mode with illustration, Egyptian Arabic text and audio; every fact is saved encrypted and an interrupted session can continue. Includes the art and audio production pipeline.
-**FRs covered:** FR-1, FR-2, FR-3, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-17, FR-21, FR-22, FR-23, FR-41, FR-43, FR-45
+**FRs covered:** FR-1, FR-2, FR-3, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-17, FR-21, FR-22, FR-23, FR-41, FR-45
 
 ### Epic 3: The app scores the four camera-scored tasks by itself (M3)
 During an assessment the app judges all 41 camera-scored steps (6 local, 30 cloud, 5 none) with framing check, zones and evidence frames; network loss becomes "cannot tell"; volunteer clips can be replayed through the same runner and first accuracy is measured.
@@ -576,20 +576,20 @@ Files: `<pkg>/data/AppDatabase.kt`, `<pkg>/data/Entities.kt` (child, session, at
 **When** stored
 **Then** they serialise as lower_snake (`not_done`, `cannot_tell`).
 
-### Story 2.10: First-run setup, PIN gate and consent
+### Story 2.10: First-run setup and PIN gate
 
 As a therapist,
-I want to set a PIN, enter the proxy address and secret, and acknowledge consent text once,
+I want to set a PIN and enter the proxy address and secret once,
 So that the tablet is ready and therapist mode is protected.
 
-Implements: FR-1, FR-2, FR-43, UX-DR1, UX-DR12, UX-DR17; AD-8.
+Implements: FR-1, FR-2, UX-DR1, UX-DR12, UX-DR17; AD-8.
 Files: `<pkg>/ui/theme/Theme.kt`, `<pkg>/ui/theme/Tokens.kt`, `android/app/src/main/res/font/cairo_*.ttf`, `<pkg>/ui/therapist/SetupScreen.kt`, `<pkg>/ui/therapist/PinScreen.kt`, `<pkg>/ui/therapist/SettingsScreen.kt`, `<pkg>/ui/therapist/TherapistShell.kt`, `<pkg>/ui/AppNavigation.kt`, `<pkg>/data/SecureSettings.kt`, `<test>/PinHashTest.kt`.
 
 **Acceptance Criteria:**
 
 **Given** a fresh install
 **When** the app starts
-**Then** setup opens: PIN entered twice, proxy URL and secret, consent text naming DeepSeek as receiver of cropped frames (must be acknowledged), then the empty child list; therapist mode is unreachable before a PIN is set.
+**Then** setup opens: PIN entered twice, proxy URL and secret, then the empty child list; therapist mode is unreachable before a PIN is set.
 
 **Given** a saved secret
 **When** settings are viewed
@@ -607,15 +607,13 @@ Files: `<pkg>/ui/theme/Theme.kt`, `<pkg>/ui/theme/Tokens.kt`, `android/app/src/m
 **When** shown
 **Then** it is RTL with a start-side rail (Children, Replay & evaluation, Diagnostics, Settings), Cairo font and DESIGN tokens.
 
-[ASSUMPTION per PRD FR-43] consent acknowledgement is recorded at setup and per child profile (Story 2.11).
-
 ### Story 2.11: Child profiles with effect level and cascade delete
 
 As a therapist,
 I want to add, edit and delete children with an effect level,
 So that sessions belong to a child and deletion removes everything.
 
-Implements: FR-5, FR-6, FR-43, FR-45; AD-8, AD-9.
+Implements: FR-5, FR-6, FR-45; AD-8, AD-9.
 Files: `<pkg>/ui/therapist/ChildListScreen.kt`, `<pkg>/ui/therapist/ChildProfileScreen.kt`, `<pkg>/data/Repositories.kt`, `<pkg>/data/Entities.kt`, `<itest>/ChildDeleteTest.kt`.
 
 **Acceptance Criteria:**
@@ -1424,7 +1422,7 @@ Files: `README.md`, `<pkg>/ui/therapist/AboutScreen.kt` (open-source credits), `
 | FR-40 | 4.7 |
 | FR-41 | 2.9 |
 | FR-42 | 1.4, 1.5, 3.5 |
-| FR-43 | 2.10, 2.11 |
+| FR-43 | removed 2026-11-12 |
 | FR-44 | 5.6 |
 | FR-45 | 2.9, 2.11 |
 | FR-46 | 3.7, 3.8, 3.9, 5.9 |
@@ -1441,7 +1439,7 @@ All 48 FRs are covered. UX-DR1-17 are covered by 2.10 (DR1, DR12, DR17), 2.14 (D
 - Epic 1 is a technical spike epic by design (author's guidance: riskiest first); its stories still deliver demonstrable verdicts on the tablet.
 - `RulesEngine.stepLevel` is created in 2.13 because AD-6 requires the runner to advance through it; the rest of RulesEngine comes in Epic 4.
 - Jacket "both" runs as two sessions (on then off). [ASSUMPTION]
-- Consent acknowledgement is recorded at setup and per child profile (PRD FR-43 assumption).
+- No in-app consent: guardians give consent verbally outside the app (decided 2026-11-12).
 - Sticker unlock every 3 finished assessment tasks (PRD FR-38 assumption).
 - Volunteer clip videos are kept outside the repository; only `eval/clips.csv` and protocol are committed. [ASSUMPTION]
 - Spike and milestone records (`docs/designs/m1-spike-results.md`, `m2-content-check.md`, `m3-field-tests.md`, `m3-accuracy.md`, `activity-counter-selection.md`, `evaluation-report.md`) are new documentation files. [ASSUMPTION] Added so exit criteria are evidenced.

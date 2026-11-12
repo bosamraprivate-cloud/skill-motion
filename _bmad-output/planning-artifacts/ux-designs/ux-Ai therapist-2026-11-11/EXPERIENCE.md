@@ -43,7 +43,7 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 
 | Surface | Reached from | Purpose |
 |---|---|---|
-| First-run setup | First launch | PIN, proxy address + secret, consent text, zones, framing check |
+| First-run setup | First launch | PIN, proxy address + secret, zones, framing check |
 | PIN screen | App start, leaving child mode | Gate |
 | Child list | Rail "Children" (home) | Children, search by name/code, Add, "Continue" card for interrupted sessions |
 | Child profile | Child list row | Details, effect level, sessions tab, report, plan, training history, compare |
@@ -167,7 +167,7 @@ Tablet on floor stand 1.8 m away. Each step plays audio; at level 3 the illustra
 Mona picks activities in the plan picker → Start training → hand-off. Camera-counted activity shows a large counter and ring; at the criterion, a calm reward; guided activities show illustration, timer and Done. Results appear in training history.
 
 ### Flow 5: First-run setup (CUJ 1)
-Welcome → set PIN (twice) → proxy address + secret → consent text naming DeepSeek (acknowledge) → draw zones on preview → framing check → diagnostics shows proxy reachable → child list (empty state, "Add child").
+Welcome → set PIN (twice) → proxy address + secret → draw zones on preview → framing check → diagnostics shows proxy reachable → child list (empty state, "Add child").
 
 ### Flow 6: Accuracy evaluation (CUJ 6)
 Replay & evaluation → import clips → app scores → Blind review (verdict hidden, one attempt at a time, done / not done / cannot tell) → metrics: agreement, weighted kappa, cannot-tell rate, confusion matrix per step.

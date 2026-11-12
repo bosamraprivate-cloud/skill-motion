@@ -306,7 +306,7 @@ Open-source code is used only where it is current and better than writing the pa
 
 *   **The tablet is too slow for Pose plus Hand:** measured in M1; fall back to running Hand only on hand steps and Pose only on body steps.
 *   **The online model changes or is withdrawn:** the served model version is stored with every attempt; replay mode re-scores saved clips with a new model. DeepSeek published open weights for its flash vision model, so the proxy could later point to a self-hosted copy.
-*   **Frames are processed on DeepSeek's servers:** the committee and guardians approved sending cropped frames; the consent text names DeepSeek as the receiving service.
+*   **Frames are processed on DeepSeek's servers:** the committee and guardians approved sending cropped frames; guardians are told verbally, outside the app, that DeepSeek is the receiving service.
 *   **The shared secret leaks:** the Console spend limit caps the cost; the secret is rotated in the Worker and re-entered in settings.
 *   **Volunteer clips are easier than children's movements:** the accuracy figure is reported as volunteer accuracy; results with children are reported separately once available.
 *   **Audio service changes voices or pricing:** audio is generated once and shipped as files, so the app never depends on the service at run time; the voice and model IDs are recorded in `config.json`.
