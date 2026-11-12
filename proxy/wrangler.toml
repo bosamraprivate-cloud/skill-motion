@@ -1,0 +1,15 @@
+name = "verify-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# No storage bindings (KV, D1, R2, Durable Objects, Queues): the proxy is stateless.
+# Secrets DEEPSEEK_API_KEY and SHARED_SECRET are set with `wrangler secret put`, never here.
+
+[vars]
+MODEL_ID = "deepseek-flash"
+
+# Observability is off: Workers Logs would store request metadata (URL, headers incl. Authorization).
+# The handler itself never logs anything.
+[observability]
+enabled = false

@@ -17,3 +17,7 @@ __pycache__/
 _bmad/
 # Unrelated plugin clone (see AGENTS.md)
 elephant-goldfish-model/
+
+# Proxy build output
+proxy/dist/
+proxy/.wrangler/

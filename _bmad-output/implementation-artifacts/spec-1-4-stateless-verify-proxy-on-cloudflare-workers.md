@@ -2,7 +2,8 @@
 title: 'Story 1.4: Stateless verify proxy on Cloudflare Workers'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-progress'
+status: 'in-review'
+baseline_commit: '837b073e05f30fed890409b3eeeed4d7f827a65f'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -71,6 +72,23 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---|---|---|---|
+| 1 | No upstream timeout (SDK default ~10 min) | high | patch | client built without timeout |
+| 2 | Missing API key → uncaught 500 | medium | patch | constructor outside try |
+| 3 | Client disconnect → unhandled rejection 500 | medium | patch | readLimited has no catch |
+| 4 | question/stepId uncapped | medium | patch | cost and injection surface |
+| 5 | Prompt says 3 frames, 1–3 accepted | medium | patch | SYSTEM_PROMPT text |
+| 6 | Reason length in UTF-16; fenced JSON rejected | low | patch | prompt.ts validator |
+| 7 | Multi-chunk base64 untested | medium | patch | only 16-byte images in tests |
+| 8 | Workers Logs record request metadata incl. headers | medium | patch | observability enabled, sampling 1 |
+| 9 | README build comment mismatch | low | patch | script has --outdir dist |
+| 10 | json_object + images undocumented | maybe-false | verify-on-deploy | live call decides; fallback: drop response_format |
+| 11 | .dev.vars not ignored | false | rejected | root .gitignore `.dev.vars` matches proxy/.dev.vars |
+| 12 | package-lock.json missing | false | rejected | file exists; excluded from review diff by the orchestrator |
+| 13 | requestId/stepId not echoed | low | rejected | AD-7 response shape is fixed; app pairs by request |
+| 14 | Spike section lacks source URL / modelId alias note | low | patch-by-orchestrator | add URLs and note at deploy |
 
 ## Verification
 

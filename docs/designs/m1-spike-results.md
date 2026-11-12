@@ -59,3 +59,14 @@ Debug "Try drink.cup.05" attempt (5 s window) on the Xiaomi, GPU, about 10 fps. 
 | Hand visible on the chest, away from the mouth | `not_done` / `check_failed` | 103 + 22 = 125 ms |
 
 NFR-1 (local verdict within 300 ms) met on this device: worst case 125 ms. The "hands below the frame" case confirms AD-3: what the camera cannot see becomes `cannot_tell`, never `not_done`.
+
+## DeepSeek endpoint for the verify proxy (Story 1.4, 2026-11-12)
+
+Confirmed from api-docs.deepseek.com (guides/vision) on 2026-11-12:
+
+- Base URL: `https://api.deepseek.com` (OpenAI-compatible chat completions).
+- Model ID: `deepseek-flash` (V4.1-Flash-1017), accepts images.
+- Images: inline `image_url` with a base64 data URL; up to 600 images per request, 32 MiB per image, 48 MiB inline body, 8192 px per side; JPEG, PNG, GIF, WebP; `detail` `low` (512x512) or `auto` (original).
+- JSON mode together with images is not documented, so the Worker validates the output regardless.
+
+Cloud latency is not measured yet: the Worker is not deployed (deployment and secrets are a user-run step).
