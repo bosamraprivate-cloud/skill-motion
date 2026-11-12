@@ -19,9 +19,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.aitherapist.dls.ui.theme.DlsTheme
 
-/** Shared empty state (AD-13): icon, message and one primary action. Therapist mode only. */
+/** Shared empty state (AD-13): icon, message and at most one primary action. Therapist mode only. */
 @Composable
-fun EmptyState(icon: ImageVector, message: String, primaryActionLabel: String, onPrimaryAction: () -> Unit, modifier: Modifier = Modifier) {
+fun EmptyState(
+    icon: ImageVector,
+    message: String,
+    primaryActionLabel: String? = null,
+    onPrimaryAction: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.fillMaxWidth().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -34,7 +40,7 @@ fun EmptyState(icon: ImageVector, message: String, primaryActionLabel: String, o
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(message, style = MaterialTheme.typography.bodyLarge)
-        Button(onClick = onPrimaryAction) { Text(primaryActionLabel) }
+        if (primaryActionLabel != null) Button(onClick = onPrimaryAction) { Text(primaryActionLabel) }
     }
 }
 

@@ -11,6 +11,7 @@ import com.aitherapist.dls.camera.FrameBuffer
 import com.aitherapist.dls.catalog.CatalogJson
 import com.aitherapist.dls.catalog.Method
 import com.aitherapist.dls.catalog.Step
+import com.aitherapist.dls.data.TherapistSettings
 import com.aitherapist.dls.vision.BitmapImage
 import com.aitherapist.dls.vision.BitmapJpegEncoder
 import com.aitherapist.dls.vision.CloudVerifier
@@ -50,8 +51,11 @@ import okhttp3.OkHttpClient
 @HiltViewModel
 class DiagnosticsViewModel
 @Inject
-constructor(private val landmarkers: Landmarkers, @ApplicationContext private val context: Context) :
-    ViewModel() {
+constructor(
+    private val landmarkers: Landmarkers,
+    @ApplicationContext private val context: Context,
+    private val settings: TherapistSettings
+) : ViewModel() {
     private val clock: () -> Long = SystemClock::uptimeMillis
     private val fpsMeter = FpsMeter(clock)
     private val frameBuffer = FrameBuffer<Long, LandmarkResult>(clock)
@@ -61,10 +65,30 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
     private val attemptBuffer = FrameBuffer<Long, LandmarkResult>(clock, retentionMs = ATTEMPT_RETENTION_MS)
     private val poseVerifier = PoseVerifier(clock)
     private val httpClient by lazy { OkHttpClient() }
-    private val cloudVerifier by lazy {
-        CloudVerifier(BuildConfig.PROXY_URL, BuildConfig.SHARED_SECRET, BitmapJpegEncoder, httpClient, clock)
+
+    /**
+     * Proxy URL and secret are read from SecureSettings at use time, so Settings changes apply without a restart.
+     * Each unreadable value becomes blank, which the verifier and probe turn into cannot_tell / unreachable.
+     */
+    private suspend fun proxySettings(): Pair<String, String> =
+        withContext(Dispatchers.IO) { readOrBlank { settings.proxyUrl() } to readOrBlank { settings.sharedSecret() } }
+
+    private suspend fun readOrBlank(read: suspend () -> String?): String = try {
+        read().orEmpty()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (
+        @Suppress("TooGenericExceptionCaught") e: Exception
+    ) {
+        ""
     }
-    private val proxyProbe by lazy { ProxyProbe(BuildConfig.PROXY_URL, httpClient, clock) }
+
+    private suspend fun cloudVerifier(): CloudVerifier {
+        val (url, secret) = proxySettings()
+        return CloudVerifier(url, secret, BitmapJpegEncoder, httpClient, clock)
+    }
+
+    private suspend fun proxyProbe(): ProxyProbe = ProxyProbe(proxySettings().first, httpClient, clock)
     private var spikeSteps: List<Step> = emptyList()
     private var spikeStep: Step? = null
     private val spikeIds = MutableStateFlow<List<String>>(emptyList())
@@ -289,7 +313,7 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
         if (!debuggable || probe.value is ProbeState.Running) return
         probe.value = ProbeState.Running
         viewModelScope.launch {
-            val result = proxyProbe.probe()
+            val result = proxyProbe().probe()
             probe.value = ProbeState.Done(result.reachable, result.roundTripMs, result.detail)
             Log.d(VERDICT_TAG, "probe ${result.detail} ${result.roundTripMs}") // status and ms only
         }
@@ -336,8 +360,8 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
                         .map { Frame(it.key, BitmapImage(it.value)) }
                 val verdict =
                     try {
+                        val verifier = if (step.method == Method.CLOUD) cloudVerifier() else poseVerifier
                         withContext(Dispatchers.Default) {
-                            val verifier = if (step.method == Method.CLOUD) cloudVerifier else poseVerifier
                             verifier.verify(step, frames, landmarkFrames, VerifyContext())
                         }
                     } finally {

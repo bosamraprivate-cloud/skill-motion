@@ -3,6 +3,7 @@ package com.aitherapist.dls.data
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import java.security.SecureRandom
 import java.util.Base64
@@ -18,14 +19,14 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class Zone(val left: Float, val top: Float, val right: Float, val bottom: Float)
 
-/** PBKDF2 PIN hash and its salt (the hashing itself lives with the PIN gate). */
-class PinHash(val hash: ByteArray, val salt: ByteArray)
+/** PBKDF2 PIN hash with its salt and iteration count (see [PinHasher]). */
+class PinHash(val hash: ByteArray, val salt: ByteArray, val iterations: Int = PinHasher.DEFAULT_ITERATIONS)
 
 /**
  * App-private DataStore settings (design §Encryption). The DB passphrase and the shared secret are stored only
  * encrypted with [KeyManager]; nothing here is ever logged.
  */
-class SecureSettings internal constructor(private val store: DataStore<Preferences>, private val keys: KeyManager) {
+class SecureSettings internal constructor(private val store: DataStore<Preferences>, private val keys: KeyManager) : TherapistSettings {
     private val passphraseLock = Mutex()
 
     /** The 32-byte SQLCipher passphrase; generated, encrypted and stored on first call. */
@@ -45,6 +46,7 @@ class SecureSettings internal constructor(private val store: DataStore<Preferenc
         store.edit {
             it[PIN_HASH] = encode(pin.hash)
             it[PIN_SALT] = encode(pin.salt)
+            it[PIN_ITERATIONS] = pin.iterations
         }
     }
 
@@ -52,21 +54,31 @@ class SecureSettings internal constructor(private val store: DataStore<Preferenc
         val prefs = store.data.first()
         val hash = prefs[PIN_HASH] ?: return null
         val salt = prefs[PIN_SALT] ?: return null
-        return PinHash(decode(hash), decode(salt))
+        return PinHash(decode(hash), decode(salt), prefs[PIN_ITERATIONS]?.takeIf { it > 0 } ?: PinHasher.DEFAULT_ITERATIONS)
     }
 
-    suspend fun setProxyUrl(url: String) {
+    override suspend fun hasPin(): Boolean = pin() != null
+
+    override suspend fun setPin(pin: String) = setPin(PinHasher.hash(pin))
+
+    override suspend fun verifyPin(pin: String): Boolean = pin()?.let { PinHasher.verify(pin, it) } ?: false
+
+    override suspend fun hasSharedSecret(): Boolean = store.data.first()[SHARED_SECRET] != null
+
+    override suspend fun setProxyUrl(url: String) {
         store.edit { it[PROXY_URL] = url }
     }
 
-    suspend fun proxyUrl(): String? = store.data.first()[PROXY_URL]
+    override suspend fun proxyUrl(): String? = store.data.first()[PROXY_URL]
 
-    suspend fun setSharedSecret(secret: String) {
+    override suspend fun setSharedSecret(secret: String) {
         val sealed = encode(keys.encrypt(secret.toByteArray(Charsets.UTF_8)))
         store.edit { it[SHARED_SECRET] = sealed }
     }
 
-    suspend fun sharedSecret(): String? = store.data.first()[SHARED_SECRET]?.let { String(keys.decrypt(decode(it)), Charsets.UTF_8) }
+    override suspend fun sharedSecret(): String? = store.data.first()[SHARED_SECRET]?.let {
+        String(keys.decrypt(decode(it)), Charsets.UTF_8)
+    }
 
     suspend fun setZones(zones: Map<String, Zone>) {
         zones.values.forEach { z ->
@@ -83,6 +95,7 @@ class SecureSettings internal constructor(private val store: DataStore<Preferenc
         val PASSPHRASE = stringPreferencesKey("db_passphrase_enc")
         val PIN_HASH = stringPreferencesKey("pin_hash")
         val PIN_SALT = stringPreferencesKey("pin_salt")
+        val PIN_ITERATIONS = intPreferencesKey("pin_iterations")
         val PROXY_URL = stringPreferencesKey("proxy_url")
         val SHARED_SECRET = stringPreferencesKey("shared_secret_enc")
         val ZONES = stringPreferencesKey("zones")

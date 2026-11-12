@@ -73,3 +73,6 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-9-encrypted-database-secure-settings-and-frame-store.md`
   summary: Add connectedDebugAndroidTest to the AGENTS.md verification table.
   evidence: encryption behaviour is only asserted in instrumented tests, which the documented gate does not run.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-10-first-run-setup-and-pin-gate.md`
+  summary: Unit-test that DiagnosticsViewModel uses the stored proxy URL and secret (extract a small proxySettings helper).
+  evidence: no test covers the settings source; regression to BuildConfig values would go unnoticed.

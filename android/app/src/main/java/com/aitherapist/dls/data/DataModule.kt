@@ -27,6 +27,9 @@ internal object DataModule {
     fun secureSettings(store: DataStore<Preferences>, keys: KeyManager): SecureSettings = SecureSettings(store, keys)
 
     @Provides
+    fun therapistSettings(settings: SecureSettings): TherapistSettings = settings
+
+    @Provides
     @Singleton
     fun frameStore(@ApplicationContext context: Context, keys: KeyManager): FrameStore = FrameStore(context.filesDir, keys)
 

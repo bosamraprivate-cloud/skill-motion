@@ -2,7 +2,8 @@
 title: 'Story 2.10: First-run setup and PIN gate'
 type: 'feature'
 created: '2026-11-12'
-status: 'draft'
+status: 'done'
+baseline_commit: '22a32a1894543d6540692a9456d9434763faa3b5'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -55,15 +56,15 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `android/app/src/main/res/font/cairo_*.ttf` + `OFL.txt` -- bundle Cairo (Google Fonts, OFL) regular/semibold/bold; keep the license notice.
-- [ ] `ui/theme/Tokens.kt`, `Theme.kt`, `Type.kt`, `Color.kt` -- DESIGN tokens and Cairo type scale; light only.
-- [ ] `data/PinHasher.kt` + `SecureSettings.kt` -- hash/verify, `hasPin()`, `setPin`, `verifyPin`.
-- [ ] `ui/therapist/Setup{Screen,ViewModel,UiState}.kt` -- welcome, PIN twice, proxy URL + secret; saves and enters the shell.
-- [ ] `ui/therapist/Pin{Screen,ViewModel,UiState}.kt` -- numeric pad, verify, clear on wrong.
-- [ ] `ui/therapist/TherapistShell.kt` -- RTL start-side `NavigationRail` (Children placeholder empty state, Replay & evaluation placeholder, Diagnostics, Settings).
-- [ ] `ui/therapist/Settings{Screen,ViewModel,UiState}.kt` -- change PIN (current + new twice), edit proxy URL, replace secret (masked).
-- [ ] `ui/AppNavigation.kt` -- start: Setup if no PIN, else Pin; then Shell; inner destinations as before.
-- [ ] `DiagnosticsViewModel.kt` -- proxy URL/secret from `SecureSettings`.
+- [x] `android/app/src/main/res/font/cairo_*.ttf` + `OFL.txt` -- bundle Cairo (Google Fonts, OFL) regular/semibold/bold; keep the license notice.
+- [x] `ui/theme/Tokens.kt`, `Theme.kt`, `Type.kt`, `Color.kt` -- DESIGN tokens and Cairo type scale; light only.
+- [x] `data/PinHasher.kt` + `SecureSettings.kt` -- hash/verify, `hasPin()`, `setPin`, `verifyPin`.
+- [x] `ui/therapist/Setup{Screen,ViewModel,UiState}.kt` -- welcome, PIN twice, proxy URL + secret; saves and enters the shell.
+- [x] `ui/therapist/Pin{Screen,ViewModel,UiState}.kt` -- numeric pad, verify, clear on wrong.
+- [x] `ui/therapist/TherapistShell.kt` -- RTL start-side `NavigationRail` (Children placeholder empty state, Replay & evaluation placeholder, Diagnostics, Settings).
+- [x] `ui/therapist/Settings{Screen,ViewModel,UiState}.kt` -- change PIN (current + new twice), edit proxy URL, replace secret (masked).
+- [x] `ui/AppNavigation.kt` -- start: Setup if no PIN, else Pin; then Shell; inner destinations as before.
+- [x] `DiagnosticsViewModel.kt` -- proxy URL/secret from `SecureSettings`.
 - [ ] strings (en + ar) for all new UI.
 - [ ] tests: `PinHasherTest` (salt differs, verify right/wrong, iterations stored), `SetupViewModelTest`, `PinViewModelTest`, `SettingsViewModelTest` covering every matrix row.
 
@@ -77,6 +78,27 @@ context:
 
 ## Review Triage Log
 
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | AppGate hasPin() failure crashes/blanks start; gate routing untested | medium | no catch in init; patch + AppGateViewModelTest |
+| 2 | no re-lock when returning from background | medium | FR-2 "PIN on every entry"; patch (ON_STOP reset) |
+| 3 | Back at root does nothing | low | direct fix; patch |
+| 4 | PinViewModel Error/Retry untested | low | patch test |
+| 5 | PinPad appends captured value; fast taps drop digits | medium | stale lambda capture; patch (events into VM) |
+| 6 | Settings: new PIN/URL not validated in VM; PIN change drops typed secret | medium | relies on UI flags; patch + tests |
+| 7 | secret stored untrimmed | medium | pasted newline breaks auth; patch |
+| 8 | URI host parsing disagrees with OkHttp | low | patch (toHttpUrlOrNull) |
+| 9 | pin_iterations <= 0 loops | low | direct guard; patch |
+| 10 | Diagnostics one try blanks both values; duplicate KDoc | low | patch |
+| 11 | empty URL shown as error in Settings | low | patch |
+| 12 | font binaries missing | false | res/font/cairo_{regular,semibold,bold}.ttf exist; diff excluded *.ttf |
+| 13 | licence path differs from spec | low | res/font rejects non-font files; licences/cairo-OFL.txt kept; accepted |
+| 14 | no PIN attempt limit | false | spec Design Notes records "no lockout" choice |
+| 15 | forced ar-EG locale, English strings unreachable | false | intended (Arabic app); English kept for tests/previews |
+| 16 | Settings shared busy flag; error state wipes input | low | rare, therapist retypes; rejected |
+| 17 | DiagnosticsViewModel settings source untested | low | debug screen, Android-bound; deferred |
+| 18 | PIN dots reveal length; a11y on pad; ExtraBold 800 not bundled | low | negligible; rejected |
+
 ## Design Notes
 
 PIN length 4–6 digits and "no lockout" are choices not stated in the plan; kept minimal because the tablet stays with the therapist. Debug prefill keeps device testing fast without putting the secret in release builds.
@@ -89,3 +111,7 @@ PIN length 4–6 digits and "no lockout" are choices not stated in the plan; kep
 
 **Manual checks (if no CLI):**
 - Clear app data, open: setup → shell; relaunch → PIN; wrong PIN rejected; Settings change PIN works.
+
+## Implementation Notes
+
+Phone run 2026-11-12: connectedDebugAndroidTest 14/14 passed; full gate green. Cairo licence lives at android/app/licenses/cairo-OFL.txt (res/font accepts fonts only).

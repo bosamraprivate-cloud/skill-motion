@@ -14,6 +14,7 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -60,6 +61,22 @@ class SecureSettingsTest {
         assertFalse("secret stored in clear", text.contains(secret))
         assertFalse("secret stored as plain base64", text.contains(SecureSettings.encode(secret.toByteArray())))
         assertFalse("passphrase stored as plain base64", text.contains(SecureSettings.encode(passphrase)))
+    }
+
+    @Test
+    fun pinIsStoredHashedWithIterationsAndVerifies() = runTest(UnconfinedTestDispatcher()) {
+        val s = settings()
+        assertFalse(s.hasPin())
+        assertFalse(s.verifyPin("1234"))
+        assertFalse(s.hasSharedSecret())
+        s.setPin("482915")
+        assertTrue(s.hasPin())
+        assertEquals(PinHasher.DEFAULT_ITERATIONS, s.pin()!!.iterations)
+        assertTrue(s.verifyPin("482915"))
+        assertFalse(s.verifyPin("482916"))
+        assertFalse("PIN stored in clear", String(file.readBytes(), Charsets.ISO_8859_1).contains("482915"))
+        s.setSharedSecret("x")
+        assertTrue(s.hasSharedSecret())
     }
 
     @Test
