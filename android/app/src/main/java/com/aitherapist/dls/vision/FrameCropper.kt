@@ -21,7 +21,7 @@ data class PixelSize(val width: Int, val height: Int)
 object FrameCropper {
     const val MARGIN = 0.25
     const val MIN_SIDE_FRACTION = 0.2
-    const val MAX_SIDE_PX = 768
+    const val MAX_SIDE_PX = 512
     const val JPEG_QUALITY = 80
 
     /** Pose indices of the face landmarks included in the crop. */

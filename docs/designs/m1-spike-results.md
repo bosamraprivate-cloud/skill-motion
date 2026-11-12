@@ -82,3 +82,18 @@ Cloud latency is not measured yet: the Worker is not deployed (deployment and se
 - JSON output mode together with image input works with `deepseek-flash`.
 - `modelId` as returned by DeepSeek is the alias `deepseek-flash`, not a dated snapshot. The served snapshot (V4.1-Flash-1017 per the docs page) is therefore recorded here with the date; if DeepSeek changes the snapshot behind the alias during evaluation, clips are re-scored via replay (design).
 - Action for the author: set a monthly spending limit on the DeepSeek account, and rotate the API key before sharing the project (it appeared in a chat transcript).
+
+## First cloud verdict, drink.cup.06 (Story 1.5, 2026-11-12) — M1 exit
+
+Debug "Try drink.cup.06" on the Xiaomi over Wi-Fi to the deployed `verify-proxy`; 3 frames (start/middle/end) cropped around hands and face. Probe: proxy reachable. Question (design table): "Is the rim of the cup touching the child's lips?". Subject: adult author holding a real cup at the lips.
+
+| Run | Crop max side | Verdict | Latency (wait + cloud = total) |
+|---|---|---|---|
+| 1 | 768 px | `cannot_tell` — "cup near the mouth, rim contact obscured; final frame shows no lips" | 105 + 5790 = 5895 ms |
+| 2 | 768 px | `cannot_tell` / `http_502` (DeepSeek exceeded the proxy's 7.5 s timeout) | 103 + 7734 = 7837 ms |
+| 3 | 512 px | `cannot_tell` — "person appears adult, lips obscured by cup/beard" | 102 + 4888 = 4990 ms |
+
+- M1 exit criterion met: a verdict with `modelId` (`deepseek-flash`) and `promptVersion` (`v1`) returns in under 8 s; every failure, including the upstream timeout, became `cannot_tell`, never `not_done`.
+- Crops were reduced from 768 to 512 px (AD-7 updated): 768 px cloud latency was 5.8 s to over 7.5 s; 512 px was 4.9 s.
+- No `done` yet: the model was conservative because the subject is an adult with a beard while the question says "child". Prompt wording (age-neutral subject, lips/rim framing) and crop margins around the mouth are tuned in M3 on volunteer clips; not changed here.
+- Decision from the 10 fps local result (Story 1.2) stands: fallback on this phone; final numbers on the chosen tablet.

@@ -2,7 +2,7 @@
 title: 'Story 1.5: CloudVerifier and first cloud verdict for a cup step'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-review'
+status: 'done'
 baseline_commit: '811166ac23ab2fb5a07392495bea535c0a5acba0'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -63,13 +63,13 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `<pkg>/vision/FrameCropper.kt` -- pure `cropBox(...)` + shell JPEG encode/scale -- crop
-- [ ] `<pkg>/vision/CloudVerifier.kt` -- gate, frame pick, multipart request, timeout, mapping -- FR-19/20
-- [ ] `<pkg>/vision/ProxyProbe.kt` -- reachability GET -- FR-1
-- [ ] `app/build.gradle.kts` -- debug BuildConfig fields from local.properties; release empty -- config
-- [ ] `src/debug/assets/spike/drink.cup.06.json` + Diagnostics: step picker, cloud route, probe row, verdict + modelId + latency -- spike
-- [ ] `<test>/vision/CloudVerifierTest.kt` (MockWebServer), `<test>/vision/FrameCropperTest.kt`, extend `SpikeAssetDecodingTest` -- matrix
-- [ ] `docs/designs/m1-spike-results.md` -- live drink.cup.06 results and latency (orchestrator fills after the device run)
+- [x] `<pkg>/vision/FrameCropper.kt` -- pure `cropBox(...)` + shell JPEG encode/scale -- crop
+- [x] `<pkg>/vision/CloudVerifier.kt` -- gate, frame pick, multipart request, timeout, mapping -- FR-19/20
+- [x] `<pkg>/vision/ProxyProbe.kt` -- reachability GET -- FR-1
+- [x] `app/build.gradle.kts` -- debug BuildConfig fields from local.properties; release empty -- config
+- [x] `src/debug/assets/spike/drink.cup.06.json` + Diagnostics: step picker, cloud route, probe row, verdict + modelId + latency -- spike
+- [x] `<test>/vision/CloudVerifierTest.kt` (MockWebServer), `<test>/vision/FrameCropperTest.kt`, extend `SpikeAssetDecodingTest` -- matrix
+- [x] `docs/designs/m1-spike-results.md` -- live drink.cup.06 results and latency (orchestrator fills after the device run)
 
 **Acceptance Criteria:**
 - Given the deployed proxy and the phone on Wi-Fi, when the drink.cup.06 spike runs with a real cup at the lips, then a verdict with `modelId` and `promptVersion` returns in under 8 s.
@@ -80,6 +80,8 @@ context:
 - Environment as earlier stories; device Xiaomi over adb. Do not commit. You may write `android/local.properties` entries from `proxy/.dev.vars` but never print the secret.
 
 ## Spec Change Log
+
+- 2026-11-12, device run: 768 px crops pushed DeepSeek past the proxy's 7.5 s timeout (http_502). Frozen crop limit "longest side ≤ 768 px" lowered to 512 px (AD-7 updated, author delegated architecture decisions); measured 4.9 s. KEEP: crop union + 25% margin + min size rule.
 
 ## Review Triage Log
 

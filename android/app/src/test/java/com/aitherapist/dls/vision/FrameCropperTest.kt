@@ -45,9 +45,9 @@ class FrameCropperTest {
     }
 
     @Test
-    fun `scaled size caps the longest side at 768 and never upscales`() {
-        assertEquals(PixelSize(768, 432), FrameCropper.scaledSize(CropBox(0, 0, 1920, 1080)))
-        assertEquals(PixelSize(432, 768), FrameCropper.scaledSize(CropBox(0, 0, 1080, 1920)))
+    fun `scaled size caps the longest side at 512 and never upscales`() {
+        assertEquals(PixelSize(512, 288), FrameCropper.scaledSize(CropBox(0, 0, 1920, 1080)))
+        assertEquals(PixelSize(288, 512), FrameCropper.scaledSize(CropBox(0, 0, 1080, 1920)))
         assertEquals(PixelSize(300, 200), FrameCropper.scaledSize(CropBox(0, 0, 300, 200)))
     }
 

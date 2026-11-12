@@ -55,3 +55,6 @@
 - source_spec: `spec-1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step.md`
   summary: Move proxy URL and shared secret from debug BuildConfig into encrypted settings entered at first-run setup.
   evidence: Secret is compiled into debug APKs for the spike (review 1.5).
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step.md`
+  summary: Tune the proxy system prompt (age-neutral subject, judge only the action) and the mouth-region crop margin on volunteer clips in M3; bump promptVersion when changed.
+  evidence: drink.cup.06 with an adult bearded subject returned cannot_tell three times; model cited "person appears adult" and lips obscured.
