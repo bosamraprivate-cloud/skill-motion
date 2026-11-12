@@ -2,7 +2,7 @@
 title: 'Story 1.4: Stateless verify proxy on Cloudflare Workers'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-review'
+status: 'done'
 baseline_commit: '837b073e05f30fed890409b3eeeed4d7f827a65f'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -54,12 +54,12 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `proxy/package.json`, `package-lock.json`, `tsconfig.json`, `wrangler.toml` -- scripts `test`, `build` (`wrangler deploy --dry-run --outdir dist`), `typecheck`; `MODEL_ID = "deepseek-flash"` var; no bindings -- setup
-- [ ] `proxy/src/prompt.ts` -- `PROMPT_VERSION`, system prompt, verdict schema validator -- AD-2
-- [ ] `proxy/src/index.ts` -- handler per contract and matrix; SDK client created per request from env -- AD-7
-- [ ] `proxy/test/index.test.ts` -- every matrix row with a mocked `openai` module -- verification
-- [ ] `proxy/README.md` -- local dev, deploy and secret commands for the user (no secret values) -- operations
-- [ ] `docs/designs/m1-spike-results.md` -- append confirmed DeepSeek endpoint, model ID and image limits (from Code Map) -- AC
+- [x] `proxy/package.json`, `package-lock.json`, `tsconfig.json`, `wrangler.toml` -- scripts `test`, `build` (`wrangler deploy --dry-run --outdir dist`), `typecheck`; `MODEL_ID = "deepseek-flash"` var; no bindings -- setup
+- [x] `proxy/src/prompt.ts` -- `PROMPT_VERSION`, system prompt, verdict schema validator -- AD-2
+- [x] `proxy/src/index.ts` -- handler per contract and matrix; SDK client created per request from env -- AD-7
+- [x] `proxy/test/index.test.ts` -- every matrix row with a mocked `openai` module -- verification
+- [x] `proxy/README.md` -- local dev, deploy and secret commands for the user (no secret values) -- operations
+- [x] `docs/designs/m1-spike-results.md` -- append confirmed DeepSeek endpoint, model ID and image limits (from Code Map) -- AC
 
 **Acceptance Criteria:**
 - Given `wrangler.toml`, when inspected, then there are no storage bindings and nothing logs bodies.

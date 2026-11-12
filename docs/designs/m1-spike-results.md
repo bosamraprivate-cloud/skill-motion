@@ -70,3 +70,15 @@ Confirmed from api-docs.deepseek.com (guides/vision) on 2026-11-12:
 - JSON mode together with images is not documented, so the Worker validates the output regardless.
 
 Cloud latency is not measured yet: the Worker is not deployed (deployment and secrets are a user-run step).
+
+## Proxy deployment and live check (Story 1.4, 2026-11-12)
+
+- Worker `verify-proxy` deployed to the author's Cloudflare account (workers.dev). Secrets `DEEPSEEK_API_KEY` and `SHARED_SECRET` set with `wrangler secret put`; local copies only in git-ignored `proxy/.dev.vars`. Observability off; no storage bindings.
+- Sources for the DeepSeek facts above: https://api-docs.deepseek.com/ and https://api-docs.deepseek.com/guides/vision/ (checked 2026-11-12).
+- Live checks with a generated test-pattern JPEG (no person):
+  - Wrong secret: 401.
+  - 1 image: 200, `cannot_tell` ("color bar test pattern; no person or cup is visible"), 1.8 s.
+  - 3 images, three runs: 200 in 2.2 s, 1.8 s, 2.3 s (all well under the 8 s cloud budget).
+- JSON output mode together with image input works with `deepseek-flash`.
+- `modelId` as returned by DeepSeek is the alias `deepseek-flash`, not a dated snapshot. The served snapshot (V4.1-Flash-1017 per the docs page) is therefore recorded here with the date; if DeepSeek changes the snapshot behind the alias during evaluation, clips are re-scored via replay (design).
+- Action for the author: set a monthly spending limit on the DeepSeek account, and rotate the API key before sharing the project (it appeared in a chat transcript).
