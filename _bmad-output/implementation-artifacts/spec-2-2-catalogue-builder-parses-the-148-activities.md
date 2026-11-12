@@ -2,7 +2,8 @@
 title: 'Story 2.2: Catalogue builder parses the 148 activities'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-progress'
+status: 'done'
+baseline_commit: 'be42af0da0b9e9124432f0cc11f26af8686e7ba0'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -55,8 +56,8 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `tools/catalog-builder/build_catalog.py` -- `Activity` dataclass, `parse_activities()`, validation, `--check` output -- FR-7, FR-32
-- [ ] `tools/catalog-builder/test_build_catalog.py` -- real-source totals and spot check + every matrix row with inline Markdown -- verification
+- [x] `tools/catalog-builder/build_catalog.py` -- `Activity` dataclass, `parse_activities()`, validation, `--check` output -- FR-7, FR-32
+- [x] `tools/catalog-builder/test_build_catalog.py` -- real-source totals and spot check + every matrix row with inline Markdown -- verification
 
 **Acceptance Criteria:**
 - Given the repo root, when `pytest tools/` and `ruff check tools` run, then both pass and `--check` prints 148 activities (mild 48, moderate 50, severe 50).
@@ -68,6 +69,21 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---|---|---|---|
+| 1 | Loose plan prefix; duplicate plan merges | medium | patch | startswith("1.") |
+| 2 | Continuation lines silently dropped | high | patch | non-matching lines skipped inside activity |
+| 3 | General goal leaks/overwrites | medium | patch | reset only at level 3 |
+| 4 | Substring domain matching | low | patch | `name in lowered` |
+| 5 | Level-1 reset; NN > 99 | low | patch | state not reset; format |
+| 6 | No per-domain count check; unreachable total; missing-field message | medium | patch | validate_activities |
+| 7 | Missing tests (missing domain, real missing field, others) | medium | patch | test file |
+| 8 | No ID-stability guard for released IDs | medium | patch | AGENTS.md: released IDs never change |
+| 9 | Duplicate-ID branch unreachable | low | rejected | defensive; harmless |
+| 10 | source field not a URL slug | low | rejected | provenance text, not a link |
+| 11 | CLI stops at first failure | low | rejected | fail-fast is the build contract |
+| 12 | Domain-less level-4 under a domain should fall back | maybe-false | rejected | spec decides by nearest level-3/4 heading; source has none; erroring is safer |
 
 ## Verification
 
