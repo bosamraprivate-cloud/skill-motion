@@ -2,7 +2,8 @@
 title: 'Story 2.5: Arabic strings and ElevenLabs audio generation'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'in-progress'
+baseline_commit: 'f6b40da851f2420fef4b0f6f4e13f835d8c42fa9'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
