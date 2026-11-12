@@ -85,14 +85,26 @@ internal constructor(private val holder: DatabaseHolder, private val frames: Fra
     }
 }
 
+/** What the assessment runner writes and reads (implemented by [SessionRepository]; faked in unit tests). */
+interface SessionStore {
+    suspend fun add(session: SessionEntity)
+
+    suspend fun update(session: SessionEntity)
+
+    suspend fun addAttempt(attempt: AttemptEntity)
+
+    /** Attempts of one step in saved order. */
+    suspend fun attempts(sessionId: String, stepId: String): List<AttemptEntity>
+}
+
 /** Sessions and attempts (written only by the assessment runner). */
 @Singleton
 class SessionRepository
 @Inject
-internal constructor(private val holder: DatabaseHolder, private val frames: FrameStore) {
-    suspend fun add(session: SessionEntity) = holder.get().sessionDao().insert(session)
+internal constructor(private val holder: DatabaseHolder, private val frames: FrameStore) : SessionStore {
+    override suspend fun add(session: SessionEntity) = holder.get().sessionDao().insert(session)
 
-    suspend fun update(session: SessionEntity) = holder.get().sessionDao().update(session)
+    override suspend fun update(session: SessionEntity) = holder.get().sessionDao().update(session)
 
     suspend fun get(id: String): SessionEntity? = holder.get().sessionDao().byId(id)
 
@@ -104,9 +116,10 @@ internal constructor(private val holder: DatabaseHolder, private val frames: Fra
         if (!frames.deleteSession(id)) Log.w(TAG, "Frame folder delete failed")
     }
 
-    suspend fun addAttempt(attempt: AttemptEntity) = holder.get().attemptDao().insert(attempt)
+    override suspend fun addAttempt(attempt: AttemptEntity) = holder.get().attemptDao().insert(attempt)
 
     suspend fun attempts(sessionId: String): List<AttemptEntity> = holder.get().attemptDao().forSession(sessionId)
 
-    suspend fun attempts(sessionId: String, stepId: String): List<AttemptEntity> = holder.get().attemptDao().forStep(sessionId, stepId)
+    override suspend fun attempts(sessionId: String, stepId: String): List<AttemptEntity> =
+        holder.get().attemptDao().forStep(sessionId, stepId)
 }

@@ -64,8 +64,9 @@ class ArchitectureTest {
         val DATA_INTERNALS = setOf("ChildDao", "SessionDao", "AttemptDao", "AppDatabase")
         const val ROOT = "com.aitherapist.dls"
         val CORE_PACKAGES = arrayOf("$ROOT.scoring..", "$ROOT.rewards..", "$ROOT.catalog..")
-        val PURE_VISION_FILES = setOf("Geometry", "Verifier", "VisibilityGate", "PoseVerifier", "LandmarkModels", "FrameCropper")
-        val PURE_SESSION_FILES = setOf("WindowRules", "Movement", "AttemptWindow", "PromptLadder")
+        val PURE_VISION_FILES =
+            setOf("Geometry", "Verifier", "VisibilityGate", "PoseVerifier", "LandmarkModels", "FrameCropper", "NoneVerifier")
+        val PURE_SESSION_FILES = setOf("WindowRules", "Movement", "AttemptWindow", "PromptLadder", "RunnerState", "AssessmentRunner")
         val NON_UI_PACKAGES =
             arrayOf("catalog", "data", "camera", "vision", "session", "scoring", "training", "rewards", "audio", "replay")
                 .map { "$ROOT.$it.." }

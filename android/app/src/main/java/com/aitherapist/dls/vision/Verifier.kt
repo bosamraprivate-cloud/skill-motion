@@ -26,6 +26,7 @@ object VerdictReason {
     const val TIMEOUT = "timeout"
     const val NETWORK = "network"
     const val INVALID_MODEL_OUTPUT = "invalid_model_output"
+    const val VERIFIER_ERROR = "verifier_error"
 
     fun http(status: Int) = "http_$status"
 }

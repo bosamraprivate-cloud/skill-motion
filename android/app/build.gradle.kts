@@ -136,7 +136,7 @@ dependencies {
 }
 
 // Core classes with a >= 90% line-coverage rule (AD-12), checked by koverVerifyCore. Geometry landed in 1.3;
-// RulesEngine and RepCounter arrive in later stories.
+// RulesEngine and the runner landed in 2.13; RepCounter arrives later.
 // The class filter lives in a dedicated "core" variant so it limits only this rule, not other reports.
 kover {
     currentProject {
@@ -161,7 +161,11 @@ kover {
                         "com.aitherapist.dls.session.AttemptWindow",
                         "com.aitherapist.dls.session.CloseReason",
                         "com.aitherapist.dls.session.PromptLadder",
-                        "com.aitherapist.dls.session.PromptState"
+                        "com.aitherapist.dls.session.PromptState",
+                        "com.aitherapist.dls.session.AssessmentRunner*",
+                        "com.aitherapist.dls.session.RunnerEvent*",
+                        "com.aitherapist.dls.session.RunnerState*",
+                        "com.aitherapist.dls.vision.NoneVerifier*"
                     )
                 }
             }

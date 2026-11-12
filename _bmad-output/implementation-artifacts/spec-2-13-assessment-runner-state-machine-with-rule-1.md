@@ -2,7 +2,8 @@
 title: 'Story 2.13: Assessment runner state machine with Rule 1'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'done'
+baseline_commit: '87371ff55c692dc5bd874a89199b28e60ca3726b'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -53,12 +54,12 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `scoring/RulesEngine.kt` -- `RULES_VERSION`, `stepLevel(rows, correction)` returning `StepLevel` (THREE/TWO/ONE/NOT_SCORED).
-- [ ] `vision/NoneVerifier.kt` -- returns cannot_tell / `not_judgeable`.
-- [ ] `session/RunnerState.kt` -- sealed states (Show, Listen, Attempt, Judge, Finished, Error) carrying stepIndex, attempt, PromptState.
-- [ ] `session/AssessmentRunner.kt` -- events `AudioEnded, Done, Help, Repeat, Sample, Tick, VerdictReady`; persistence-before-emit; verifier selection by method (`none` → NoneVerifier, else injected verifier); exceptions → cannot_tell `verifier_error`.
-- [ ] `build.gradle.kts` -- kover filter entries.
-- [ ] `test/.../scoring/RulesEngineTest.kt`, `test/.../session/AssessmentRunnerTest.kt` (fake verifier, fake clock, fake repository) -- every matrix row plus "saved before emitted" ordering.
+- [x] `scoring/RulesEngine.kt` -- `RULES_VERSION`, `stepLevel(rows, correction)` returning `StepLevel` (THREE/TWO/ONE/NOT_SCORED).
+- [x] `vision/NoneVerifier.kt` -- returns cannot_tell / `not_judgeable`.
+- [x] `session/RunnerState.kt` -- sealed states (Show, Listen, Attempt, Judge, Finished, Error) carrying stepIndex, attempt, PromptState.
+- [x] `session/AssessmentRunner.kt` -- events `AudioEnded, Done, Help, Repeat, Sample, Tick, VerdictReady`; persistence-before-emit; verifier selection by method (`none` → NoneVerifier, else injected verifier); exceptions → cannot_tell `verifier_error`.
+- [x] `build.gradle.kts` -- kover filter entries.
+- [x] `test/.../scoring/RulesEngineTest.kt`, `test/.../session/AssessmentRunnerTest.kt` (fake verifier, fake clock, fake repository) -- every matrix row plus "saved before emitted" ordering.
 
 **Acceptance Criteria:**
 - Given the gate, when `./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` runs, then it passes with the new classes under `koverVerifyCore`.
@@ -68,6 +69,21 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | Retry after failed Judge save never judges; session hangs | high | pending holds only save+emit; test masks with manual VerdictReady; patch |
+| 2 | verifier has no timeout and runs under the mutex | medium | hang freezes all events; patch (withTimeoutOrNull -> cannot_tell timeout) |
+| 3 | openWindow timestamp captured before failed save | low | patch |
+| 4 | Help/Repeat reset window before save | low | patch (save first) |
+| 5 | frame/landmark buffers unbounded; framePaths empty | medium | memory at camera rate; patch cap; persistence is Story 3.5 |
+| 6 | Event name generic and outside kover filter | low | patch (RunnerEvent) |
+| 7 | NOT_DONE then CANNOT_TELL, Help cap, ignored events, start retry untested | medium | patch tests |
+| 8 | Show conflated with Listen on StateFlow | low | both carry the same fields; UI renders Listen; rejected |
+| 9 | Rule 1 branches lack a clinical source | false | AD-6 defines exactly these branches (first done row, none -> not scored) |
+| 10 | no restore from saved session | low | Story 2.15 owns resume; rejected |
+| 11 | redundant session writes / double attempt read | low | negligible; rejected |
+| 12 | status files disagree | false | synced at story close |
 
 ## Design Notes
 
