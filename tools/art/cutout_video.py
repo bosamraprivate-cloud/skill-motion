@@ -14,14 +14,19 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import numpy as np
-import torch
-from PIL import Image
+if TYPE_CHECKING:
+    import torch
+
+# numpy, torch and PIL load inside the matting functions so encode() can be reused without them.
 
 
 def read_video(src: Path) -> tuple[torch.Tensor, float]:
     """Decode with ffmpeg into a uint8 TCHW tensor (no PyAV needed)."""
+    import numpy as np
+    import torch
+
     probe = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
          "stream=width,height,r_frame_rate", "-of", "csv=p=0", str(src)],
@@ -38,6 +43,10 @@ def read_video(src: Path) -> tuple[torch.Tensor, float]:
 
 
 def matte(src: Path, frames_dir: Path, size: int) -> float:
+    import numpy as np
+    import torch
+    from PIL import Image
+
     video, fps = read_video(src)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = torch.hub.load("PeterL1n/RobustVideoMatting", "mobilenetv3", trust_repo=True)

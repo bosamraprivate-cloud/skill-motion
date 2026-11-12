@@ -58,3 +58,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step.md`
   summary: Tune the proxy system prompt (age-neutral subject, judge only the action) and the mouth-region crop margin on volunteer clips in M3; bump promptVersion when changed.
   evidence: drink.cup.06 with an adult bearded subject returned cannot_tell three times; model cited "person appears adult" and lips obscured.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-character-clips-in-the-app.md`
+  summary: Define what effect level CALM changes in CharacterView (currently same as FULL).
+  evidence: EffectLevel has FULL/CALM/OFF but only OFF changes rendering; the per-child setting arrives in Story 2.11.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-character-clips-in-the-app.md`
+  summary: Accessibility labels for character clips and readable step names in the preview chips.
+  evidence: contentDescription is null and chips show raw step IDs.

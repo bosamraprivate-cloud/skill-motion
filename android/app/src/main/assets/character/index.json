@@ -1,0 +1,298 @@
+{
+  "variants": [
+    {
+      "id": "boy",
+      "reactions": [
+        {
+          "state": "idle",
+          "file": "character/boy/react/idle.webp"
+        },
+        {
+          "state": "talk",
+          "file": "character/boy/react/talk.webp"
+        },
+        {
+          "state": "point",
+          "file": "character/boy/react/point.webp"
+        },
+        {
+          "state": "encourage",
+          "file": "character/boy/react/encourage.webp"
+        },
+        {
+          "state": "celebrateSmall",
+          "file": "character/boy/react/celebrateSmall.webp"
+        },
+        {
+          "state": "celebrate",
+          "file": "character/boy/react/celebrate.webp"
+        },
+        {
+          "state": "celebrateBig",
+          "file": "character/boy/react/celebrateBig.webp"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "eat.sandwich",
+          "steps": [
+            {
+              "id": "eat.sandwich.01",
+              "clip": "character/boy/steps/eat.sandwich.01.webp",
+              "still": "character/boy/steps/eat.sandwich.01.still.webp"
+            },
+            {
+              "id": "eat.sandwich.02",
+              "clip": null,
+              "still": "character/boy/steps/eat.sandwich.02.still.webp"
+            },
+            {
+              "id": "eat.sandwich.03",
+              "clip": "character/boy/steps/eat.sandwich.03.webp",
+              "still": "character/boy/steps/eat.sandwich.03.still.webp"
+            },
+            {
+              "id": "eat.sandwich.04",
+              "clip": "character/boy/steps/eat.sandwich.04.webp",
+              "still": "character/boy/steps/eat.sandwich.04.still.webp"
+            },
+            {
+              "id": "eat.sandwich.05",
+              "clip": "character/boy/steps/eat.sandwich.05.webp",
+              "still": "character/boy/steps/eat.sandwich.05.still.webp"
+            },
+            {
+              "id": "eat.sandwich.06",
+              "clip": "character/boy/steps/eat.sandwich.06.webp",
+              "still": "character/boy/steps/eat.sandwich.06.still.webp"
+            },
+            {
+              "id": "eat.sandwich.07",
+              "clip": "character/boy/steps/eat.sandwich.07.webp",
+              "still": "character/boy/steps/eat.sandwich.07.still.webp"
+            },
+            {
+              "id": "eat.sandwich.08",
+              "clip": "character/boy/steps/eat.sandwich.08.webp",
+              "still": "character/boy/steps/eat.sandwich.08.still.webp"
+            },
+            {
+              "id": "eat.sandwich.09",
+              "clip": "character/boy/steps/eat.sandwich.09.webp",
+              "still": "character/boy/steps/eat.sandwich.09.still.webp"
+            },
+            {
+              "id": "eat.sandwich.10",
+              "clip": "character/boy/steps/eat.sandwich.10.webp",
+              "still": "character/boy/steps/eat.sandwich.10.still.webp"
+            },
+            {
+              "id": "eat.sandwich.11",
+              "clip": "character/boy/steps/eat.sandwich.11.webp",
+              "still": "character/boy/steps/eat.sandwich.11.still.webp"
+            },
+            {
+              "id": "eat.sandwich.12",
+              "clip": "character/boy/steps/eat.sandwich.12.webp",
+              "still": "character/boy/steps/eat.sandwich.12.still.webp"
+            }
+          ]
+        },
+        {
+          "id": "eat.spoon",
+          "steps": [
+            {
+              "id": "eat.spoon.01",
+              "clip": "character/boy/steps/eat.spoon.01.webp",
+              "still": "character/boy/steps/eat.spoon.01.still.webp"
+            },
+            {
+              "id": "eat.spoon.02",
+              "clip": null,
+              "still": "character/boy/steps/eat.spoon.02.still.webp"
+            },
+            {
+              "id": "eat.spoon.03",
+              "clip": "character/boy/steps/eat.spoon.03.webp",
+              "still": "character/boy/steps/eat.spoon.03.still.webp"
+            },
+            {
+              "id": "eat.spoon.04",
+              "clip": "character/boy/steps/eat.spoon.04.webp",
+              "still": "character/boy/steps/eat.spoon.04.still.webp"
+            },
+            {
+              "id": "eat.spoon.05",
+              "clip": "character/boy/steps/eat.spoon.05.webp",
+              "still": "character/boy/steps/eat.spoon.05.still.webp"
+            },
+            {
+              "id": "eat.spoon.06",
+              "clip": "character/boy/steps/eat.spoon.06.webp",
+              "still": "character/boy/steps/eat.spoon.06.still.webp"
+            },
+            {
+              "id": "eat.spoon.07",
+              "clip": "character/boy/steps/eat.spoon.07.webp",
+              "still": "character/boy/steps/eat.spoon.07.still.webp"
+            },
+            {
+              "id": "eat.spoon.08",
+              "clip": "character/boy/steps/eat.spoon.08.webp",
+              "still": "character/boy/steps/eat.spoon.08.still.webp"
+            },
+            {
+              "id": "eat.spoon.09",
+              "clip": "character/boy/steps/eat.spoon.09.webp",
+              "still": "character/boy/steps/eat.spoon.09.still.webp"
+            },
+            {
+              "id": "eat.spoon.10",
+              "clip": "character/boy/steps/eat.spoon.10.webp",
+              "still": "character/boy/steps/eat.spoon.10.still.webp"
+            },
+            {
+              "id": "eat.spoon.11",
+              "clip": "character/boy/steps/eat.spoon.11.webp",
+              "still": "character/boy/steps/eat.spoon.11.still.webp"
+            },
+            {
+              "id": "eat.spoon.12",
+              "clip": "character/boy/steps/eat.spoon.12.webp",
+              "still": "character/boy/steps/eat.spoon.12.still.webp"
+            },
+            {
+              "id": "eat.spoon.13",
+              "clip": "character/boy/steps/eat.spoon.13.webp",
+              "still": "character/boy/steps/eat.spoon.13.still.webp"
+            },
+            {
+              "id": "eat.spoon.14",
+              "clip": "character/boy/steps/eat.spoon.14.webp",
+              "still": "character/boy/steps/eat.spoon.14.still.webp"
+            },
+            {
+              "id": "eat.spoon.15",
+              "clip": "character/boy/steps/eat.spoon.15.webp",
+              "still": "character/boy/steps/eat.spoon.15.still.webp"
+            }
+          ]
+        },
+        {
+          "id": "eat.fork",
+          "steps": [
+            {
+              "id": "eat.fork.01",
+              "clip": "character/boy/steps/eat.fork.01.webp",
+              "still": "character/boy/steps/eat.fork.01.still.webp"
+            },
+            {
+              "id": "eat.fork.02",
+              "clip": null,
+              "still": "character/boy/steps/eat.fork.02.still.webp"
+            },
+            {
+              "id": "eat.fork.03",
+              "clip": "character/boy/steps/eat.fork.03.webp",
+              "still": "character/boy/steps/eat.fork.03.still.webp"
+            },
+            {
+              "id": "eat.fork.04",
+              "clip": "character/boy/steps/eat.fork.04.webp",
+              "still": "character/boy/steps/eat.fork.04.still.webp"
+            },
+            {
+              "id": "eat.fork.05",
+              "clip": "character/boy/steps/eat.fork.05.webp",
+              "still": "character/boy/steps/eat.fork.05.still.webp"
+            },
+            {
+              "id": "eat.fork.06",
+              "clip": "character/boy/steps/eat.fork.06.webp",
+              "still": "character/boy/steps/eat.fork.06.still.webp"
+            },
+            {
+              "id": "eat.fork.07",
+              "clip": "character/boy/steps/eat.fork.07.webp",
+              "still": "character/boy/steps/eat.fork.07.still.webp"
+            },
+            {
+              "id": "eat.fork.08",
+              "clip": "character/boy/steps/eat.fork.08.webp",
+              "still": "character/boy/steps/eat.fork.08.still.webp"
+            },
+            {
+              "id": "eat.fork.09",
+              "clip": "character/boy/steps/eat.fork.09.webp",
+              "still": "character/boy/steps/eat.fork.09.still.webp"
+            },
+            {
+              "id": "eat.fork.10",
+              "clip": "character/boy/steps/eat.fork.10.webp",
+              "still": "character/boy/steps/eat.fork.10.still.webp"
+            },
+            {
+              "id": "eat.fork.11",
+              "clip": "character/boy/steps/eat.fork.11.webp",
+              "still": "character/boy/steps/eat.fork.11.still.webp"
+            },
+            {
+              "id": "eat.fork.12",
+              "clip": "character/boy/steps/eat.fork.12.webp",
+              "still": "character/boy/steps/eat.fork.12.still.webp"
+            },
+            {
+              "id": "eat.fork.13",
+              "clip": "character/boy/steps/eat.fork.13.webp",
+              "still": "character/boy/steps/eat.fork.13.still.webp"
+            },
+            {
+              "id": "eat.fork.14",
+              "clip": "character/boy/steps/eat.fork.14.webp",
+              "still": "character/boy/steps/eat.fork.14.still.webp"
+            },
+            {
+              "id": "eat.fork.15",
+              "clip": "character/boy/steps/eat.fork.15.webp",
+              "still": "character/boy/steps/eat.fork.15.still.webp"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "girl",
+      "reactions": [
+        {
+          "state": "idle",
+          "file": "character/girl/react/idle.webp"
+        },
+        {
+          "state": "talk",
+          "file": "character/girl/react/talk.webp"
+        },
+        {
+          "state": "point",
+          "file": "character/girl/react/point.webp"
+        },
+        {
+          "state": "encourage",
+          "file": "character/girl/react/encourage.webp"
+        },
+        {
+          "state": "celebrateSmall",
+          "file": "character/girl/react/celebrateSmall.webp"
+        },
+        {
+          "state": "celebrate",
+          "file": "character/girl/react/celebrate.webp"
+        },
+        {
+          "state": "celebrateBig",
+          "file": "character/girl/react/celebrateBig.webp"
+        }
+      ],
+      "tasks": []
+    }
+  ]
+}

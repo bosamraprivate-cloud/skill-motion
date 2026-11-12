@@ -46,7 +46,7 @@ development_status:
   epic-2: in-progress
   2-1-catalogue-builder-parses-the-147-assessment-steps: done
   2-2-catalogue-builder-parses-the-148-activities: done
-  2-3-character-sheet-and-rive-character-art-pipeline: backlog
+  2-3-character-sheet-and-rive-character-art-pipeline: review
   2-4-step-and-activity-illustrations-with-export-script: backlog
   2-5-arabic-strings-and-elevenlabs-audio-generation: backlog
   2-6-stickers-and-sound-effects: backlog

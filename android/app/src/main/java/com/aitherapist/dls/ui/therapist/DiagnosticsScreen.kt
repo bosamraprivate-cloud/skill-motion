@@ -65,7 +65,7 @@ import java.util.Locale
 
 /** Stateful entry: permission, camera binding and lifecycle around the stateless screen. */
 @Composable
-fun DiagnosticsRoute(onOpenSample: () -> Unit, viewModel: DiagnosticsViewModel = hiltViewModel()) {
+fun DiagnosticsRoute(onOpenSample: () -> Unit, onOpenCharacterPreview: () -> Unit, viewModel: DiagnosticsViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val launcher =
@@ -96,6 +96,7 @@ fun DiagnosticsRoute(onOpenSample: () -> Unit, viewModel: DiagnosticsViewModel =
             )
         },
         onOpenSample = onOpenSample,
+        onOpenCharacterPreview = onOpenCharacterPreview,
         cameraPreview = { modifier ->
             CameraPreview(onFrame = viewModel::onFrame, onCameraError = viewModel::onCameraError, modifier = modifier)
         }
@@ -130,6 +131,7 @@ fun DiagnosticsScreen(
     onOpenSettings: () -> Unit,
     onOpenSample: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenCharacterPreview: () -> Unit = {},
     cameraPreview: @Composable (Modifier) -> Unit = {}
 ) {
     Scaffold(modifier = modifier) { padding ->
@@ -140,6 +142,9 @@ fun DiagnosticsScreen(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(stringResource(R.string.diagnostics_title), style = MaterialTheme.typography.headlineMedium)
                 OutlinedButton(onClick = onOpenSample) { Text(stringResource(R.string.diagnostics_open_sample)) }
+                OutlinedButton(onClick = onOpenCharacterPreview) {
+                    Text(stringResource(R.string.diagnostics_open_character_preview))
+                }
             }
             when (state) {
                 DiagnosticsUiState.Loading -> Skeleton(rows = 3)

@@ -30,4 +30,13 @@
     <string name="diagnostics_probe_running">Probing…</string>
     <string name="diagnostics_probe_reachable">Reachable (%1$s), %2$d ms</string>
     <string name="diagnostics_probe_unreachable">Not reachable (%1$s), %2$d ms</string>
+    <string name="diagnostics_open_character_preview">Character preview</string>
+    <string name="character_preview_title">Character preview</string>
+    <string name="character_preview_empty">No character clips available</string>
+    <string name="character_preview_error">Could not load the clip index (%1$s)</string>
+    <string name="character_preview_clip_missing">This clip could not be loaded</string>
+    <string name="character_preview_effect_off">Effects off (still frames)</string>
+    <string name="character_preview_reactions">Reactions</string>
+    <string name="character_preview_steps">Eating steps</string>
+    <string name="character_preview_still_step">%1$s (still)</string>
 </resources>

@@ -30,4 +30,13 @@
     <string name="diagnostics_probe_running">بنختبر…</string>
     <string name="diagnostics_probe_reachable">السيرفر شغّال (%1$s)، %2$d م.ث</string>
     <string name="diagnostics_probe_unreachable">السيرفر مش متاح (%1$s)، %2$d م.ث</string>
+    <string name="diagnostics_open_character_preview">معاينة الشخصية</string>
+    <string name="character_preview_title">معاينة الشخصية</string>
+    <string name="character_preview_empty">مفيش مقاطع للشخصية</string>
+    <string name="character_preview_error">مقدرناش نحمّل فهرس المقاطع (%1$s)</string>
+    <string name="character_preview_clip_missing">المقطع ده مش موجود</string>
+    <string name="character_preview_effect_off">من غير حركة (صور ثابتة)</string>
+    <string name="character_preview_reactions">ردود الفعل</string>
+    <string name="character_preview_steps">خطوات الأكل</string>
+    <string name="character_preview_still_step">%1$s (صورة ثابتة)</string>
 </resources>

@@ -117,9 +117,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
     implementation(libs.vico.compose.m3)
-    implementation(libs.rive.android)
     implementation(libs.konfetti.compose)
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
     implementation(libs.compose.shimmer)
 
     testImplementation(libs.junit)
