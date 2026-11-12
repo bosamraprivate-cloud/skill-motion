@@ -2,7 +2,7 @@
 title: 'Story 2.11: Child profiles with effect level, character and cascade delete'
 type: 'feature'
 created: '2026-11-12'
-status: 'in-review'
+status: 'done'
 baseline_commit: 'a86e9efa9daf169bfabff6079b769bf4049d35eb'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -97,3 +97,7 @@ Age 1–18 and case-insensitive code uniqueness are agent choices not stated in 
 **Commands:**
 - `cd android && ./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` -- expected: BUILD SUCCESSFUL
 - `cd android && ./gradlew connectedDebugAndroidTest` -- expected: pass on the phone
+
+## Implementation Notes
+
+Phone run 2026-11-12: connectedDebugAndroidTest 16/16 passed (incl. ChildDeleteTest); full gate green.
