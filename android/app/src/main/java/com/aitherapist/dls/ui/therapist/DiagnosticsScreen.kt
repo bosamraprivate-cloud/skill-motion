@@ -56,6 +56,7 @@ import com.aitherapist.dls.vision.FpsMeter
 import com.aitherapist.dls.vision.FpsRunResult
 import com.aitherapist.dls.vision.InferenceDelegate
 import com.aitherapist.dls.vision.LandmarkPoint
+import com.aitherapist.dls.vision.Outcome
 import com.aitherapist.dls.vision.PoseLandmarkIndex
 import java.util.Locale
 
@@ -175,6 +176,7 @@ private fun Content(state: DiagnosticsUiState.Content, onEvent: (DiagnosticsEven
             Metric(stringResource(R.string.diagnostics_hand_fps), fps(state.handFps))
             Metric(stringResource(R.string.diagnostics_combined_fps), fps(state.combinedFps))
             Metric(stringResource(R.string.diagnostics_visible, RETENTION_SEC), "${state.visiblePercent}%")
+            state.attempt?.let { Attempt(it, onEvent) }
             when (val run = state.run) {
                 RunState.Idle ->
                     Button(onClick = { onEvent(DiagnosticsEvent.StartRun) }) { Text(stringResource(R.string.diagnostics_run, RUN_SEC)) }
@@ -189,6 +191,34 @@ private fun Content(state: DiagnosticsUiState.Content, onEvent: (DiagnosticsEven
                         Text(stringResource(R.string.diagnostics_run, RUN_SEC))
                     }
                 }
+            }
+        }
+    }
+}
+
+/** Debug-only spike attempt: start button, countdown, then outcome, reason and latency. */
+@Composable
+private fun Attempt(attempt: AttemptState, onEvent: (DiagnosticsEvent) -> Unit) {
+    when (attempt) {
+        is AttemptState.Recording ->
+            Text(stringResource(R.string.diagnostics_attempt_recording, attempt.stepId, attempt.remainingSec))
+        is AttemptState.Idle, is AttemptState.Done -> {
+            if (attempt is AttemptState.Done) {
+                Text(
+                    stringResource(
+                        R.string.diagnostics_attempt_result,
+                        attempt.stepId,
+                        attempt.outcome.name.lowercase(Locale.ROOT),
+                        attempt.reason,
+                        attempt.pairingWaitMs,
+                        attempt.evaluationMs,
+                        attempt.pairingWaitMs + attempt.evaluationMs
+                    ),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            OutlinedButton(onClick = { onEvent(DiagnosticsEvent.TryStep) }) {
+                Text(stringResource(R.string.diagnostics_try_step, attempt.stepId))
             }
         }
     }
@@ -259,7 +289,16 @@ private fun DiagnosticsContentPreview() {
 @Composable
 private fun DiagnosticsDonePreview() {
     DlsTheme {
-        DiagnosticsScreen(previewContent.copy(run = RunState.Done(FpsRunResult(24.1, 17.9, 16.8, 60_000))), {}, {}, {}, {})
+        DiagnosticsScreen(
+            previewContent.copy(
+                run = RunState.Done(FpsRunResult(24.1, 17.9, 16.8, 60_000)),
+                attempt = AttemptState.Done("step.preview", Outcome.DONE, "check_passed", 101, 3)
+            ),
+            {},
+            {},
+            {},
+            {}
+        )
     }
 }
 

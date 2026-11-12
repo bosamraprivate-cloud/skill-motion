@@ -1,19 +1,24 @@
 package com.aitherapist.dls.ui.therapist
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aitherapist.dls.BuildConfig
 import com.aitherapist.dls.camera.FrameBuffer
+import com.aitherapist.dls.catalog.CatalogJson
+import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.vision.FpsMeter
 import com.aitherapist.dls.vision.FpsStream
 import com.aitherapist.dls.vision.InferenceDelegate
+import com.aitherapist.dls.vision.LandmarkFrame
 import com.aitherapist.dls.vision.LandmarkPoint
 import com.aitherapist.dls.vision.LandmarkResult
 import com.aitherapist.dls.vision.Landmarkers
+import com.aitherapist.dls.vision.PoseVerifier
+import com.aitherapist.dls.vision.VerifyContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
@@ -37,11 +42,22 @@ import kotlinx.coroutines.withContext
 @HiltViewModel
 class DiagnosticsViewModel
 @Inject
-constructor(private val landmarkers: Landmarkers, @ApplicationContext context: Context) : ViewModel() {
+constructor(private val landmarkers: Landmarkers, @ApplicationContext private val context: Context) :
+    ViewModel() {
     private val clock: () -> Long = SystemClock::uptimeMillis
     private val fpsMeter = FpsMeter(clock)
     private val frameBuffer = FrameBuffer<Long, LandmarkResult>(clock)
-    private val debuggable = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+    private val debuggable = BuildConfig.DEBUG
+
+    // Debug-only spike attempt (Story 1.3): a longer buffer holds the whole attempt window.
+    private val attemptBuffer = FrameBuffer<Long, LandmarkResult>(clock, retentionMs = ATTEMPT_RETENTION_MS)
+    private val poseVerifier = PoseVerifier(clock)
+    private var spikeStep: Step? = null
+    private val attempt = MutableStateFlow<AttemptState?>(null)
+    private var attemptJob: Job? = null
+    private var loadJob: Job? = null
+
+    @Volatile private var recordingAttempt = false
 
     private val permission = MutableStateFlow<Boolean?>(null)
     private val engine = MutableStateFlow<Engine>(Engine.Stopped)
@@ -63,13 +79,13 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
         }
 
     val uiState: StateFlow<DiagnosticsUiState> =
-        combine(permission, engine, landmarks, run, ticker) { granted, eng, latest, runState, _ ->
+        combine(combine(permission, engine, ::Pair), landmarks, run, attempt, ticker) { (granted, eng), latest, runState, att, _ ->
             when {
                 granted == null -> DiagnosticsUiState.PermissionRequired
                 !granted -> DiagnosticsUiState.PermissionDenied
                 eng is Engine.Failed -> DiagnosticsUiState.Error(eng.reason)
                 eng !is Engine.Ready -> DiagnosticsUiState.Loading
-                else -> content(eng.delegate, latest, runState)
+                else -> content(eng.delegate, latest, runState).copy(attempt = att)
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), DiagnosticsUiState.Loading)
 
@@ -77,6 +93,7 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
         when (event) {
             is DiagnosticsEvent.PermissionResult -> permission.value = event.granted
             DiagnosticsEvent.StartRun -> startRun()
+            DiagnosticsEvent.TryStep -> tryStep()
             DiagnosticsEvent.Retry -> {
                 stop()
                 start()
@@ -88,6 +105,7 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
     fun start() {
         if (permission.value != true || engine.value is Engine.Ready || engine.value is Engine.Starting) return
         engine.value = Engine.Starting
+        if (debuggable && loadJob == null) loadJob = viewModelScope.launch { loadSpikeStep() }
         val previousStop = stopJob
         startJob =
             viewModelScope.launch {
@@ -116,6 +134,7 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
         collectorJobs.forEach { it.cancel() }
         collectorJobs = emptyList()
         cancelRun()
+        cancelAttempt()
         engine.value = Engine.Stopped
         val pendingStart = startJob
         startJob = null
@@ -137,18 +156,25 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
     fun onFrame(bitmap: Bitmap, timestampMs: Long) {
         frameAspect = bitmap.width.toFloat() / bitmap.height
         if (engine.value !is Engine.Ready) return
-        if (landmarkers.detect(bitmap, timestampMs)) frameBuffer.addFrame(timestampMs, timestampMs)
+        if (landmarkers.detect(bitmap, timestampMs)) {
+            frameBuffer.addFrame(timestampMs, timestampMs)
+            if (recordingAttempt) attemptBuffer.addFrame(timestampMs, timestampMs)
+        }
     }
 
     override fun onCleared() {
         collectorJobs.forEach { it.cancel() }
         runJob?.cancel()
+        cancelAttempt()
         // viewModelScope is already cancelled; close on a background thread to avoid blocking main.
         CoroutineScope(Dispatchers.Default).launch { landmarkers.close() }
     }
 
     private fun setEngine(next: Engine) {
-        if (next is Engine.Failed) cancelRun()
+        if (next is Engine.Failed) {
+            cancelRun()
+            cancelAttempt()
+        }
         engine.value = next
     }
 
@@ -165,7 +191,10 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
         fpsMeter.onResult(result.stream, result.timestampMs)
         when (result.stream) {
             FpsStream.POSE -> {
-                if (result.sets.isNotEmpty()) frameBuffer.addResult(result.timestampMs, result)
+                if (result.sets.isNotEmpty()) {
+                    frameBuffer.addResult(result.timestampMs, result)
+                    if (recordingAttempt) attemptBuffer.addResult(result.timestampMs, result)
+                }
                 landmarks.update { it.copy(pose = result.sets.firstOrNull().orEmpty()) }
             }
             FpsStream.HAND -> landmarks.update { it.copy(hands = result.sets) }
@@ -192,7 +221,65 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
             }
     }
 
-    private fun content(delegate: InferenceDelegate, latest: Latest, runState: RunState): DiagnosticsUiState {
+    /** Loads the first debug-only spike step from assets/spike (absent in release builds). */
+    private suspend fun loadSpikeStep() {
+        if (spikeStep != null) return
+        val step =
+            withContext(Dispatchers.IO) {
+                try {
+                    val name = context.assets.list(SPIKE_DIR)?.sorted()?.firstOrNull()
+                    name?.let { n -> CatalogJson.decodeStep(context.assets.open("$SPIKE_DIR/$n").bufferedReader().use { it.readText() }) }
+                } catch (
+                    @Suppress("TooGenericExceptionCaught") e: Exception
+                ) {
+                    Log.d(VERDICT_TAG, "spike load failed: ${e::class.simpleName}") // type name only, no data
+                    null
+                }
+            } ?: return
+        spikeStep = step
+        if (attempt.value == null) attempt.value = AttemptState.Idle(step.id)
+    }
+
+    private fun cancelAttempt() {
+        attemptJob?.cancel()
+        attemptJob = null
+        recordingAttempt = false
+        val step = spikeStep
+        if (attempt.value is AttemptState.Recording && step != null) attempt.value = AttemptState.Idle(step.id)
+    }
+
+    /** Records one attempt window, then verifies it locally and reports the latency from window close. */
+    private fun tryStep() {
+        val step = spikeStep ?: return
+        if (!debuggable || attempt.value is AttemptState.Recording || engine.value !is Engine.Ready) return
+        attemptJob =
+            viewModelScope.launch {
+                attemptBuffer.clear()
+                val openedAt = clock()
+                recordingAttempt = true
+                for (remaining in ATTEMPT_SEC downTo 1) {
+                    attempt.value = AttemptState.Recording(step.id, remaining)
+                    delay(MS_PER_SEC)
+                }
+                recordingAttempt = false
+                val closedAt = clock()
+                delay(FrameBuffer.DEFAULT_PAIR_WINDOW_MS) // let the last frames pair or time out (AD-3)
+                val landmarkFrames =
+                    attemptBuffer
+                        .resolved()
+                        .filter { it.timestampMs in openedAt..closedAt }
+                        .map { LandmarkFrame(it.timestampMs, it.result?.sets?.firstOrNull()) }
+                val pairingWaitMs = clock() - closedAt
+                val verdict =
+                    withContext(Dispatchers.Default) { poseVerifier.verify(step, emptyList(), landmarkFrames, VerifyContext()) }
+                attempt.value = AttemptState.Done(step.id, verdict.outcome, verdict.reason, pairingWaitMs, verdict.latencyMs)
+                // Numbers only: pairing wait ms, evaluation ms, total ms (NFR-1), frame count.
+                val total = pairingWaitMs + verdict.latencyMs
+                Log.d(VERDICT_TAG, "$pairingWaitMs ${verdict.latencyMs} $total ${landmarkFrames.size}")
+            }
+    }
+
+    private fun content(delegate: InferenceDelegate, latest: Latest, runState: RunState): DiagnosticsUiState.Content {
         val resolved = frameBuffer.resolved()
         val visible = if (resolved.isEmpty()) 0 else resolved.count { it.visible } * PERCENT / resolved.size
         val shownRun =
@@ -233,6 +320,10 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext context: C
         const val PERCENT = 100
         const val RUN_SEC = (FpsMeter.RUN_DURATION_MS / 1_000L).toInt()
         const val LOG_TAG = "DlsFps"
+        const val VERDICT_TAG = "DlsVerdict"
+        const val SPIKE_DIR = "spike"
+        const val ATTEMPT_SEC = 5
+        const val ATTEMPT_RETENTION_MS = 7_000L
         const val DEFAULT_FRAME_ASPECT = 4f / 3f
     }
 }

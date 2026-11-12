@@ -22,4 +22,7 @@
     <string name="diagnostics_run">Run %1$d s</string>
     <string name="diagnostics_running">Measuring %1$d / %2$d s</string>
     <string name="diagnostics_run_result">%1$d s averages</string>
+    <string name="diagnostics_try_step">Try %1$s</string>
+    <string name="diagnostics_attempt_recording">Recording %1$s: %2$d s left</string>
+    <string name="diagnostics_attempt_result">%1$s: %2$s (%3$s), wait %4$d ms + evaluation %5$d ms = %6$d ms</string>
 </resources>

@@ -2,7 +2,8 @@
 title: 'Story 1.3: Geometry, Check model and first local verdict'
 type: 'feature'
 created: '2026-11-12'
-status: 'draft'
+status: 'in-review'
+baseline_commit: '9f7fd763ec8faa051d2cb30635d5aa9ebfdeffbf'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -81,6 +82,27 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---|---|---|---|
+| 1 | Hold ignores frame gaps (false DONE) | medium | patch | holdsContinuously compares first/last ts only |
+| 2 | Hold met on side that failed the gate | medium | patch | evaluation not restricted to gated sides |
+| 3 | Partly invisible attempt → NOT_DONE | medium | patch | AD-3 doubt is never failure |
+| 4 | All-zero shoulder width → NOT_DONE | medium | patch | unmeasurable attempt must be CANNOT_TELL |
+| 5 | Spike decode errors swallowed; double load; results buffered when idle; attempt not cancelled on clear | low | patch | DiagnosticsViewModel |
+| 6 | Spike asset never decoded by a test | medium | patch | no test reads src/debug/assets/spike |
+| 7 | Kover core misses PoseVerifier/VisibilityGate | medium | patch | includes only Geometry |
+| 8 | Latency mixes pairing wait and evaluation | low | patch | split numbers |
+| 9 | Weak test assertions | low | patch | reason-only / outcome-only asserts |
+| 10 | CRLF churn hides diffs | low | patch | full-file rewrites; add .gitattributes |
+| 11 | Spike thresholds not traced to sources | false | rejected | copied verbatim from design camera-scored step table (drink.cup.05 row) |
+| 12 | Window bounds clock vs frame-timestamp domain | maybe-false | defer-to-device | would show as always out_of_frame on device test |
+| 13 | Schema ↔ Kotlin drift; no pytest for schema; Step not in schema | medium | defer | catalog builder story |
+| 14 | Content errors (side-less name, unknown landmark) only caught at runtime | medium | defer | builder/decode validation story |
+| 15 | No DiagnosticsViewModel attempt tests | medium | defer | needs Landmarkers seam |
+| 16 | Raw English codes in Arabic debug UI | low | rejected | debug-only spike screen |
+| 17 | LandmarkPoint default visibility 1f | low | rejected | fix adds types; pose path sets visibility explicitly |
+| 18 | Purity rule keyed by file names | low | defer | move pure code to a dedicated package later |
 
 ## Verification
 

@@ -3,6 +3,7 @@ package com.aitherapist.dls.ui.therapist
 import com.aitherapist.dls.vision.FpsRunResult
 import com.aitherapist.dls.vision.InferenceDelegate
 import com.aitherapist.dls.vision.LandmarkPoint
+import com.aitherapist.dls.vision.Outcome
 
 /** Diagnostics screen state (AD-13). */
 sealed interface DiagnosticsUiState {
@@ -23,7 +24,9 @@ sealed interface DiagnosticsUiState {
         val frameAspect: Float,
         val posePoints: List<LandmarkPoint>,
         val handPoints: List<List<LandmarkPoint>>,
-        val run: RunState
+        val run: RunState,
+        /** Debug-only spike attempt; null in release builds or when no spike step is bundled. */
+        val attempt: AttemptState? = null
     ) : DiagnosticsUiState
 
     data class Error(val reason: String) : DiagnosticsUiState
@@ -37,7 +40,28 @@ sealed interface RunState {
     data class Done(val result: FpsRunResult) : RunState
 }
 
+/** Debug-only local verdict attempt on the bundled spike step (Story 1.3, NFR-1). */
+sealed interface AttemptState {
+    val stepId: String
+
+    data class Idle(override val stepId: String) : AttemptState
+
+    data class Recording(override val stepId: String, val remainingSec: Int) : AttemptState
+
+    data class Done(
+        override val stepId: String,
+        val outcome: Outcome,
+        val reason: String,
+        /** Wait after window close for the last frames to pair (AD-3). */
+        val pairingWaitMs: Long,
+        /** Verifier evaluation time; NFR-1 budget is pairingWaitMs + evaluationMs. */
+        val evaluationMs: Long
+    ) : AttemptState
+}
+
 sealed interface DiagnosticsEvent {
+    data object TryStep : DiagnosticsEvent
+
     data class PermissionResult(val granted: Boolean) : DiagnosticsEvent
 
     data object StartRun : DiagnosticsEvent

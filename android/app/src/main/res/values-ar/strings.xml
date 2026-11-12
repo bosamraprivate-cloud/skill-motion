@@ -22,4 +22,7 @@
     <string name="diagnostics_run">قيس %1$d ث</string>
     <string name="diagnostics_running">بنقيس %1$d / %2$d ث</string>
     <string name="diagnostics_run_result">متوسط %1$d ث</string>
+    <string name="diagnostics_try_step">جرّب %1$s</string>
+    <string name="diagnostics_attempt_recording">بنسجّل %1$s: فاضل %2$d ث</string>
+    <string name="diagnostics_attempt_result">%1$s: %2$s (%3$s)، انتظار %4$d م.ث + تقييم %5$d م.ث = %6$d م.ث</string>
 </resources>

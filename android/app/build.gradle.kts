@@ -40,6 +40,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     // MediaPipe model files must stay uncompressed so they can be memory-mapped.
@@ -111,8 +112,8 @@ dependencies {
     testImplementation(libs.okhttp.mockwebserver)
 }
 
-// Core classes with a >= 90% line-coverage rule (AD-12). The classes arrive in later stories
-// (Geometry in 1.3, RulesEngine and RepCounter later); the filter matches nothing until then.
+// Core classes with a >= 90% line-coverage rule (AD-12), checked by koverVerifyCore. Geometry landed in 1.3;
+// RulesEngine and RepCounter arrive in later stories.
 // The class filter lives in a dedicated "core" variant so it limits only this rule, not other reports.
 kover {
     currentProject {
@@ -126,6 +127,8 @@ kover {
                 includes {
                     classes(
                         "com.aitherapist.dls.vision.Geometry*",
+                        "com.aitherapist.dls.vision.PoseVerifier*",
+                        "com.aitherapist.dls.vision.VisibilityGate*",
                         "com.aitherapist.dls.scoring.RulesEngine*",
                         "com.aitherapist.dls.training.RepCounter*"
                     )
@@ -133,7 +136,6 @@ kover {
             }
             verify {
                 rule("Core classes line coverage") {
-                    disabled = true // enable once Geometry lands (story 1.3)
                     bound {
                         minValue = 90
                         coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.LINE

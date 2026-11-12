@@ -15,7 +15,8 @@
  *
  * Modified by the Daily Living Skills app authors, 2026: adapted from mediapipe-samples
  * PoseLandmarkerHelper.kt and HandLandmarkerHelper.kt; runs Pose and Hand together in
- * LIVE_STREAM mode, GPU first with CPU fallback, results exposed as a Flow.
+ * LIVE_STREAM mode, GPU first with CPU fallback, results exposed as a Flow;
+ * pose points carry MediaPipe visibility.
  */
 package com.aitherapist.dls.vision
 
@@ -35,19 +36,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-/** Normalised landmark position in un-mirrored image space (subject's right side has the smaller x). */
-data class LandmarkPoint(val x: Float, val y: Float)
-
 /** One landmarker result for the frame captured at [timestampMs]; one point list per person or hand. */
 data class LandmarkResult(val stream: FpsStream, val timestampMs: Long, val sets: List<List<LandmarkPoint>>)
 
 enum class InferenceDelegate { GPU, CPU }
-
-/** MediaPipe pose landmark indices used by the diagnostics overlay. */
-object PoseLandmarkIndex {
-    const val LEFT_WRIST = 15
-    const val RIGHT_WRIST = 16
-}
 
 /**
  * Pose + Hand landmarkers in LIVE_STREAM mode. Frames passed to [detect] must already be
@@ -128,7 +120,9 @@ constructor(@ApplicationContext private val context: Context) {
                     .setRunningMode(RunningMode.LIVE_STREAM)
                     .setNumPoses(1)
                     .setResultListener { result, _ ->
-                        _results.tryEmit(LandmarkResult(FpsStream.POSE, result.timestampMs(), result.landmarks().toPoints()))
+                        _results.tryEmit(
+                            LandmarkResult(FpsStream.POSE, result.timestampMs(), result.landmarks().toPoints(withVisibility = true))
+                        )
                     }.setErrorListener { e -> _errors.tryEmit(e::class.simpleName ?: "unknown") }
                     .build()
             )
@@ -141,7 +135,9 @@ constructor(@ApplicationContext private val context: Context) {
                     .setRunningMode(RunningMode.LIVE_STREAM)
                     .setNumHands(2)
                     .setResultListener { result, _ ->
-                        _results.tryEmit(LandmarkResult(FpsStream.HAND, result.timestampMs(), result.landmarks().toPoints()))
+                        _results.tryEmit(
+                            LandmarkResult(FpsStream.HAND, result.timestampMs(), result.landmarks().toPoints(withVisibility = false))
+                        )
                     }.setErrorListener { e -> _errors.tryEmit(e::class.simpleName ?: "unknown") }
                     .build()
             )
@@ -150,7 +146,10 @@ constructor(@ApplicationContext private val context: Context) {
     private fun baseOptions(model: String, delegate: Delegate) =
         BaseOptions.builder().setModelAssetPath(model).setDelegate(delegate).build()
 
-    private fun List<List<NormalizedLandmark>>.toPoints() = map { set -> set.map { LandmarkPoint(it.x(), it.y()) } }
+    // Pose landmarks carry MediaPipe visibility; hand landmarks have none and use 1f.
+    private fun List<List<NormalizedLandmark>>.toPoints(withVisibility: Boolean) = map { set ->
+        set.map { LandmarkPoint(it.x(), it.y(), if (withVisibility) it.visibility().orElse(0f) else 1f) }
+    }
 
     private companion object {
         const val POSE_MODEL = "pose_landmarker_full.task"

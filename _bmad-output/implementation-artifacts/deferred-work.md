@@ -37,3 +37,15 @@
 - source_spec: `spec-1-2-camera-feed-and-landmarkers-with-frame-rate-probe.md`
   summary: Handle first camera denial with re-prompt (rationale) before sending to settings.
   evidence: Currently goes straight to settings.
+- source_spec: `spec-1-3-geometry-check-model-and-first-local-verdict.md`
+  summary: Shared JSON fixtures validated by both check.schema.json (pytest) and Kotlin decoding; add Step to schema; align zone enum and reps target type.
+  evidence: Schema and CatalogModels can drift (review 1.3).
+- source_spec: `spec-1-3-geometry-check-model-and-first-local-verdict.md`
+  summary: Reject side-less landmarks without side, unknown landmark names and method/check mismatches at catalogue build/decode time.
+  evidence: Currently surface only as not_judgeable at runtime.
+- source_spec: `spec-1-3-geometry-check-model-and-first-local-verdict.md`
+  summary: Add DiagnosticsViewModel attempt-flow tests with a Landmarkers seam and fake clock.
+  evidence: No tests for spike attempt flow.
+- source_spec: `spec-1-3-geometry-check-model-and-first-local-verdict.md`
+  summary: Move pure vision code into a dedicated package so the Konsist purity rule does not depend on file names.
+  evidence: PURE_VISION_FILES list is name-based.

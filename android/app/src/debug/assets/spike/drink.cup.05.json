@@ -1,0 +1,13 @@
+{
+  "id": "drink.cup.05",
+  "method": "pose",
+  "check": {
+    "type": "distanceBelow",
+    "a": { "lm": "WRIST" },
+    "b": { "mid": ["MOUTH_LEFT", "MOUTH_RIGHT"] },
+    "ratio": 0.6,
+    "holdSec": 0.3,
+    "side": "either"
+  },
+  "detector": { "landmarkers": ["pose"] }
+}

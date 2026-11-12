@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aitherapist.local/schema/check.schema.json",
+  "title": "Check and Criterion (AD-4)",
+  "description": "Contract for camera checks and training criteria. Mirrors android catalog/CatalogModels.kt and the design's Check types table. All holdSec conditions must hold continuously within the attempt window; distances and margins are ratios of shoulder width in the same frame.",
+  "$defs": {
+    "landmarkName": { "type": "string", "pattern": "^[A-Z][A-Z_]*$" },
+    "landmarkRef": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": { "lm": { "$ref": "#/$defs/landmarkName" } },
+          "required": ["lm"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mid": { "type": "array", "items": { "$ref": "#/$defs/landmarkName" }, "minItems": 2, "maxItems": 2 }
+          },
+          "required": ["mid"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "side": { "enum": ["left", "right", "either"] },
+    "holdSec": { "type": "number", "minimum": 0 },
+    "angleCheck": {
+      "type": "object",
+      "properties": {
+        "type": { "enum": ["angleAbove", "angleBelow"] },
+        "a": { "$ref": "#/$defs/landmarkRef" },
+        "vertex": { "$ref": "#/$defs/landmarkRef" },
+        "b": { "$ref": "#/$defs/landmarkRef" },
+        "deg": { "type": "number", "minimum": 0, "maximum": 180 },
+        "holdSec": { "$ref": "#/$defs/holdSec" },
+        "side": { "$ref": "#/$defs/side" }
+      },
+      "required": ["type", "a", "vertex", "b", "deg", "holdSec"],
+      "additionalProperties": false
+    },
+    "pointAbove": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "pointAbove" },
+        "point": { "$ref": "#/$defs/landmarkRef" },
+        "ref": { "$ref": "#/$defs/landmarkRef" },
+        "margin": { "type": "number" },
+        "holdSec": { "$ref": "#/$defs/holdSec" },
+        "side": { "$ref": "#/$defs/side" }
+      },
+      "required": ["type", "point", "ref", "margin", "holdSec"],
+      "additionalProperties": false
+    },
+    "distanceCheck": {
+      "type": "object",
+      "properties": {
+        "type": { "enum": ["distanceBelow", "distanceAbove"] },
+        "a": { "$ref": "#/$defs/landmarkRef" },
+        "b": { "$ref": "#/$defs/landmarkRef" },
+        "ratio": { "type": "number", "minimum": 0 },
+        "holdSec": { "$ref": "#/$defs/holdSec" },
+        "side": { "$ref": "#/$defs/side" }
+      },
+      "required": ["type", "a", "b", "ratio", "holdSec"],
+      "additionalProperties": false
+    },
+    "inZone": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "inZone" },
+        "landmark": { "$ref": "#/$defs/landmarkRef" },
+        "zone": { "enum": ["mat", "sink", "place"] },
+        "holdSec": { "$ref": "#/$defs/holdSec" },
+        "side": { "$ref": "#/$defs/side" }
+      },
+      "required": ["type", "landmark", "zone", "holdSec"],
+      "additionalProperties": false
+    },
+    "handsRubbing": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "handsRubbing" },
+        "maxWristRatio": { "type": "number", "minimum": 0 },
+        "minMotionRatio": { "type": "number", "minimum": 0 },
+        "holdSec": { "$ref": "#/$defs/holdSec" }
+      },
+      "required": ["type", "maxWristRatio", "minMotionRatio", "holdSec"],
+      "additionalProperties": false
+    },
+    "question": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "question" },
+        "text": { "type": "string", "minLength": 1 }
+      },
+      "required": ["type", "text"],
+      "additionalProperties": false
+    },
+    "check": {
+      "oneOf": [
+        { "$ref": "#/$defs/angleCheck" },
+        { "$ref": "#/$defs/pointAbove" },
+        { "$ref": "#/$defs/distanceCheck" },
+        { "$ref": "#/$defs/inZone" },
+        { "$ref": "#/$defs/handsRubbing" },
+        { "$ref": "#/$defs/question" }
+      ]
+    },
+    "criterion": {
+      "type": "object",
+      "properties": {
+        "kind": { "enum": ["reps", "hold"] },
+        "check": { "$ref": "#/$defs/check" },
+        "target": { "type": "number", "minimum": 0 },
+        "perSide": { "type": "boolean" },
+        "low": { "type": "number" },
+        "high": { "type": "number" }
+      },
+      "required": ["kind", "check", "target"],
+      "additionalProperties": false
+    }
+  },
+  "$ref": "#/$defs/check"
+}

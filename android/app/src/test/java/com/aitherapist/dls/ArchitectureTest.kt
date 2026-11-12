@@ -19,6 +19,16 @@ class ArchitectureTest {
     }
 
     @Test
+    fun `pure vision core files import nothing from android or androidx`() {
+        productionFiles
+            .withPackage("$ROOT.vision..")
+            .filter { it.name in PURE_VISION_FILES }
+            .assertFalse(additionalMessage = "Vision core files must stay pure Kotlin.") { file ->
+                file.imports.any { it.name.startsWith("android.") || it.name.startsWith("androidx.") }
+            }
+    }
+
+    @Test
     fun `no spine package outside ui depends on ui`() {
         // The app entry points in the root package (Application, Activity) host the UI and are exempt.
         productionFiles
@@ -31,6 +41,7 @@ class ArchitectureTest {
     private companion object {
         const val ROOT = "com.aitherapist.dls"
         val CORE_PACKAGES = arrayOf("$ROOT.scoring..", "$ROOT.rewards..", "$ROOT.catalog..")
+        val PURE_VISION_FILES = setOf("Geometry", "Verifier", "VisibilityGate", "PoseVerifier", "LandmarkModels")
         val NON_UI_PACKAGES =
             arrayOf("catalog", "data", "camera", "vision", "session", "scoring", "training", "rewards", "audio", "replay")
                 .map { "$ROOT.$it.." }
