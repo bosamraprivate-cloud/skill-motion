@@ -2,6 +2,17 @@ import java.io.IOException
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.util.Properties
+
+// Debug-only proxy settings from git-ignored local.properties (dls.proxyUrl, dls.sharedSecret).
+// Release builds get empty values; real settings storage arrives in Epic 2.
+val localProps =
+    Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.isFile) file.inputStream().use { load(it) }
+    }
+
+fun buildConfigString(value: String): String = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 plugins {
     alias(libs.plugins.android.application)
@@ -24,9 +35,15 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "PROXY_URL", "\"\"")
+        buildConfigField("String", "SHARED_SECRET", "\"\"")
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "PROXY_URL", buildConfigString(localProps.getProperty("dls.proxyUrl", "")))
+            buildConfigField("String", "SHARED_SECRET", buildConfigString(localProps.getProperty("dls.sharedSecret", "")))
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -129,6 +146,7 @@ kover {
                         "com.aitherapist.dls.vision.Geometry*",
                         "com.aitherapist.dls.vision.PoseVerifier*",
                         "com.aitherapist.dls.vision.VisibilityGate*",
+                        "com.aitherapist.dls.vision.FrameCropper*",
                         "com.aitherapist.dls.scoring.RulesEngine*",
                         "com.aitherapist.dls.training.RepCounter*"
                     )

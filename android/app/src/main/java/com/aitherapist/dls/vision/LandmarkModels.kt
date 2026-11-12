@@ -8,6 +8,7 @@ data class LandmarkPoint(val x: Float, val y: Float, val visibility: Float = 1f)
 
 /** MediaPipe Pose landmark indices, names as in the MediaPipe documentation (un-mirrored frame). */
 object PoseLandmarkIndex {
+    const val NOSE = 0
     const val MOUTH_LEFT = 9
     const val MOUTH_RIGHT = 10
     const val LEFT_SHOULDER = 11

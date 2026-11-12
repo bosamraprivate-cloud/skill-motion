@@ -25,4 +25,9 @@
     <string name="diagnostics_try_step">جرّب %1$s</string>
     <string name="diagnostics_attempt_recording">بنسجّل %1$s: فاضل %2$d ث</string>
     <string name="diagnostics_attempt_result">%1$s: %2$s (%3$s)، انتظار %4$d م.ث + تقييم %5$d م.ث = %6$d م.ث</string>
+    <string name="diagnostics_attempt_model">الموديل %1$s، البرومبت %2$s</string>
+    <string name="diagnostics_probe">اختبر السيرفر</string>
+    <string name="diagnostics_probe_running">بنختبر…</string>
+    <string name="diagnostics_probe_reachable">السيرفر شغّال (%1$s)، %2$d م.ث</string>
+    <string name="diagnostics_probe_unreachable">السيرفر مش متاح (%1$s)، %2$d م.ث</string>
 </resources>

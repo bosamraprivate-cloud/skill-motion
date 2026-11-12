@@ -49,3 +49,9 @@
 - source_spec: `spec-1-3-geometry-check-model-and-first-local-verdict.md`
   summary: Move pure vision code into a dedicated package so the Konsist purity rule does not depend on file names.
   evidence: PURE_VISION_FILES list is name-based.
+- source_spec: `spec-1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step.md`
+  summary: Extract attempt assembly from DiagnosticsViewModel into a testable helper and test cloud routing, frame release and model fields.
+  evidence: No ViewModel tests for the cloud spike path (review 1.5).
+- source_spec: `spec-1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step.md`
+  summary: Move proxy URL and shared secret from debug BuildConfig into encrypted settings entered at first-run setup.
+  evidence: Secret is compiled into debug APKs for the spike (review 1.5).

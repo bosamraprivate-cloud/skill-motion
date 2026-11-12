@@ -1,0 +1,8 @@
+{
+  "id": "drink.cup.06",
+  "method": "cloud",
+  "check": {
+    "type": "question",
+    "text": "Is the rim of the cup touching the child's lips?"
+  }
+}

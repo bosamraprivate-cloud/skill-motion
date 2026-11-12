@@ -23,6 +23,11 @@ object VerdictReason {
     const val NOT_JUDGEABLE = "not_judgeable"
     const val CHECK_PASSED = "check_passed"
     const val CHECK_FAILED = "check_failed"
+    const val TIMEOUT = "timeout"
+    const val NETWORK = "network"
+    const val INVALID_MODEL_OUTPUT = "invalid_model_output"
+
+    fun http(status: Int) = "http_$status"
 }
 
 @Serializable
@@ -34,8 +39,19 @@ data class Verdict(
     val latencyMs: Long
 )
 
-/** A captured camera frame; [image] is platform-specific (cloud crops arrive in Story 1.5). */
-class Frame(val timestampMs: Long, val image: Any? = null)
+/**
+ * An attempt frame held in memory only (never written to disk or logged). The platform wrapper
+ * (a Bitmap in shell code) is released by the attempt's owner after the verdict.
+ */
+interface AttemptImage {
+    val width: Int
+    val height: Int
+
+    fun release()
+}
+
+/** A captured camera frame at [timestampMs]; [image] is the upright, un-mirrored inference frame. */
+class Frame(val timestampMs: Long, val image: AttemptImage? = null)
 
 /**
  * Landmarks paired with the frame at [timestampMs] (AD-3). [pose] is null when no pose result was

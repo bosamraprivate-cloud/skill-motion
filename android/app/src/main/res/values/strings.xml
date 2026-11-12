@@ -25,4 +25,9 @@
     <string name="diagnostics_try_step">Try %1$s</string>
     <string name="diagnostics_attempt_recording">Recording %1$s: %2$d s left</string>
     <string name="diagnostics_attempt_result">%1$s: %2$s (%3$s), wait %4$d ms + evaluation %5$d ms = %6$d ms</string>
+    <string name="diagnostics_attempt_model">model %1$s, prompt %2$s</string>
+    <string name="diagnostics_probe">Probe proxy</string>
+    <string name="diagnostics_probe_running">Probing…</string>
+    <string name="diagnostics_probe_reachable">Reachable (%1$s), %2$d ms</string>
+    <string name="diagnostics_probe_unreachable">Not reachable (%1$s), %2$d ms</string>
 </resources>

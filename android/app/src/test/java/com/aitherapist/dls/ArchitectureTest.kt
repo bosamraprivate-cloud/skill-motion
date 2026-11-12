@@ -41,7 +41,7 @@ class ArchitectureTest {
     private companion object {
         const val ROOT = "com.aitherapist.dls"
         val CORE_PACKAGES = arrayOf("$ROOT.scoring..", "$ROOT.rewards..", "$ROOT.catalog..")
-        val PURE_VISION_FILES = setOf("Geometry", "Verifier", "VisibilityGate", "PoseVerifier", "LandmarkModels")
+        val PURE_VISION_FILES = setOf("Geometry", "Verifier", "VisibilityGate", "PoseVerifier", "LandmarkModels", "FrameCropper")
         val NON_UI_PACKAGES =
             arrayOf("catalog", "data", "camera", "vision", "session", "scoring", "training", "rewards", "audio", "replay")
                 .map { "$ROOT.$it.." }

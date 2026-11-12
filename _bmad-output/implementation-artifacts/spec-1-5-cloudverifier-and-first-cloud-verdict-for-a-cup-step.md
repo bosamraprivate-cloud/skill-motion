@@ -2,7 +2,8 @@
 title: 'Story 1.5: CloudVerifier and first cloud verdict for a cup step'
 type: 'feature'
 created: '2026-11-12'
-status: 'draft'
+status: 'in-review'
+baseline_commit: '811166ac23ab2fb5a07392495bea535c0a5acba0'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -81,6 +82,25 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---|---|---|---|
+| 1 | Unbounded full-frame bitmaps aliased to camera pipeline (OOM, stale frames) | high | patch | attemptImages holds every frame by reference |
+| 2 | HTTP call not cancelled with the coroutine | medium | patch | blocking execute() |
+| 3 | Malformed proxy URL → not_judgeable (probe says network) | low | patch | Request.Builder.url throws |
+| 4 | OutOfMemoryError escapes "never throws" | medium | patch | only Exception caught |
+| 5 | Full-frame fallback could upload uncropped frame | medium | patch | cropBox returns whole frame with no points/zones |
+| 6 | 200 verdict without modelId/promptVersion accepted | low | patch | parse() |
+| 7 | One bad spike asset drops all | low | patch | map without per-item catch |
+| 8 | Real 8 s wall-clock timeout test | low | patch | flaky, slow |
+| 9 | Magic nose index | low | patch | literal 0 |
+| 10 | ProxyProbe untested | medium | patch | no test references it |
+| 11 | DiagnosticsViewModel cloud routing untested | medium | defer | needs VM seam; device run covers |
+| 12 | Shared secret compiled into debug APK | low | defer | debug-only by design; real settings storage in Epic 2; never distribute debug APKs |
+| 13 | Spike question has no source | false | rejected | verbatim from design camera-scored table, drink.cup.06 row |
+| 14 | Hand points not filtered by visibility | false | rejected | hand points carry no visibility (fixed 1f) |
+| 15 | Kover misses CloudVerifier/ProxyProbe | low | rejected | shell network code; MockWebServer tests cover mapping |
+| 16 | No debuggable guard on cloud path | low | rejected | release config is empty → network, no request |
 
 ## Verification
 

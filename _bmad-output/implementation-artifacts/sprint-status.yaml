@@ -40,7 +40,7 @@ development_status:
   1-2-camera-feed-and-landmarkers-with-frame-rate-probe: review
   1-3-geometry-check-model-and-first-local-verdict: review
   1-4-stateless-verify-proxy-on-cloudflare-workers: review
-  1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step: backlog
+  1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step: in-progress
   epic-1-retrospective: optional
 
   epic-2: backlog

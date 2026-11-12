@@ -26,7 +26,11 @@ sealed interface DiagnosticsUiState {
         val handPoints: List<List<LandmarkPoint>>,
         val run: RunState,
         /** Debug-only spike attempt; null in release builds or when no spike step is bundled. */
-        val attempt: AttemptState? = null
+        val attempt: AttemptState? = null,
+        /** Debug-only spike step IDs the user can pick from. */
+        val spikeSteps: List<String> = emptyList(),
+        /** Debug-only proxy reachability probe (FR-1). */
+        val probe: ProbeState? = null
     ) : DiagnosticsUiState
 
     data class Error(val reason: String) : DiagnosticsUiState
@@ -55,12 +59,25 @@ sealed interface AttemptState {
         /** Wait after window close for the last frames to pair (AD-3). */
         val pairingWaitMs: Long,
         /** Verifier evaluation time; NFR-1 budget is pairingWaitMs + evaluationMs. */
-        val evaluationMs: Long
+        val evaluationMs: Long,
+        val modelId: String? = null,
+        val promptVersion: String? = null
     ) : AttemptState
+}
+
+/** Proxy reachability probe: reachable when `GET /verify` answered 405. */
+sealed interface ProbeState {
+    data object Running : ProbeState
+
+    data class Done(val reachable: Boolean, val roundTripMs: Long, val detail: String) : ProbeState
 }
 
 sealed interface DiagnosticsEvent {
     data object TryStep : DiagnosticsEvent
+
+    data class SelectStep(val stepId: String) : DiagnosticsEvent
+
+    data object Probe : DiagnosticsEvent
 
     data class PermissionResult(val granted: Boolean) : DiagnosticsEvent
 

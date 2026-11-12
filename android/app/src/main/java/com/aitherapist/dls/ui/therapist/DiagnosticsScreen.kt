@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -181,6 +182,18 @@ private fun Content(state: DiagnosticsUiState.Content, onEvent: (DiagnosticsEven
             Metric(stringResource(R.string.diagnostics_hand_fps), fps(state.handFps))
             Metric(stringResource(R.string.diagnostics_combined_fps), fps(state.combinedFps))
             Metric(stringResource(R.string.diagnostics_visible, RETENTION_SEC), "${state.visiblePercent}%")
+            if (state.spikeSteps.isNotEmpty()) ProbeRow(state.probe, onEvent)
+            if (state.spikeSteps.size > 1 && state.attempt !is AttemptState.Recording) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    state.spikeSteps.forEach { id ->
+                        FilterChip(
+                            selected = state.attempt?.stepId == id,
+                            onClick = { onEvent(DiagnosticsEvent.SelectStep(id)) },
+                            label = { Text(id) }
+                        )
+                    }
+                }
+            }
             state.attempt?.let { Attempt(it, onEvent) }
             when (val run = state.run) {
                 RunState.Idle ->
@@ -221,9 +234,30 @@ private fun Attempt(attempt: AttemptState, onEvent: (DiagnosticsEvent) -> Unit) 
                     ),
                     fontWeight = FontWeight.Bold
                 )
+                attempt.modelId?.let { model ->
+                    Text(stringResource(R.string.diagnostics_attempt_model, model, attempt.promptVersion.orEmpty()))
+                }
             }
             OutlinedButton(onClick = { onEvent(DiagnosticsEvent.TryStep) }) {
                 Text(stringResource(R.string.diagnostics_try_step, attempt.stepId))
+            }
+        }
+    }
+}
+
+/** Debug-only proxy reachability row (FR-1). */
+@Composable
+private fun ProbeRow(probe: ProbeState?, onEvent: (DiagnosticsEvent) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = { onEvent(DiagnosticsEvent.Probe) }, enabled = probe !is ProbeState.Running) {
+            Text(stringResource(R.string.diagnostics_probe))
+        }
+        when (probe) {
+            null -> Unit
+            ProbeState.Running -> Text(stringResource(R.string.diagnostics_probe_running))
+            is ProbeState.Done -> {
+                val res = if (probe.reachable) R.string.diagnostics_probe_reachable else R.string.diagnostics_probe_unreachable
+                Text(stringResource(res, probe.detail, probe.roundTripMs), fontWeight = FontWeight.Bold)
             }
         }
     }

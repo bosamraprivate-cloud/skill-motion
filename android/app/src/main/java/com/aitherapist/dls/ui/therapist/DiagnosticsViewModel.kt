@@ -9,19 +9,26 @@ import androidx.lifecycle.viewModelScope
 import com.aitherapist.dls.BuildConfig
 import com.aitherapist.dls.camera.FrameBuffer
 import com.aitherapist.dls.catalog.CatalogJson
+import com.aitherapist.dls.catalog.Method
 import com.aitherapist.dls.catalog.Step
+import com.aitherapist.dls.vision.BitmapImage
+import com.aitherapist.dls.vision.BitmapJpegEncoder
+import com.aitherapist.dls.vision.CloudVerifier
 import com.aitherapist.dls.vision.FpsMeter
 import com.aitherapist.dls.vision.FpsStream
+import com.aitherapist.dls.vision.Frame
 import com.aitherapist.dls.vision.InferenceDelegate
 import com.aitherapist.dls.vision.LandmarkFrame
 import com.aitherapist.dls.vision.LandmarkPoint
 import com.aitherapist.dls.vision.LandmarkResult
 import com.aitherapist.dls.vision.Landmarkers
 import com.aitherapist.dls.vision.PoseVerifier
+import com.aitherapist.dls.vision.ProxyProbe
 import com.aitherapist.dls.vision.VerifyContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -38,6 +45,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 
 @HiltViewModel
 class DiagnosticsViewModel
@@ -52,7 +60,21 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
     // Debug-only spike attempt (Story 1.3): a longer buffer holds the whole attempt window.
     private val attemptBuffer = FrameBuffer<Long, LandmarkResult>(clock, retentionMs = ATTEMPT_RETENTION_MS)
     private val poseVerifier = PoseVerifier(clock)
+    private val httpClient by lazy { OkHttpClient() }
+    private val cloudVerifier by lazy {
+        CloudVerifier(BuildConfig.PROXY_URL, BuildConfig.SHARED_SECRET, BitmapJpegEncoder, httpClient, clock)
+    }
+    private val proxyProbe by lazy { ProxyProbe(BuildConfig.PROXY_URL, httpClient, clock) }
+    private var spikeSteps: List<Step> = emptyList()
     private var spikeStep: Step? = null
+    private val spikeIds = MutableStateFlow<List<String>>(emptyList())
+    private val probe = MutableStateFlow<ProbeState?>(null)
+
+    // Attempt frames and hand results for cloud steps: memory only, cleared after the verdict.
+    private val attemptImages = ConcurrentHashMap<Long, Bitmap>()
+    private val attemptHands = ConcurrentHashMap<Long, List<List<LandmarkPoint>>>()
+
+    @Volatile private var keepImages = false
     private val attempt = MutableStateFlow<AttemptState?>(null)
     private var attemptJob: Job? = null
     private var loadJob: Job? = null
@@ -79,13 +101,15 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
         }
 
     val uiState: StateFlow<DiagnosticsUiState> =
-        combine(combine(permission, engine, ::Pair), landmarks, run, attempt, ticker) { (granted, eng), latest, runState, att, _ ->
+        combine(combine(permission, engine, spikeIds, probe, ::Spike), landmarks, run, attempt, ticker) { spike, latest, runState, att, _ ->
+            val granted = spike.granted
+            val eng = spike.engine
             when {
                 granted == null -> DiagnosticsUiState.PermissionRequired
                 !granted -> DiagnosticsUiState.PermissionDenied
                 eng is Engine.Failed -> DiagnosticsUiState.Error(eng.reason)
                 eng !is Engine.Ready -> DiagnosticsUiState.Loading
-                else -> content(eng.delegate, latest, runState).copy(attempt = att)
+                else -> content(eng.delegate, latest, runState).copy(attempt = att, spikeSteps = spike.ids, probe = spike.probe)
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), DiagnosticsUiState.Loading)
 
@@ -94,6 +118,8 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
             is DiagnosticsEvent.PermissionResult -> permission.value = event.granted
             DiagnosticsEvent.StartRun -> startRun()
             DiagnosticsEvent.TryStep -> tryStep()
+            is DiagnosticsEvent.SelectStep -> selectStep(event.stepId)
+            DiagnosticsEvent.Probe -> runProbe()
             DiagnosticsEvent.Retry -> {
                 stop()
                 start()
@@ -158,7 +184,10 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
         if (engine.value !is Engine.Ready) return
         if (landmarkers.detect(bitmap, timestampMs)) {
             frameBuffer.addFrame(timestampMs, timestampMs)
-            if (recordingAttempt) attemptBuffer.addFrame(timestampMs, timestampMs)
+            if (recordingAttempt) {
+                attemptBuffer.addFrame(timestampMs, timestampMs)
+                if (keepImages) keepFrame(timestampMs, bitmap)
+            }
         }
     }
 
@@ -197,7 +226,10 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
                 }
                 landmarks.update { it.copy(pose = result.sets.firstOrNull().orEmpty()) }
             }
-            FpsStream.HAND -> landmarks.update { it.copy(hands = result.sets) }
+            FpsStream.HAND -> {
+                if (recordingAttempt) attemptHands[result.timestampMs] = result.sets
+                landmarks.update { it.copy(hands = result.sets) }
+            }
             FpsStream.COMBINED -> Unit
         }
     }
@@ -221,29 +253,53 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
             }
     }
 
-    /** Loads the first debug-only spike step from assets/spike (absent in release builds). */
+    /** Loads every debug-only spike step from assets/spike (absent in release builds); the first is selected. */
     private suspend fun loadSpikeStep() {
-        if (spikeStep != null) return
-        val step =
+        if (spikeSteps.isNotEmpty()) return
+        val steps =
             withContext(Dispatchers.IO) {
                 try {
-                    val name = context.assets.list(SPIKE_DIR)?.sorted()?.firstOrNull()
-                    name?.let { n -> CatalogJson.decodeStep(context.assets.open("$SPIKE_DIR/$n").bufferedReader().use { it.readText() }) }
+                    context.assets.list(SPIKE_DIR).orEmpty().sorted().mapNotNull { n ->
+                        runCatching {
+                            CatalogJson.decodeStep(context.assets.open("$SPIKE_DIR/$n").bufferedReader().use { it.readText() })
+                        }.getOrNull()
+                    }
                 } catch (
                     @Suppress("TooGenericExceptionCaught") e: Exception
                 ) {
                     Log.d(VERDICT_TAG, "spike load failed: ${e::class.simpleName}") // type name only, no data
-                    null
+                    emptyList()
                 }
-            } ?: return
+            }
+        if (steps.isEmpty()) return
+        spikeSteps = steps
+        spikeIds.value = steps.map { it.id }
+        selectStep(steps.first().id)
+    }
+
+    private fun selectStep(stepId: String) {
+        if (attempt.value is AttemptState.Recording) return
+        val step = spikeSteps.firstOrNull { it.id == stepId } ?: return
         spikeStep = step
-        if (attempt.value == null) attempt.value = AttemptState.Idle(step.id)
+        attempt.value = AttemptState.Idle(step.id)
+    }
+
+    /** Proxy reachability (FR-1): GET /verify must answer 405; shows the round-trip ms. */
+    private fun runProbe() {
+        if (!debuggable || probe.value is ProbeState.Running) return
+        probe.value = ProbeState.Running
+        viewModelScope.launch {
+            val result = proxyProbe.probe()
+            probe.value = ProbeState.Done(result.reachable, result.roundTripMs, result.detail)
+            Log.d(VERDICT_TAG, "probe ${result.detail} ${result.roundTripMs}") // status and ms only
+        }
     }
 
     private fun cancelAttempt() {
         attemptJob?.cancel()
         attemptJob = null
         recordingAttempt = false
+        releaseAttemptFrames()
         val step = spikeStep
         if (attempt.value is AttemptState.Recording && step != null) attempt.value = AttemptState.Idle(step.id)
     }
@@ -255,6 +311,8 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
         attemptJob =
             viewModelScope.launch {
                 attemptBuffer.clear()
+                releaseAttemptFrames()
+                keepImages = step.method == Method.CLOUD
                 val openedAt = clock()
                 recordingAttempt = true
                 for (remaining in ATTEMPT_SEC downTo 1) {
@@ -268,15 +326,58 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
                     attemptBuffer
                         .resolved()
                         .filter { it.timestampMs in openedAt..closedAt }
-                        .map { LandmarkFrame(it.timestampMs, it.result?.sets?.firstOrNull()) }
+                        .map { LandmarkFrame(it.timestampMs, it.result?.sets?.firstOrNull(), attemptHands[it.timestampMs].orEmpty()) }
                 val pairingWaitMs = clock() - closedAt
+                keepImages = false
+                val frames =
+                    synchronized(attemptImages) { attemptImages.entries.toList() }
+                        .filter { it.key in openedAt..closedAt }
+                        .sortedBy { it.key }
+                        .map { Frame(it.key, BitmapImage(it.value)) }
                 val verdict =
-                    withContext(Dispatchers.Default) { poseVerifier.verify(step, emptyList(), landmarkFrames, VerifyContext()) }
-                attempt.value = AttemptState.Done(step.id, verdict.outcome, verdict.reason, pairingWaitMs, verdict.latencyMs)
+                    try {
+                        withContext(Dispatchers.Default) {
+                            val verifier = if (step.method == Method.CLOUD) cloudVerifier else poseVerifier
+                            verifier.verify(step, frames, landmarkFrames, VerifyContext())
+                        }
+                    } finally {
+                        frames.forEach { it.image?.release() }
+                        releaseAttemptFrames()
+                    }
+                attempt.value =
+                    AttemptState.Done(
+                        step.id,
+                        verdict.outcome,
+                        verdict.reason,
+                        pairingWaitMs,
+                        verdict.latencyMs,
+                        verdict.modelId,
+                        verdict.promptVersion
+                    )
                 // Numbers only: pairing wait ms, evaluation ms, total ms (NFR-1), frame count.
                 val total = pairingWaitMs + verdict.latencyMs
                 Log.d(VERDICT_TAG, "$pairingWaitMs ${verdict.latencyMs} $total ${landmarkFrames.size}")
             }
+    }
+
+    /** Stores a private copy; at the cap drops every other stored frame so coverage stays start to end. */
+    private fun keepFrame(timestampMs: Long, bitmap: Bitmap) {
+        synchronized(attemptImages) {
+            if (attemptImages.size >= MAX_KEPT_FRAMES) {
+                attemptImages.keys.sorted().filterIndexed { i, _ -> i % 2 == 1 }.forEach { attemptImages.remove(it)?.recycle() }
+            }
+            val copy = bitmap.copy(bitmap.config ?: Bitmap.Config.ARGB_8888, false) ?: return
+            attemptImages[timestampMs] = copy
+        }
+    }
+
+    private fun releaseAttemptFrames() {
+        keepImages = false
+        synchronized(attemptImages) {
+            attemptImages.values.forEach { it.recycle() }
+            attemptImages.clear()
+        }
+        attemptHands.clear()
     }
 
     private fun content(delegate: InferenceDelegate, latest: Latest, runState: RunState): DiagnosticsUiState.Content {
@@ -301,6 +402,8 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
         )
     }
 
+    private data class Spike(val granted: Boolean?, val engine: Engine, val ids: List<String>, val probe: ProbeState?)
+
     private data class Latest(val pose: List<LandmarkPoint> = emptyList(), val hands: List<List<LandmarkPoint>> = emptyList())
 
     private sealed interface Engine {
@@ -323,6 +426,7 @@ constructor(private val landmarkers: Landmarkers, @ApplicationContext private va
         const val VERDICT_TAG = "DlsVerdict"
         const val SPIKE_DIR = "spike"
         const val ATTEMPT_SEC = 5
+        const val MAX_KEPT_FRAMES = 20
         const val ATTEMPT_RETENTION_MS = 7_000L
         const val DEFAULT_FRAME_ASPECT = 4f / 3f
     }
