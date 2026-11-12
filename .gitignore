@@ -26,3 +26,6 @@ proxy/.wrangler/
 tools/.venv/
 .pytest_cache/
 .ruff_cache/
+
+# Matted frame caches
+art/animations/**/*.frames/

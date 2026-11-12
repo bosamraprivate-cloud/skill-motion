@@ -1,0 +1,27 @@
+{
+  "_doc": "Presentation only: maps each step to a demonstration clip segment or a still frame (AD-11). Clips live in art/animations/<variant>/steps/raw/<clip>.mp4. Seconds are null until the clip exists and is reviewed.",
+  "eat.sandwich": {
+    "clips": {
+      "look": "eat.sandwich.01",
+      "sit": "eat.sandwich.03",
+      "plate": "eat.sandwich.04",
+      "reach-hold": "eat.sandwich.reach-hold",
+      "bite": "eat.sandwich.bite",
+      "finish": "eat.sandwich.12"
+    },
+    "steps": {
+      "eat.sandwich.01": {"clip": "look"},
+      "eat.sandwich.02": {"still": "sit", "atSec": 0},
+      "eat.sandwich.03": {"clip": "sit"},
+      "eat.sandwich.04": {"clip": "plate"},
+      "eat.sandwich.05": {"clip": "reach-hold", "startSec": null, "endSec": null},
+      "eat.sandwich.06": {"clip": "reach-hold", "startSec": null, "endSec": null},
+      "eat.sandwich.07": {"clip": "bite", "startSec": null, "endSec": null},
+      "eat.sandwich.08": {"clip": "bite", "startSec": null, "endSec": null},
+      "eat.sandwich.09": {"clip": "bite", "startSec": null, "endSec": null},
+      "eat.sandwich.10": {"clip": "bite", "startSec": null, "endSec": null},
+      "eat.sandwich.11": {"clip": "bite", "startSec": null, "endSec": null},
+      "eat.sandwich.12": {"clip": "finish"}
+    }
+  }
+}

@@ -423,7 +423,7 @@ Files: `art/characters/*`, `art/poses/<variant>/idle*.png`, `art/animations/<var
 
 **Given** a generated clip
 **When** `cutout_video.py` runs
-**Then** the background is removed by magenta keying with despill into a looping transparent animated WebP (long side 960 px) with no magenta fringe on a dark and a light test background.
+**Then** the background is removed (rembg ISNet matting) into a looping transparent animated WebP (long side 960 px) with no halo on a dark and a light test background.
 
 **Given** any generated media
 **When** recorded
@@ -432,21 +432,21 @@ Files: `art/characters/*`, `art/poses/<variant>/idle*.png`, `art/animations/<var
 ### Story 2.4: Step demonstration clips (video modeling) and still frames
 
 As the author,
-I want each assessment step performed by both characters as a short clip, plus a still frame,
+I want each task's real actions performed by both characters as short clips, with every step mapped to a clip segment or a still frame,
 So that the child sees exactly how to do each step (still frame first; the clip on Help, at prompt level 3, in the walkthrough and in training).
 
 Implements: FR-9, FR-11, FR-12; AD-1, AD-11.
-Files: `art/objects/*.png` (reference images for every object the steps use), `art/animations/<variant>/steps/raw/<stepId>.mp4`, `tools/art/export_clips.py`, `android/app/src/main/assets/character/<variant>/steps/<stepId>.webp` and `.still.webp`.
+Files: `art/objects/*.png` (reference images for every object the steps use), `art/animations/<variant>/steps/raw/<stepId>.mp4`, `tools/art/step_clips.json` (step → clip, startSec, endSec, or still only), `tools/art/export_clips.py`, `android/app/src/main/assets/character/<variant>/steps/<stepId>.webp` and `.still.webp`.
 
 **Acceptance Criteria:**
 
 **Given** the 147 step IDs from the catalogue builder
 **When** clips are produced task by task (boy first, then girl)
-**Then** every step has a clip whose action follows the step text in `docs/reference/` verbatim (no invented action), with the same reference object across all clips of a task.
+**Then** each task is split into real actions (one clip per action; look-alike consecutive micro-steps share one clip, steps without a visible action of their own use a still frame), every clip follows the step texts in `docs/reference/` verbatim (no invented action), the same objects and camera angle are used across a task, eating/drinking scenes have a table and chair and other tasks show the character standing with the items in front.
 
 **Given** a step clip
 **When** exported
-**Then** it starts and ends on the idle frame, is keyed to alpha, and its first frame is exported as `<stepId>.still.webp`; the catalogue build fails if any step lacks a clip or still frame for either variant.
+**Then** it is matted to alpha, each step's still frame is exported from its `startSec` as `<stepId>.still.webp`, and the catalogue build fails if any step lacks a `step_clips.json` entry or still frame for either variant.
 
 **Given** the 148 activities
 **When** the step clips are complete
