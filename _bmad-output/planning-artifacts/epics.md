@@ -406,48 +406,51 @@ Files: `tools/catalog-builder/build_catalog.py`, `tools/catalog-builder/test_bui
 **When** parsed
 **Then** it has ID `<plan>.<domain>.<NN>` and verbatim fields tools, how to perform, goal, measurement criterion.
 
-### Story 2.3: Character sheet and Rive character (art pipeline)
+### Story 2.3: Character reaction clips (boy and girl)
 
 As the author,
-I want one original character sheet and a Rive file with the required state machine,
-So that all illustrations and animations share one look.
+I want both characters' reaction clips as looping transparent animations,
+So that the character talks, points, encourages and celebrates naturally on every child screen.
 
-Implements: FR-9, FR-11, FR-12 (level-3 movement), UX-DR6; AD-11.
-Files: `art/character-sheet.png`, `art/character.riv`, `art/README.md` (style notes, palette, generation prompts and model used).
+Implements: FR-9, FR-11, UX-DR6; AD-11 (updated 2026-11-12: pre-rendered clips, no Rive).
+Files: `art/characters/*`, `art/poses/<variant>/idle*.png`, `art/animations/<variant>/raw/*.mp4`, `tools/art/cutout_video.py`, `android/app/src/main/assets/character/<variant>/react/*.webp`, `art/README.md`.
 
 **Acceptance Criteria:**
 
-**Given** the character sheet
-**When** reviewed
-**Then** it shows the boy front, side, back and hands close-up in flat style with the DESIGN palette.
+**Given** each variant
+**When** the clips are inspected
+**Then** there is one clip per state `idle, talk, point, encourage, celebrateSmall, celebrate, celebrateBig`, each about 4 s, starting and ending on the same idle frame (mean first/last frame difference at most 3/255).
 
-**Given** `character.riv`
-**When** opened in the Rive editor
-**Then** its state machine has inputs `idle, talk, point, celebrate, celebrateSmall, celebrateBig, encourage`, plus movement animations for camera-scored steps where useful (list recorded in `art/README.md`).
+**Given** a generated clip
+**When** `cutout_video.py` runs
+**Then** the background is removed by magenta keying with despill into a looping transparent animated WebP (long side 960 px) with no magenta fringe on a dark and a light test background.
 
-**Given** any image-model output used
+**Given** any generated media
 **When** recorded
-**Then** the prompt and tool are noted, and no third-party character or brand is used.
+**Then** the tool, model and prompt are in `art/README.md`, and no third-party character or brand is used.
 
-### Story 2.4: Step and activity illustrations with export script
+### Story 2.4: Step demonstration clips (video modeling) and still frames
 
 As the author,
-I want one corrected illustration per step and activity, exported to the app,
-So that every step shows the character doing exactly the step text.
+I want each assessment step performed by both characters as a short clip, plus a still frame,
+So that the child sees exactly how to do each step (still frame first; the clip on Help, at prompt level 3, in the walkthrough and in training).
 
-Implements: FR-9, FR-35 (activity illustration), SM-4; AD-1.
-Files: `art/steps/<stepId>.png` (147), `art/activities/<activityId>.png` (148), `tools/art/export_illustrations.py`, `tools/art/test_export_illustrations.py`, `android/app/src/main/assets/illustr/*.webp`, `android/app/src/main/res/raw/character.riv`.
+Implements: FR-9, FR-11, FR-12; AD-1, AD-11.
+Files: `art/objects/*.png` (reference images for every object the steps use), `art/animations/<variant>/steps/raw/<stepId>.mp4`, `tools/art/export_clips.py`, `android/app/src/main/assets/character/<variant>/steps/<stepId>.webp` and `.still.webp`.
 
 **Acceptance Criteria:**
 
-**Given** the 41 camera-scored steps
-**When** illustrations are produced
-**Then** they are finished first, and each is checked by the team against the step text (action matches exactly) with the check recorded in `art/review.csv`.
+**Given** the 147 step IDs from the catalogue builder
+**When** clips are produced task by task (boy first, then girl)
+**Then** every step has a clip whose action follows the step text in `docs/reference/` verbatim (no invented action), with the same reference object across all clips of a task.
 
-**Given** all PNGs
-**When** `python tools/art/export_illustrations.py` runs
-**Then** each is resized to 1280 px WebP into `assets/illustr/<id>.webp` and `character.riv` is copied to `res/raw/`
-**And** a missing or misnamed file is reported with its ID.
+**Given** a step clip
+**When** exported
+**Then** it starts and ends on the idle frame, is keyed to alpha, and its first frame is exported as `<stepId>.still.webp`; the catalogue build fails if any step lacks a clip or still frame for either variant.
+
+**Given** the 148 activities
+**When** the step clips are complete
+**Then** activity clips follow the same pipeline (they may ship after M2 with still frames first).
 
 ### Story 2.5: Arabic strings and ElevenLabs audio generation
 

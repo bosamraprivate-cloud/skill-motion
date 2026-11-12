@@ -31,12 +31,12 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 |---|---|---|
 | Task start ("Start") | Therapist starts assessment/training | Character greets, task picture, big Start (source Stage 1) |
 | Framing check | Task start, camera-scored tasks | Preview with outline; adult confirms position |
-| Step screen | Sequence | One step: illustration, sentence, audio, Done / Help / Repeat |
+| Step screen | Sequence | One step: character still frame, sentence, audio, Done / Help / Repeat; Help plays the character's demonstration clip |
 | Step reward moment | After verdict saved | Stars and effect per effect level (overlay, 1.5–3 s) |
-| Character walkthrough | After last step | Character performs the whole task once, one illustration per step with audio (Stage 4) |
+| Character walkthrough | After last step | Character performs the whole task once: the step demonstration clips back to back with audio (Stage 4) |
 | Task reward screen | After walkthrough | Stars earned, big celebration, sticker progress |
 | Sticker book | Task reward screen ("My stickers") | Earned stickers and progress path |
-| Training activity screen | Training hand-off | Camera-counted (counter) or guided (illustration, timer, Done) |
+| Training activity screen | Training hand-off | Camera-counted (counter) or guided (character demonstration clip, timer, Done) |
 | Adult pause sheet | Long-press adult corner 2 s | Pause / resume / exit to therapist (PIN) |
 
 ### Therapist mode (PIN)
@@ -84,7 +84,7 @@ Never: "wrong", "no", "try harder", scores, levels, timers counting down at the 
 - **Done area** — tap anywhere in it, or Bluetooth key press, closes the attempt window. Debounced 1 s. Disabled (dimmed, not hidden) while instruction audio plays, so the window opens only after audio ends.
 - **Help** — moves to the next prompt level immediately, counts as a prompt (FR-12). At prompt level 3 Help replays level 3.
 - **Repeat** — replays the current prompt level's audio and character talk; does not count as a prompt.
-- **Prompt ladder presentation:** level 1 = illustration + sentence + audio, character `talk`; level 2 = audio replayed, character `point`, illustration enlarged; level 3 = illustration full screen, character acts the movement where an animation exists, slow audio. Buttons remain visible at level 3 in the bottom band.
+- **Prompt ladder presentation:** level 1 = illustration + sentence + audio, character `talk`; level 2 = audio replayed, character `point`, illustration enlarged; level 3 = the step's demonstration clip full screen (the character performs the step), slow audio. Buttons remain visible at level 3 in the bottom band.
 - **Step schedule** — advances one dot per step; never shows outcome.
 - **Star bar** — counts stars per FR-37; stars only ever increase.
 - **Character state machine:** `idle` default; `talk` during instruction audio; `point` at level 2; `celebrateSmall` on step reward; `encourage` after not done at attempt 3; `celebrateBig` on task reward. Effect level off keeps `idle`/`talk`/`point` only.

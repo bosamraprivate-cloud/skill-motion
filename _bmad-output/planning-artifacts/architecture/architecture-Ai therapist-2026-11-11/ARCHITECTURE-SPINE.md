@@ -34,7 +34,7 @@ flowchart LR
     REF[docs/reference] --> CB[tools/catalog-builder]
     DET[detectors.json / activity_counters.json / strings.ar-eg.json] --> CB
     AG[tools/audio-gen] --> AUD[assets/audio/ar-eg]
-    ART[tools/art] --> ILL[assets/illustr + res/raw/character_<variant>.riv]
+    ART[tools/art] --> ILL[assets/character/<variant>/ clips + still frames]
   end
   CB --> CAT[assets/catalog/assessment.json + activities.json]
   subgraph App["Android app com.aitherapist.dls"]
@@ -91,7 +91,7 @@ Arrows mean "may depend on". Nothing depends on `ui`. `scoring`, `rewards` and `
 
 - **Binds:** FR-7, FR-8, FR-9, FR-22, FR-32, FR-34; `tools/catalog-builder`, `catalog/`
 - **Prevents:** steps, tags, thresholds or activities drifting between Kotlin code and the source documents; content added that is not in `docs/reference/`.
-- **Rule:** `assessment.json` and `activities.json` are the only content contract between `tools/` and `android/`. They are generated, never hand-edited. Build order: `tools/audio-gen`, then `tools/art/export_illustrations.py`, then `tools/catalog-builder`. Kotlin code may not contain a step ID, activity ID, threshold or question literal outside tests. The builder fails the build on: an unknown domain tag, a duplicate ID, a step without Arabic text, audio file (normal and slow) or illustration, an activity without Arabic text or illustration (activity audio is optional, PRD FR-7; training plays it when present), or counts other than 147 steps (42/38/27/40) and 148 activities (48/50/50). Clinical content comes only from `docs/reference/`; `detectors.json` and `activity_counters.json` hold detection settings, never clinical content.
+- **Rule:** `assessment.json` and `activities.json` are the only content contract between `tools/` and `android/`. They are generated, never hand-edited. Build order: `tools/audio-gen`, then `tools/art/export_illustrations.py`, then `tools/catalog-builder`. Kotlin code may not contain a step ID, activity ID, threshold or question literal outside tests. The builder fails the build on: an unknown domain tag, a duplicate ID, a step without Arabic text, audio file (normal and slow), still frame or demonstration clip for each character variant, an activity without Arabic text or still frame (activity audio is optional, PRD FR-7; training plays it when present), or counts other than 147 steps (42/38/27/40) and 148 activities (48/50/50). Clinical content comes only from `docs/reference/`; `detectors.json` and `activity_counters.json` hold detection settings, never clinical content.
 
 ### AD-2: Permanent IDs and version stamps [ADOPTED]
 
@@ -151,7 +151,7 @@ Arrows mean "may depend on". Nothing depends on `ui`. `scoring`, `rewards` and `
 
 - **Binds:** FR-37 to FR-40, NFR-6; `ui/child/`, `rewards/`
 - **Prevents:** effects playing over instructions, unsafe flashing, or rewards depending on level.
-- **Rule:** All effects go through one `RewardEffects` entry point that takes the child's `effectLevel` (`full|calm|off`). No effect starts while instruction audio plays; no flash exceeds 3 per second. Stars and stickers are computed by `RewardRules` from saved facts only. Character animation is driven only through the Rive state machine inputs `idle, talk, point, celebrate, celebrateSmall, celebrateBig, encourage`. Two original characters, `boy` and `girl` (the therapist picks one per child, stored on the child profile): one `character_<variant>.riv` each, rigged in the Rive editor from layered parts cut from the approved model sheets in `art/characters/` (2026-11-12).
+- **Rule:** All effects go through one `RewardEffects` entry point that takes the child's `effectLevel` (`full|calm|off`). No effect starts while instruction audio plays; no flash exceeds 3 per second. Stars and stickers are computed by `RewardRules` from saved facts only. Characters are pre-rendered animation clips (updated 2026-11-12; Rive dropped because bone animation of 3D renders looked unnatural). Two original characters, `boy` and `girl` (the therapist picks one per child, stored on the child profile), each with: (a) reaction clips `idle, talk, point, celebrate, celebrateSmall, celebrateBig, encourage`; (b) one demonstration clip per assessment step (video modeling: the character performs that step), and later per activity. Clips are generated with an image-to-video model (Google Flow, Omni 1.2 Flash) from the approved model sheets and per-object reference images, start and end on the same idle frame (seamless loops and cuts), are keyed from a flat magenta background to alpha by `tools/art`, and ship as looping transparent animated WebP (about 4 s, 24 fps, long side 960 px) played natively (AnimatedImageDrawable, API 28+, via Coil 3). The first frame of each step clip is exported as the step's still frame. One `CharacterView(variant, clip)` composable plays them; it never shows two moving clips at once and respects the effect level (`off` shows the still frame). Prompt use: level 1 = still frame + sentence + audio; Help or level 3 = the step's demonstration clip; the walkthrough and training always play clips. [ASSUMPTION, needs occupational-therapist confirmation: showing the demonstration only from Help or level 3 during assessment keeps Rule 1 scoring unaffected.]
 
 ### AD-12: Testing and verification gates
 
@@ -169,7 +169,7 @@ Arrows mean "may depend on". Nothing depends on `ui`. `scoring`, `rewards` and `
   - **Empty and error:** one shared `EmptyState(icon, message, primaryAction)` and `ErrorState(message, retry)` in `ui/components`; errors are never shown in child mode (AD-3, EXPERIENCE.md).
   - **Navigation:** Navigation 3 (`androidx.navigation3`) with the back stack as state and typed `@Serializable` keys. Therapist mode uses Material 3 adaptive (`NavigationSuiteScaffold` as the rail, `ListDetailPaneScaffold` via `adaptive-navigation3` scene strategy for child list → profile and session → step detail). Child mode is a single full-screen destination driven by `RunnerState` (AD-10), not by navigation.
   - **DI:** Hilt with KSP; `@HiltViewModel` for every ViewModel; pure core classes (`scoring`, `RulesEngine`, `Check`) have plain constructors and no Hilt annotations, so JVM tests build them directly.
-  - **Components:** use Material 3 components (buttons, chips, cards, `ModalBottomSheet`, dialogs, `SegmentedButton`, search bar; no pull-to-refresh, since data is local) themed with DESIGN.md tokens in `ui/theme`; Vico for charts; Coil 3 for evidence-frame thumbnails from local files; Rive for the character; Konfetti for particles. A custom component is written only when no library component fits (Done area, visual schedule, level chip, star bar, evidence strip), and lives in `ui/components` with previews.
+  - **Components:** use Material 3 components (buttons, chips, cards, `ModalBottomSheet`, dialogs, `SegmentedButton`, search bar; no pull-to-refresh, since data is local) themed with DESIGN.md tokens in `ui/theme`; Vico for charts; Coil 3 for evidence-frame thumbnails from local files; `CharacterView` (animated WebP clips via Coil 3) for the character; Konfetti for particles. A custom component is written only when no library component fits (Done area, visual schedule, level chip, star bar, evidence strip), and lives in `ui/components` with previews.
   - **Text and layout:** all strings in `res/values-ar/strings.xml` (child step text comes from the catalogue, AD-1); RTL-safe modifiers (`start/end`, never `left/right`); target width class Expanded (11-inch landscape, 1280×800 dp) with Medium as the minimum supported.
 
 ## Consistency Conventions
@@ -180,7 +180,7 @@ Arrows mean "may depend on". Nothing depends on `ui`. `scoring`, `rewards` and `
 | Task IDs | `jacket.on, jacket.off, tshirt.on, shirt.on, trousers.on, socks.on, shoes.on, sandwich, spoon, fork, cup, bottle, straw, handwash, teeth` |
 | JSON fields | camelCase in catalogue JSON, proxy API and Kotlin; database columns camelCase as in the design's Data model; enum values lower_snake (`not_done`, `cannot_tell`) |
 | IDs and time | Row IDs are UUID v4 text; timestamps epoch milliseconds (UTC) |
-| Asset paths | `assets/audio/ar-eg/<id>.mp3` and `<id>.slow.mp3`; `assets/illustr/<id>.webp`; `res/raw/character_<variant>.riv` |
+| Asset paths | `assets/audio/ar-eg/<id>.mp3` and `<id>.slow.mp3`; `assets/character/<variant>/react/<state>.webp`, `assets/character/<variant>/steps/<stepId>.webp` and `<stepId>.still.webp`, `assets/character/<variant>/activities/<activityId>.webp` |
 | Verdict reasons | `out_of_frame`, `no_zone`, `not_judgeable`, `timeout`, `network`, `http_<status>` (for example `http_401`), `invalid_model_output`, or the model's short reason text |
 | Errors | Shell code catches at the unit boundary and converts to a `Verdict` or a UI error state; core code returns values, never throws for expected cases |
 | Secrets | DeepSeek key only as Worker secret `DEEPSEEK_API_KEY`; `SHARED_SECRET` as Worker secret and in encrypted DataStore; `ELEVENLABS_API_KEY` env var only; none committed |
@@ -197,7 +197,7 @@ Arrows mean "may depend on". Nothing depends on `ui`. `scoring`, `rewards` and `
 | Kotlin, Jetpack Compose (BOM), CameraX, Room + KSP, kotlinx-serialization, OkHttp | latest stable at M1, pinned in `android/gradle/libs.versions.toml` |
 | MediaPipe Tasks Vision (Pose, Hand) | latest stable (1.x; 1.2.3 on 2026-11-12) |
 | SQLCipher for Android (`net.zetetic:sqlcipher-android`) | 4.x (4.18 or later), pinned at M1 |
-| Vico (3.x), Rive Android runtime (11.x), Konfetti Compose (2.x) | latest stable at M1, pinned in version catalogue |
+| Vico (3.x), Konfetti Compose (2.x), Coil 3 animated image decoder | latest stable at M1, pinned in version catalogue |
 | Compose Material 3 (stable line; 1.4.x today, 1.5 "Expressive" once stable), Material 3 adaptive + `adaptive-navigation-suite` + `adaptive-navigation3` | latest stable at M1, from the Compose BOM where covered |
 | Navigation 3 (`androidx.navigation3`, 1.2.x stable), Lifecycle ViewModel Compose + `lifecycle-runtime-compose` | latest stable at M1 |
 | Hilt + `hilt-navigation-compose` (KSP) | latest stable at M1 |
@@ -213,8 +213,8 @@ android/                 one Gradle app module; schemas/ for Room schema export
 proxy/                   Cloudflare Worker: src/index.ts, src/prompt.ts, test/
 tools/catalog-builder/   build_catalog.py, detectors.json, activity_counters.json, strings.ar-eg.json, tests
 tools/audio-gen/         generate_audio.py, config.json, manifest.json
-tools/art/               export_illustrations.py
-art/                     characters/ (boy, girl model sheets), parts/, character_<variant>.riv, steps/, stickers/, sfx/
+tools/art/               cutout_video.py (magenta key to animated WebP), export_clips.py
+art/                     characters/ (model sheets), poses/ (idle first frames), objects/ (reference images), animations/<variant>/raw/ (generated mp4), stickers/, sfx/; README with prompts
 eval/                    clips.csv, compute_metrics.py
 docs/                    reference/ (unchanged), designs/, permissions/
 ```
