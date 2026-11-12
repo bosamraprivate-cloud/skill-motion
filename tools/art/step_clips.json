@@ -11,7 +11,9 @@
     },
     "steps": {
       "eat.sandwich.01": {
-        "clip": "look"
+        "clip": "look",
+        "startSec": 0.7,
+        "endSec": null
       },
       "eat.sandwich.02": {
         "still": "sit",
