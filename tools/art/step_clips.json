@@ -62,5 +62,169 @@
         "clip": "finish"
       }
     }
+  },
+  "eat.spoon": {
+    "clips": {
+      "look": "eat.spoon.look",
+      "sit-plate": "eat.spoon.sit-plate",
+      "hold-scoop": "eat.spoon.hold-scoop",
+      "to-mouth": "eat.spoon.to-mouth",
+      "chew-swallow": "eat.spoon.chew-swallow",
+      "finish": "eat.spoon.finish"
+    },
+    "steps": {
+      "eat.spoon.01": {
+        "clip": "look"
+      },
+      "eat.spoon.02": {
+        "still": "sit-plate",
+        "atSec": 0
+      },
+      "eat.spoon.03": {
+        "clip": "sit-plate",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.04": {
+        "clip": "sit-plate",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.05": {
+        "clip": "hold-scoop",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.06": {
+        "clip": "hold-scoop",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.07": {
+        "clip": "hold-scoop",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.08": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.09": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.10": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.11": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.12": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.13": {
+        "clip": "chew-swallow",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.14": {
+        "clip": "chew-swallow",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.spoon.15": {
+        "clip": "finish"
+      }
+    }
+  },
+  "eat.fork": {
+    "clips": {
+      "look": "eat.fork.look",
+      "sit-plate": "eat.fork.sit-plate",
+      "hold-pierce": "eat.fork.hold-pierce",
+      "to-mouth": "eat.fork.to-mouth",
+      "chew-swallow": "eat.fork.chew-swallow",
+      "finish": "eat.fork.finish"
+    },
+    "steps": {
+      "eat.fork.01": {
+        "clip": "look"
+      },
+      "eat.fork.02": {
+        "still": "sit-plate",
+        "atSec": 0
+      },
+      "eat.fork.03": {
+        "clip": "sit-plate",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.04": {
+        "clip": "sit-plate",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.05": {
+        "clip": "hold-pierce",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.06": {
+        "clip": "hold-pierce",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.07": {
+        "clip": "hold-pierce",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.08": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.09": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.10": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.11": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.12": {
+        "clip": "to-mouth",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.13": {
+        "clip": "chew-swallow",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.14": {
+        "clip": "chew-swallow",
+        "startSec": null,
+        "endSec": null
+      },
+      "eat.fork.15": {
+        "clip": "finish"
+      }
+    }
   }
 }
