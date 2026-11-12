@@ -1,0 +1,152 @@
+{
+ "brow_l": {
+  "score": 0.991,
+  "scale": 0.555,
+  "cx": 518.0,
+  "cy": 45.5
+ },
+ "brow_r": {
+  "score": 0.985,
+  "scale": 0.585,
+  "cx": 511.0,
+  "cy": 67.0
+ },
+ "eye_l_closed": {
+  "score": 0.971,
+  "scale": 0.885,
+  "cx": 528.0,
+  "cy": 80.5
+ },
+ "eye_l_open": {
+  "score": 0.968,
+  "scale": 0.865,
+  "cx": 580.0,
+  "cy": 249.5
+ },
+ "eye_r_closed": {
+  "score": 0.966,
+  "scale": 1.19,
+  "cx": 504.5,
+  "cy": 53.0
+ },
+ "eye_r_open": {
+  "score": 0.947,
+  "scale": 0.85,
+  "cx": 449.5,
+  "cy": 256.0
+ },
+ "forearm_l": {
+  "score": 0.995,
+  "scale": 0.905,
+  "cx": 711.5,
+  "cy": 738.0
+ },
+ "forearm_r": {
+  "score": 0.993,
+  "scale": 0.79,
+  "cx": 362.5,
+  "cy": 710.5
+ },
+ "hair": {
+  "score": 0.904,
+  "scale": 0.54,
+  "cx": 517.0,
+  "cy": 324.5
+ },
+ "hand_l_open": {
+  "score": 0.993,
+  "scale": 0.54,
+  "cx": 518.5,
+  "cy": 221.0
+ },
+ "hand_r_grasp": {
+  "score": 0.992,
+  "scale": 0.6,
+  "cx": 529.5,
+  "cy": 357.5
+ },
+ "hand_r_open": {
+  "score": 0.993,
+  "scale": 0.54,
+  "cx": 513.5,
+  "cy": 219.0
+ },
+ "hand_r_point": {
+  "score": 0.995,
+  "scale": 0.54,
+  "cx": 544.0,
+  "cy": 364.0
+ },
+ "head": {
+  "score": 0.99,
+  "scale": 0.54,
+  "cx": 523.0,
+  "cy": 354.5
+ },
+ "mouth_happy": {
+  "score": 0.902,
+  "scale": 0.66,
+  "cx": 520.5,
+  "cy": 407.0
+ },
+ "mouth_o": {
+  "score": 0.933,
+  "scale": 0.68,
+  "cx": 472.5,
+  "cy": 189.0
+ },
+ "mouth_smile": {
+  "score": 0.993,
+  "scale": 1.1,
+  "cx": 517.0,
+  "cy": 336.0
+ },
+ "mouth_talk": {
+  "score": 0.911,
+  "scale": 0.54,
+  "cx": 423.0,
+  "cy": 151.0
+ },
+ "shin_l": {
+  "score": 0.992,
+  "scale": 1.085,
+  "cx": 637.0,
+  "cy": 1327.0
+ },
+ "shin_r": {
+  "score": 0.993,
+  "scale": 1.03,
+  "cx": 412.5,
+  "cy": 1329.0
+ },
+ "thigh_l": {
+  "score": 0.997,
+  "scale": 1.01,
+  "cx": 601.0,
+  "cy": 1064.0
+ },
+ "thigh_r": {
+  "score": 0.997,
+  "scale": 0.87,
+  "cx": 450.0,
+  "cy": 1082.5
+ },
+ "torso": {
+  "score": 0.979,
+  "scale": 0.915,
+  "cx": 532.5,
+  "cy": 666.0
+ },
+ "upperarm_l": {
+  "score": 0.992,
+  "scale": 0.75,
+  "cx": 704.0,
+  "cy": 760.5
+ },
+ "upperarm_r": {
+  "score": 0.992,
+  "scale": 0.84,
+  "cx": 588.5,
+  "cy": 554.5
+ }
+}
