@@ -88,3 +88,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-16-start-assessment-content-only-tasks-and-character-walkthrough.md`
   summary: Task-name audio on the child task start screen (with the audio generation at the end of the project).
   evidence: start screen shows the task name as text only.
+
+## Zone auto-suggest (owner request 2026-11-14)
+
+- Owner wants BOTH manual drawing (Story 3.3, done) and an AI "suggest zones" button in the zone editor: AI proposes mat/sink/place rectangles, the therapist confirms or redraws. Never saved without confirmation.
+- Constraints: setup frame must contain no child (prompt the therapist to clear the view); only send a downscaled frame without identifiers; check that the proxy model accepts images and returns usable boxes — measure accuracy before shipping; fall back to manual drawing on any doubt or error.
+- Planned slot: after Story 3.6 (proxy client exists), as a small story in Epic 3 or the Epic 3 UI/UX pass.
