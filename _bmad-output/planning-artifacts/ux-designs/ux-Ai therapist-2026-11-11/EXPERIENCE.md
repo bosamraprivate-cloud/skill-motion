@@ -174,3 +174,10 @@ Replay & evaluation → import clips → app scores → Blind review (verdict hi
 ## Responsive & Platform
 
 Landscape tablets 8–11 inch only; portrait is locked. Layout scales by width class (medium/expanded); child zones keep proportions. No phone layout in v1.
+
+## Therapist information architecture (agreed 2026-11-13)
+
+- Rail: **Children** (home: Continue card, child list, quick start) and **Settings** (PIN, proxy, zones, export, and an "Advanced tools" section with Diagnostics, Replay & evaluation — debug builds only).
+- Child profile tabs: **Overview** (avatar, name, age, last session, primary "Start" → assessment or training), **Sessions** (history → session detail with per-step levels, evidence, Correct), **Report** (domain averages, strengths/needs), **Plan** (activities, start training), **Progress** (compare, training history). Tabs whose content arrives in a later epic show a calm empty state.
+- After every child-mode session, the PIN returns to a **session summary** (each step and its level, Correct), then to the child's Overview.
+- New child: after save, open Overview with "Start first assessment".
