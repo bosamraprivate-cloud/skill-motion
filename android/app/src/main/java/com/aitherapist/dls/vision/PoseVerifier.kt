@@ -1,23 +1,21 @@
 package com.aitherapist.dls.vision
 
-import com.aitherapist.dls.catalog.Check
 import com.aitherapist.dls.catalog.LandmarkRef
 import com.aitherapist.dls.catalog.Side
 import com.aitherapist.dls.catalog.Step
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.math.roundToLong
 
 /**
  * Local verifier for pose steps (AD-3, FR-18). Runs [VisibilityGate] first, then evaluates the step's
- * check over the attempt's landmark frames. This story evaluates only `distanceBelow`; every other
- * check type returns `CANNOT_TELL` / `not_judgeable`. Never throws.
+ * check over the attempt's landmark frames via [CheckEvaluator] (all body check types; hand and cloud
+ * checks return `CANNOT_TELL` / `not_judgeable`). Zones come from [VerifyContext]. Never throws.
  */
 class PoseVerifier(private val clockMs: () -> Long = { System.nanoTime() / NANOS_PER_MS }) : Verifier {
     override suspend fun verify(step: Step, frames: List<Frame>, landmarks: List<LandmarkFrame>, ctx: VerifyContext): Verdict {
         val start = clockMs()
         val (outcome, reason) =
             try {
-                evaluate(step, landmarks)
+                evaluate(step, landmarks, ctx.zones)
             } catch (e: CancellationException) {
                 throw e
             } catch (
@@ -29,47 +27,11 @@ class PoseVerifier(private val clockMs: () -> Long = { System.nanoTime() / NANOS
     }
 
     /** Pure evaluation; may throw on malformed content (caught by [verify]). */
-    fun evaluate(step: Step, landmarks: List<LandmarkFrame>): Pair<Outcome, String> {
-        val check = step.check as? Check.DistanceBelow ?: return Outcome.CANNOT_TELL to VerdictReason.NOT_JUDGEABLE
-        val sides = candidateSides(check.side)
-        val alternatives =
-            sides.map { side ->
-                setOf(PoseLandmarkIndex.LEFT_SHOULDER, PoseLandmarkIndex.RIGHT_SHOULDER) +
-                    indices(check.a, side) + indices(check.b, side)
-            }
-        val visibleSides = sides.zip(alternatives).filter { (_, needed) -> VisibilityGate.passes(landmarks, listOf(needed)) }
-        if (visibleSides.isEmpty()) return Outcome.CANNOT_TELL to VerdictReason.OUT_OF_FRAME
-
-        val holdMs = (check.holdSec * MS_PER_SEC).roundToLong()
-        val ordered = landmarks.sortedBy { it.timestampMs }
-        val met =
-            visibleSides.any { (side, needed) ->
-                holdsContinuously(ordered, holdMs) { frame ->
-                    VisibilityGate.visibleIn(frame, needed) && distanceBelow(frame.pose!!, check, side)
-                }
-            }
-        if (met) return Outcome.DONE to VerdictReason.CHECK_PASSED
-        // Doubt is never failure: an unseen stretch long enough to hide the hold means we cannot tell.
-        val seen: (LandmarkFrame) -> Boolean = { frame -> visibleSides.any { (_, needed) -> VisibilityGate.visibleIn(frame, needed) } }
-        if (holdsContinuously(ordered, holdMs) { !seen(it) }) return Outcome.CANNOT_TELL to VerdictReason.OUT_OF_FRAME
-        val measurable = ordered.any { seen(it) && shoulderWidth(it.pose!!) > 0.0 }
-        if (!measurable) return Outcome.CANNOT_TELL to VerdictReason.NOT_JUDGEABLE
-        return Outcome.NOT_DONE to VerdictReason.CHECK_FAILED
-    }
-
-    private fun shoulderWidth(pose: List<LandmarkPoint>) =
-        Geometry.shoulderWidth(pose[PoseLandmarkIndex.LEFT_SHOULDER], pose[PoseLandmarkIndex.RIGHT_SHOULDER])
-
-    private fun distanceBelow(pose: List<LandmarkPoint>, check: Check.DistanceBelow, side: Side?): Boolean {
-        val width = shoulderWidth(pose)
-        val distance = Geometry.distance(point(pose, check.a, side), point(pose, check.b, side))
-        val ratio = Geometry.ratio(distance, width) ?: return false // zero shoulder width: frame does not pass
-        return ratio <= check.ratio
-    }
+    fun evaluate(step: Step, landmarks: List<LandmarkFrame>, zones: Map<String, Zone> = emptyMap()): Pair<Outcome, String> =
+        CheckEvaluator.evaluate(step.check, landmarks, zones)
 
     private companion object {
         const val NANOS_PER_MS = 1_000_000L
-        const val MS_PER_SEC = 1_000.0
     }
 }
 

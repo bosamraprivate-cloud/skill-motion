@@ -2,7 +2,8 @@
 title: 'Story 3.1: All body Check evaluators'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'done'
+baseline_commit: '51dd480a4889a1955eba2d7d31b7dad5ce0c5886'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -52,11 +53,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `vision/CheckEvaluator.kt` -- evaluate(check, landmarks, zones) → (Outcome, reason) for all six body types.
-- [ ] `vision/PoseVerifier.kt` -- delegate; zones from `VerifyContext`.
-- [ ] `Verifier.kt` -- `VerdictReason.NO_ZONE`; `VerifyContext.zones` (plain map) if missing.
-- [ ] `test/.../vision/CheckEvaluationTest.kt` -- every matrix row for every type (synthetic landmark builders).
-- [ ] kover filter.
+- [x] `vision/CheckEvaluator.kt` -- evaluate(check, landmarks, zones) → (Outcome, reason) for all six body types.
+- [x] `vision/PoseVerifier.kt` -- delegate; zones from `VerifyContext`.
+- [x] `Verifier.kt` -- `VerdictReason.NO_ZONE`; `VerifyContext.zones` (plain map) if missing.
+- [x] `test/.../vision/CheckEvaluationTest.kt` -- every matrix row for every type (synthetic landmark builders).
+- [x] kover filter.
 
 **Acceptance Criteria:**
 - Given the gate, when `./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` runs, then it passes.
@@ -66,6 +67,18 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route |
+|---|---|---|---|
+| 1 | either-side doubt judged across sides, hidden side → NOT_DONE | high | patch (per-side doubt) |
+| 2 | NaN values count as failure | high | patch |
+| 3 | frame gaps / short series → NOT_DONE | high | patch |
+| 4 | inverted or zero-area zone always fails | medium | patch (normalise; degenerate → no_zone) |
+| 5 | holdSec <= 0 makes one dropout → out_of_frame | medium | patch |
+| 6 | out_of_frame and hold-boundary tests weak | medium | patch tests |
+| 7 | angle strict vs distance inclusive boundary | low | kept (design says above/below; equality negligible) |
+| 8 | side-less name / unknown name throws → not_judgeable | low | safe for child; catalogue validation in builder; deferred |
+| 9 | Mid with >2 names measures only two | low | no such catalogue check today; deferred |
 
 ## Verification
 

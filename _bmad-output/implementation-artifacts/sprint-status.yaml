@@ -64,7 +64,7 @@ development_status:
   epic-2-retrospective: optional
 
   epic-3: in-progress
-  3-1-all-body-check-evaluators: backlog
+  3-1-all-body-check-evaluators: review
   3-2-hand-verifier-and-hands-rubbing: backlog
   3-3-detector-settings-for-the-41-steps-and-setup-zones: backlog
   3-4-framing-check-screen: backlog
