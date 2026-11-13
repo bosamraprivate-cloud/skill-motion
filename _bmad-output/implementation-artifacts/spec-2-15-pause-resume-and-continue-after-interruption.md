@@ -2,7 +2,7 @@
 title: 'Story 2.15: Pause, resume and continue after interruption'
 type: 'feature'
 created: '2026-11-13'
-status: 'in-review'
+status: 'done'
 baseline_commit: '8ad3ba61392a37948a62e8ebdf2bdda696385d2c'
 route: 'dispatch'
 review_loop_iteration: 0
