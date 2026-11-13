@@ -5,6 +5,7 @@ import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.data.AttemptEntity
 import com.aitherapist.dls.data.AttemptVerdict
 import com.aitherapist.dls.data.SessionEntity
+import com.aitherapist.dls.data.SessionKind
 import com.aitherapist.dls.data.SessionState
 import com.aitherapist.dls.data.SessionStore
 import com.aitherapist.dls.data.VerifierKind
@@ -24,6 +25,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,6 +36,7 @@ class AssessmentRunnerTest {
 
     private inner class FakeStore : SessionStore {
         var session: SessionEntity? = null
+        val sessions = linkedMapOf<String, SessionEntity>()
         val rows = mutableListOf<AttemptEntity>()
         var failNext = 0
         var failRow = false
@@ -48,12 +51,14 @@ class AssessmentRunnerTest {
         override suspend fun add(session: SessionEntity) {
             maybeFail()
             this.session = session
+            sessions[session.id] = session
             log += "save"
         }
 
         override suspend fun update(session: SessionEntity) {
             maybeFail()
             this.session = session
+            sessions[session.id] = session
             log += "save"
         }
 
@@ -65,6 +70,10 @@ class AssessmentRunnerTest {
             }
             rows += attempt
             log += "save"
+        }
+
+        override suspend fun resumable(childId: String) = sessions.values.filter {
+            it.childId == childId && (it.state == SessionState.RUNNING || it.state == SessionState.PAUSED)
         }
 
         override suspend fun attempts(sessionId: String, stepId: String) = rows.filter { it.sessionId == sessionId && it.stepId == stepId }
@@ -391,5 +400,204 @@ class AssessmentRunnerTest {
                 else -> assertEquals("$entry emitted without a save: $log", "save", log[i - 1])
             }
         }
+    }
+
+    private fun saved(
+        id: String = "sess",
+        childId: String = "child",
+        state: SessionState = SessionState.RUNNING,
+        stepIndex: Int = 0,
+        attempt: Int = 1,
+        level: Int = 1
+    ) = SessionEntity(
+        id = id,
+        childId = childId,
+        taskId = "task",
+        kind = SessionKind.ASSESSMENT,
+        state = state,
+        startedAt = 10,
+        endedAt = null,
+        catalogVersion = "cat-1",
+        rulesVersion = RulesEngine.RULES_VERSION,
+        stepIndex = stepIndex,
+        attemptNumber = attempt,
+        promptLevel = level
+    ).also { store.sessions[it.id] = it }
+
+    @Test
+    fun `pause mid attempt saves paused, writes no row and ignores child input`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.pause()
+        assertEquals(RunnerState.Paused(0, "s1", PromptState()), r.state.value)
+        assertEquals(SessionState.PAUSED, store.session!!.state)
+        now += 60_000
+        r.onEvent(RunnerEvent.Done)
+        r.onEvent(RunnerEvent.Tick)
+        r.onEvent(RunnerEvent.Help)
+        assertTrue(store.rows.isEmpty())
+        assertTrue(r.state.value is RunnerState.Paused)
+    }
+
+    @Test
+    fun `resume restarts the attempt at the same prompt level and saves running`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.onEvent(RunnerEvent.Help)
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.pause()
+        r.resume()
+        val prompt = PromptState(level = 2, helpPressed = true, attempt = 1)
+        assertEquals(RunnerState.Listen(0, "s1", prompt), r.state.value)
+        assertEquals(SessionState.RUNNING, store.session!!.state)
+        assertEquals(2, store.session!!.promptLevel)
+        r.attemptDone()
+        assertEquals(1, store.rows.size)
+        assertEquals(2, store.rows.single().promptLevel)
+        assertTrue(store.rows.single().helpPressed)
+        r.resume()
+        assertEquals(1, stepIndex(r))
+    }
+
+    @Test
+    fun `pause before start or after finish does nothing`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE), steps = listOf(Step("s1", Method.POSE)))
+        r.pause()
+        assertEquals(RunnerState.Idle, r.state.value)
+        r.start()
+        r.attemptDone()
+        r.pause()
+        assertEquals(RunnerState.Finished, r.state.value)
+        assertEquals(SessionState.DONE, store.session!!.state)
+    }
+
+    @Test
+    fun `restore continues at the saved step, attempt and level and keeps earlier rows`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE, Outcome.NOT_DONE))
+        r.start()
+        r.attemptDone() // s1 done
+        r.attemptDone() // s2 not done -> attempt 2 at level 2
+        val before = store.session!!
+        assertEquals(1, before.stepIndex)
+        assertEquals(2, before.attemptNumber)
+        // Process death: the session row stays running; a new runner restores it.
+        val restored = runner(FakeVerifier(Outcome.DONE))
+        assertTrue(restored.restore(before))
+        assertEquals(RunnerState.Listen(1, "s2", PromptState(level = 2, attempt = 2)), restored.state.value)
+        assertEquals(2, store.rows.size)
+        restored.attemptDone()
+        assertEquals(RunnerState.Finished, restored.state.value)
+        assertEquals(listOf(1, 2), rowsFor("s2").map { it.number })
+    }
+
+    @Test
+    fun `restore of a paused session after help infers help pressed and saves running`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        assertTrue(r.restore(saved(state = SessionState.PAUSED, level = 2)))
+        assertEquals(RunnerState.Listen(0, "s1", PromptState(level = 2, helpPressed = true, attempt = 1)), r.state.value)
+        assertEquals(SessionState.RUNNING, store.sessions["sess"]!!.state)
+    }
+
+    @Test
+    fun `corrupt resume point abandons the session`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        assertFalse(r.restore(saved(stepIndex = 5)))
+        assertEquals(RunnerState.Idle, r.state.value)
+        assertEquals(SessionState.ABANDONED, store.sessions["sess"]!!.state)
+    }
+
+    @Test
+    fun `finished session is not restored`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        assertFalse(r.restore(saved(state = SessionState.DONE)))
+        assertEquals(RunnerState.Idle, r.state.value)
+    }
+
+    @Test
+    fun `new run abandons the child's running or paused session only`() = runTest {
+        saved(id = "old1", state = SessionState.PAUSED)
+        saved(id = "old2", state = SessionState.DONE)
+        saved(id = "other", childId = "child2", state = SessionState.RUNNING)
+        runner(FakeVerifier(Outcome.DONE)).start()
+        assertEquals(SessionState.ABANDONED, store.sessions["old1"]!!.state)
+        assertEquals(SessionState.DONE, store.sessions["old2"]!!.state)
+        assertEquals(SessionState.RUNNING, store.sessions["other"]!!.state)
+        assertEquals(SessionState.RUNNING, store.sessions["sess"]!!.state)
+    }
+
+    @Test
+    fun `abandon also ends a paused session`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        r.pause()
+        r.abandon()
+        assertEquals(SessionState.ABANDONED, store.session!!.state)
+    }
+
+    @Test
+    fun `failed add keeps the old session resumable until the new one is saved`() = runTest {
+        saved(id = "old", state = SessionState.PAUSED)
+        val r = runner(FakeVerifier(Outcome.DONE))
+        store.failNext = 1
+        r.start()
+        assertTrue(r.state.value is RunnerState.Error)
+        assertEquals(SessionState.PAUSED, store.sessions["old"]!!.state)
+        r.onEvent(RunnerEvent.Retry)
+        assertEquals(SessionState.ABANDONED, store.sessions["old"]!!.state)
+        assertEquals(SessionState.RUNNING, store.sessions["sess"]!!.state)
+        assertEquals(0, stepIndex(r))
+    }
+
+    @Test
+    fun `restore of another task or catalogue version abandons the session`() = runTest {
+        for (changed in listOf(saved().copy(taskId = "other"), saved().copy(catalogVersion = "cat-2"))) {
+            store.sessions[changed.id] = changed
+            val r = runner(FakeVerifier(Outcome.DONE))
+            assertFalse(r.restore(changed))
+            assertEquals(RunnerState.Idle, r.state.value)
+            assertEquals(SessionState.ABANDONED, store.sessions["sess"]!!.state)
+        }
+    }
+
+    @Test
+    fun `pause while judging waits for the verdict and records exactly one row`() = runTest {
+        val hanging =
+            object : Verifier {
+                override suspend fun verify(step: Step, frames: List<Frame>, landmarks: List<LandmarkFrame>, ctx: VerifyContext): Verdict =
+                    awaitCancellation()
+            }
+        val r = runner(hanging)
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        val judging = launch { r.onEvent(RunnerEvent.Done) }
+        val pausing = launch { r.pause() }
+        judging.join()
+        pausing.join()
+        assertEquals(1, store.rows.size)
+        assertEquals(RunnerState.Paused(0, "s1", PromptState()), r.state.value)
+        r.resume()
+        assertEquals(RunnerState.Listen(0, "s1", PromptState()), r.state.value)
+        assertEquals(1, store.rows.size)
+    }
+
+    @Test
+    fun `pause during a save error shows paused and resume works`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        store.failNext = 1
+        r.onEvent(RunnerEvent.AudioEnded)
+        assertTrue(r.state.value is RunnerState.Error)
+        r.pause()
+        assertEquals(RunnerState.Paused(0, "s1", PromptState()), r.state.value)
+        assertEquals(SessionState.PAUSED, store.session!!.state)
+        r.onEvent(RunnerEvent.Retry)
+        assertTrue(r.state.value is RunnerState.Paused)
+        r.resume()
+        assertEquals(RunnerState.Listen(0, "s1", PromptState()), r.state.value)
+        r.attemptDone()
+        assertEquals(1, store.rows.size)
+        assertEquals(1, stepIndex(r))
     }
 }

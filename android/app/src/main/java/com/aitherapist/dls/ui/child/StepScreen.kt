@@ -66,7 +66,18 @@ import kotlinx.coroutines.withTimeoutOrNull
  */
 @Composable
 fun StepScreen(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdultCorner: () -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxSize().background(ChildColors.Canvas).padding(Spacing.S5)) {
+    Box(modifier.fillMaxSize()) {
+        StepContent(state, onEvent, onAdultCorner)
+        // Adult pause: a calm dim over everything, no text. It takes no touches, so the adult corner still works.
+        if ((state as? StepUiState.Step)?.paused == true) {
+            Box(Modifier.fillMaxSize().background(ChildColors.Ink.copy(alpha = PAUSE_DIM_ALPHA)))
+        }
+    }
+}
+
+@Composable
+private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdultCorner: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().background(ChildColors.Canvas).padding(Spacing.S5)) {
         TopBand(state, onAdultCorner)
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (state) {
@@ -91,7 +102,7 @@ private fun TopBand(state: StepUiState, onAdultCorner: () -> Unit) {
     }
 }
 
-/** Small low-contrast target; only a 2 s press opens the PIN. */
+/** Small low-contrast target; only a 2 s press opens the adult pause sheet. */
 @Composable
 private fun AdultCorner(onLongPress: () -> Unit) {
     val label = stringResource(R.string.child_adult_corner)
@@ -238,6 +249,7 @@ private fun WaitVisual(modifier: Modifier = Modifier) {
 
 private const val VISUAL_WEIGHT = 0.6f
 private const val DIMMED_ALPHA = 0.4f
+private const val PAUSE_DIM_ALPHA = 0.45f
 private const val ADULT_HOLD_MS = 2_000L
 private const val WAIT_BREATH_MS = 1_800
 

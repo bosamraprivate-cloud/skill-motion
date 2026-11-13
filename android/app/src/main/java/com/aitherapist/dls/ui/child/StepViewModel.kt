@@ -7,7 +7,9 @@ import com.aitherapist.dls.audio.AudioPlayer
 import com.aitherapist.dls.catalog.CatalogRepository
 import com.aitherapist.dls.catalog.CatalogStep
 import com.aitherapist.dls.catalog.CharacterVariant
+import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.data.ChildProfiles
+import com.aitherapist.dls.data.ResumableSessions
 import com.aitherapist.dls.session.AssessmentRunner
 import com.aitherapist.dls.session.AssessmentRunnerFactory
 import com.aitherapist.dls.session.Clock
@@ -50,20 +52,27 @@ constructor(
     private val children: ChildProfiles,
     private val characters: CharacterIndexSource,
     private val runners: AssessmentRunnerFactory,
+    private val sessions: ResumableSessions,
     private val audio: AudioPlayer,
     private val keys: ChildModeKeys,
     private val clock: Clock,
-    /** Outlives this ViewModel: marks the session abandoned after the step screen is gone. */
+    /** Outlives this ViewModel: saves the session `paused` after the step screen is gone. */
     private val outerScope: CoroutineScope
 ) : ViewModel() {
     private val state = MutableStateFlow<StepUiState>(StepUiState.Waiting)
     val uiState: StateFlow<StepUiState> = state.asStateFlow()
+
+    private val sheet = MutableStateFlow(false)
+
+    /** The adult pause sheet (Pause / Resume / Exit) is open. */
+    val adultSheet: StateFlow<Boolean> = sheet.asStateFlow()
 
     private val doneDebouncer = DoneDebouncer(clock)
     private val helpDebouncer = DoneDebouncer(clock)
     private val repeatDebouncer = DoneDebouncer(clock)
     private var paused = false
     private var started = false
+    private var ended = false
     private var runner: AssessmentRunner? = null
     private var steps: List<CatalogStep> = emptyList()
     private var variant: CharacterVariant? = null
@@ -81,19 +90,28 @@ constructor(
         viewModelScope.launch { keys.events.collect { onEvent(StepEvent.Done) } }
     }
 
-    /** Starts a new assessment session for [childId] on [taskId]; later calls are ignored. */
-    fun start(childId: String, taskId: String) {
+    /**
+     * Starts a new assessment session for [childId] on [taskId], or continues the saved session [sessionId]
+     * (Story 2.15); later calls are ignored.
+     */
+    fun start(childId: String, taskId: String, sessionId: String? = null) {
         if (started) return
         started = true
         viewModelScope.launch {
             try {
                 val loaded = catalog.load().getOrThrow()
                 val child = requireNotNull(children.get(childId)) { "child missing" }
-                val task = requireNotNull(loaded.tasks.firstOrNull { it.id == taskId }) { "task missing" }
+                val task = loaded.tasks.firstOrNull { it.id == taskId }
                 variantId = child.characterVariant.name.lowercase(Locale.ROOT)
                 variant = runCatching { characters.load().variants.firstOrNull { it.id == variantId } }.getOrNull()
-                steps = task.steps
-                val created = runners.create(childId, taskId, loaded.catalogVersion, task.steps.map { it.toStep() })
+                steps = task?.steps.orEmpty()
+                val runSteps = steps.map { it.toStep() }
+                if (sessionId != null) {
+                    continueRun(childId, taskId, sessionId, loaded.catalogVersion, runSteps)
+                    return@launch
+                }
+                requireNotNull(task) { "task missing" }
+                val created = runners.create(childId, taskId, loaded.catalogVersion, runSteps)
                 runner = created
                 launch { created.state.collect { sync() } }
                 created.start()
@@ -105,10 +123,40 @@ constructor(
             ) {
                 // Type only, no data. runCatching: android.util.Log is not available in plain unit tests.
                 runCatching { Log.w(TAG, "child mode load failed: ${e::class.simpleName}") }
-                // The child only ever sees the calm wait visual; the adult leaves through the adult corner.
-                state.value = StepUiState.Waiting
+                if (sessionId != null) {
+                    // A continue that cannot load ends calmly; the saved session is abandoned so its card goes away.
+                    runCatching { sessions.session(sessionId)?.let { runners.restore(it, "", "", emptyList()).restore(it) } }
+                    endCalmly()
+                } else {
+                    // The child only ever sees the calm wait visual; the adult leaves through the adult corner.
+                    state.value = StepUiState.Waiting
+                }
             }
         }
+    }
+
+    /**
+     * Continues saved session [sessionId]. A missing session, or one whose task, catalogue version or resume point
+     * no longer fits, is abandoned (the runner does it) and the child sees the calm end visual.
+     */
+    private suspend fun continueRun(childId: String, taskId: String, sessionId: String, catalogVersion: String, runSteps: List<Step>) {
+        val saved = sessions.session(sessionId)?.takeIf { it.childId == childId }
+        val created = saved?.let { runners.restore(it, taskId, catalogVersion, runSteps) }
+        if (saved == null || created == null || !created.restore(saved)) {
+            // Type only, no data.
+            runCatching { Log.w(TAG, "resume point invalid") }
+            endCalmly()
+            return
+        }
+        runner = created
+        viewModelScope.launch { created.state.collect { sync() } }
+        sync()
+    }
+
+    /** No run: the calm end visual until the adult leaves. */
+    private fun endCalmly() {
+        ended = true
+        state.value = StepUiState.Finished(reaction(IDLE))
     }
 
     fun onEvent(event: StepEvent) {
@@ -122,6 +170,43 @@ constructor(
             StepEvent.Help -> if (helpDebouncer.accept()) send(current, RunnerEvent.Help)
             StepEvent.Repeat -> if (repeatDebouncer.accept()) send(current, RunnerEvent.Repeat)
         }
+    }
+
+    /** Adult corner held 2 s: open the pause sheet. */
+    fun openAdultSheet() {
+        sheet.value = true
+    }
+
+    fun dismissAdultSheet() {
+        sheet.value = false
+    }
+
+    /** Sheet Pause: freeze the attempt (no row), save `paused`, dim the screen. */
+    fun pause() {
+        sheet.value = false
+        val target = runner ?: return
+        viewModelScope.launch {
+            target.pause()
+            sync()
+        }
+    }
+
+    /** Sheet Resume: the current attempt restarts from its beginning at the same prompt level. */
+    fun resume() {
+        sheet.value = false
+        val target = runner ?: return
+        viewModelScope.launch {
+            target.resume()
+            sync()
+        }
+    }
+
+    /** Sheet Exit: suspends until the session is saved `paused` (it stays resumable); the caller then opens the PIN. */
+    suspend fun exit() {
+        sheet.value = false
+        val target = runner ?: return
+        target.pause()
+        sync()
     }
 
     /**
@@ -254,22 +339,25 @@ constructor(
                 }
             }
         val listening = current is RunnerState.Listen && audioPlaying
+        val paused = current is RunnerState.Paused
         val reactionState =
             when {
+                paused -> IDLE
                 level >= 2 -> POINT
                 listening -> TALK
                 else -> IDLE
             }
         // Level 3 shows the moving demonstration large; the reaction character hides so only one clip moves.
-        val hideReaction = visual != null && level >= PromptState.MAX_LEVEL
+        val hideReaction = !paused && visual != null && level >= PromptState.MAX_LEVEL
         return StepUiState.Step(
             stepIndex = current.stepIndex,
             stepCount = steps.size,
             sentence = step.textAr,
-            visual = visual,
+            visual = if (paused) visual?.copy(animate = false) else visual,
             reactionClip = if (hideReaction) null else reaction(reactionState),
             doneEnabled = current is RunnerState.Attempt,
-            promptLevel = level
+            promptLevel = level,
+            paused = paused
         )
     }
 
@@ -282,7 +370,8 @@ constructor(
 
     override fun onCleared() {
         audio.stop()
-        runner?.let { target -> outerScope.launch { target.abandon() } }
+        // Leaving child mode (Exit + PIN) keeps the session resumable: it is saved `paused`, never abandoned.
+        runner?.let { target -> outerScope.launch { target.pause() } }
     }
 
     companion object {

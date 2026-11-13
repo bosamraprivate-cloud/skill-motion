@@ -28,7 +28,10 @@ private const val NEW_CHILD = "new"
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun ChildrenRoute(modifier: Modifier = Modifier) {
+fun ChildrenRoute(
+    modifier: Modifier = Modifier,
+    onContinue: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> }
+) {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val scope = rememberCoroutineScope()
     val detailKey = navigator.currentDestination?.contentKey
@@ -45,7 +48,7 @@ fun ChildrenRoute(modifier: Modifier = Modifier) {
         modifier = modifier,
         listPane = {
             AnimatedPane {
-                ChildListRoute(selectedId = detailKey, onSelect = ::open, onAdd = { open(NEW_CHILD) })
+                ChildListRoute(selectedId = detailKey, onSelect = ::open, onAdd = { open(NEW_CHILD) }, onContinue = onContinue)
             }
         },
         detailPane = {

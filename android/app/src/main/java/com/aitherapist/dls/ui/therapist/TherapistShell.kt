@@ -48,12 +48,13 @@ fun TherapistShell(
     onOpenSample: () -> Unit,
     onOpenCharacterPreview: () -> Unit,
     modifier: Modifier = Modifier,
-    onOpenChildMode: (childId: String, taskId: String) -> Unit = { _, _ -> }
+    onOpenChildMode: (childId: String, taskId: String) -> Unit = { _, _ -> },
+    onContinueSession: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> }
 ) {
     var selected by rememberSaveable { mutableStateOf(ShellDestination.CHILDREN) }
     TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier) { destination ->
         when (destination) {
-            ShellDestination.CHILDREN -> ChildrenRoute()
+            ShellDestination.CHILDREN -> ChildrenRoute(onContinue = onContinueSession)
             ShellDestination.REPLAY -> PlaceholderDestination(Icons.Filled.PlayArrow, stringResource(R.string.replay_empty))
             ShellDestination.DIAGNOSTICS -> DiagnosticsRoute(
                 onOpenSample = onOpenSample,

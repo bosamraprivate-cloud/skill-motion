@@ -110,16 +110,116 @@ class AssessmentRunner(
                 promptLevel = PromptState.MIN_LEVEL
             )
         guarded {
-            store.add(first)
-            session = first
+            // Save the new session first (a failed add keeps the old one resumable), then abandon older ones:
+            // at most one running/paused session per child.
+            if (session == null) {
+                store.add(first)
+                session = first
+            }
+            store.resumable(childId).filter { it.id != sessionId }.forEach {
+                store.update(it.copy(state = SessionState.ABANDONED, endedAt = now))
+            }
             if (steps.isEmpty()) mutableState.value = RunnerState.Finished else enterPrompt(0, PromptState())
         }
     }
 
-    /** Child mode left before the end: a running session becomes `abandoned`. A failed save is ignored (stays running). */
+    /**
+     * Continues a saved running/paused session ([sessionId] must be its id): the interrupted attempt restarts from
+     * LISTEN at the saved step, attempt number and prompt level; earlier rows are kept. A resume point outside the
+     * task, another task or another catalogue version marks the session `abandoned` and returns false (the runner
+     * stays [RunnerState.Idle]).
+     */
+    suspend fun restore(saved: SessionEntity): Boolean = serialized {
+        if (mutableState.value != RunnerState.Idle || saved.id != sessionId) return@serialized false
+        if (saved.state != SessionState.RUNNING && saved.state != SessionState.PAUSED) return@serialized false
+        val index = saved.stepIndex
+        val valid =
+            saved.taskId == taskId &&
+                saved.catalogVersion == catalogVersion &&
+                index in steps.indices &&
+                saved.attemptNumber >= 1 &&
+                saved.promptLevel in PromptState.MIN_LEVEL..PromptState.MAX_LEVEL
+        if (!valid) {
+            quietly { store.update(saved.copy(state = SessionState.ABANDONED, endedAt = wallClock.nowMs())) }
+            return@serialized false
+        }
+        session = saved
+        guarded {
+            val prompt =
+                PromptState(
+                    level = saved.promptLevel,
+                    helpPressed = saved.promptLevel > baseLevel(store.attempts(sessionId, steps[index].id), saved.attemptNumber),
+                    attempt = saved.attemptNumber
+                )
+            val running = saved.copy(state = SessionState.RUNNING)
+            store.update(running)
+            session = running
+            enterPrompt(index, prompt)
+        }
+        true
+    }
+
+    /** Adult pause: the open window is dropped (no row), the session is saved `paused`, then [RunnerState.Paused] shows. */
+    suspend fun pause() = serialized {
+        val current = mutableState.value
+        if (current is RunnerState.Error) {
+            // A save is failing: try to mark the session paused anyway; on success the failed action is dropped
+            // (the attempt restarts on Resume) and the screen shows Paused.
+            val saved = session ?: return@serialized
+            if (saved.state != SessionState.RUNNING) return@serialized
+            val prev = current.previous as? RunnerState.OnStep
+            val paused =
+                prev?.let {
+                    saved.copy(
+                        state = SessionState.PAUSED,
+                        stepIndex = it.stepIndex,
+                        attemptNumber = it.prompt.attempt,
+                        promptLevel = it.prompt.level
+                    )
+                } ?: saved.copy(state = SessionState.PAUSED)
+            quietly {
+                store.update(paused)
+                session = paused
+                if (prev != null && prev !is RunnerState.Paused) {
+                    pending = null
+                    resetWindow()
+                    mutableState.value = RunnerState.Paused(prev.stepIndex, prev.stepId, prev.prompt)
+                }
+            }
+            return@serialized
+        }
+        // Judge: the verdict is being recorded; pausing then could drop or duplicate a row, so it is ignored.
+        if (current !is RunnerState.OnStep || current is RunnerState.Paused || current is RunnerState.Judge) return@serialized
+        guarded {
+            val paused =
+                requireNotNull(session).copy(
+                    state = SessionState.PAUSED,
+                    stepIndex = current.stepIndex,
+                    attemptNumber = current.prompt.attempt,
+                    promptLevel = current.prompt.level
+                )
+            store.update(paused)
+            session = paused
+            resetWindow()
+            mutableState.value = RunnerState.Paused(current.stepIndex, current.stepId, current.prompt)
+        }
+    }
+
+    /** Ends a pause: the session is saved `running` and the current attempt restarts from LISTEN at the same prompt. */
+    suspend fun resume() = serialized {
+        val current = mutableState.value as? RunnerState.Paused ?: return@serialized
+        guarded {
+            val running = requireNotNull(session).copy(state = SessionState.RUNNING)
+            store.update(running)
+            session = running
+            enterPrompt(current.stepIndex, current.prompt)
+        }
+    }
+
+    /** Child mode left before the end: a running or paused session becomes `abandoned`. A failed save is ignored. */
     suspend fun abandon() = serialized {
         val current = session ?: return@serialized
-        if (current.state != SessionState.RUNNING) return@serialized
+        if (current.state != SessionState.RUNNING && current.state != SessionState.PAUSED) return@serialized
         val abandoned = current.copy(state = SessionState.ABANDONED, endedAt = wallClock.nowMs())
         try {
             store.update(abandoned)
@@ -173,6 +273,26 @@ class AssessmentRunner(
         } catch (_: Exception) {
             pending = action
             mutableState.value = RunnerState.Error(before)
+        }
+    }
+
+    /** Runs [action] ignoring a store failure (the caller has nothing to show). */
+    private suspend fun quietly(action: suspend () -> Unit) {
+        try {
+            action()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // Left as it was; nothing is shown to the child.
+        }
+    }
+
+    /** Prompt level an attempt [number] starts at, given the step's saved rows (same rule as [advance]). */
+    private fun baseLevel(rows: List<AttemptEntity>, number: Int): Int {
+        val last = rows.lastOrNull() ?: return PromptState.MIN_LEVEL
+        return when {
+            last.verdict == AttemptVerdict.CANNOT_TELL && last.number == number -> last.promptLevel
+            else -> (last.promptLevel + 1).coerceAtMost(PromptState.MAX_LEVEL)
         }
     }
 

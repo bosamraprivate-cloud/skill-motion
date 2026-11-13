@@ -97,4 +97,13 @@ class AppGateViewModelTest {
         assertEquals(listOf(ShellKey), vm.backStack.toList())
         assertFalse(vm.childModeActive)
     }
+
+    @Test
+    fun `continue opens child mode for the saved session once`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.continueSession("c1", "t1", "s1")
+        vm.continueSession("c1", "t1", "s1")
+        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t1", "s1")), vm.backStack.toList())
+    }
 }

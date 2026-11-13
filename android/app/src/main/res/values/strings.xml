@@ -116,6 +116,13 @@
     <string name="child_help">Help</string>
     <string name="child_repeat">Repeat</string>
     <string name="child_adult_corner">Adult corner: press and hold</string>
+    <string name="adult_sheet_title">Adult menu</string>
+    <string name="adult_sheet_pause">Pause</string>
+    <string name="adult_sheet_resume">Resume</string>
+    <string name="adult_sheet_exit">Exit (PIN)</string>
+    <string name="children_continue_title">Continue interrupted session</string>
+    <string name="children_continue_item">%1$s · %2$s</string>
+    <string name="children_continue">Continue</string>
     <string name="diagnostics_try_step_screen">Try step screen</string>
     <string name="try_step_title">Try step screen</string>
     <string name="try_step_child">Child</string>

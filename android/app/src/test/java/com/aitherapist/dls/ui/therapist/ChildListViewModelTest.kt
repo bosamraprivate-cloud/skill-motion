@@ -1,8 +1,14 @@
 package com.aitherapist.dls.ui.therapist
 
+import com.aitherapist.dls.data.ResumableSessions
+import com.aitherapist.dls.data.SessionEntity
+import com.aitherapist.dls.data.SessionKind
+import com.aitherapist.dls.data.SessionState
 import com.aitherapist.dls.ui.therapist.FakeChildProfiles.Companion.child
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -79,5 +85,70 @@ class ChildListViewModelTest {
         repo.failReads = false
         vm.retry()
         assertEquals(listOf("1"), vm.ids())
+    }
+
+    private fun session(id: String, childId: String, state: SessionState = SessionState.PAUSED) = SessionEntity(
+        id = id,
+        childId = childId,
+        taskId = "t1",
+        kind = SessionKind.ASSESSMENT,
+        state = state,
+        startedAt = 0,
+        endedAt = null,
+        catalogVersion = "v",
+        rulesVersion = "r",
+        stepIndex = 2,
+        attemptNumber = 1,
+        promptLevel = 2
+    )
+
+    @Test
+    fun `continue card per child with a resumable session, never for eval or unknown children`() = runTest(dispatcher) {
+        val repo = FakeChildProfiles(child("1", "Mariam", "A1"), child("2", "Youssef", "B2"), child("e", "Eval", "EVAL", isEval = true))
+        val open = MutableStateFlow(listOf(session("s1", "1"), session("s0", "1"), session("se", "e"), session("sx", "gone")))
+        val sessions =
+            object : ResumableSessions {
+                override fun observeResumable() = open
+
+                override suspend fun session(id: String) = null
+            }
+        val vm = ChildListViewModel(repo, dispatcher, sessions)
+        backgroundScope.launch { vm.uiState.collect {} }
+        val cards = (vm.uiState.value as ChildListUiState.Content).continueRows
+        assertEquals(listOf(ContinueRow("s1", "1", "Mariam", "t1")), cards)
+        open.value = emptyList()
+        assertTrue("finished session: no card", (vm.uiState.value as ChildListUiState.Content).continueRows.isEmpty())
+    }
+
+    @Test
+    fun `search filters continue cards and a failing session query only hides them`() = runTest(dispatcher) {
+        val repo = FakeChildProfiles(child("1", "Mariam", "A1"), child("2", "Youssef", "B2"))
+        val open = MutableStateFlow(listOf(session("s1", "1"), session("s2", "2")))
+        val vm = ChildListViewModel(
+            repo,
+            dispatcher,
+            object : ResumableSessions {
+                override fun observeResumable() = open
+
+                override suspend fun session(id: String) = null
+            }
+        )
+        backgroundScope.launch { vm.uiState.collect {} }
+        vm.onQueryChange("you")
+        assertEquals(listOf("s2"), (vm.uiState.value as ChildListUiState.Content).continueRows.map { it.sessionId })
+
+        val failing = ChildListViewModel(
+            repo,
+            dispatcher,
+            object : ResumableSessions {
+                override fun observeResumable() = flow<List<SessionEntity>> { error("db") }
+
+                override suspend fun session(id: String) = null
+            }
+        )
+        backgroundScope.launch { failing.uiState.collect {} }
+        val content = failing.uiState.value as ChildListUiState.Content
+        assertEquals(listOf("1", "2"), content.children.map { it.id })
+        assertTrue(content.continueRows.isEmpty())
     }
 }

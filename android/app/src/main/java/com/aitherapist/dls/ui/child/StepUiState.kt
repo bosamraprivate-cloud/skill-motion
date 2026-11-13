@@ -18,7 +18,9 @@ sealed interface StepUiState {
         val reactionClip: String?,
         val doneEnabled: Boolean,
         val promptLevel: Int,
-        val stars: Int = 0
+        val stars: Int = 0,
+        /** Adult pause: the screen dims and the character idles; Done/Help/Repeat do nothing. */
+        val paused: Boolean = false
     ) : StepUiState
 
     /** Every step finished: calm end visual until the adult leaves through the PIN. */

@@ -88,7 +88,13 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         backStack.add(ChildModeKey(childId, taskId))
     }
 
-    /** Adult corner: the PIN screen above the step screen. */
+    /** Continue card: locked child mode continuing the saved session [sessionId] (Story 2.15). */
+    fun continueSession(childId: String, taskId: String, sessionId: String) {
+        if (childModeActive) return
+        backStack.add(ChildModeKey(childId, taskId, sessionId))
+    }
+
+    /** Adult pause sheet Exit: the PIN screen above the (paused) step screen. */
     fun openChildPin() {
         if (childStepOnTop) backStack.add(ChildPinKey)
     }

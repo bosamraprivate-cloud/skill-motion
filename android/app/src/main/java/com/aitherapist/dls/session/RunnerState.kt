@@ -24,6 +24,9 @@ sealed interface RunnerState {
     /** Window closed; the verifier runs. */
     data class Judge(override val stepIndex: Int, override val stepId: String, override val prompt: PromptState) : OnStep
 
+    /** Adult pause: no window, nothing judged; [AssessmentRunner.resume] restarts this attempt from LISTEN. */
+    data class Paused(override val stepIndex: Int, override val stepId: String, override val prompt: PromptState) : OnStep
+
     /** Every step finished; the session is `done`. */
     data object Finished : RunnerState
 

@@ -33,6 +33,9 @@ internal object DataModule {
     fun childProfiles(repository: ChildRepository): ChildProfiles = repository
 
     @Provides
+    fun resumableSessions(repository: SessionRepository): ResumableSessions = repository
+
+    @Provides
     @Singleton
     fun frameStore(@ApplicationContext context: Context, keys: KeyManager): FrameStore = FrameStore(context.filesDir, keys)
 

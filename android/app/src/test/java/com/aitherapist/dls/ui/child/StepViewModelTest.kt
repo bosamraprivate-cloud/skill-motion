@@ -16,6 +16,7 @@ import com.aitherapist.dls.catalog.StepDetector
 import com.aitherapist.dls.catalog.StepMedia
 import com.aitherapist.dls.data.AttemptEntity
 import com.aitherapist.dls.data.ChildCharacter
+import com.aitherapist.dls.data.ResumableSessions
 import com.aitherapist.dls.data.SessionEntity
 import com.aitherapist.dls.data.SessionKind
 import com.aitherapist.dls.data.SessionState
@@ -26,6 +27,7 @@ import com.aitherapist.dls.ui.therapist.FakeChildProfiles
 import com.aitherapist.dls.vision.NoneVerifier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -49,6 +51,7 @@ class StepViewModelTest {
 
     private class FakeStore : SessionStore {
         var session: SessionEntity? = null
+        val sessions = linkedMapOf<String, SessionEntity>()
         val rows = mutableListOf<AttemptEntity>()
         var failNext = 0
 
@@ -62,16 +65,22 @@ class StepViewModelTest {
         override suspend fun add(session: SessionEntity) {
             maybeFail()
             this.session = session
+            sessions[session.id] = session
         }
 
         override suspend fun update(session: SessionEntity) {
             maybeFail()
             this.session = session
+            sessions[session.id] = session
         }
 
         override suspend fun addAttempt(attempt: AttemptEntity) {
             maybeFail()
             rows += attempt
+        }
+
+        override suspend fun resumable(childId: String) = sessions.values.filter {
+            it.childId == childId && (it.state == SessionState.RUNNING || it.state == SessionState.PAUSED)
         }
 
         override suspend fun attempts(sessionId: String, stepId: String) = rows.filter { it.stepId == stepId }
@@ -110,7 +119,16 @@ class StepViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun vm(vararg steps: CatalogStep): StepViewModel {
+    private val resumable =
+        object : ResumableSessions {
+            override fun observeResumable() = flowOf(store.sessions.values.toList())
+
+            override suspend fun session(id: String) = store.sessions[id]
+        }
+
+    private fun vm(vararg steps: CatalogStep): StepViewModel = vmFor(null, *steps)
+
+    private fun vmFor(sessionId: String?, vararg steps: CatalogStep): StepViewModel {
         val catalog =
             object : CatalogRepository {
                 override suspend fun load() = Result.success(
@@ -119,8 +137,8 @@ class StepViewModelTest {
             }
         val clock = Clock { scope.testScheduler.currentTime }
         val runners = AssessmentRunnerFactory(store, NoneVerifier, clock, dispatcher, newId = { "id${id++}" })
-        return StepViewModel(catalog, children, { CharacterIndex(listOf(variant)) }, runners, audio, keys, clock, scope).also {
-            it.start("c1", "t.x")
+        return StepViewModel(catalog, children, { CharacterIndex(listOf(variant)) }, runners, resumable, audio, keys, clock, scope).also {
+            it.start("c1", "t.x", sessionId)
         }
     }
 
@@ -354,12 +372,12 @@ class StepViewModelTest {
     }
 
     @Test
-    fun `clearing mid run marks the session abandoned, after finish it stays done`() = scope.runTest {
+    fun `clearing mid run keeps the session paused for continue, after finish it stays done`() = scope.runTest {
         val vm = vm(step(1), step(2))
         runCurrent()
         ViewModelStore().apply { put("vm", vm) }.clear()
         runCurrent()
-        assertEquals(SessionState.ABANDONED, store.session?.state)
+        assertEquals(SessionState.PAUSED, store.session?.state)
 
         val done = vm(step(1))
         listenThenAttempt(done)
@@ -380,5 +398,104 @@ class StepViewModelTest {
         runCurrent()
         ids += store.session!!.id
         assertEquals(2, ids.size)
+    }
+
+    @Test
+    fun `adult sheet pause dims with idle character, freezes the window and resume restarts the attempt`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        listenThenAttempt(vm)
+        vm.openAdultSheet()
+        assertTrue(vm.adultSheet.value)
+        vm.pause()
+        runCurrent()
+        assertFalse(vm.adultSheet.value)
+        assertTrue(vm.step().paused)
+        assertEquals("idle.webp", vm.step().reactionClip)
+        assertFalse(vm.step().doneEnabled)
+        assertEquals(SessionState.PAUSED, store.session?.state)
+        advanceTimeBy(60_000)
+        runCurrent()
+        vm.onEvent(StepEvent.Done)
+        runCurrent()
+        assertTrue("no row for a frozen window", store.rows.isEmpty())
+        vm.openAdultSheet()
+        vm.resume()
+        runCurrent()
+        assertFalse(vm.step().paused)
+        assertEquals(SessionState.RUNNING, store.session?.state)
+        assertEquals(listOf("n1.mp3", "n1.mp3"), audio.played)
+        assertFalse("attempt restarts from listen", vm.step().doneEnabled)
+    }
+
+    @Test
+    fun `exit pauses the session and dismiss closes the sheet`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        listenThenAttempt(vm)
+        vm.openAdultSheet()
+        vm.dismissAdultSheet()
+        assertFalse(vm.adultSheet.value)
+        vm.openAdultSheet()
+        vm.exit()
+        assertFalse(vm.adultSheet.value)
+        assertEquals("saved paused before exit returns", SessionState.PAUSED, store.session?.state)
+        // PIN screen covers the step screen, then is cancelled: still paused, nothing restarts.
+        vm.setActive(false)
+        runCurrent()
+        vm.setActive(true)
+        runCurrent()
+        assertTrue(vm.step().paused)
+        assertEquals(listOf("n1.mp3"), audio.played)
+        ViewModelStore().apply { put("vm", vm) }.clear()
+        runCurrent()
+        assertEquals("leaving keeps it paused", SessionState.PAUSED, store.session?.state)
+    }
+
+    @Test
+    fun `continue opens the saved step and prompt level with a fresh attempt`() = scope.runTest {
+        val first = vm(step(1), step(2))
+        listenThenAttempt(first)
+        first.onEvent(StepEvent.Done)
+        runCurrent()
+        assertEquals(1, first.step().stepIndex)
+        val saved = store.session!!
+        // Process death: the row stays running; Continue starts a new ViewModel on the same session.
+        val next = vmFor(saved.id, step(1), step(2))
+        runCurrent()
+        assertEquals(1, next.step().stepIndex)
+        assertEquals(1, next.step().promptLevel)
+        assertFalse(next.step().doneEnabled)
+        assertEquals(saved.id, store.session!!.id)
+        assertEquals(1, store.rows.size)
+    }
+
+    @Test
+    fun `continue with a corrupt resume point abandons it and shows the calm end`() = scope.runTest {
+        val first = vm(step(1))
+        runCurrent()
+        val saved = store.session!!.copy(stepIndex = 7)
+        store.sessions[saved.id] = saved
+        val next = vmFor(saved.id, step(1))
+        runCurrent()
+        assertEquals(StepUiState.Finished("idle.webp"), next.uiState.value)
+        assertEquals(SessionState.ABANDONED, store.sessions[saved.id]?.state)
+        assertNotNull(first)
+    }
+
+    @Test
+    fun `continue after a catalogue update or of a missing task abandons it and shows the calm end`() = scope.runTest {
+        vm(step(1))
+        runCurrent()
+        val saved = store.session!!
+        store.sessions[saved.id] = saved.copy(catalogVersion = "old")
+        val next = vmFor(saved.id, step(1))
+        runCurrent()
+        assertEquals(StepUiState.Finished("idle.webp"), next.uiState.value)
+        assertEquals(SessionState.ABANDONED, store.sessions[saved.id]?.state)
+
+        store.sessions[saved.id] = saved.copy(taskId = "gone")
+        val other = vmFor(saved.id, step(1))
+        runCurrent()
+        assertEquals(StepUiState.Finished("idle.webp"), other.uiState.value)
+        assertEquals(SessionState.ABANDONED, store.sessions[saved.id]?.state)
     }
 }

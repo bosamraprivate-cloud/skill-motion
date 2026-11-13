@@ -116,6 +116,13 @@
     <string name="child_help">ساعدني</string>
     <string name="child_repeat">تاني</string>
     <string name="child_adult_corner">ركن الكبار: اضغط مطوّل</string>
+    <string name="adult_sheet_title">قايمة الكبار</string>
+    <string name="adult_sheet_pause">إيقاف مؤقت</string>
+    <string name="adult_sheet_resume">كمّل</string>
+    <string name="adult_sheet_exit">خروج (بالرقم السري)</string>
+    <string name="children_continue_title">كمّل جلسة اتقطعت</string>
+    <string name="children_continue_item">%1$s · %2$s</string>
+    <string name="children_continue">كمّل</string>
     <string name="diagnostics_try_step_screen">جرّب شاشة الخطوة</string>
     <string name="try_step_title">جرّب شاشة الخطوة</string>
     <string name="try_step_child">الطفل</string>

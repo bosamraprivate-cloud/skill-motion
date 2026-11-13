@@ -95,18 +95,37 @@ interface SessionStore {
 
     /** Attempts of one step in saved order. */
     suspend fun attempts(sessionId: String, stepId: String): List<AttemptEntity>
+
+    /** The child's running or paused sessions, newest first (at most one is expected). */
+    suspend fun resumable(childId: String): List<SessionEntity>
+}
+
+/** Interrupted sessions as the therapist screens and child mode read them (implemented by [SessionRepository]). */
+interface ResumableSessions {
+    /** Every running or paused session, newest first. */
+    fun observeResumable(): Flow<List<SessionEntity>>
+
+    suspend fun session(id: String): SessionEntity?
 }
 
 /** Sessions and attempts (written only by the assessment runner). */
 @Singleton
 class SessionRepository
 @Inject
-internal constructor(private val holder: DatabaseHolder, private val frames: FrameStore) : SessionStore {
+internal constructor(private val holder: DatabaseHolder, private val frames: FrameStore) :
+    SessionStore,
+    ResumableSessions {
     override suspend fun add(session: SessionEntity) = holder.get().sessionDao().insert(session)
 
     override suspend fun update(session: SessionEntity) = holder.get().sessionDao().update(session)
 
     suspend fun get(id: String): SessionEntity? = holder.get().sessionDao().byId(id)
+
+    override suspend fun session(id: String): SessionEntity? = get(id)
+
+    override fun observeResumable(): Flow<List<SessionEntity>> = flow { emitAll(holder.get().sessionDao().observeResumable()) }
+
+    override suspend fun resumable(childId: String): List<SessionEntity> = holder.get().sessionDao().resumableForChild(childId)
 
     suspend fun forChild(childId: String): List<SessionEntity> = holder.get().sessionDao().forChild(childId)
 

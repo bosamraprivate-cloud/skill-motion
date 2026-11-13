@@ -177,4 +177,25 @@ class DatabaseTest {
         }
         db.close()
     }
+
+    @Test
+    fun resumableQueriesReturnOnlyRunningAndPausedNewestFirstPerChild() = runBlocking {
+        val db = AppDatabase.build(context, ByteArray(32) { 6 }, dbName)
+        val a = child()
+        val b = child()
+        db.childDao().insert(a)
+        db.childDao().insert(b)
+        var t = 0L
+        val all =
+            listOf(a, b).flatMap { c ->
+                SessionState.entries.map { st -> session(c.id).copy(state = st, startedAt = ++t) }
+            }
+        all.forEach { db.sessionDao().insert(it) }
+        val open = setOf(SessionState.RUNNING, SessionState.PAUSED)
+        val expectedA = all.filter { it.childId == a.id && it.state in open }.sortedByDescending { it.startedAt }
+        assertEquals(expectedA, db.sessionDao().resumableForChild(a.id))
+        val expectedAll = all.filter { it.state in open }.sortedByDescending { it.startedAt }
+        assertEquals(expectedAll, db.sessionDao().observeResumable().first())
+        db.close()
+    }
 }

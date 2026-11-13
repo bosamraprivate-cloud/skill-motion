@@ -48,9 +48,9 @@ data object SampleKey : NavKey
 @Serializable
 data object CharacterPreviewKey : NavKey
 
-/** Locked child mode: the step screen for one assessment run (Story 2.14). */
+/** Locked child mode: the step screen for one assessment run (Story 2.14), or a continued session [sessionId] (Story 2.15). */
 @Serializable
-data class ChildModeKey(val childId: String, val taskId: String) : NavKey
+data class ChildModeKey(val childId: String, val taskId: String, val sessionId: String? = null) : NavKey
 
 /** PIN screen above the step screen; a right PIN leaves child mode. */
 @Serializable
@@ -96,12 +96,15 @@ fun AppNavigation(modifier: Modifier = Modifier, gate: AppGateViewModel = hiltVi
                 TherapistShell(
                     onOpenSample = { gate.open(SampleKey) },
                     onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
-                    onOpenChildMode = gate::openChildMode
+                    onOpenChildMode = gate::openChildMode,
+                    onContinueSession = gate::continueSession
                 )
             }
             entry<SampleKey> { SampleRoute() }
             entry<CharacterPreviewKey> { CharacterPreviewRoute() }
-            entry<ChildModeKey> { key -> ChildModeHost(childId = key.childId, taskId = key.taskId, onAdultCorner = gate::openChildPin) }
+            entry<ChildModeKey> { key ->
+                ChildModeHost(childId = key.childId, taskId = key.taskId, sessionId = key.sessionId, onExit = gate::openChildPin)
+            }
             entry<ChildPinKey> { PinRoute(onUnlocked = gate::leaveChildMode) }
         }
     )

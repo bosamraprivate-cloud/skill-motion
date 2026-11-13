@@ -2,7 +2,8 @@
 title: 'Story 2.15: Pause, resume and continue after interruption'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'in-review'
+baseline_commit: '8ad3ba61392a37948a62e8ebdf2bdda696385d2c'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -54,7 +55,7 @@ context:
 **Execution:**
 - [ ] runner: pause/resume/restore + tests (every matrix row at runner level).
 - [ ] repository: `resumableSession(childId)`; DAO query; keep DAOs internal.
-- [ ] `ui/child/AdultPauseSheet.kt` + StepViewModel pause/resume/exit wiring; dim + idle character.
+- [x] `ui/child/AdultPauseSheet.kt` + StepViewModel pause/resume/exit wiring; dim + idle character.
 - [ ] AppGate + navigation: continue entry; Exit via PIN keeps session paused.
 - [ ] Children list Continue card (+ strings ar/en); new run abandons old.
 - [ ] tests: StepViewModel pause/resume/exit, ChildList continue card, TryStep abandons old.
@@ -68,6 +69,21 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | restore ignores catalogVersion/taskId | high | stepIndex may point at another step after a catalogue update; patch |
+| 2 | abandon-then-insert not atomic | medium | failed add loses resumable session; patch (insert first) |
+| 3 | pause during Judge | medium | verifier can write a dropped window / leave Paused; patch |
+| 4 | pause in Error leaves dead end | medium | state stays Error, no Resume; patch |
+| 5 | Exit races PIN navigation; cancel PIN un-pauses? | medium | patch (await pause; stay paused) |
+| 6 | failed continue: endless wait, card never disappears | medium | patch (abandon + finished visual) |
+| 7 | observeResumable error breaks whole list; cards ignore search | low | patch |
+| 8 | new SQL queries untested on Room | medium | patch (androidTest) |
+| 9 | formatting leftover | low | patch |
+| 10 | Continue card shows raw task id | low | already deferred (task names, 2.14) |
+| 11 | baseLevel duplicates advance rule; helpPressed inferred | low | consistent today; rejected |
+| 12 | abandon() has no production caller | false | used by start() for older sessions via the same path; kept by design |
 
 ## Verification
 

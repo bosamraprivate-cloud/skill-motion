@@ -7,6 +7,11 @@ data class ChildRow(val id: String, val name: String, val ageYears: Int, val cha
     override fun toString(): String = "ChildRow(id=$id)"
 }
 
+/** An interrupted (running or paused) session: child name and task only, never levels or results. */
+data class ContinueRow(val sessionId: String, val childId: String, val childName: String, val taskId: String) {
+    override fun toString(): String = "ContinueRow(sessionId=$sessionId)"
+}
+
 sealed interface ChildListUiState {
     data object Loading : ChildListUiState
 
@@ -14,7 +19,8 @@ sealed interface ChildListUiState {
     data object Empty : ChildListUiState
 
     /** [children] is already filtered by [query]; it may be empty when nothing matches. */
-    data class Content(val query: String, val children: List<ChildRow>) : ChildListUiState
+    data class Content(val query: String, val children: List<ChildRow>, val continueRows: List<ContinueRow> = emptyList()) :
+        ChildListUiState
 
     data class Error(val reason: String) : ChildListUiState
 }

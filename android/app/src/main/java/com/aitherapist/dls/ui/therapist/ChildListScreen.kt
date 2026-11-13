@@ -14,8 +14,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -41,7 +44,13 @@ import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.DlsTheme
 
 @Composable
-fun ChildListRoute(selectedId: String?, onSelect: (String) -> Unit, onAdd: () -> Unit, viewModel: ChildListViewModel = hiltViewModel()) {
+fun ChildListRoute(
+    selectedId: String?,
+    onSelect: (String) -> Unit,
+    onAdd: () -> Unit,
+    onContinue: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> },
+    viewModel: ChildListViewModel = hiltViewModel()
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     ChildListScreen(
         state = state,
@@ -49,7 +58,8 @@ fun ChildListRoute(selectedId: String?, onSelect: (String) -> Unit, onAdd: () ->
         onQueryChange = viewModel::onQueryChange,
         onSelect = onSelect,
         onAdd = onAdd,
-        onRetry = viewModel::retry
+        onRetry = viewModel::retry,
+        onContinue = { row -> onContinue(row.childId, row.taskId, row.sessionId) }
     )
 }
 
@@ -61,7 +71,8 @@ fun ChildListScreen(
     onSelect: (String) -> Unit,
     onAdd: () -> Unit,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onContinue: (ContinueRow) -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         when (state) {
@@ -76,7 +87,7 @@ fun ChildListScreen(
                 )
             is ChildListUiState.Error ->
                 ErrorState(stringResource(R.string.children_error), onRetry, Modifier.align(Alignment.Center))
-            is ChildListUiState.Content -> ChildListContent(state, selectedId, onQueryChange, onSelect, onAdd)
+            is ChildListUiState.Content -> ChildListContent(state, selectedId, onQueryChange, onSelect, onAdd, onContinue)
         }
     }
 }
@@ -87,7 +98,8 @@ private fun ChildListContent(
     selectedId: String?,
     onQueryChange: (String) -> Unit,
     onSelect: (String) -> Unit,
-    onAdd: () -> Unit
+    onAdd: () -> Unit,
+    onContinue: (ContinueRow) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -104,6 +116,7 @@ private fun ChildListContent(
                 Text(stringResource(R.string.children_add), modifier = Modifier.padding(start = 8.dp))
             }
         }
+        state.continueRows.forEach { row -> ContinueCard(row) { onContinue(row) } }
         if (state.children.isEmpty()) {
             Text(stringResource(R.string.children_no_match), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(16.dp))
         }
@@ -134,6 +147,28 @@ private fun ChildListRow(row: ChildRow, selected: Boolean, onClick: () -> Unit) 
     )
 }
 
+/** "Continue" card for an interrupted session: child name and task only (never levels or results). */
+@Composable
+private fun ContinueCard(row: ContinueRow, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.children_continue_title), style = MaterialTheme.typography.labelLarge)
+                Text(
+                    stringResource(R.string.children_continue_item, row.childName, row.taskId),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+            Icon(Icons.Filled.PlayArrow, contentDescription = null)
+            Text(stringResource(R.string.children_continue), modifier = Modifier.padding(start = 8.dp))
+        }
+    }
+}
+
 /** The character's idle clip; in still mode [CharacterView] shows its first frame, the picture the child will see. */
 fun characterStillPath(character: ChildCharacter): String = "character/${character.name.lowercase()}/react/idle.webp"
 
@@ -148,7 +183,8 @@ private fun ChildListPreview() {
                 children = listOf(
                     ChildRow("1", "Youssef", 6, ChildCharacter.BOY),
                     ChildRow("2", "Mariam", 8, ChildCharacter.GIRL)
-                )
+                ),
+                continueRows = listOf(ContinueRow("s1", "1", "Youssef", "task"))
             ),
             selectedId = "1",
             onQueryChange = {},

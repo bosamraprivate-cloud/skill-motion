@@ -37,6 +37,13 @@ internal interface SessionDao {
     @Query("SELECT * FROM session WHERE childId = :childId ORDER BY startedAt DESC")
     suspend fun forChild(childId: String): List<SessionEntity>
 
+    /** Running or paused sessions (resumable), newest first. */
+    @Query("SELECT * FROM session WHERE state IN ('running', 'paused') ORDER BY startedAt DESC")
+    fun observeResumable(): Flow<List<SessionEntity>>
+
+    @Query("SELECT * FROM session WHERE childId = :childId AND state IN ('running', 'paused') ORDER BY startedAt DESC")
+    suspend fun resumableForChild(childId: String): List<SessionEntity>
+
     @Query("SELECT id FROM session WHERE childId = :childId")
     suspend fun idsForChild(childId: String): List<String>
 
