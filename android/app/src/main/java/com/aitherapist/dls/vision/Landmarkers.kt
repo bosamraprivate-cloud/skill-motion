@@ -50,6 +50,9 @@ interface LandmarkEngine {
 
     fun detect(bitmap: Bitmap, timestampMs: Long): Boolean
 
+    /** Runs only the chosen landmarkers (AD-3 `Detector.landmarkers`); by default both. */
+    fun detect(bitmap: Bitmap, timestampMs: Long, pose: Boolean, hand: Boolean): Boolean = detect(bitmap, timestampMs)
+
     fun close()
 }
 
@@ -95,15 +98,19 @@ constructor(@ApplicationContext private val context: Context) : LandmarkEngine {
      * (the error goes to [errors] by type name).
      */
     @Synchronized
-    override fun detect(bitmap: Bitmap, timestampMs: Long): Boolean {
-        val p = pose ?: return false
-        val h = hand ?: return false
+    override fun detect(bitmap: Bitmap, timestampMs: Long): Boolean = detect(bitmap, timestampMs, pose = true, hand = true)
+
+    @Synchronized
+    override fun detect(bitmap: Bitmap, timestampMs: Long, pose: Boolean, hand: Boolean): Boolean {
+        val p = this.pose ?: return false
+        val h = this.hand ?: return false
+        if (!pose && !hand) return false
         if (timestampMs <= lastTimestampMs) return false // MediaPipe requires strictly increasing timestamps.
         lastTimestampMs = timestampMs
         return try {
             val image = BitmapImageBuilder(bitmap).build()
-            p.detectAsync(image, timestampMs)
-            h.detectAsync(image, timestampMs)
+            if (pose) p.detectAsync(image, timestampMs)
+            if (hand) h.detectAsync(image, timestampMs)
             true
         } catch (
             @Suppress("TooGenericExceptionCaught") e: Exception

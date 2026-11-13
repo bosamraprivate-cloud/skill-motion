@@ -31,6 +31,22 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
+/**
+ * Saves an attempt's evidence frames (AD-8) and returns their relative paths. Called only when the attempt row is
+ * about to be saved, so an interrupted window writes nothing.
+ */
+fun interface EvidenceWriter {
+    suspend fun write(sessionId: String, attemptId: String, frames: List<Frame>): List<String>
+
+    /** Deletes frames written for a row that was never saved (failed insert, or the pending row was dropped). */
+    fun discard(paths: List<String>) = Unit
+
+    companion object {
+        /** Keeps nothing (tests, replay without images). */
+        val NONE = EvidenceWriter { _, _, _ -> emptyList() }
+    }
+}
+
 /** Inputs to [AssessmentRunner.onEvent]. */
 sealed interface RunnerEvent {
     /** Instruction audio finished: the attempt window opens. */
@@ -76,7 +92,8 @@ class AssessmentRunner(
     private val ctx: VerifyContext = VerifyContext(),
     private val newId: () -> String = { UUID.randomUUID().toString() },
     /** Wall time for stored timestamps; [clock] (monotonic in the app) times windows and latency. */
-    private val wallClock: Clock = clock
+    private val wallClock: Clock = clock,
+    private val evidence: EvidenceWriter = EvidenceWriter.NONE
 ) {
     private val mutableState = MutableStateFlow<RunnerState>(RunnerState.Idle)
     val state: StateFlow<RunnerState> = mutableState.asStateFlow()
@@ -85,9 +102,19 @@ class AssessmentRunner(
     private var session: SessionEntity? = null
     private var window: AttemptWindow? = null
 
-    /** In-memory evidence for the open window only; evidence-frame persistence (framePaths) comes in Story 3.5. */
+    /**
+     * In-memory evidence for the open window only. Frames are thinned (every other one dropped, stride doubled) when
+     * [MAX_FRAMES] is reached, so the start, middle and end of a long window stay covered within a fixed memory bound.
+     */
     private val frames = mutableListOf<Frame>()
+    private var frameStride = 1
+    private var framesSeen = 0
     private val landmarks = mutableListOf<LandmarkFrame>()
+
+    /** The closed window's verdict and row until saved (a retry reuses them); [unsaved] are frames not yet in a saved row. */
+    private var pendingVerdict: Verdict? = null
+    private var pendingRow: AttemptEntity? = null
+    private var unsaved: List<String> = emptyList()
     private var pending: (suspend () -> Unit)? = null
 
     /** Saves the new running session and shows the first step. */
@@ -259,7 +286,13 @@ class AssessmentRunner(
         }
     }
 
-    suspend fun onEvent(event: RunnerEvent) = serialized {
+    suspend fun onEvent(event: RunnerEvent) {
+        // Samples outside an open window are dropped without waiting for the lock (a verdict may be in flight).
+        if (event is RunnerEvent.Sample && mutableState.value !is RunnerState.Attempt) return
+        handle(event)
+    }
+
+    private suspend fun handle(event: RunnerEvent) = serialized {
         val current = mutableState.value
         if (current is RunnerState.Error) {
             if (event == RunnerEvent.Retry) pending?.let { guarded(it) }
@@ -281,8 +314,10 @@ class AssessmentRunner(
             is RunnerEvent.Sample -> if (current is RunnerState.Attempt) onSample(current, event)
             RunnerEvent.Tick -> if (current is RunnerState.Attempt) checkWindow(current)
             is RunnerEvent.VerdictReady -> if (current is RunnerState.Judge) {
-                val row = attemptRow(current, event.verdict)
-                guarded { record(current, row) }
+                guarded {
+                    val built = pendingRow ?: withEvidence(attemptRow(current, event.verdict)).also { pendingRow = it }
+                    record(current, built)
+                }
             }
             RunnerEvent.Retry -> Unit
         }
@@ -346,24 +381,45 @@ class AssessmentRunner(
     }
 
     private suspend fun onSample(current: RunnerState.Attempt, event: RunnerEvent.Sample) {
-        window?.onSample(event.sample)
-        event.frame?.let { frames.addCapped(it, MAX_FRAMES) }
-        event.landmarks?.let { landmarks.addCapped(it, MAX_LANDMARKS) }
+        val open = window ?: return
+        // Captured before the window opened (in flight across a prompt change): not part of this attempt.
+        if (event.sample.tMs < open.openedAtMs) {
+            event.frame?.image?.release()
+            return
+        }
+        open.onSample(event.sample)
+        val frame = event.frame
+        if (frame != null) {
+            if (frame.timestampMs >= open.openedAtMs) keepFrame(frame) else frame.image?.release()
+        }
+        event.landmarks?.takeIf { it.timestampMs >= open.openedAtMs }?.let { landmarks.addCapped(it, MAX_LANDMARKS) }
         checkWindow(current)
     }
 
     private suspend fun checkWindow(current: RunnerState.Attempt) {
-        if (window?.check(clock) == null) return
+        val closedBy = window?.check(clock) ?: return
         val judge = RunnerState.Judge(current.stepIndex, current.stepId, current.prompt)
-        var row: AttemptEntity? = null
-        // One retryable action: save -> judge -> record; the row is built once so a retry never duplicates it.
+        val step = steps[current.stepIndex]
+        // One retryable action: save, judge, record. Verdict and row are kept so a retry never re-judges or duplicates.
         guarded {
             save(current.stepIndex, current.prompt)
             mutableState.value = judge
-            val built = row ?: attemptRow(judge, judge(steps[current.stepIndex])).also { row = it }
+            val verdict = pendingVerdict ?: stillDoubt(judge(step), closedBy, step).also { pendingVerdict = it }
+            val built = pendingRow ?: withEvidence(attemptRow(judge, verdict)).also { pendingRow = it }
             record(judge, built)
         }
     }
+
+    /**
+     * A camera-scored window that closed because the child went still has not shown the step was not done: an unmet
+     * check there is doubt (cannot tell), never `not_done`.
+     */
+    private fun stillDoubt(verdict: Verdict, closedBy: CloseReason, step: Step): Verdict =
+        if (closedBy == CloseReason.STILL && step.method != Method.NONE && verdict.outcome == Outcome.NOT_DONE) {
+            verdict.copy(outcome = Outcome.CANNOT_TELL, reason = VerdictReason.NOT_JUDGEABLE)
+        } else {
+            verdict
+        }
 
     /** Runs the step's verifier; any exception becomes cannot_tell `verifier_error`, never not_done. */
     private suspend fun judge(step: Step): Verdict {
@@ -378,6 +434,40 @@ class AssessmentRunner(
                 Verdict(Outcome.CANNOT_TELL, VerdictReason.VERIFIER_ERROR, latencyMs = clock.nowMs() - started)
             }
         } ?: Verdict(Outcome.CANNOT_TELL, VerdictReason.TIMEOUT, latencyMs = clock.nowMs() - started)
+    }
+
+    private fun keepFrame(frame: Frame) {
+        if (framesSeen++ % frameStride != 0) {
+            frame.image?.release()
+            return
+        }
+        frames += frame
+        if (frames.size <= MAX_FRAMES) return
+        val kept = frames.filterIndexed { i, _ -> i % 2 == 0 }
+        frames.filterIndexed { i, _ -> i % 2 == 1 }.forEach { it.image?.release() }
+        frames.clear()
+        frames += kept
+        frameStride *= 2
+    }
+
+    /**
+     * Writes the start, middle and end frames of the window (those with an image) for [row] and returns the row with
+     * their paths. A failed write keeps the verdict: the row is saved without frames.
+     */
+    private suspend fun withEvidence(row: AttemptEntity): AttemptEntity {
+        val withImage = frames.filter { it.image != null }
+        if (withImage.isEmpty()) return row
+        val picked = listOf(withImage.first(), withImage[withImage.size / 2], withImage.last()).distinct()
+        val paths =
+            try {
+                evidence.write(sessionId, row.id, picked)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                emptyList() // the writer removes its own partial files
+            }
+        unsaved = paths
+        return row.copy(framePaths = paths)
     }
 
     private fun <T> MutableList<T>.addCapped(item: T, max: Int) {
@@ -409,7 +499,17 @@ class AssessmentRunner(
 
     /** Saves [row] unless already saved, then advances by Rule 1 on the saved rows. */
     private suspend fun record(judge: RunnerState.Judge, row: AttemptEntity) {
-        if (store.attempts(sessionId, row.stepId).none { it.id == row.id }) store.addAttempt(row)
+        if (store.attempts(sessionId, row.stepId).none { it.id == row.id }) {
+            try {
+                store.addAttempt(row)
+            } catch (e: Exception) {
+                // The row was not saved: its frames go too, and a retry writes them again with a fresh row.
+                discardUnsaved()
+                pendingRow = null
+                throw e
+            }
+        }
+        unsaved = emptyList()
         advance(judge, store.attempts(sessionId, row.stepId))
     }
 
@@ -447,17 +547,29 @@ class AssessmentRunner(
         session = updated
     }
 
+    private fun discardUnsaved() {
+        val paths = unsaved
+        unsaved = emptyList()
+        if (paths.isNotEmpty()) runCatching { evidence.discard(paths) }
+    }
+
     private fun resetWindow() {
+        discardUnsaved()
+        pendingVerdict = null
+        pendingRow = null
         window = null
+        frames.forEach { it.image?.release() }
         frames.clear()
+        frameStride = 1
+        framesSeen = 0
         landmarks.clear()
     }
 
     private companion object {
         /** A hanging verifier becomes cannot_tell `timeout` after this (FR-20: never not_done). */
         const val VERIFY_TIMEOUT_MS = 10_000L
-        const val MAX_FRAMES = 90
-        const val MAX_LANDMARKS = 300
+        const val MAX_FRAMES = 24
+        const val MAX_LANDMARKS = 900
     }
 
     private fun Outcome.toStorage() = when (this) {

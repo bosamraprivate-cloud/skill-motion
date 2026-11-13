@@ -72,4 +72,11 @@ class MovementTest {
     fun `no samples means not moving`() {
         assertFalse(Movement.moved(emptyList(), 0))
     }
+
+    @Test
+    fun `hand wrist motion counts as movement while the body is still`() {
+        fun withHand(t: Long, x: Float) = sample(t, 0.5f).copy(hands = listOf(listOf(LandmarkPoint(x, 0.6f))))
+        assertTrue(Movement.moved(listOf(withHand(0, 0.40f), withHand(100, 0.45f)), 100))
+        assertFalse(Movement.moved(listOf(withHand(0, 0.40f), withHand(100, 0.40f)), 100))
+    }
 }

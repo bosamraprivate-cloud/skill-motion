@@ -23,13 +23,28 @@ import com.aitherapist.dls.ui.theme.Spacing
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdultPauseSheet(paused: Boolean, onPause: () -> Unit, onResume: () -> Unit, onExit: () -> Unit, onDismiss: () -> Unit) {
+fun AdultPauseSheet(
+    paused: Boolean,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
+    onExit: () -> Unit,
+    onDismiss: () -> Unit,
+    cameraUnavailable: Boolean = false
+) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier.fillMaxWidth().padding(horizontal = Spacing.S5, vertical = Spacing.S4),
             verticalArrangement = Arrangement.spacedBy(Spacing.S4)
         ) {
             Text(stringResource(R.string.adult_sheet_title), style = MaterialTheme.typography.titleLarge)
+            if (cameraUnavailable) {
+                // Adult-only: camera steps are being recorded as "cannot tell" until the camera works again.
+                Text(
+                    stringResource(R.string.adult_sheet_camera_unavailable),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
                 if (paused) {
                     Button(onClick = onResume) { Text(stringResource(R.string.adult_sheet_resume)) }

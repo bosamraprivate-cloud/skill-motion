@@ -120,6 +120,7 @@
     <string name="adult_sheet_pause">Pause</string>
     <string name="adult_sheet_resume">Resume</string>
     <string name="adult_sheet_exit">Exit (PIN)</string>
+    <string name="adult_sheet_camera_unavailable">Camera unavailable. Camera steps are recorded as &quot;cannot tell&quot;. Check the camera permission and that nothing covers the lens.</string>
     <string name="children_continue_title">Continue interrupted session</string>
     <string name="children_continue_item">%1$s · %2$s</string>
     <string name="children_continue">Continue</string>

@@ -24,7 +24,8 @@ class AttemptWindow(val openedAtMs: Long) {
         if (samples.isNotEmpty() && sample.tMs < samples.last().tMs) return
         samples.addLast(sample)
         while (samples.first().tMs < sample.tMs - WindowRules.MOVEMENT_SPAN_MS) samples.removeFirst()
-        if (Movement.moved(samples, sample.tMs)) lastMovementMs = sample.tMs
+        // The still clock runs only on samples with a pose: a sample without one cannot show stillness.
+        if (!sample.hasPose || Movement.moved(samples, sample.tMs)) lastMovementMs = sample.tMs
     }
 
     /** The child (or HID key) pressed Done; counts only if the window had not already closed at [nowMs]. */

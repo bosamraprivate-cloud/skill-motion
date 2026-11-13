@@ -22,7 +22,6 @@ package com.aitherapist.dls.camera
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.os.SystemClock
 import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -40,7 +39,7 @@ import java.util.concurrent.Executors
 /**
  * Binds the front camera: a preview for the user (may stay mirrored) and an analysis stream
  * (RGBA, keep-only-latest, about 640x480) whose frames are rotated upright (not flipped:
- * raw front frames are already un-mirrored), then handed to [onFrame] with an uptime timestamp in ms. Never saves frames.
+ * raw front frames are already un-mirrored), then handed to [onFrame] with the frame's sensor timestamp in ms (imageInfo.timestamp, elapsed-realtime base). Never saves frames.
  */
 class CameraController(private val context: Context) {
     private var provider: ProcessCameraProvider? = null
@@ -48,9 +47,16 @@ class CameraController(private val context: Context) {
 
     @Volatile private var disposed = false
 
+    /** Bumped on every bind and unbind: a provider future that completes for an older bind does nothing. */
+    @Volatile private var generation = 0
+
     /** [onError] receives the exception type name only (e.g. no front camera). */
     fun bind(owner: LifecycleOwner, surfaceProvider: Preview.SurfaceProvider, onFrame: (Bitmap, Long) -> Unit, onError: (String) -> Unit) =
         bindInternal(owner, surfaceProvider, onFrame, onError) {}
+
+    /** Story 3.5: the analysis stream only, no preview (the child never sees the camera). [onError] as in [bind]. */
+    fun bindAnalysis(owner: LifecycleOwner, onFrame: (Bitmap, Long) -> Unit, onError: (String) -> Unit) =
+        bindInternal(owner, null, onFrame, onError) {}
 
     /**
      * Binds the front preview only (no analysis, no frame work). [onAspect] gets the upright preview width / height once,
@@ -61,15 +67,18 @@ class CameraController(private val context: Context) {
 
     private fun bindInternal(
         owner: LifecycleOwner,
-        surfaceProvider: Preview.SurfaceProvider,
+        surfaceProvider: Preview.SurfaceProvider?,
         onFrame: ((Bitmap, Long) -> Unit)?,
         onError: (String) -> Unit,
         onAspect: (Float) -> Unit
     ) {
         disposed = false
+        val token = ++generation
+        // The provider future is a process-wide shared instance, so it is not cancelled (that would break later binds);
+        // the generation token makes a completion after unbind or rebind a no-op instead.
         val future = ProcessCameraProvider.getInstance(context)
         future.addListener({
-            if (disposed) return@addListener
+            if (disposed || token != generation) return@addListener
             try {
                 val info = bindNow(future.get(), owner, surfaceProvider, onFrame)
                 val size = info?.resolution
@@ -91,7 +100,7 @@ class CameraController(private val context: Context) {
     private fun bindNow(
         cameraProvider: ProcessCameraProvider,
         owner: LifecycleOwner,
-        surfaceProvider: Preview.SurfaceProvider,
+        surfaceProvider: Preview.SurfaceProvider?,
         onFrame: ((Bitmap, Long) -> Unit)?
     ): androidx.camera.core.ResolutionInfo? {
         provider = cameraProvider
@@ -102,9 +111,9 @@ class CameraController(private val context: Context) {
                 .setResolutionStrategy(
                     ResolutionStrategy(TARGET_SIZE, ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
                 ).build()
-        val preview = Preview.Builder().setResolutionSelector(selector).build()
-        preview.surfaceProvider = surfaceProvider
+        val preview = surfaceProvider?.let { Preview.Builder().setResolutionSelector(selector).build().apply { this.surfaceProvider = it } }
         if (onFrame == null) {
+            checkNotNull(preview) { "nothing to bind" }
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, preview)
             return preview.resolutionInfo
@@ -118,16 +127,17 @@ class CameraController(private val context: Context) {
                 .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()
         analysis.setAnalyzer(analysisExecutor) { proxy ->
-            proxy.use { onFrame(uprightBitmap(it), SystemClock.uptimeMillis()) }
+            proxy.use { onFrame(uprightBitmap(it), it.imageInfo.timestamp / NANOS_PER_MS) }
         }
         cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, preview, analysis)
+        cameraProvider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, *listOfNotNull(preview, analysis).toTypedArray())
         return null
     }
 
     /** Releases the camera and the analysis thread. */
     fun unbind() {
         disposed = true
+        generation++
         provider?.unbindAll()
         provider = null
         executor?.shutdown()
@@ -161,5 +171,6 @@ class CameraController(private val context: Context) {
     private companion object {
         val TARGET_SIZE = Size(640, 480)
         const val HALF_TURN = 180
+        const val NANOS_PER_MS = 1_000_000L
     }
 }

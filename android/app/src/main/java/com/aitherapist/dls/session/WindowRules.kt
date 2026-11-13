@@ -5,7 +5,7 @@ package com.aitherapist.dls.session
  * both read these so they time windows identically. Bump [RULES_VERSION] on any change.
  */
 object WindowRules {
-    const val RULES_VERSION = 1
+    const val RULES_VERSION = 2
 
     /** After this much elapsed time, a still child closes the window. */
     const val STILL_AFTER_MS = 20_000L

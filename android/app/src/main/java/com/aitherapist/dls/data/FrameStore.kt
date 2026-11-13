@@ -17,16 +17,24 @@ class FrameStore internal constructor(private val filesDir: File, private val ke
         return File(File(root, sessionId), "$attemptId-$n.bin")
     }
 
+    /** The frame's path relative to the app files dir, as stored in `attempt.framePaths`. */
+    fun relativePath(sessionId: String, attemptId: String, n: Int): String =
+        file(sessionId, attemptId, n).relativeTo(filesDir).invariantSeparatorsPath
+
     /** Encrypts and writes [jpeg]; returns the file. */
     fun write(sessionId: String, attemptId: String, n: Int, jpeg: ByteArray): File {
         val target = file(sessionId, attemptId, n)
         val dir = checkNotNull(target.parentFile)
         dir.mkdirs()
         val tmp = File(dir, target.name + ".tmp")
-        tmp.writeBytes(keys.encrypt(jpeg))
-        if (!tmp.renameTo(target)) {
+        try {
+            tmp.writeBytes(keys.encrypt(jpeg))
+            check(tmp.renameTo(target)) { "Frame write failed" }
+        } catch (e: Exception) {
+            // No partial file is left behind.
             tmp.delete()
-            error("Frame write failed")
+            target.delete()
+            throw e
         }
         return target
     }
@@ -41,6 +49,13 @@ class FrameStore internal constructor(private val filesDir: File, private val ke
         val data = f.readBytes()
         if (data.size <= KeyManager.IV_BYTES) throw AEADBadTagException("Frame too short")
         return keys.decrypt(data)
+    }
+
+    /** Deletes one frame by its stored relative path; only paths under the frames folder are touched. */
+    fun deleteRelative(path: String): Boolean {
+        val f = File(filesDir, path).canonicalFile
+        if (!f.path.startsWith(root.canonicalFile.path + File.separator)) return false
+        return !f.exists() || f.delete()
     }
 
     /** Removes every frame of a session; true when nothing remains. */

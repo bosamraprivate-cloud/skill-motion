@@ -96,8 +96,34 @@ class AssessmentRunnerTest {
     private val store = FakeStore()
     private var ids = 0
 
+    private class FakeImage : com.aitherapist.dls.vision.AttemptImage {
+        var released = false
+        override val width = 4
+        override val height = 3
+
+        override fun release() {
+            released = true
+        }
+    }
+
+    /** Records evidence writes: (attemptId, frame timestamps). */
+    private val written = mutableListOf<Pair<String, List<Long>>>()
+    private val discarded = mutableListOf<String>()
+    private val evidence =
+        object : EvidenceWriter {
+            override suspend fun write(sessionId: String, attemptId: String, frames: List<Frame>): List<String> {
+                written += attemptId to frames.map { it.timestampMs }
+                return frames.indices.map { "frames/$sessionId/$attemptId-$it.bin" }
+            }
+
+            override fun discard(paths: List<String>) {
+                discarded += paths
+            }
+        }
+
     private fun TestScope.runner(verifier: Verifier, steps: List<Step> = listOf(Step("s1", Method.POSE), Step("s2", Method.POSE))) =
         AssessmentRunner(
+            evidence = evidence,
             sessionId = "sess",
             childId = "child",
             taskId = "task",
@@ -635,5 +661,146 @@ class AssessmentRunnerTest {
         r.attemptDone()
         assertEquals(1, store.rows.size)
         assertEquals(1, stepIndex(r))
+    }
+
+    private suspend fun AssessmentRunner.feed(count: Int) {
+        repeat(count) {
+            now += 100
+            onEvent(RunnerEvent.Sample(PoseSample(now, emptyMap()), Frame(now, FakeImage()), LandmarkFrame(now, null)))
+        }
+    }
+
+    @Test
+    fun `closed window saves start, middle and end frames with its row`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.feed(5)
+        r.onEvent(RunnerEvent.Done)
+        val row = store.rows.single()
+        assertEquals(listOf(row.id to listOf(1_100L, 1_300L, 1_500L)), written)
+        assertEquals((0..2).map { "frames/sess/${row.id}-$it.bin" }, row.framePaths)
+    }
+
+    @Test
+    fun `pause mid window drops the buffer and writes no frames`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.feed(5)
+        r.pause()
+        r.resume()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.onEvent(RunnerEvent.Done)
+        assertTrue(written.isEmpty())
+        assertTrue(store.rows.single().framePaths.isEmpty())
+    }
+
+    @Test
+    fun `failed evidence write keeps the verdict without frames`() = runTest {
+        val r =
+            AssessmentRunner(
+                "sess", "child", "task", "cat-1", listOf(Step("s1", Method.POSE)), store, FakeVerifier(Outcome.DONE), clock,
+                StandardTestDispatcher(testScheduler), evidence = { _, _, _ -> error("disk") }
+            )
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.feed(3)
+        r.onEvent(RunnerEvent.Done)
+        assertEquals(AttemptVerdict.DONE, store.rows.single().verdict)
+        assertTrue(store.rows.single().framePaths.isEmpty())
+    }
+
+    @Test
+    fun `long windows keep a bounded, thinned frame buffer covering the whole window`() = runTest {
+        var seen = 0
+        val counting =
+            object : Verifier {
+                override suspend fun verify(step: Step, frames: List<Frame>, landmarks: List<LandmarkFrame>, ctx: VerifyContext): Verdict {
+                    seen = frames.size
+                    return Verdict(Outcome.DONE, VerdictReason.CHECK_PASSED, latencyMs = 1)
+                }
+            }
+        val r = runner(counting)
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.feed(200)
+        r.onEvent(RunnerEvent.Done)
+        assertTrue(seen in 1..24)
+        assertEquals(1_100L, written.single().second.first())
+    }
+
+    @Test
+    fun `cloud verdict stores model id and prompt version`() = runTest {
+        val cloud =
+            object : Verifier {
+                override suspend fun verify(step: Step, frames: List<Frame>, landmarks: List<LandmarkFrame>, ctx: VerifyContext) =
+                    Verdict(Outcome.DONE, "ok", modelId = "m-1", promptVersion = "p-1", latencyMs = 9)
+            }
+        val r = runner(cloud, steps = listOf(Step("s1", Method.CLOUD)))
+        r.start()
+        r.attemptDone()
+        val row = store.rows.single()
+        assertEquals("m-1", row.modelId)
+        assertEquals("p-1", row.promptVersion)
+        assertEquals(VerifierKind.CLOUD, row.verifier)
+    }
+
+    private fun visiblePose() = (0 until 33).associateWith { com.aitherapist.dls.vision.LandmarkPoint(0.5f, 0.5f, 0.9f) }
+
+    @Test
+    fun `samples captured before the window opened are dropped`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        val early = now - 50
+        r.onEvent(RunnerEvent.Sample(PoseSample(early, emptyMap()), Frame(early, FakeImage()), LandmarkFrame(early, null)))
+        r.feed(2)
+        r.onEvent(RunnerEvent.Done)
+        assertEquals(listOf(1_100L, 1_200L), written.single().second.distinct())
+    }
+
+    @Test
+    fun `a still close with an unmet camera check is cannot tell, never not done`() = runTest {
+        val r = runner(FakeVerifier(Outcome.NOT_DONE))
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        // Still child in frame (pose present, no movement) until the still rule closes the window.
+        while (store.rows.isEmpty()) {
+            now += 100
+            r.onEvent(RunnerEvent.Sample(PoseSample(now, visiblePose()), null, LandmarkFrame(now, visiblePose().values.toList())))
+        }
+        assertEquals(AttemptVerdict.CANNOT_TELL, store.rows.single().verdict)
+        assertEquals(VerdictReason.NOT_JUDGEABLE, store.rows.single().reason)
+    }
+
+    @Test
+    fun `a failed row insert deletes its frames and the retry writes fresh ones`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.feed(3)
+        store.failRow = true
+        r.onEvent(RunnerEvent.Done)
+        assertTrue(r.state.value is RunnerState.Error)
+        assertEquals(3, discarded.size)
+        r.onEvent(RunnerEvent.Retry)
+        val row = store.rows.single()
+        assertEquals((0..2).map { "frames/sess/${row.id}-$it.bin" }, row.framePaths)
+        assertTrue(discarded.none { it in row.framePaths })
+    }
+
+    @Test
+    fun `pausing during a failed save drops the pending row and its frames`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        r.onEvent(RunnerEvent.AudioEnded)
+        r.feed(3)
+        store.failNext = 1 // the session save at window close fails, after nothing was written
+        r.onEvent(RunnerEvent.Done)
+        assertTrue(r.state.value is RunnerState.Error)
+        r.pause()
+        assertTrue(store.rows.isEmpty())
+        assertEquals(written.flatMap { (id, ts) -> ts.indices.map { "frames/sess/$id-$it.bin" } }, discarded)
     }
 }

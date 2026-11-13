@@ -120,6 +120,7 @@
     <string name="adult_sheet_pause">إيقاف مؤقت</string>
     <string name="adult_sheet_resume">كمّل</string>
     <string name="adult_sheet_exit">خروج (بالرقم السري)</string>
+    <string name="adult_sheet_camera_unavailable">الكاميرا مش شغالة. خطوات الكاميرا هتتسجل &quot;مش واضح&quot;. اتأكد من إذن الكاميرا وإن مفيش حاجة مغطياها.</string>
     <string name="children_continue_title">كمّل جلسة اتقطعت</string>
     <string name="children_continue_item">%1$s · %2$s</string>
     <string name="children_continue">كمّل</string>

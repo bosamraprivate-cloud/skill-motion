@@ -1,13 +1,19 @@
 package com.aitherapist.dls.ui.child
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.aitherapist.dls.camera.CameraController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -39,6 +45,9 @@ fun ChildModeHost(
     val scope = rememberCoroutineScope()
     val sheetOpen by viewModel.adultSheet.collectAsStateWithLifecycle()
     val completed by viewModel.completed.collectAsStateWithLifecycle()
+    val cameraWanted by viewModel.cameraWanted.collectAsStateWithLifecycle()
+    val cameraUnavailable by viewModel.cameraUnavailable.collectAsStateWithLifecycle()
+    if (cameraWanted) BackgroundCamera(viewModel::onFrame, viewModel::onCameraError)
     LaunchedEffect(completed, hasNext) {
         if (completed && hasNext) {
             delay(NEXT_TASK_DELAY_MS) // the calm end shows briefly before the next task's start screen
@@ -55,6 +64,7 @@ fun ChildModeHost(
     if (sheetOpen) {
         AdultPauseSheet(
             paused = state.isPaused,
+            cameraUnavailable = cameraUnavailable,
             onPause = viewModel::pause,
             onResume = viewModel::resume,
             onExit = {
@@ -69,3 +79,15 @@ fun ChildModeHost(
 }
 
 private const val NEXT_TASK_DELAY_MS = 2_000L
+
+/** Story 3.5: the front camera's analysis stream while a camera-scored step runs; no preview is shown to the child. */
+@Composable
+private fun BackgroundCamera(onFrame: (Bitmap, Long) -> Unit, onError: (String) -> Unit) {
+    val context = LocalContext.current
+    val owner = LocalLifecycleOwner.current
+    val controller = remember { CameraController(context) }
+    DisposableEffect(owner) {
+        controller.bindAnalysis(owner, onFrame, onError)
+        onDispose { controller.unbind() }
+    }
+}

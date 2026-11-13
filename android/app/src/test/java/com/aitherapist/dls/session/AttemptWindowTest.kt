@@ -129,6 +129,18 @@ class AttemptWindowTest {
 
     @Test
     fun `rules version is set`() {
-        assertEquals(1, WindowRules.RULES_VERSION)
+        assertEquals(2, WindowRules.RULES_VERSION)
+    }
+
+    @Test
+    fun `samples without a pose never let the still rule close the window`() {
+        val w = AttemptWindow(0)
+        var t = 0L
+        while (t < 30_000) {
+            t += 100
+            w.onSample(PoseSample(t, emptyMap()))
+        }
+        assertEquals(null, w.check(t))
+        assertEquals(CloseReason.TIMEOUT, w.check(45_000))
     }
 }

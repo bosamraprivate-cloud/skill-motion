@@ -1,5 +1,6 @@
 package com.aitherapist.dls.ui.child
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,16 +8,20 @@ import com.aitherapist.dls.audio.AudioPlayer
 import com.aitherapist.dls.catalog.CatalogRepository
 import com.aitherapist.dls.catalog.CatalogStep
 import com.aitherapist.dls.catalog.CharacterVariant
+import com.aitherapist.dls.catalog.Landmarker
 import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.data.ChildProfiles
 import com.aitherapist.dls.data.ResumableSessions
 import com.aitherapist.dls.session.AssessmentRunner
 import com.aitherapist.dls.session.AssessmentRunnerFactory
 import com.aitherapist.dls.session.Clock
+import com.aitherapist.dls.session.PoseSample
 import com.aitherapist.dls.session.PromptState
 import com.aitherapist.dls.session.RunnerEvent
 import com.aitherapist.dls.session.RunnerState
 import com.aitherapist.dls.ui.therapist.CharacterIndexSource
+import com.aitherapist.dls.vision.AttemptCapture
+import com.aitherapist.dls.vision.CapturedSample
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
 import javax.inject.Inject
@@ -57,7 +62,9 @@ constructor(
     private val keys: ChildModeKeys,
     private val clock: Clock,
     /** Outlives this ViewModel: saves the session `paused` after the step screen is gone. */
-    private val outerScope: CoroutineScope
+    private val outerScope: CoroutineScope,
+    /** Story 3.5: background camera landmarks for camera-scored steps (no preview). */
+    private val capture: AttemptCapture? = null
 ) : ViewModel() {
     private val state = MutableStateFlow<StepUiState>(StepUiState.Waiting)
     val uiState: StateFlow<StepUiState> = state.asStateFlow()
@@ -68,6 +75,19 @@ constructor(
 
     /** The last step finished and the session is saved `done` (the host may chain the next task). */
     val completed: StateFlow<Boolean> = finishedFlow.asStateFlow()
+
+    private val cameraFlow = MutableStateFlow(false)
+
+    /** The camera should run (a camera-scored step is on screen and the run is not held); the host binds it. */
+    val cameraWanted: StateFlow<Boolean> = cameraFlow.asStateFlow()
+
+    private val cameraDown = MutableStateFlow(false)
+
+    /** The camera or landmarkers failed: shown to the adult in the pause sheet only, never to the child. */
+    val cameraUnavailable: StateFlow<Boolean> = cameraDown.asStateFlow()
+
+    /** Step index the capture was last configured for: a change drops any frame in flight. */
+    private var captureStep: Int? = null
 
     /** The adult pause sheet (Pause / Resume / Exit) is open. */
     val adultSheet: StateFlow<Boolean> = sheet.asStateFlow()
@@ -104,6 +124,48 @@ constructor(
     init {
         // A paired key means Start on the task start screen, Done on a step.
         viewModelScope.launch { keys.events.collect { if (awaitingStart) beginTask() else onEvent(StepEvent.Done) } }
+        capture?.let { source ->
+            viewModelScope.launch { source.samples.collect(::onSample) }
+            viewModelScope.launch { source.failed.collect { if (it) cameraDown.value = true } }
+        }
+    }
+
+    /** Camera analysis thread: handed to the capture, never kept here. */
+    fun onFrame(bitmap: Bitmap, timestampMs: Long) {
+        capture?.onFrame(bitmap, timestampMs)
+    }
+
+    /** The camera could not start: no samples arrive, so camera steps are judged cannot tell (out_of_frame). */
+    fun onCameraError(reason: String) {
+        runCatching { Log.w(TAG, "camera unavailable: $reason") }
+        cameraDown.value = true
+    }
+
+    /** A paired sample goes to the runner only while its window is open (the runner ignores it otherwise). */
+    private suspend fun onSample(sample: CapturedSample) {
+        val target = runner ?: return
+        if (target.state.value !is RunnerState.Attempt || paused || localPaused) return
+        val joints = sample.landmarks.pose?.withIndex()?.associate { (i, p) -> i to p }.orEmpty()
+        val pose = PoseSample(sample.landmarks.timestampMs, joints, sample.landmarks.hands)
+        target.onEvent(RunnerEvent.Sample(pose, sample.frame, sample.landmarks))
+    }
+
+    /** Landmarkers for the current state: the step's own while it is on screen and not held, else none. */
+    private fun syncCapture(current: RunnerState) {
+        val held = paused || awaitingStart || localPaused || ended
+        val wanted: Set<Landmarker> =
+            if (held || current !is RunnerState.OnStep || current is RunnerState.Paused) {
+                emptySet()
+            } else {
+                steps.getOrNull(current.stepIndex)?.detector?.landmarkers.orEmpty().toSet()
+            }
+        val stepIndex = (current as? RunnerState.OnStep)?.stepIndex
+        if (stepIndex != captureStep) {
+            captureStep = stepIndex
+            capture?.reset()
+        }
+        capture?.configure(wanted)
+        cameraFlow.value = wanted.isNotEmpty()
     }
 
     /**
@@ -292,6 +354,7 @@ constructor(
         }
         if (current == RunnerState.Completed) finishedFlow.value = true
         if (current is RunnerState.Error) ensureRetrying() else stopRetrying()
+        syncCapture(current)
         state.value = render(current)
     }
 
@@ -420,6 +483,8 @@ constructor(
 
     override fun onCleared() {
         audio.stop()
+        cameraFlow.value = false
+        capture?.close()
         // Leaving child mode (Exit + PIN) keeps the session resumable: it is saved `paused`, never abandoned.
         runner?.let { target -> outerScope.launch { target.pause() } }
     }
