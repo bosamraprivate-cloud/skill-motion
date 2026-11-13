@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,56 +68,61 @@ fun NewSessionDialog(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val content = state as? NewSessionUiState.Content
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-        shape = RoundedCornerShape(Radius.Lg),
-        containerColor = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.padding(Spacing.S5).widthIn(max = DIALOG_MAX_WIDTH),
-        title = { Text(stringResource(R.string.new_session_title), style = MaterialTheme.typography.headlineMedium) },
-        text = {
-            Column(
-                Modifier.heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(Spacing.S3)
-            ) {
-                when (val s = state) {
-                    NewSessionUiState.Loading -> Skeleton(rows = 4)
-                    is NewSessionUiState.Error -> Text(stringResource(R.string.new_session_error, s.reason))
-                    is NewSessionUiState.Content -> {
-                        s.byArea.forEach { (area, options) ->
-                            Text(
-                                s.areaNames[area] ?: area,
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.padding(top = Spacing.S2)
-                            )
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(Spacing.S3),
-                                verticalArrangement = Arrangement.spacedBy(Spacing.S3)
-                            ) {
-                                options.forEach { option ->
-                                    TaskTile(option, character, option.id == s.selectedId) {
-                                        viewModel.onEvent(NewSessionEvent.Select(option.id))
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            shape = RoundedCornerShape(Radius.Lg),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp,
+            modifier = Modifier.padding(Spacing.S5).widthIn(max = DIALOG_MAX_WIDTH).fillMaxWidth()
+        ) {
+            Column(Modifier.padding(Spacing.S4), verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
+                Text(stringResource(R.string.new_session_title), style = MaterialTheme.typography.headlineMedium)
+                Column(
+                    Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.S3)
+                ) {
+                    when (val s = state) {
+                        NewSessionUiState.Loading -> Skeleton(rows = 4)
+                        is NewSessionUiState.Error -> Text(stringResource(R.string.new_session_error, s.reason))
+                        is NewSessionUiState.Content -> {
+                            s.byArea.forEach { (area, options) ->
+                                Text(
+                                    s.areaNames[area] ?: area,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.padding(top = Spacing.S2)
+                                )
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(Spacing.S3),
+                                    verticalArrangement = Arrangement.spacedBy(Spacing.S3)
+                                ) {
+                                    options.forEach { option ->
+                                        TaskTile(option, character, option.id == s.selectedId) {
+                                            viewModel.onEvent(NewSessionEvent.Select(option.id))
+                                        }
                                     }
                                 }
                             }
+                            s.selected?.takeIf { it.isPair }?.let { pair -> PairChoiceRow(pair, s.choice, viewModel::onEvent) }
                         }
-                        s.selected?.takeIf { it.isPair }?.let { pair -> PairChoiceRow(pair, s.choice, viewModel::onEvent) }
                     }
                 }
+                // Start / Cancel stay pinned below the scrolling tiles.
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.S2, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onDismiss, modifier = Modifier.height(48.dp)) { Text(stringResource(R.string.new_session_cancel)) }
+                    Button(
+                        enabled = content?.selected != null,
+                        shape = RoundedCornerShape(Radius.Sm),
+                        modifier = Modifier.height(48.dp).widthIn(min = 120.dp),
+                        onClick = { viewModel.plan()?.let { (first, then) -> onStart(first, then) } }
+                    ) { Text(stringResource(R.string.new_session_start)) }
+                }
             }
-        },
-        confirmButton = {
-            Button(
-                enabled = content?.selected != null,
-                shape = RoundedCornerShape(Radius.Sm),
-                modifier = Modifier.height(48.dp).widthIn(min = 120.dp),
-                onClick = { viewModel.plan()?.let { (first, then) -> onStart(first, then) } }
-            ) { Text(stringResource(R.string.new_session_start)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, modifier = Modifier.height(48.dp)) { Text(stringResource(R.string.new_session_cancel)) }
         }
-    )
+    }
 }
 
 @Composable

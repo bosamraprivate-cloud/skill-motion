@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -146,7 +147,7 @@ private fun MainArea(state: StepUiState.Step) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
-                    Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(Radius.Lg)).background(ChildColors.ClipBackdrop),
+                    Modifier.weight(1f).fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     CharacterView(
@@ -154,7 +155,9 @@ private fun MainArea(state: StepUiState.Step) {
                         loop = false,
                         still = visual.still,
                         stillMode = !visual.animate,
-                        modifier = Modifier.fillMaxSize()
+                        // The card takes the clip's portrait aspect, so the clip fills it edge to edge (no band).
+                        modifier = Modifier.fillMaxHeight().aspectRatio(CLIP_ASPECT, matchHeightConstraintsFirst = true)
+                            .clip(RoundedCornerShape(Radius.Lg))
                     )
                 }
                 Sentence(state.sentence)

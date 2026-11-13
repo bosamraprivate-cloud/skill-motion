@@ -70,5 +70,8 @@ fun CharacterView(
     )
 }
 
+/** Width / height of the generated step clips and stills (9:16 portrait). */
+const val CLIP_ASPECT = 9f / 16f
+
 private const val ASSET_URI = "file:///android_asset/"
 private const val LOG_TAG = "DlsCharacter"

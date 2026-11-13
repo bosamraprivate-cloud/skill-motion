@@ -1,10 +1,10 @@
 package com.aitherapist.dls.ui.child
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,7 +43,7 @@ fun TaskStartContent(state: StepUiState.Start, onStart: () -> Unit, modifier: Mo
                 Box(
                     Modifier.weight(
                         START_PICTURE_WEIGHT
-                    ).fillMaxHeight().clip(RoundedCornerShape(Radius.Lg)).background(ChildColors.ClipBackdrop),
+                    ).fillMaxHeight(),
                     contentAlignment = Alignment.Center
                 ) {
                     CharacterView(
@@ -51,7 +51,9 @@ fun TaskStartContent(state: StepUiState.Start, onStart: () -> Unit, modifier: Mo
                         loop = false,
                         still = picture,
                         stillMode = true,
-                        modifier = Modifier.fillMaxSize()
+                        // The card takes the clip's portrait aspect, so the clip fills it edge to edge (no band).
+                        modifier = Modifier.fillMaxHeight().aspectRatio(CLIP_ASPECT, matchHeightConstraintsFirst = true)
+                            .clip(RoundedCornerShape(Radius.Lg))
                     )
                 }
             }
