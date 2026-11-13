@@ -9,7 +9,7 @@ import kotlin.math.roundToLong
  * Pure evaluator for every body [Check] type (AD-4, design "Check types"): `angleAbove`, `angleBelow`,
  * `pointAbove`, `distanceBelow`, `distanceAbove`, `inZone`. Visibility first, then a continuous `holdSec`
  * on any candidate side. Doubt is never failure: anything that cannot be measured becomes `CANNOT_TELL`.
- * Hand and cloud checks return `CANNOT_TELL` / `not_judgeable` (other verifiers handle them).
+ * `handsRubbing` is judged by [HandsRubbingEvaluator]. Cloud checks return `CANNOT_TELL` / `not_judgeable` (other verifiers handle them).
  * May throw on malformed content; callers catch.
  */
 object CheckEvaluator {
@@ -38,12 +38,14 @@ object CheckEvaluator {
                     val zone = normalise(zones[check.zone]) ?: return Outcome.CANNOT_TELL to VerdictReason.NO_ZONE
                     check.holdSec to sides(check.side) { s -> zoneRule(check.landmark, zone, s) }
                 }
+                is Check.HandsRubbing -> return HandsRubbingEvaluator.judge(check, landmarks)
                 else -> return Outcome.CANNOT_TELL to VerdictReason.NOT_JUDGEABLE
             }
-        // Non-positive or non-finite hold means "at least one frame".
-        val holdMs = if (holdSec.isFinite() && holdSec > 0.0) (holdSec * MS_PER_SEC).roundToLong() else 0L
-        return judge(rules, holdMs, landmarks)
+        return judge(rules, holdMillis(holdSec), landmarks)
     }
+
+    /** Non-positive or non-finite hold means "at least one frame". */
+    internal fun holdMillis(holdSec: Double): Long = if (holdSec.isFinite() && holdSec > 0.0) (holdSec * MS_PER_SEC).roundToLong() else 0L
 
     /** A zone with min/max edges, or null when missing, non-finite or without area. */
     private fun normalise(zone: Zone?): Zone? {
@@ -93,7 +95,7 @@ object CheckEvaluator {
      * Longest time the hold could have happened unobserved: spans between good frames that contain bad frames
      * or a gap above [MAX_GAP_MS], plus the stretches from the window edges to the first/last good frame.
      */
-    private fun longestDoubt(ordered: List<LandmarkFrame>, good: (LandmarkFrame) -> Boolean): Long {
+    internal fun longestDoubt(ordered: List<LandmarkFrame>, good: (LandmarkFrame) -> Boolean): Long {
         val firstTs = ordered.first().timestampMs
         var lastGood: Long? = null
         var badSince = false

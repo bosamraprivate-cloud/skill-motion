@@ -171,9 +171,7 @@ class CheckEvaluationTest {
     }
 
     @Test
-    fun `non body checks give not judgeable`() {
-        val rubbing = step.copy(check = Check.HandsRubbing(0.5, 0.1, 0.3))
-        assertVerdict(Outcome.CANNOT_TELL, VerdictReason.NOT_JUDGEABLE, verdict(frames { true }, rubbing))
+    fun `cloud and missing checks give not judgeable`() {
         val question = step.copy(check = Check.Question("q"))
         assertVerdict(Outcome.CANNOT_TELL, VerdictReason.NOT_JUDGEABLE, verdict(frames { true }, question))
         assertVerdict(Outcome.CANNOT_TELL, VerdictReason.NOT_JUDGEABLE, verdict(frames { true }, step.copy(check = null)))

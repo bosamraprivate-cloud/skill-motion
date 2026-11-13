@@ -151,6 +151,8 @@ kover {
                     classes(
                         "com.aitherapist.dls.vision.Geometry*",
                         "com.aitherapist.dls.vision.PoseVerifier*",
+                        "com.aitherapist.dls.vision.HandVerifier*",
+                        "com.aitherapist.dls.vision.HandsRubbingEvaluator*",
                         "com.aitherapist.dls.vision.CheckEvaluator*",
                         "com.aitherapist.dls.vision.VisibilityGate*",
                         "com.aitherapist.dls.vision.FrameCropper*",
