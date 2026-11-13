@@ -26,7 +26,9 @@ class PinHash(val hash: ByteArray, val salt: ByteArray, val iterations: Int = Pi
  * App-private DataStore settings (design §Encryption). The DB passphrase and the shared secret are stored only
  * encrypted with [KeyManager]; nothing here is ever logged.
  */
-class SecureSettings internal constructor(private val store: DataStore<Preferences>, private val keys: KeyManager) : TherapistSettings {
+class SecureSettings internal constructor(private val store: DataStore<Preferences>, private val keys: KeyManager) :
+    TherapistSettings,
+    ZoneStore {
     private val passphraseLock = Mutex()
 
     /** The 32-byte SQLCipher passphrase; generated, encrypted and stored on first call. */
@@ -80,7 +82,7 @@ class SecureSettings internal constructor(private val store: DataStore<Preferenc
         String(keys.decrypt(decode(it)), Charsets.UTF_8)
     }
 
-    suspend fun setZones(zones: Map<String, Zone>) {
+    override suspend fun setZones(zones: Map<String, Zone>) {
         zones.values.forEach { z ->
             require(listOf(z.left, z.top, z.right, z.bottom).all { it in 0f..1f }) { "Zone outside 0..1" }
             require(z.left < z.right && z.top < z.bottom) { "Zone has no area" }
@@ -88,7 +90,8 @@ class SecureSettings internal constructor(private val store: DataStore<Preferenc
         store.edit { it[ZONES] = Json.encodeToString(ZONES_SERIALIZER, zones) }
     }
 
-    suspend fun zones(): Map<String, Zone> = store.data.first()[ZONES]?.let { Json.decodeFromString(ZONES_SERIALIZER, it) } ?: emptyMap()
+    override suspend fun zones(): Map<String, Zone> =
+        store.data.first()[ZONES]?.let { Json.decodeFromString(ZONES_SERIALIZER, it) } ?: emptyMap()
 
     internal companion object {
         const val PASSPHRASE_BYTES = 32

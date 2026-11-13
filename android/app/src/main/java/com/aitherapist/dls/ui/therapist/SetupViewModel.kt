@@ -69,6 +69,11 @@ internal constructor(
 
     private fun onContinue(current: SetupUiState.Content) {
         if (!current.canContinue) return
+        if (current.step == SetupStep.ZONES) {
+            // Zones are optional and saved by the zone editor itself; leaving this step ends setup.
+            state.value = SetupUiState.Done
+            return
+        }
         if (current.step == SetupStep.PROXY) {
             // Mark saving before launching: the save may finish (Done/Error) before launch returns.
             state.value = current.copy(saving = true)
@@ -85,12 +90,12 @@ internal constructor(
                     } else {
                         current.copy(confirmPin = "", pinMismatch = true)
                     }
-                SetupStep.PROXY -> current
+                SetupStep.PROXY, SetupStep.ZONES -> current
             }
     }
 
     private fun back(current: SetupUiState.Content): SetupUiState.Content = when (current.step) {
-        SetupStep.WELCOME -> current
+        SetupStep.WELCOME, SetupStep.ZONES -> current
         SetupStep.PIN -> current.copy(step = SetupStep.WELCOME, pin = "", pinMismatch = false)
         SetupStep.CONFIRM_PIN, SetupStep.PROXY -> current.copy(step = SetupStep.PIN, pin = "", confirmPin = "", pinMismatch = false)
     }
@@ -106,7 +111,8 @@ internal constructor(
                         // The PIN goes last: once it exists the app treats setup as complete.
                         settings.setPin(current.pin)
                     }
-                    SetupUiState.Done
+                    // Setup is complete once the PIN is saved; the optional zone step follows.
+                    current.copy(step = SetupStep.ZONES, pin = "", confirmPin = "", secret = "", saving = false)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (

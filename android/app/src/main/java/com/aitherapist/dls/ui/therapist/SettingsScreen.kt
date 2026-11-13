@@ -1,5 +1,6 @@
 package com.aitherapist.dls.ui.therapist
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,11 +44,17 @@ import com.aitherapist.dls.ui.theme.Spacing
 @Composable
 fun SettingsRoute(viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    SettingsScreen(state = state, onEvent = viewModel::onEvent)
+    var showZones by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = showZones) { showZones = false }
+    if (showZones) {
+        ZoneEditorRoute(onDone = { showZones = false }, doneLabel = stringResource(R.string.zones_done))
+    } else {
+        SettingsScreen(state = state, onEvent = viewModel::onEvent, onOpenZones = { showZones = true })
+    }
 }
 
 @Composable
-fun SettingsScreen(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit, modifier: Modifier = Modifier) {
+fun SettingsScreen(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit, modifier: Modifier = Modifier, onOpenZones: () -> Unit = {}) {
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -57,6 +67,10 @@ fun SettingsScreen(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit, mod
             is SettingsUiState.Content -> {
                 PinSection(state, onEvent)
                 ProxySection(state, onEvent)
+                Section(stringResource(R.string.settings_zones_section)) {
+                    Text(stringResource(R.string.settings_zones_body), style = MaterialTheme.typography.bodyLarge)
+                    Button(onClick = onOpenZones) { Text(stringResource(R.string.settings_zones_open)) }
+                }
             }
         }
     }

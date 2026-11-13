@@ -30,6 +30,9 @@ internal object DataModule {
     fun therapistSettings(settings: SecureSettings): TherapistSettings = settings
 
     @Provides
+    fun zoneStore(settings: SecureSettings): ZoneStore = settings
+
+    @Provides
     fun childProfiles(repository: ChildRepository): ChildProfiles = repository
 
     @Provides

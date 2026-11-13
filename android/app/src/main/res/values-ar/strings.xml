@@ -140,4 +140,23 @@
     <string name="new_session_cancel">إلغاء</string>
     <string name="child_edit">تعديل</string>
     <string name="shell_brand">Skillmotion</string>
+    <string name="zones_title">مناطق التجهيز</string>
+    <string name="zones_hint">اختار منطقة، وبعدين اسحب مستطيل عليها في صورة الكاميرا. لو رسمتها تاني هتتغير. المناطق اختيارية.</string>
+    <string name="zones_mat">المفرش (الترابيزة)</string>
+    <string name="zones_sink">الحوض</string>
+    <string name="zones_place">مكان الجاكيت</string>
+    <string name="zones_drawn">مرسومة</string>
+    <string name="zones_not_drawn">مش مرسومة</string>
+    <string name="zones_clear">امسح</string>
+    <string name="zones_too_small">المستطيل صغير قوي. اسحب مستطيل أكبر على المنطقة.</string>
+    <string name="zones_permission_needed">محتاجين الكاميرا عشان ترسم المناطق على صورتها. اسمح بيها، أو اتخطى وارسم المناطق بعدين من الإعدادات.</string>
+    <string name="zones_error">المناطق ماتحمّلتش (%1$s)</string>
+    <string name="zones_done">تم</string>
+    <string name="zones_skip">اتخطى دلوقتي</string>
+    <string name="settings_zones_section">مناطق التجهيز</string>
+    <string name="settings_zones_body">المفرش والحوض ومكان الجاكيت، مرسومين على صورة الكاميرا.</string>
+    <string name="settings_zones_open">ارسم المناطق</string>
+    <string name="zones_save_failed">المناطق ماتحفظتش. لسه مرسومة؛ جرّب تاني.</string>
+    <string name="zones_try_again">جرّب تاني</string>
+    <string name="zones_camera_error">الكاميرا مااشتغلتش (%1$s). اقفل أي تطبيق تاني بيستخدم الكاميرا وافتح الشاشة دي تاني.</string>
 </resources>

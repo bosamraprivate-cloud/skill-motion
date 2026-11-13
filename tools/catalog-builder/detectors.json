@@ -1,78 +1,131 @@
 {
   "dress.jacket.off.01": {
     "check": null,
-    "framing": null,
+    "framing": "standing",
     "method": "none"
   },
   "dress.jacket.off.02": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "a": {
+        "lm": "WRIST"
+      },
+      "b": {
+        "mid": [
+          "LEFT_SHOULDER",
+          "RIGHT_SHOULDER"
+        ]
+      },
+      "holdSec": 0.3,
+      "ratio": 0.5,
+      "side": "either",
+      "type": "distanceBelow"
+    },
+    "framing": "standing",
+    "method": "hand"
   },
   "dress.jacket.off.03": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child pinching the zipper tab between the fingers?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.off.04": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the jacket zipper fully open?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.off.05": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child holding both front edges of the open jacket?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.off.06": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Has the jacket been pushed off at least one shoulder?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.off.07": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is at least one of the child's arms fully out of its sleeve?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.off.08": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Are both of the child's arms out of the sleeves?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.off.09": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child no longer wearing the jacket?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.off.10": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the jacket lying inside the marked area, with no hand on it?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.on.01": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child holding the jacket up with the collar at the top and the inside facing the child?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.on.02": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child holding the jacket open by both front edges?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.on.03": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Are both of the child's arms inside the jacket sleeves?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.on.04": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the jacket resting on both of the child's shoulders?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.jacket.on.05": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the jacket zipper closed at least up to the chest?",
+      "type": "question"
+    },
+    "framing": "standing",
+    "method": "cloud"
   },
   "dress.shirt.on.01": {
     "check": null,
@@ -266,68 +319,125 @@
   },
   "drink.cup.01": {
     "check": null,
-    "framing": null,
+    "framing": "table",
     "method": "none"
   },
   "drink.cup.02": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "holdSec": 0.3,
+      "landmark": {
+        "lm": "WRIST"
+      },
+      "side": "either",
+      "type": "inZone",
+      "zone": "mat"
+    },
+    "framing": "table",
+    "method": "pose"
   },
   "drink.cup.03": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child's hand wrapped around the cup?",
+      "type": "question"
+    },
+    "framing": "table",
+    "method": "cloud"
   },
   "drink.cup.04": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the cup held in the air above the mat?",
+      "type": "question"
+    },
+    "framing": "table",
+    "method": "cloud"
   },
   "drink.cup.05": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "a": {
+        "lm": "WRIST"
+      },
+      "b": {
+        "mid": [
+          "MOUTH_LEFT",
+          "MOUTH_RIGHT"
+        ]
+      },
+      "holdSec": 0.3,
+      "ratio": 0.6,
+      "side": "either",
+      "type": "distanceBelow"
+    },
+    "framing": "table",
+    "method": "pose"
   },
   "drink.cup.06": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the rim of the cup touching the child's lips?",
+      "type": "question"
+    },
+    "framing": "table",
+    "method": "cloud"
   },
   "drink.cup.07": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the cup tilted toward the child's mouth?",
+      "type": "question"
+    },
+    "framing": "table",
+    "method": "cloud"
   },
   "drink.cup.08": {
     "check": null,
-    "framing": null,
+    "framing": "table",
     "method": "none"
   },
   "drink.cup.09": {
     "check": null,
-    "framing": null,
+    "framing": "table",
     "method": "none"
   },
   "drink.cup.10": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the cup upright again while still held near the mouth?",
+      "type": "question"
+    },
+    "framing": "table",
+    "method": "cloud"
   },
   "drink.cup.11": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "a": {
+        "lm": "WRIST"
+      },
+      "b": {
+        "mid": [
+          "MOUTH_LEFT",
+          "MOUTH_RIGHT"
+        ]
+      },
+      "holdSec": 0.3,
+      "ratio": 1.0,
+      "side": "either",
+      "type": "distanceAbove"
+    },
+    "framing": "table",
+    "method": "pose"
   },
   "drink.cup.12": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the cup standing on the mat while the child still holds it?",
+      "type": "question"
+    },
+    "framing": "table",
+    "method": "cloud"
   },
   "drink.cup.13": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the cup standing on the mat with no hand touching it?",
+      "type": "question"
+    },
+    "framing": "table",
+    "method": "cloud"
   },
   "drink.straw.01": {
     "check": null,
@@ -601,68 +711,113 @@
   },
   "hygiene.handwash.01": {
     "check": null,
-    "framing": null,
+    "framing": "sink",
     "method": "none"
   },
   "hygiene.handwash.02": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "holdSec": 1.0,
+      "landmark": {
+        "mid": [
+          "LEFT_HIP",
+          "RIGHT_HIP"
+        ]
+      },
+      "type": "inZone",
+      "zone": "sink"
+    },
+    "framing": "sink",
+    "method": "pose"
   },
   "hygiene.handwash.03": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is water running from the tap?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.04": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Are both hands under the running water?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.05": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child holding the soap or pressing the soap pump?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.06": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is there soap or lather on the child's hands?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.07": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "holdSec": 2.0,
+      "maxWristRatio": 0.6,
+      "minMotionRatio": 0.05,
+      "type": "handsRubbing"
+    },
+    "framing": "sink",
+    "method": "hand"
   },
   "hygiene.handwash.08": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Are the child's fingers interlaced while rubbing?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.09": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child rubbing the back of one hand with the palm of the other?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.10": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Are the hands under running water with little or no lather left?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.11": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the tap closed with no water running?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.12": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Is the child holding a towel?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.handwash.13": {
-    "check": null,
-    "framing": null,
-    "method": "none"
+    "check": {
+      "text": "Are the child's hands inside or rubbing the towel?",
+      "type": "question"
+    },
+    "framing": "sink",
+    "method": "cloud"
   },
   "hygiene.teeth.01": {
     "check": null,

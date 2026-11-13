@@ -684,3 +684,44 @@ def test_non_contiguous_task_steps_fail(full, monkeypatch):
     monkeypatch.setattr(bc, "parse_steps", lambda _dir=None: moved)
     with pytest.raises(bc.CatalogError, match="not contiguous"):
         bc.build(full)
+
+
+# --- real detectors (Story 3.3) -------------------------------------------------
+
+CAMERA_TASKS = ("dress.jacket.on", "dress.jacket.off", "drink.cup", "hygiene.handwash")
+
+
+def _design_rows() -> dict[str, tuple[str, str]]:
+    design = bc.TOOL_DIR.parents[1] / "docs" / "designs" / "daily-living-skills-app.md"
+    section = design.read_text(encoding="utf-8").split("### Camera-scored steps", 1)[1].split("\n### ", 1)[0]
+    rows = re.findall(r"^\| `([^`]+)` \| [^|]+ \| (\w+) \| (.*) \|$", section, flags=re.M)
+    return {sid: (method, check) for sid, method, check in rows}
+
+
+def test_real_detectors_match_design_table(real_steps):
+    detectors = json.loads((bc.TOOL_DIR / "detectors.json").read_text(encoding="utf-8"))
+    rows = _design_rows()
+    camera = [s.id for s in real_steps if s.task in CAMERA_TASKS]
+    assert len(camera) == 41 and set(camera) == set(rows)
+    methods = [detectors[sid]["method"] for sid in camera]
+    assert methods.count("none") == 5
+    assert methods.count("cloud") == 30
+    assert sum(m in ("pose", "hand") for m in methods) == 6
+    framing = {
+        "drink.cup": "table",
+        "hygiene.handwash": "sink",
+        "dress.jacket.on": "standing",
+        "dress.jacket.off": "standing",
+    }
+    for sid in camera:
+        assert detectors[sid]["framing"] == framing[sid.rsplit(".", 1)[0]], sid
+        method, check = rows[sid]
+        assert detectors[sid]["method"] == method, sid
+        if method == "cloud":
+            assert detectors[sid]["check"] == {"type": "question", "text": check.strip('"')}, sid
+        elif method == "none":
+            assert detectors[sid]["check"] is None, sid
+        else:
+            assert detectors[sid]["check"]["type"] == check.split("`")[1], sid
+    others = [s.id for s in real_steps if s.task not in CAMERA_TASKS]
+    assert all(detectors.get(sid, {"method": "none"})["method"] == "none" for sid in others)

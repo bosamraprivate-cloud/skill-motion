@@ -1,6 +1,6 @@
 package com.aitherapist.dls.ui.therapist
 
-enum class SetupStep { WELCOME, PIN, CONFIRM_PIN, PROXY }
+enum class SetupStep { WELCOME, PIN, CONFIRM_PIN, PROXY, ZONES }
 
 sealed interface SetupUiState {
     data class Content(
@@ -21,6 +21,7 @@ sealed interface SetupUiState {
                     SetupStep.PIN -> PinRules.isValid(pin)
                     SetupStep.CONFIRM_PIN -> PinRules.isValid(confirmPin)
                     SetupStep.PROXY -> proxyUrlValid && secret.isNotBlank() && !saving
+                    SetupStep.ZONES -> true
                 }
 
         // PIN and secret are typed into masked fields; never print them.

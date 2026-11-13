@@ -140,4 +140,23 @@
     <string name="new_session_cancel">Cancel</string>
     <string name="child_edit">Edit</string>
     <string name="shell_brand">Skillmotion</string>
+    <string name="zones_title">Setup zones</string>
+    <string name="zones_hint">Pick a zone, then drag a rectangle over it on the camera picture. Drawing again replaces it. Zones are optional.</string>
+    <string name="zones_mat">Mat (table)</string>
+    <string name="zones_sink">Sink</string>
+    <string name="zones_place">Place for the jacket</string>
+    <string name="zones_drawn">drawn</string>
+    <string name="zones_not_drawn">not drawn</string>
+    <string name="zones_clear">Clear</string>
+    <string name="zones_too_small">That rectangle is too small. Drag a larger one over the zone.</string>
+    <string name="zones_permission_needed">The camera is needed to draw zones on its picture. Allow it, or skip and draw zones later in Settings.</string>
+    <string name="zones_error">Zones could not be loaded (%1$s)</string>
+    <string name="zones_done">Done</string>
+    <string name="zones_skip">Skip for now</string>
+    <string name="settings_zones_section">Setup zones</string>
+    <string name="settings_zones_body">Mat, sink and the jacket place, drawn on the camera picture.</string>
+    <string name="settings_zones_open">Draw zones</string>
+    <string name="zones_save_failed">The zones could not be saved. They are still drawn; try again.</string>
+    <string name="zones_try_again">Try again</string>
+    <string name="zones_camera_error">The camera could not start (%1$s). Close other camera apps and reopen this screen.</string>
 </resources>

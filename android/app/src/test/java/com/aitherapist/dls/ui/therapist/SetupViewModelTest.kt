@@ -106,6 +106,12 @@ class SetupViewModelTest {
         vm.onEvent(SetupEvent.ProxyUrlChanged(" https://proxy.example.dev "))
         vm.onEvent(SetupEvent.SecretChanged("s3cret"))
         vm.onEvent(SetupEvent.Continue)
+        // Saved; the optional zone step follows and can be skipped.
+        assertEquals(SetupStep.ZONES, vm.content.step)
+        assertEquals("", vm.content.secret)
+        vm.onEvent(SetupEvent.Back)
+        assertEquals(SetupStep.ZONES, vm.content.step)
+        vm.onEvent(SetupEvent.Continue)
         assertEquals(SetupUiState.Done, vm.uiState.value)
         assertTrue(settings.verifyPin("123456"))
         assertEquals("https://proxy.example.dev", settings.url)

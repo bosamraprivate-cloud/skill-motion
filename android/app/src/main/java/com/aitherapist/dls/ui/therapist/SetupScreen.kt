@@ -1,6 +1,7 @@
 package com.aitherapist.dls.ui.therapist
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,11 +40,22 @@ import com.aitherapist.dls.ui.theme.DlsTheme
 fun SetupRoute(onFinished: () -> Unit, viewModel: SetupViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(state) { if (state == SetupUiState.Done) onFinished() }
-    SetupScreen(state = state, onEvent = viewModel::onEvent)
+    SetupScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        zoneStep = { m, onDone ->
+            Box(m) { ZoneEditorRoute(onDone = onDone, doneLabel = stringResource(R.string.zones_skip)) }
+        }
+    )
 }
 
 @Composable
-fun SetupScreen(state: SetupUiState, onEvent: (SetupEvent) -> Unit, modifier: Modifier = Modifier) {
+fun SetupScreen(
+    state: SetupUiState,
+    onEvent: (SetupEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    zoneStep: @Composable (Modifier, () -> Unit) -> Unit = { _, _ -> }
+) {
     Scaffold(modifier = modifier) { padding ->
         val inner = Modifier.fillMaxSize().padding(padding).padding(24.dp)
         when (state) {
@@ -52,6 +64,7 @@ fun SetupScreen(state: SetupUiState, onEvent: (SetupEvent) -> Unit, modifier: Mo
                     SetupStep.WELCOME -> WelcomeStep(onEvent, inner)
                     SetupStep.PIN, SetupStep.CONFIRM_PIN -> PinStep(state, onEvent, inner)
                     SetupStep.PROXY -> ProxyStep(state, onEvent, inner)
+                    SetupStep.ZONES -> zoneStep(Modifier.padding(padding)) { onEvent(SetupEvent.Continue) }
                 }
             SetupUiState.Done -> Unit
             is SetupUiState.Error ->

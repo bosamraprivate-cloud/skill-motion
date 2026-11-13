@@ -49,13 +49,36 @@ class CameraController(private val context: Context) {
     @Volatile private var disposed = false
 
     /** [onError] receives the exception type name only (e.g. no front camera). */
-    fun bind(owner: LifecycleOwner, surfaceProvider: Preview.SurfaceProvider, onFrame: (Bitmap, Long) -> Unit, onError: (String) -> Unit) {
+    fun bind(owner: LifecycleOwner, surfaceProvider: Preview.SurfaceProvider, onFrame: (Bitmap, Long) -> Unit, onError: (String) -> Unit) =
+        bindInternal(owner, surfaceProvider, onFrame, onError) {}
+
+    /**
+     * Binds the front preview only (no analysis, no frame work). [onAspect] gets the upright preview width / height once,
+     * on the main thread; [onError] as in [bind].
+     */
+    fun bindPreview(owner: LifecycleOwner, surfaceProvider: Preview.SurfaceProvider, onAspect: (Float) -> Unit, onError: (String) -> Unit) =
+        bindInternal(owner, surfaceProvider, null, onError, onAspect)
+
+    private fun bindInternal(
+        owner: LifecycleOwner,
+        surfaceProvider: Preview.SurfaceProvider,
+        onFrame: ((Bitmap, Long) -> Unit)?,
+        onError: (String) -> Unit,
+        onAspect: (Float) -> Unit
+    ) {
         disposed = false
         val future = ProcessCameraProvider.getInstance(context)
         future.addListener({
             if (disposed) return@addListener
             try {
-                bindNow(future.get(), owner, surfaceProvider, onFrame)
+                val info = bindNow(future.get(), owner, surfaceProvider, onFrame)
+                val size = info?.resolution
+                if (size != null && size.width > 0 && size.height > 0) {
+                    val quarter = info.rotationDegrees % HALF_TURN != 0
+                    val w = if (quarter) size.height else size.width
+                    val h = if (quarter) size.width else size.height
+                    onAspect(w.toFloat() / h)
+                }
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception
             ) {
@@ -69,10 +92,9 @@ class CameraController(private val context: Context) {
         cameraProvider: ProcessCameraProvider,
         owner: LifecycleOwner,
         surfaceProvider: Preview.SurfaceProvider,
-        onFrame: (Bitmap, Long) -> Unit
-    ) {
+        onFrame: ((Bitmap, Long) -> Unit)?
+    ): androidx.camera.core.ResolutionInfo? {
         provider = cameraProvider
-        val analysisExecutor = Executors.newSingleThreadExecutor().also { executor = it }
         val selector =
             ResolutionSelector
                 .Builder()
@@ -82,6 +104,12 @@ class CameraController(private val context: Context) {
                 ).build()
         val preview = Preview.Builder().setResolutionSelector(selector).build()
         preview.surfaceProvider = surfaceProvider
+        if (onFrame == null) {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, preview)
+            return preview.resolutionInfo
+        }
+        val analysisExecutor = Executors.newSingleThreadExecutor().also { executor = it }
         val analysis =
             ImageAnalysis
                 .Builder()
@@ -94,6 +122,7 @@ class CameraController(private val context: Context) {
         }
         cameraProvider.unbindAll()
         cameraProvider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, preview, analysis)
+        return null
     }
 
     /** Releases the camera and the analysis thread. */
@@ -131,5 +160,6 @@ class CameraController(private val context: Context) {
 
     private companion object {
         val TARGET_SIZE = Size(640, 480)
+        const val HALF_TURN = 180
     }
 }

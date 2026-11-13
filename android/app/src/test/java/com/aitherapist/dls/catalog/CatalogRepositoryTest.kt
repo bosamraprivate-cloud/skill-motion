@@ -221,7 +221,7 @@ class CatalogRepositoryTest {
     @Test
     fun `landmarkers derive from method and check`() {
         assertEquals(listOf(Landmarker.POSE, Landmarker.HAND), StepDetector(Method.CLOUD).landmarkers)
-        assertEquals(listOf(Landmarker.HAND), StepDetector(Method.HAND).landmarkers)
+        assertEquals(listOf(Landmarker.POSE, Landmarker.HAND), StepDetector(Method.HAND).landmarkers)
         assertEquals(listOf(Landmarker.POSE), StepDetector(Method.POSE).landmarkers)
         assertEquals(
             listOf(Landmarker.POSE, Landmarker.HAND),

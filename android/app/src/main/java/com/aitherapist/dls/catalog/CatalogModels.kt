@@ -209,7 +209,8 @@ data class StepDetector(val method: Method, val framing: String? = null, val che
             Method.NONE -> emptyList()
             Method.CLOUD -> listOf(Landmarker.POSE, Landmarker.HAND)
             Method.POSE -> if (check is Check.HandsRubbing) listOf(Landmarker.POSE, Landmarker.HAND) else listOf(Landmarker.POSE)
-            Method.HAND -> listOf(Landmarker.HAND)
+            // Hand checks scale by pose shoulder width, so pose always runs too (coordinator decision, Story 3.3).
+            Method.HAND -> listOf(Landmarker.POSE, Landmarker.HAND)
         }
 }
 
