@@ -1141,10 +1141,7 @@
     },
     {
       "area": "drink",
-      "audio": {
-        "normal": "audio/ar-eg/drink.cup.01.mp3",
-        "slow": "audio/ar-eg/drink.cup.01.slow.mp3"
-      },
+      "audio": null,
       "detector": {
         "check": null,
         "framing": null,

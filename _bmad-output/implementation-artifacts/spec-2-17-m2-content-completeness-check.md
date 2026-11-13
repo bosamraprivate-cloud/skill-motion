@@ -2,7 +2,8 @@
 title: 'Story 2.17: M2 content completeness check'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'in-progress'
+baseline_commit: 'a1f0d757ba048f13565e392f4bcb91809a43dc3d'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -44,8 +45,8 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `androidTest/.../catalog/ContentCompletenessTest.kt` -- present-assets test + strict test (assumption-skipped while incomplete).
-- [ ] `docs/designs/m2-content-check.md` -- 30-row checklist + how to run; link from `docs/README.md`.
+- [x] `androidTest/.../catalog/ContentCompletenessTest.kt` -- present-assets test + strict test (assumption-skipped while incomplete).
+- [x] `docs/designs/m2-content-check.md` -- 30-row checklist + how to run; link from `docs/README.md`.
 
 **Acceptance Criteria:**
 - Given the phone, when `./gradlew connectedDebugAndroidTest` runs, then the present-assets test passes and the strict test is reported as skipped with the missing counts.
