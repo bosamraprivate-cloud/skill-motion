@@ -2,7 +2,8 @@
 title: 'Story 2.14: Child step screen with audio, prompts and locked mode'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'done'
+baseline_commit: '3f4e9df6cf12284249c975f6aef1600dddd2f4de'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -57,13 +58,13 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `audio/AudioPlayer.kt` -- play asset mp3 (normal/slow), completion callback, stop; interface for fakes.
-- [ ] `ui/child/StepViewModel.kt` + `StepUiState.kt` -- maps RunnerState + catalogue step + variant to UI (visual, character clip, sentence, done enabled, prompt level); drives audio, debounce, missing-audio delay, auto-retry on Error.
-- [ ] `ui/child/StepScreen.kt`, `StepSchedule.kt`, `StarBar.kt` (display only), `ChildModeHost.kt` -- fixed zones per DESIGN; adult corner long-press.
-- [ ] `MainActivity.kt` -- key → Done when child mode active; lock task start/stop.
-- [ ] navigation + Diagnostics "Try step screen" (pick child, pick task) starting a session (`kind` assessment).
-- [ ] strings (ar + en) for any new UI text.
-- [ ] tests: `StepViewModelTest` (every matrix row with fake runner/audio/clock), `AudioPlayer` fake contract test, debounce test.
+- [x] `audio/AudioPlayer.kt` -- play asset mp3 (normal/slow), completion callback, stop; interface for fakes.
+- [x] `ui/child/StepViewModel.kt` + `StepUiState.kt` -- maps RunnerState + catalogue step + variant to UI (visual, character clip, sentence, done enabled, prompt level); drives audio, debounce, missing-audio delay, auto-retry on Error.
+- [x] `ui/child/StepScreen.kt`, `StepSchedule.kt`, `StarBar.kt` (display only), `ChildModeHost.kt` -- fixed zones per DESIGN; adult corner long-press.
+- [x] `MainActivity.kt` -- key → Done when child mode active; lock task start/stop.
+- [x] navigation + Diagnostics "Try step screen" (pick child, pick task) starting a session (`kind` assessment).
+- [x] strings (ar + en) for any new UI text.
+- [x] tests: `StepViewModelTest` (every matrix row with fake runner/audio/clock), `AudioPlayer` fake contract test, debounce test.
 
 **Acceptance Criteria:**
 - Given the phone, when "Try step screen" runs `eat.sandwich` for a boy child, then each step shows its clip/still, sentence, buttons; Help raises the prompt level visibly; Done advances; leaving needs the adult corner + PIN.
@@ -71,9 +72,34 @@ context:
 
 ## Implementation Notes
 
+- Runner is real in `StepViewModelTest` (fake `SessionStore`, virtual-time `Clock`), not a fake runner: covers the actual Listen/Attempt/Error transitions.
+- Audio is triggered per LISTEN entry by object identity (each prompt entry is a new object), so Repeat while listening replays even though the state is equal.
+- `AudioPlayer.play` returns false for a missing/unplayable file; the 1.5 s fallback covers both null audio and missing files.
+- The VM ticks the runner every 1 s during ATTEMPT so the 20 s still / 45 s timeout rules close windows without Done.
+- Keys: `MainActivity.dispatchKeyEvent` turns any key except Back into Done (via `ChildModeKeys`) only while the step screen is on top; Back is swallowed there. `@SuppressLint("RestrictedApi")` for the known ComponentActivity false positive.
+- Lock task follows `AppGateViewModel.childModeActive` (step screen or its PIN on the stack). Without device-owner, Android shows its own pin confirmation.
+- Verifier for non-`none` steps is `NoneVerifier` until Epic 3.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | second run reuses finished StepViewModel | high | no ViewModelStore decorator; patch |
+| 2 | adult corner fires on cancelled swipe | medium | null from waitForUpOrCancellation treated as timeout; patch |
+| 3 | ticks/audio run while PIN screen or background | medium | windows close unseen; patch (pause, restart attempt) |
+| 4 | leaving mid-run leaves session running | medium | patch (abandoned) |
+| 5 | volume keys swallowed and count as Done | medium | patch (pass through) |
+| 6 | MediaPlayer.prepare on main thread; real player untested | medium | patch (prepareAsync + androidTest) |
+| 7 | wall clock for intervals | medium | patch (elapsedRealtime) |
+| 8 | Help/Repeat not debounced | medium | double tap skips a level; patch |
+| 9 | silent start() failure | low | patch (log type) |
+| 10 | double openChildMode | low | patch (guard) |
+| 11 | TryStepViewModel untested | low | patch tests |
+| 12 | lock-task failure not surfaced to adult | low | deferred (device-owner provisioning later) |
+| 13 | task picker shows raw ids; adult corner a11y label | low | therapist debug entry; deferred |
+| 14 | activity key/lock wiring untested | low | covered by phone check; deferred |
 
 ## Design Notes
 

@@ -19,6 +19,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.aitherapist.dls.R
+import com.aitherapist.dls.ui.child.ChildModeHost
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.sample.SampleRoute
 import com.aitherapist.dls.ui.therapist.CharacterPreviewRoute
@@ -46,6 +47,14 @@ data object SampleKey : NavKey
 /** Typed navigation key for the therapist character clip preview (Story 2.3). */
 @Serializable
 data object CharacterPreviewKey : NavKey
+
+/** Locked child mode: the step screen for one assessment run (Story 2.14). */
+@Serializable
+data class ChildModeKey(val childId: String, val taskId: String) : NavKey
+
+/** PIN screen above the step screen; a right PIN leaves child mode. */
+@Serializable
+data object ChildPinKey : NavKey
 
 /** Navigation 3 root: Setup or Pin first, then the therapist shell; the back stack is held by [AppGateViewModel]. */
 @Composable
@@ -86,11 +95,14 @@ fun AppNavigation(modifier: Modifier = Modifier, gate: AppGateViewModel = hiltVi
             entry<ShellKey> {
                 TherapistShell(
                     onOpenSample = { gate.open(SampleKey) },
-                    onOpenCharacterPreview = { gate.open(CharacterPreviewKey) }
+                    onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
+                    onOpenChildMode = gate::openChildMode
                 )
             }
             entry<SampleKey> { SampleRoute() }
             entry<CharacterPreviewKey> { CharacterPreviewRoute() }
+            entry<ChildModeKey> { key -> ChildModeHost(childId = key.childId, taskId = key.taskId, onAdultCorner = gate::openChildPin) }
+            entry<ChildPinKey> { PinRoute(onUnlocked = gate::leaveChildMode) }
         }
     )
 }

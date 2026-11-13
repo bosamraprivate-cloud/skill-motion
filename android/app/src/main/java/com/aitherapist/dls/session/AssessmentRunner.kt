@@ -74,7 +74,9 @@ class AssessmentRunner(
     private val clock: Clock,
     private val dispatcher: CoroutineDispatcher,
     private val ctx: VerifyContext = VerifyContext(),
-    private val newId: () -> String = { UUID.randomUUID().toString() }
+    private val newId: () -> String = { UUID.randomUUID().toString() },
+    /** Wall time for stored timestamps; [clock] (monotonic in the app) times windows and latency. */
+    private val wallClock: Clock = clock
 ) {
     private val mutableState = MutableStateFlow<RunnerState>(RunnerState.Idle)
     val state: StateFlow<RunnerState> = mutableState.asStateFlow()
@@ -91,7 +93,7 @@ class AssessmentRunner(
     /** Saves the new running session and shows the first step. */
     suspend fun start() = serialized {
         if (mutableState.value != RunnerState.Idle) return@serialized
-        val now = clock.nowMs()
+        val now = wallClock.nowMs()
         val first =
             SessionEntity(
                 id = sessionId,
@@ -111,6 +113,21 @@ class AssessmentRunner(
             store.add(first)
             session = first
             if (steps.isEmpty()) mutableState.value = RunnerState.Finished else enterPrompt(0, PromptState())
+        }
+    }
+
+    /** Child mode left before the end: a running session becomes `abandoned`. A failed save is ignored (stays running). */
+    suspend fun abandon() = serialized {
+        val current = session ?: return@serialized
+        if (current.state != SessionState.RUNNING) return@serialized
+        val abandoned = current.copy(state = SessionState.ABANDONED, endedAt = wallClock.nowMs())
+        try {
+            store.update(abandoned)
+            session = abandoned
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // Nothing to show: Story 2.15 offers to continue a session left running.
         }
     }
 
@@ -238,7 +255,7 @@ class AssessmentRunner(
             latencyMs = verdict.latencyMs.coerceIn(0L, Int.MAX_VALUE.toLong()).toInt(),
             framePaths = emptyList(),
             clipFile = null,
-            createdAt = clock.nowMs()
+            createdAt = wallClock.nowMs()
         )
     }
 
@@ -270,7 +287,7 @@ class AssessmentRunner(
             return
         }
         resetWindow()
-        val done = requireNotNull(session).copy(state = SessionState.DONE, endedAt = clock.nowMs())
+        val done = requireNotNull(session).copy(state = SessionState.DONE, endedAt = wallClock.nowMs())
         store.update(done)
         session = done
         mutableState.value = RunnerState.Finished

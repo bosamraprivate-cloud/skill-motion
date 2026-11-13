@@ -76,3 +76,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-10-first-run-setup-and-pin-gate.md`
   summary: Unit-test that DiagnosticsViewModel uses the stored proxy URL and secret (extract a small proxySettings helper).
   evidence: no test covers the settings source; regression to BuildConfig values would go unnoticed.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-14-child-step-screen-with-audio-prompts-and-locked-mode.md`
+  summary: Surface screen-pinning failure to the adult and plan device-owner/lock-task allowlisting for the tablet.
+  evidence: without device owner, startLockTask shows a prompt each time and can be declined; failure is only logged.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-14-child-step-screen-with-audio-prompts-and-locked-mode.md`
+  summary: Show readable task names in the Try step screen picker; neutral a11y label for the adult corner.
+  evidence: picker shows raw task ids; TalkBack announces "Adult corner".

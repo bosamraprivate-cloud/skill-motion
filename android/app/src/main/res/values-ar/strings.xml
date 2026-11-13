@@ -112,4 +112,16 @@
     <string name="settings_secret_replace">غيّر الكلمة السرية</string>
     <string name="settings_error">مقدرناش نفتح الإعدادات (%1$s)</string>
     <string name="gate_error">مقدرناش نقرا الإعدادات (%1$s)</string>
+    <string name="child_done">خلصت</string>
+    <string name="child_help">ساعدني</string>
+    <string name="child_repeat">تاني</string>
+    <string name="child_adult_corner">ركن الكبار: اضغط مطوّل</string>
+    <string name="diagnostics_try_step_screen">جرّب شاشة الخطوة</string>
+    <string name="try_step_title">جرّب شاشة الخطوة</string>
+    <string name="try_step_child">الطفل</string>
+    <string name="try_step_task">المهمة</string>
+    <string name="try_step_start">ابدأ</string>
+    <string name="try_step_cancel">إلغاء</string>
+    <string name="try_step_no_children">ضيف طفل الأول.</string>
+    <string name="try_step_error">مقدرناش نحمّل الأطفال أو المهام (%1$s)</string>
 </resources>

@@ -76,8 +76,33 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         backStack.add(key)
     }
 
-    /** Pops one entry; returns false at the root so the caller can move the task to the back. */
+    /** Child mode is on (step screen or its PIN exit on the stack): screen pinning stays active. */
+    val childModeActive: Boolean get() = backStack.any { it is ChildModeKey }
+
+    /** The child step screen is on top: hardware keys mean Done there. */
+    val childStepOnTop: Boolean get() = backStack.lastOrNull() is ChildModeKey
+
+    /** Enters locked child mode for [childId] on [taskId] (Story 2.14). */
+    fun openChildMode(childId: String, taskId: String) {
+        if (childModeActive) return // a double tap must not push two runs
+        backStack.add(ChildModeKey(childId, taskId))
+    }
+
+    /** Adult corner: the PIN screen above the step screen. */
+    fun openChildPin() {
+        if (childStepOnTop) backStack.add(ChildPinKey)
+    }
+
+    /** Right PIN in child mode: leave child mode back to the therapist screen below it. */
+    fun leaveChildMode() {
+        val index = backStack.indexOfFirst { it is ChildModeKey }
+        if (index < 0) return
+        while (backStack.size > index) backStack.removeAt(backStack.lastIndex)
+    }
+
+    /** Pops one entry; returns false at the root so the caller can move the task to the back. Blocked on the child step screen. */
     fun back(): Boolean {
+        if (childStepOnTop) return true
         if (backStack.size <= 1) return false
         backStack.removeAt(backStack.lastIndex)
         return true

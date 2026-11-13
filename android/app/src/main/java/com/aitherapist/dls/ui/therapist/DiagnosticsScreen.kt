@@ -30,7 +30,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -65,8 +68,23 @@ import java.util.Locale
 
 /** Stateful entry: permission, camera binding and lifecycle around the stateless screen. */
 @Composable
-fun DiagnosticsRoute(onOpenSample: () -> Unit, onOpenCharacterPreview: () -> Unit, viewModel: DiagnosticsViewModel = hiltViewModel()) {
+fun DiagnosticsRoute(
+    onOpenSample: () -> Unit,
+    onOpenCharacterPreview: () -> Unit,
+    onOpenChildMode: (childId: String, taskId: String) -> Unit = { _, _ -> },
+    viewModel: DiagnosticsViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
+    var showTryStep by rememberSaveable { mutableStateOf(false) }
+    if (showTryStep) {
+        TryStepScreenDialog(
+            onStart = { childId, taskId ->
+                showTryStep = false
+                onOpenChildMode(childId, taskId)
+            },
+            onDismiss = { showTryStep = false }
+        )
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -97,6 +115,7 @@ fun DiagnosticsRoute(onOpenSample: () -> Unit, onOpenCharacterPreview: () -> Uni
         },
         onOpenSample = onOpenSample,
         onOpenCharacterPreview = onOpenCharacterPreview,
+        onTryStepScreen = { showTryStep = true },
         cameraPreview = { modifier ->
             CameraPreview(onFrame = viewModel::onFrame, onCameraError = viewModel::onCameraError, modifier = modifier)
         }
@@ -132,6 +151,7 @@ fun DiagnosticsScreen(
     onOpenSample: () -> Unit,
     modifier: Modifier = Modifier,
     onOpenCharacterPreview: () -> Unit = {},
+    onTryStepScreen: () -> Unit = {},
     cameraPreview: @Composable (Modifier) -> Unit = {}
 ) {
     Scaffold(modifier = modifier) { padding ->
@@ -145,6 +165,7 @@ fun DiagnosticsScreen(
                 OutlinedButton(onClick = onOpenCharacterPreview) {
                     Text(stringResource(R.string.diagnostics_open_character_preview))
                 }
+                OutlinedButton(onClick = onTryStepScreen) { Text(stringResource(R.string.diagnostics_try_step_screen)) }
             }
             when (state) {
                 DiagnosticsUiState.Loading -> Skeleton(rows = 3)

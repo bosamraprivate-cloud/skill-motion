@@ -112,4 +112,16 @@
     <string name="settings_secret_replace">Replace secret</string>
     <string name="settings_error">Settings could not be loaded (%1$s)</string>
     <string name="gate_error">Settings could not be read (%1$s)</string>
+    <string name="child_done">Done</string>
+    <string name="child_help">Help</string>
+    <string name="child_repeat">Repeat</string>
+    <string name="child_adult_corner">Adult corner: press and hold</string>
+    <string name="diagnostics_try_step_screen">Try step screen</string>
+    <string name="try_step_title">Try step screen</string>
+    <string name="try_step_child">Child</string>
+    <string name="try_step_task">Task</string>
+    <string name="try_step_start">Start</string>
+    <string name="try_step_cancel">Cancel</string>
+    <string name="try_step_no_children">Add a child first.</string>
+    <string name="try_step_error">Could not load children or tasks (%1$s)</string>
 </resources>

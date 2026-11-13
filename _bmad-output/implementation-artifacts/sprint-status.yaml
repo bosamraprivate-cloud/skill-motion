@@ -57,7 +57,7 @@ development_status:
   2-11-child-profiles-with-effect-level-and-cascade-delete: review
   2-12-attempt-window-and-prompt-ladder-pure: review
   2-13-assessment-runner-state-machine-with-rule-1: review
-  2-14-child-step-screen-with-audio-prompts-and-locked-mode: backlog
+  2-14-child-step-screen-with-audio-prompts-and-locked-mode: review
   2-15-pause-resume-and-continue-after-interruption: backlog
   2-16-start-assessment-content-only-tasks-and-character-walkthroug: backlog
   2-17-m2-content-completeness-check: backlog

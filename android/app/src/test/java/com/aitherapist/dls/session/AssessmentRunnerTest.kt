@@ -114,6 +114,24 @@ class AssessmentRunnerTest {
     private fun stepIndex(r: AssessmentRunner) = (r.state.value as RunnerState.OnStep).stepIndex
 
     @Test
+    fun `abandon marks a running session abandoned once, never a finished one, and ignores a failed save`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        r.start()
+        now = 5_000
+        store.failNext = 1
+        r.abandon()
+        assertEquals(SessionState.RUNNING, store.session!!.state)
+        r.abandon()
+        assertEquals(SessionState.ABANDONED, store.session!!.state)
+        assertEquals(5_000L, store.session!!.endedAt)
+        r.abandon()
+        val done = runner(FakeVerifier(Outcome.DONE), steps = emptyList())
+        done.start()
+        done.abandon()
+        assertEquals(SessionState.DONE, store.session!!.state)
+    }
+
+    @Test
     fun `done first try saves one row and moves on`() = runTest {
         val r = runner(FakeVerifier(Outcome.DONE))
         r.start()

@@ -44,13 +44,22 @@ enum class ShellDestination(val label: Int, val icon: ImageVector) {
  * [destinationContent] renders the stateful destinations; [TherapistShellLayout] stays stateless for previews.
  */
 @Composable
-fun TherapistShell(onOpenSample: () -> Unit, onOpenCharacterPreview: () -> Unit, modifier: Modifier = Modifier) {
+fun TherapistShell(
+    onOpenSample: () -> Unit,
+    onOpenCharacterPreview: () -> Unit,
+    modifier: Modifier = Modifier,
+    onOpenChildMode: (childId: String, taskId: String) -> Unit = { _, _ -> }
+) {
     var selected by rememberSaveable { mutableStateOf(ShellDestination.CHILDREN) }
     TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier) { destination ->
         when (destination) {
             ShellDestination.CHILDREN -> ChildrenRoute()
             ShellDestination.REPLAY -> PlaceholderDestination(Icons.Filled.PlayArrow, stringResource(R.string.replay_empty))
-            ShellDestination.DIAGNOSTICS -> DiagnosticsRoute(onOpenSample = onOpenSample, onOpenCharacterPreview = onOpenCharacterPreview)
+            ShellDestination.DIAGNOSTICS -> DiagnosticsRoute(
+                onOpenSample = onOpenSample,
+                onOpenCharacterPreview = onOpenCharacterPreview,
+                onOpenChildMode = onOpenChildMode
+            )
             ShellDestination.SETTINGS -> SettingsRoute()
         }
     }

@@ -75,4 +75,26 @@ class AppGateViewModelTest {
         assertEquals(GateState.Ready, vm.gateState.value)
         assertEquals(listOf(PinKey), vm.backStack.toList())
     }
+
+    @Test
+    fun `child mode blocks back, opens the pin from the adult corner and leaves after it`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.openChildMode("c1", "t1")
+        vm.openChildMode("c1", "t1")
+        assertEquals("a double tap pushes one run", 2, vm.backStack.size)
+        assertTrue(vm.childModeActive)
+        assertTrue(vm.childStepOnTop)
+        assertTrue(vm.back())
+        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t1")), vm.backStack.toList())
+        vm.openChildPin()
+        assertFalse(vm.childStepOnTop)
+        assertTrue(vm.childModeActive)
+        assertTrue(vm.back())
+        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t1")), vm.backStack.toList())
+        vm.openChildPin()
+        vm.leaveChildMode()
+        assertEquals(listOf(ShellKey), vm.backStack.toList())
+        assertFalse(vm.childModeActive)
+    }
 }
