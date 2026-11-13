@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
  * [sessionId]. Screen pinning and hardware keys are handled by the activity while child mode is on. The adult corner
  * opens the pause sheet; its Exit pauses the session and calls [onExit] (the PIN). The ViewModel is scoped to this
  * nav entry (AppNavigation's ViewModelStore decorator), so every run gets a fresh one. When [hasNext] (jacket "both"),
- * [onNext] fires a moment after this run's walkthrough has saved the session `done`.
+ * [onNext] fires a moment after this run's last step has saved the session `done`.
  */
 @Composable
 fun ChildModeHost(

@@ -1,7 +1,10 @@
 package com.aitherapist.dls.ui.child
 
-/** The step visual: a still (levels 1-2, scaled at level 2) or the demonstration clip segment (level 3). */
-data class StepVisual(val clip: String?, val still: String, val animate: Boolean, val scale: Float, val large: Boolean)
+/**
+ * The step visual: the still at level 1; at levels 2-3 the demonstration clip segment (plays once, holds its last
+ * frame; [large] at level 3), or the still enlarged when the clip is missing.
+ */
+data class StepVisual(val clip: String?, val still: String, val animate: Boolean, val large: Boolean)
 
 /** What the child sees. No scores, levels, errors or network state ever reach the child. */
 sealed interface StepUiState {
@@ -26,23 +29,10 @@ sealed interface StepUiState {
     /** New session (Story 2.16): task name, task picture and a big Start; the first step waits for the tap. */
     data class Start(val taskName: String?, val picture: String?, val reactionClip: String?, val paused: Boolean = false) : StepUiState
 
-    /**
-     * Closing character walkthrough: each step's demonstration clip (or still) with its audio, back to back.
-     * [visual] null (no media for the child's character) shows the reaction character instead. No buttons.
-     */
-    data class Walkthrough(
-        val stepIndex: Int,
-        val stepCount: Int,
-        val sentence: String,
-        val visual: StepVisual?,
-        val reactionClip: String?,
-        val paused: Boolean = false
-    ) : StepUiState
-
-    /** Adult pause dim is on (step, start screen or walkthrough). */
+    /** Adult pause dim is on (step or start screen). */
     val isPaused: Boolean
-        get() = (this as? Step)?.paused == true || (this as? Start)?.paused == true || (this as? Walkthrough)?.paused == true
+        get() = (this as? Step)?.paused == true || (this as? Start)?.paused == true
 
-    /** Every step finished (after the walkthrough): calm end visual until the adult leaves through the PIN. */
+    /** Every step finished and the session saved `done`: calm end visual until the adult leaves through the PIN. */
     data class Finished(val reactionClip: String?) : StepUiState
 }

@@ -50,7 +50,7 @@ data object CharacterPreviewKey : NavKey
 
 /**
  * Locked child mode: one assessment run (Story 2.14), or a continued session [sessionId] (Story 2.15). [thenTaskId]
- * runs next as a second session after this run's walkthrough (jacket "both", Story 2.16).
+ * runs next as a second session after this run's last step (jacket "both", Story 2.16).
  */
 @Serializable
 data class ChildModeKey(val childId: String, val taskId: String, val sessionId: String? = null, val thenTaskId: String? = null) : NavKey

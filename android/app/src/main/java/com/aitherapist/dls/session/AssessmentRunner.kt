@@ -126,7 +126,7 @@ class AssessmentRunner(
     /**
      * Continues a saved running/paused session ([sessionId] must be its id): the interrupted attempt restarts from
      * LISTEN at the saved step, attempt number and prompt level; earlier rows are kept. A session saved after its
-     * last step (stepIndex == step count, walkthrough not yet seen) continues at [RunnerState.Finished]. A resume point outside the
+     * last step (stepIndex == step count, not yet completed) continues at [RunnerState.Finished]. A resume point outside the
      * task, another task or another catalogue version marks the session `abandoned` and returns false (the runner
      * stays [RunnerState.Idle]).
      */
@@ -231,7 +231,7 @@ class AssessmentRunner(
     }
 
     /**
-     * After the closing walkthrough (Story 2.16): the [RunnerState.Finished] session is saved `done` and
+     * After the last step: the [RunnerState.Finished] session is saved `done` and
      * [RunnerState.Completed] shows. Ignored in any other state.
      */
     suspend fun complete() = serialized {
@@ -434,7 +434,7 @@ class AssessmentRunner(
             enterPrompt(next, PromptState())
             return
         }
-        // Every step is recorded; the session stays resumable (running, past the last step) until the walkthrough
+        // Every step is recorded; the session stays resumable (running, past the last step) until the view model completes it
         // ends and [complete] saves it `done`.
         resetWindow()
         save(steps.size, PromptState())

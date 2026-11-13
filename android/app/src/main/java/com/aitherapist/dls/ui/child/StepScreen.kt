@@ -92,7 +92,6 @@ private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdul
                     CharacterView(clip = state.reactionClip, loop = true, modifier = Modifier.fillMaxSize(0.7f).align(Alignment.Center))
                 is StepUiState.Step -> MainArea(state)
                 is StepUiState.Start -> TaskStartContent(state, onStart)
-                is StepUiState.Walkthrough -> WalkthroughContent(state)
             }
         }
         if (state is StepUiState.Step) BottomBand(state, onEvent)
@@ -104,11 +103,7 @@ private fun TopBand(state: StepUiState, onAdultCorner: () -> Unit) {
     Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
         StarBar(stars = (state as? StepUiState.Step)?.stars ?: 0)
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            when (state) {
-                is StepUiState.Step -> StepSchedule(current = state.stepIndex, count = state.stepCount)
-                is StepUiState.Walkthrough -> StepSchedule(current = state.stepIndex, count = state.stepCount)
-                else -> Unit
-            }
+            if (state is StepUiState.Step) StepSchedule(current = state.stepIndex, count = state.stepCount)
         }
         AdultCorner(onAdultCorner)
     }
@@ -146,7 +141,7 @@ private fun MainArea(state: StepUiState.Step) {
     Row(Modifier.fillMaxSize().padding(vertical = Spacing.S3), horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
         if (visual != null) {
             Column(
-                Modifier.weight(if (visual.large || state.reactionClip == null) 1f else VISUAL_WEIGHT).fillMaxHeight(),
+                Modifier.weight(if (visual.large) 1f else VISUAL_WEIGHT).fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
@@ -158,11 +153,13 @@ private fun MainArea(state: StepUiState.Step) {
                         loop = false,
                         still = visual.still,
                         stillMode = !visual.animate,
-                        modifier = Modifier.fillMaxSize().padding(Spacing.S3).scale(visual.scale)
+                        modifier = Modifier.fillMaxSize().padding(Spacing.S3)
                     )
                 }
                 Sentence(state.sentence)
             }
+            // Level 2 demonstration without the reaction character keeps its normal size.
+            if (!visual.large && state.reactionClip == null) Spacer(Modifier.weight(1f - VISUAL_WEIGHT))
         }
         state.reactionClip?.let { clip ->
             Column(Modifier.weight(1f - if (visual != null) VISUAL_WEIGHT else 0f).fillMaxHeight()) {

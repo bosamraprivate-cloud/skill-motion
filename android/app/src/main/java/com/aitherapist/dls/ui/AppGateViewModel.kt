@@ -89,7 +89,7 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
     }
 
     /**
-     * The run [current] finished its walkthrough: its chained task replaces it in place as a new session, so child
+     * The run [current] finished its last step: its chained task replaces it in place as a new session, so child
      * mode (screen pinning) stays on. Ignored when [current] is not on top or has nothing chained.
      */
     fun nextChildTask(current: ChildModeKey) {

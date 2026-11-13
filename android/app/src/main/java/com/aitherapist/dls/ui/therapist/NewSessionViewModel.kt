@@ -23,7 +23,7 @@ enum class PairChoice { ON, OFF, BOTH }
 data class TaskOption(val id: String, val nameAr: String, val area: String, val offId: String? = null, val offNameAr: String? = null) {
     val isPair: Boolean get() = offId != null
 
-    /** The run(s) to start: the first task id and the task to chain after its walkthrough, if any. */
+    /** The run(s) to start: the first task id and the task to chain after it completes, if any. */
     fun plan(choice: PairChoice): Pair<String, String?> {
         val off = offId ?: return id to null
         return when (choice) {
