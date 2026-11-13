@@ -20,6 +20,9 @@ object ChildColors {
     val ScheduleTodo = Color(0xFFE4E0D6)
     val FramingOk = Color(0xFF5E9C8A)
     val FramingWait = Color(0xFFC9C3B6)
+
+    /** Backdrop of the generated step clips and stills (sampled from the frames): step cards use it so no inner rectangle shows. */
+    val ClipBackdrop = Color(0xFFE9E6DE)
 }
 
 /** Therapist level ramp and plan colours (DESIGN.md); levels never use these in child mode. */

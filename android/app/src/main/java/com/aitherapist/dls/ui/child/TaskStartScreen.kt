@@ -32,7 +32,7 @@ import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 
 /**
- * Task start (UX "Task start"): the task picture (first step's still) with the idle character beside it, the task
+ * Task start (UX "Task start"): the task picture (first step's still) with the pointing character beside it, the task
  * name, and one big Start. Nothing else to press; the adult corner stays in the top band.
  */
 @Composable
@@ -43,7 +43,7 @@ fun TaskStartContent(state: StepUiState.Start, onStart: () -> Unit, modifier: Mo
                 Box(
                     Modifier.weight(
                         START_PICTURE_WEIGHT
-                    ).fillMaxHeight().clip(RoundedCornerShape(Radius.Lg)).background(ChildColors.Surface),
+                    ).fillMaxHeight().clip(RoundedCornerShape(Radius.Lg)).background(ChildColors.ClipBackdrop),
                     contentAlignment = Alignment.Center
                 ) {
                     CharacterView(
@@ -51,7 +51,7 @@ fun TaskStartContent(state: StepUiState.Start, onStart: () -> Unit, modifier: Mo
                         loop = false,
                         still = picture,
                         stillMode = true,
-                        modifier = Modifier.fillMaxSize().padding(Spacing.S3)
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
@@ -63,7 +63,7 @@ fun TaskStartContent(state: StepUiState.Start, onStart: () -> Unit, modifier: Mo
         state.taskName?.let { name ->
             Text(
                 text = name,
-                style = ChildType.Instruction,
+                style = ChildType.Title,
                 color = ChildColors.Ink,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.S3)

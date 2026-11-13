@@ -1,21 +1,35 @@
 package com.aitherapist.dls.ui.therapist
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Face
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,19 +38,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.components.EmptyState
+import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.theme.DlsTheme
+import com.aitherapist.dls.ui.theme.Spacing
 
 /** Therapist-mode destinations on the start-side rail (UX: Children, Replay & evaluation, Diagnostics, Settings). */
-enum class ShellDestination(val label: Int, val icon: ImageVector) {
-    CHILDREN(R.string.shell_children, Icons.Filled.Face),
-    REPLAY(R.string.shell_replay, Icons.Filled.PlayArrow),
-    DIAGNOSTICS(R.string.shell_diagnostics, Icons.Filled.Build),
-    SETTINGS(R.string.shell_settings, Icons.Filled.Settings)
+enum class ShellDestination(val label: Int, val icon: ImageVector, val selectedIcon: ImageVector) {
+    CHILDREN(R.string.shell_children, Icons.Outlined.Face, Icons.Filled.Face),
+    REPLAY(R.string.shell_replay, Icons.Outlined.PlayArrow, Icons.Filled.PlayArrow),
+    DIAGNOSTICS(R.string.shell_diagnostics, Icons.Outlined.Build, Icons.Filled.Build),
+    SETTINGS(R.string.shell_settings, Icons.Outlined.Settings, Icons.Filled.Settings)
 }
 
 /**
@@ -56,7 +75,7 @@ fun TherapistShell(
     TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier) { destination ->
         when (destination) {
             ShellDestination.CHILDREN -> ChildrenRoute(onContinue = onContinueSession, onNewSession = onNewSession)
-            ShellDestination.REPLAY -> PlaceholderDestination(Icons.Filled.PlayArrow, stringResource(R.string.replay_empty))
+            ShellDestination.REPLAY -> ReplayPlaceholder()
             ShellDestination.DIAGNOSTICS -> DiagnosticsRoute(
                 onOpenSample = onOpenSample,
                 onOpenCharacterPreview = onOpenCharacterPreview,
@@ -76,32 +95,92 @@ fun TherapistShellLayout(
 ) {
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Row(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-            NavigationRail(modifier = Modifier.fillMaxHeight()) {
-                ShellDestination.entries.forEach { destination ->
-                    NavigationRailItem(
-                        selected = destination == selected,
-                        onClick = { onSelect(destination) },
-                        icon = { Icon(destination.icon, contentDescription = null) },
-                        label = { Text(stringResource(destination.label)) }
-                    )
+            NavigationRail(
+                modifier = Modifier.fillMaxHeight().width(RAIL_WIDTH),
+                containerColor = MaterialTheme.colorScheme.surface,
+                header = { RailBrand() }
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+                    ShellDestination.entries.forEach { destination ->
+                        RailItem(destination, destination == selected) { onSelect(destination) }
+                    }
                 }
             }
+            VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Box(modifier = Modifier.weight(1f).fillMaxHeight()) { destinationContent(selected) }
         }
     }
 }
 
 @Composable
-private fun PlaceholderDestination(icon: ImageVector, message: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { EmptyState(icon = icon, message = message) }
+private fun RailItem(destination: ShellDestination, selected: Boolean, onClick: () -> Unit) {
+    NavigationRailItem(
+        selected = selected,
+        onClick = onClick,
+        icon = { Icon(if (selected) destination.selectedIcon else destination.icon, contentDescription = null) },
+        label = {
+            Text(
+                stringResource(destination.label),
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        alwaysShowLabel = true,
+        colors =
+        NavigationRailItemDefaults.colors(
+            selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            selectedTextColor = MaterialTheme.colorScheme.primary,
+            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    )
 }
+
+/** Skillmotion mark and wordmark at the top of the rail. */
+@Composable
+private fun RailBrand() {
+    Column(
+        modifier = Modifier.padding(top = Spacing.S3, bottom = Spacing.S4),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_skillmotion_mark),
+            contentDescription = null,
+            modifier = Modifier.size(40.dp)
+        )
+        Spacer(Modifier.height(Spacing.S1))
+        Text(
+            stringResource(R.string.shell_brand),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1
+        )
+    }
+}
+
+/** Evaluation destination until replay ships (Epic 3): page title plus the empty state. */
+@Composable
+private fun ReplayPlaceholder() {
+    Column(Modifier.fillMaxSize().padding(Spacing.S4)) {
+        PageHeader(stringResource(R.string.shell_replay))
+        Box(Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
+            EmptyState(icon = Icons.Outlined.PlayArrow, message = stringResource(R.string.replay_empty))
+        }
+    }
+}
+
+private val RAIL_WIDTH = 96.dp
 
 @Preview(device = Devices.TABLET)
 @Composable
 private fun TherapistShellPreview() {
     DlsTheme {
         TherapistShellLayout(selected = ShellDestination.CHILDREN, onSelect = {}) {
-            PlaceholderDestination(Icons.Filled.Face, stringResource(R.string.children_empty))
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                EmptyState(icon = Icons.Filled.Face, message = stringResource(R.string.children_empty))
+            }
         }
     }
 }

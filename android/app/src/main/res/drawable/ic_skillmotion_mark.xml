@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Skillmotion mark for the therapist rail: t-primary rounded square with a sage step path (three rising steps). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:fillColor="#FF2F6F8F"
+        android:pathData="M10,0h20a10,10 0,0 1,10 10v20a10,10 0,0 1,-10 10h-20a10,10 0,0 1,-10 -10v-20a10,10 0,0 1,10 -10z" />
+    <path
+        android:fillColor="#FFA9CFC2"
+        android:pathData="M8,30h8v-6h8v-6h8v-6h0v20h-24z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M28,6m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+</vector>

@@ -374,7 +374,7 @@ constructor(
 
     private fun render(current: RunnerState): StepUiState = when {
         awaitingStart && current !is RunnerState.Error && current != RunnerState.Idle ->
-            StepUiState.Start(taskName, steps.firstOrNull()?.media(variantId)?.still, reaction(IDLE), paused = localPaused)
+            StepUiState.Start(taskName, steps.firstOrNull()?.media(variantId)?.still, reaction(POINT), paused = localPaused)
         current is RunnerState.OnStep -> renderStep(current)
         current == RunnerState.Completed -> StepUiState.Finished(reaction(IDLE))
         else -> StepUiState.Waiting
@@ -434,5 +434,8 @@ constructor(
         // Reaction clip states from the character index (Story 2.3).
         private const val IDLE = "idle"
         private const val TALK = "talk"
+
+        // The start screen character points toward the Start button.
+        private const val POINT = "point"
     }
 }

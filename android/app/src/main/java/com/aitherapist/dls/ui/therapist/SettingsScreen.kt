@@ -1,16 +1,20 @@
 package com.aitherapist.dls.ui.therapist
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,8 +31,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.components.ErrorState
+import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.DlsTheme
+import com.aitherapist.dls.ui.theme.Radius
+import com.aitherapist.dls.ui.theme.Spacing
 
 @Composable
 fun SettingsRoute(viewModel: SettingsViewModel = hiltViewModel()) {
@@ -42,7 +49,7 @@ fun SettingsScreen(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit, mod
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Text(stringResource(R.string.shell_settings), style = MaterialTheme.typography.headlineMedium)
+        PageHeader(stringResource(R.string.shell_settings))
         when (state) {
             SettingsUiState.Loading -> Skeleton(rows = 4)
             is SettingsUiState.Error ->
@@ -137,8 +144,13 @@ private fun ProxySection(state: SettingsUiState.Content, onEvent: (SettingsEvent
 
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {
-    Card {
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Card(
+        modifier = Modifier.widthIn(max = 760.dp).fillMaxWidth(),
+        shape = RoundedCornerShape(Radius.Md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(modifier = Modifier.padding(Spacing.S4), verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
             Text(title, style = MaterialTheme.typography.titleLarge)
             content()
         }

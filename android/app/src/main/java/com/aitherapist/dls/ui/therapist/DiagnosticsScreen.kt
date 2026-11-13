@@ -56,6 +56,7 @@ import com.aitherapist.dls.camera.CameraController
 import com.aitherapist.dls.camera.FrameBuffer
 import com.aitherapist.dls.camera.Mirror
 import com.aitherapist.dls.ui.components.ErrorState
+import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.vision.FpsMeter
@@ -154,13 +155,12 @@ fun DiagnosticsScreen(
     onTryStepScreen: () -> Unit = {},
     cameraPreview: @Composable (Modifier) -> Unit = {}
 ) {
-    Scaffold(modifier = modifier) { padding ->
+    Scaffold(modifier = modifier, containerColor = MaterialTheme.colorScheme.background) { padding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(stringResource(R.string.diagnostics_title), style = MaterialTheme.typography.headlineMedium)
+            PageHeader(stringResource(R.string.diagnostics_title)) {
                 OutlinedButton(onClick = onOpenSample) { Text(stringResource(R.string.diagnostics_open_sample)) }
                 OutlinedButton(onClick = onOpenCharacterPreview) {
                     Text(stringResource(R.string.diagnostics_open_character_preview))

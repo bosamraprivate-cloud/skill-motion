@@ -347,7 +347,7 @@ class StepViewModelTest {
     fun `new session opens on the task start screen and start shows the first step`() = scope.runTest {
         val vm = vmFor(null, step(1), step(2), tapStart = false)
         runCurrent()
-        assertEquals(StepUiState.Start("task name", "still1.webp", "idle.webp"), vm.uiState.value)
+        assertEquals(StepUiState.Start("task name", "still1.webp", "point.webp"), vm.uiState.value)
         assertEquals("session row created before Start", SessionState.RUNNING, store.session?.state)
         assertTrue("no step audio on the start screen", audio.played.isEmpty())
         vm.onEvent(StepEvent.Done)
@@ -366,7 +366,7 @@ class StepViewModelTest {
         val vm = vmFor(null, step(1), tapStart = false, named = false)
         vm.beginTask()
         runCurrent()
-        assertEquals(StepUiState.Start(null, "still1.webp", "idle.webp"), vm.uiState.value)
+        assertEquals(StepUiState.Start(null, "still1.webp", "point.webp"), vm.uiState.value)
     }
 
     @Test

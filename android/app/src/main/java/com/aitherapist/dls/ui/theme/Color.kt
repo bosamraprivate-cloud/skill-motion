@@ -12,3 +12,9 @@ val TPrimary = Color(0xFF2F6F8F)
 val TOnPrimary = Color(0xFFFFFFFF)
 val Warning = Color(0xFFB7791F)
 val ErrorColor = Color(0xFFB23B3B)
+
+// Derived tints of t-primary for selected states (indicator, selected row, chip, segmented button); never purple/pink.
+val TPrimarySoft = Color(0xFFE3EEF3)
+val TOnPrimarySoft = Color(0xFF123A4D)
+val TSurfaceMuted = Color(0xFFF0F2F5)
+val TFieldOutline = Color(0xFFB8C1CA)

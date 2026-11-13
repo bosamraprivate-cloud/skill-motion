@@ -20,7 +20,15 @@ enum class PairChoice { ON, OFF, BOTH }
  * One pickable task. A task `<base>.on` whose sibling `<base>.off` exists becomes one option with [offId] set,
  * offering on, off or both (UX "New session dialog": jacket on/off/both). Ids come from the catalogue only.
  */
-data class TaskOption(val id: String, val nameAr: String, val area: String, val offId: String? = null, val offNameAr: String? = null) {
+data class TaskOption(
+    val id: String,
+    val nameAr: String,
+    val area: String,
+    val offId: String? = null,
+    val offNameAr: String? = null,
+    /** Character variant id -> still of the task's first step (the tile picture); empty when media is missing. */
+    val pictures: Map<String, String> = emptyMap()
+) {
     val isPair: Boolean get() = offId != null
 
     /** The run(s) to start: the first task id and the task to chain after it completes, if any. */
@@ -50,15 +58,19 @@ data class TaskOption(val id: String, val nameAr: String, val area: String, val 
                 } else {
                     null
                 }
+                val pictures = firstStills(task)
                 if (off != null) {
                     folded += off.id
-                    options += TaskOption(task.id, task.nameAr, task.area, off.id, off.nameAr)
+                    options += TaskOption(task.id, task.nameAr, task.area, off.id, off.nameAr, pictures)
                 } else {
-                    options += TaskOption(task.id, task.nameAr, task.area)
+                    options += TaskOption(task.id, task.nameAr, task.area, pictures = pictures)
                 }
             }
             return options.filterNot { it.id in folded }
         }
+
+        private fun firstStills(task: CatalogTask): Map<String, String> =
+            task.steps.firstOrNull()?.media.orEmpty().mapNotNull { (variant, media) -> media?.let { variant to it.still } }.toMap()
     }
 }
 

@@ -59,7 +59,7 @@
     <string name="pin_delete">Delete</string>
     <string name="pin_error">The PIN could not be checked (%1$s)</string>
     <string name="shell_children">Children</string>
-    <string name="shell_replay">Replay &amp; evaluation</string>
+    <string name="shell_replay">Evaluation</string>
     <string name="shell_diagnostics">Diagnostics</string>
     <string name="shell_settings">Settings</string>
     <string name="children_empty">No children yet.</string>
@@ -68,7 +68,7 @@
     <string name="children_no_match">No child matches the search.</string>
     <string name="children_select">Select a child or add a new one.</string>
     <string name="children_error">The children could not be loaded. Please try again.</string>
-    <string name="child_row_details">%1$d years</string>
+    <string name="child_row_details">%1$s years</string>
     <string name="child_new_title">New child</string>
     <string name="child_edit_title">Child profile</string>
     <string name="child_name">Name</string>
@@ -132,10 +132,12 @@
     <string name="try_step_no_children">Add a child first.</string>
     <string name="try_step_error">Could not load children or tasks (%1$s)</string>
     <string name="child_start">Let\'s start</string>
-    <string name="new_session">New session</string>
+    <string name="new_session">Start session</string>
     <string name="new_session_title">New session</string>
     <string name="new_session_start">Start</string>
     <string name="new_session_both">Both</string>
     <string name="new_session_error">Could not load the tasks (%1$s)</string>
     <string name="new_session_cancel">Cancel</string>
+    <string name="child_edit">Edit</string>
+    <string name="shell_brand">Skillmotion</string>
 </resources>

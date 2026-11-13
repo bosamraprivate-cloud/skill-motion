@@ -27,13 +27,19 @@ val DlsTypography =
         bodyMedium = TextStyle(fontFamily = AppFontFamily, fontSize = 16.sp, fontWeight = FontWeight.Normal),
         bodySmall = TextStyle(fontFamily = AppFontFamily, fontSize = 14.sp, fontWeight = FontWeight.Normal),
         labelLarge = TextStyle(fontFamily = AppFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
-        labelMedium = TextStyle(fontFamily = AppFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        labelMedium = TextStyle(fontFamily = AppFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
+        labelSmall = TextStyle(fontFamily = AppFontFamily, fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
+        headlineSmall = TextStyle(fontFamily = AppFontFamily, fontSize = 24.sp, fontWeight = FontWeight.Bold),
+        titleSmall = TextStyle(fontFamily = AppFontFamily, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
     )
 
 /** Child-mode text styles (DESIGN.md child-instruction / child-button / child-count), used from later stories. */
 object ChildType {
     val Instruction = TextStyle(fontFamily = AppFontFamily, fontSize = 40.sp, fontWeight = FontWeight.Bold, lineHeight = 1.4.em)
     val Button = TextStyle(fontFamily = AppFontFamily, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+
+    /** Task name on the start screen: one step above the instruction so the task reads as the screen title. */
+    val Title = TextStyle(fontFamily = AppFontFamily, fontSize = 52.sp, fontWeight = FontWeight.Bold, lineHeight = 1.3.em)
 
     // Cairo's heaviest bundled weight is bold (700); DESIGN asks 800, bold is the closest available.
     val Count = TextStyle(fontFamily = AppFontFamily, fontSize = 96.sp, fontWeight = FontWeight.Bold)

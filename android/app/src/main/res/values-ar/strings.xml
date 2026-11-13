@@ -59,7 +59,7 @@
     <string name="pin_delete">امسح</string>
     <string name="pin_error">مقدرناش نتأكد من الرقم السري (%1$s)</string>
     <string name="shell_children">الأطفال</string>
-    <string name="shell_replay">الإعادة والتقييم</string>
+    <string name="shell_replay">التقييم</string>
     <string name="shell_diagnostics">التشخيص</string>
     <string name="shell_settings">الإعدادات</string>
     <string name="children_empty">لسه مفيش أطفال.</string>
@@ -68,7 +68,7 @@
     <string name="children_no_match">مفيش طفل مطابق للبحث.</string>
     <string name="children_select">اختار طفل أو ضيف طفل جديد.</string>
     <string name="children_error">مقدرناش نحمّل الأطفال. جرّب تاني.</string>
-    <string name="child_row_details">%1$d سنين</string>
+    <string name="child_row_details">%1$s سنين</string>
     <string name="child_new_title">طفل جديد</string>
     <string name="child_edit_title">ملف الطفل</string>
     <string name="child_name">الاسم</string>
@@ -132,10 +132,12 @@
     <string name="try_step_no_children">ضيف طفل الأول.</string>
     <string name="try_step_error">مقدرناش نحمّل الأطفال أو المهام (%1$s)</string>
     <string name="child_start">يلا نبدأ</string>
-    <string name="new_session">جلسة جديدة</string>
+    <string name="new_session">ابدأ جلسة</string>
     <string name="new_session_title">جلسة جديدة</string>
     <string name="new_session_start">ابدأ</string>
     <string name="new_session_both">الاتنين</string>
     <string name="new_session_error">مقدرناش نحمّل المهام (%1$s)</string>
     <string name="new_session_cancel">إلغاء</string>
+    <string name="child_edit">تعديل</string>
+    <string name="shell_brand">Skillmotion</string>
 </resources>

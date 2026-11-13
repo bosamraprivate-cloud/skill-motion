@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -44,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -101,7 +101,8 @@ private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdul
 @Composable
 private fun TopBand(state: StepUiState, onAdultCorner: () -> Unit) {
     Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
-        StarBar(stars = (state as? StepUiState.Step)?.stars ?: 0)
+        // Star bar hidden until rewards exist (Epic 4); an equal-width spacer keeps the schedule centred.
+        Spacer(Modifier.size(ADULT_CORNER_SIZE))
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
             if (state is StepUiState.Step) StepSchedule(current = state.stepIndex, count = state.stepCount)
         }
@@ -115,7 +116,7 @@ private fun AdultCorner(onLongPress: () -> Unit) {
     val label = stringResource(R.string.child_adult_corner)
     Box(
         Modifier
-            .size(48.dp)
+            .size(ADULT_CORNER_SIZE)
             .semantics { contentDescription = label }
             .pointerInput(Unit) {
                 awaitEachGesture {
@@ -145,7 +146,7 @@ private fun MainArea(state: StepUiState.Step) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
-                    Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(Radius.Lg)).background(ChildColors.Surface),
+                    Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(Radius.Lg)).background(ChildColors.ClipBackdrop),
                     contentAlignment = Alignment.Center
                 ) {
                     CharacterView(
@@ -153,7 +154,7 @@ private fun MainArea(state: StepUiState.Step) {
                         loop = false,
                         still = visual.still,
                         stillMode = !visual.animate,
-                        modifier = Modifier.fillMaxSize().padding(Spacing.S3)
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
                 Sentence(state.sentence)
@@ -201,7 +202,7 @@ private fun BottomBand(state: StepUiState.Step, onEvent: (StepEvent) -> Unit) {
         Spacer(Modifier.weight(1f))
         ChildButton(
             label = stringResource(R.string.child_help),
-            icon = Icons.Filled.Info,
+            icon = ImageVector.vectorResource(R.drawable.ic_helping_hand),
             color = ChildColors.Help,
             minWidth = 120.dp,
             minHeight = 120.dp,
@@ -257,6 +258,7 @@ private fun WaitVisual(modifier: Modifier = Modifier) {
 }
 
 private const val VISUAL_WEIGHT = 0.6f
+private val ADULT_CORNER_SIZE = 48.dp
 private const val DIMMED_ALPHA = 0.4f
 private const val PAUSE_DIM_ALPHA = 0.45f
 private const val ADULT_HOLD_MS = 2_000L
