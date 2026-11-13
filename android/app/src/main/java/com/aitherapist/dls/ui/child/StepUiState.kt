@@ -23,6 +23,26 @@ sealed interface StepUiState {
         val paused: Boolean = false
     ) : StepUiState
 
-    /** Every step finished: calm end visual until the adult leaves through the PIN. */
+    /** New session (Story 2.16): task name, task picture and a big Start; the first step waits for the tap. */
+    data class Start(val taskName: String?, val picture: String?, val reactionClip: String?, val paused: Boolean = false) : StepUiState
+
+    /**
+     * Closing character walkthrough: each step's demonstration clip (or still) with its audio, back to back.
+     * [visual] null (no media for the child's character) shows the reaction character instead. No buttons.
+     */
+    data class Walkthrough(
+        val stepIndex: Int,
+        val stepCount: Int,
+        val sentence: String,
+        val visual: StepVisual?,
+        val reactionClip: String?,
+        val paused: Boolean = false
+    ) : StepUiState
+
+    /** Adult pause dim is on (step, start screen or walkthrough). */
+    val isPaused: Boolean
+        get() = (this as? Step)?.paused == true || (this as? Start)?.paused == true || (this as? Walkthrough)?.paused == true
+
+    /** Every step finished (after the walkthrough): calm end visual until the adult leaves through the PIN. */
     data class Finished(val reactionClip: String?) : StepUiState
 }

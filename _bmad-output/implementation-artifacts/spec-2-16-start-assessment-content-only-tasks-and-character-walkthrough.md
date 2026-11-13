@@ -2,7 +2,8 @@
 title: 'Story 2.16: Start assessment, content-only tasks and character walkthrough'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'in-review'
+baseline_commit: '2701577a10ff8f7ee88b9a23038c26187b073836'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -68,6 +69,23 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | walkthrough waits forever if onEnded never fires | high | session never done; patch (timeout + finally) |
+| 2 | pause does nothing during walkthrough/start screen | medium | runner Finished ignores pause; patch |
+| 3 | beginTask before runner skips start screen | medium | patch |
+| 4 | continue at step 0 skips start screen; continue tests mask start via helper | medium | patch + tests |
+| 5 | child sees raw task id in dev catalogue | low | patch |
+| 6 | area ids hard-coded in Kotlin | medium | AGENTS.md rule; patch (areas from catalogue) |
+| 7 | on/off fold across areas; dialog VM not keyed; borrowed cancel string | low | patch |
+| 8 | builder: non-contiguous tasks, misleading strict message | low | patch |
+| 9 | walkthrough sentence ellipsis | low | patch |
+| 10 | complete() retry replay untested; order test slices JSON text | low | patch tests |
+| 11 | jacket "both" chain lost on continue / PIN during delay | medium | needs persisting the planned second task (schema); deferred |
+| 12 | chain wiring untested in UI | low | covered by phone check; deferred |
+| 13 | start screen has no task-name audio | low | audio is postponed to the end of the project; deferred |
+| 14 | task names unconfirmed translations | low | author review requested; names trace to docs headings via `source` |
 
 ## Verification
 

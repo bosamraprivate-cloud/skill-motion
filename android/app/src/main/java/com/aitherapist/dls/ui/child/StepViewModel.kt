@@ -21,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** Child taps on the step screen. */
 sealed interface StepEvent {
@@ -64,6 +66,11 @@ constructor(
 
     private val sheet = MutableStateFlow(false)
 
+    private val finishedFlow = MutableStateFlow(false)
+
+    /** The walkthrough ended and the session is saved `done` (the host may chain the next task). */
+    val completed: StateFlow<Boolean> = finishedFlow.asStateFlow()
+
     /** The adult pause sheet (Pause / Resume / Exit) is open. */
     val adultSheet: StateFlow<Boolean> = sheet.asStateFlow()
 
@@ -77,6 +84,21 @@ constructor(
     private var steps: List<CatalogStep> = emptyList()
     private var variant: CharacterVariant? = null
     private var variantId: String = ""
+    private var taskName: String? = null
+
+    /** New session: the task start screen shows until the child taps Start ([beginTask]). */
+    private var awaitingStart = false
+
+    /** Adult sheet Pause where the runner has nothing to pause (start screen, walkthrough): dim and hold. */
+    private var localPaused = false
+
+    /** The walkthrough step to play next; Resume or return continues from here. */
+    private var walkIndex = 0
+    private var walkJob: Job? = null
+    private var walkState: StepUiState.Walkthrough? = null
+
+    /** The walkthrough ended and the `done` save is in flight (or retrying): never replay it. */
+    private var completing = false
 
     /** The LISTEN state the audio was started for (by reference: every prompt entry is a new object). */
     private var audioFor: RunnerState.Listen? = null
@@ -87,7 +109,8 @@ constructor(
     private var retryJob: Job? = null
 
     init {
-        viewModelScope.launch { keys.events.collect { onEvent(StepEvent.Done) } }
+        // A paired key means Start on the task start screen, Done on a step.
+        viewModelScope.launch { keys.events.collect { if (awaitingStart) beginTask() else onEvent(StepEvent.Done) } }
     }
 
     /**
@@ -105,6 +128,7 @@ constructor(
                 variantId = child.characterVariant.name.lowercase(Locale.ROOT)
                 variant = runCatching { characters.load().variants.firstOrNull { it.id == variantId } }.getOrNull()
                 steps = task?.steps.orEmpty()
+                taskName = task?.takeIf { it.hasName }?.nameAr
                 val runSteps = steps.map { it.toStep() }
                 if (sessionId != null) {
                     continueRun(childId, taskId, sessionId, loaded.catalogVersion, runSteps)
@@ -113,6 +137,7 @@ constructor(
                 requireNotNull(task) { "task missing" }
                 val created = runners.create(childId, taskId, loaded.catalogVersion, runSteps)
                 runner = created
+                awaitingStart = true
                 launch { created.state.collect { sync() } }
                 created.start()
                 sync()
@@ -149,6 +174,8 @@ constructor(
             return
         }
         runner = created
+        // A session interrupted before anything was recorded starts again from the task start screen.
+        awaitingStart = saved.stepIndex == 0 && !created.hasAttempts()
         viewModelScope.launch { created.state.collect { sync() } }
         sync()
     }
@@ -159,8 +186,16 @@ constructor(
         state.value = StepUiState.Finished(reaction(IDLE))
     }
 
+    /** Start tapped on the task start screen: the first step's prompt begins. */
+    fun beginTask() {
+        if (runner == null || !awaitingStart || localPaused) return
+        awaitingStart = false
+        sync()
+    }
+
     fun onEvent(event: StepEvent) {
         val current = runner ?: return
+        if (awaitingStart) return
         when (event) {
             StepEvent.Done -> {
                 val ui = state.value
@@ -185,6 +220,11 @@ constructor(
     fun pause() {
         sheet.value = false
         val target = runner ?: return
+        if (awaitingStart || target.state.value == RunnerState.Finished) {
+            localPaused = true
+            sync()
+            return
+        }
         viewModelScope.launch {
             target.pause()
             sync()
@@ -195,6 +235,11 @@ constructor(
     fun resume() {
         sheet.value = false
         val target = runner ?: return
+        if (localPaused) {
+            localPaused = false
+            sync()
+            return
+        }
         viewModelScope.launch {
             target.resume()
             sync()
@@ -239,17 +284,21 @@ constructor(
     /** Maps the runner's current state to audio actions and the child UI; safe to call repeatedly. */
     private fun sync() {
         val current = runner?.state?.value ?: return
-        if (paused) {
-            stopAudio()
-            stopTicking()
-        } else if (current is RunnerState.Listen) {
-            if (current !== audioFor) startAudio(current)
-        } else {
-            stopAudio()
+        val held = paused || awaitingStart || localPaused
+        if (held || current != RunnerState.Finished) stopWalkthrough()
+        when {
+            held -> {
+                stopAudio()
+                stopTicking()
+            }
+            current is RunnerState.Listen -> if (current !== audioFor) startAudio(current)
+            current == RunnerState.Finished -> ensureWalkthrough()
+            else -> stopAudio()
         }
-        if (!paused) {
+        if (!held) {
             if (current is RunnerState.Attempt) ensureTicking() else stopTicking()
         }
+        if (current == RunnerState.Completed) finishedFlow.value = true
         if (current is RunnerState.Error) ensureRetrying() else stopRetrying()
         state.value = render(current)
     }
@@ -288,6 +337,70 @@ constructor(
         audio.stop()
     }
 
+    /**
+     * Closing walkthrough (Story 2.16): every step's demonstration (clip, else still, else the reaction character)
+     * with its normal audio (or the fixed fallback delay), back to back; then the session is saved `done`.
+     * Interrupted (adult Pause or screen covered), it continues from the current step.
+     */
+    private fun ensureWalkthrough() {
+        if (completing || walkJob?.isActive == true) return
+        val target = runner ?: return
+        walkJob = viewModelScope.launch {
+            while (walkIndex < steps.size) {
+                val walk = renderWalk(walkIndex)
+                walkState = walk
+                state.value = walk
+                playAndWait(steps[walkIndex].audio?.normal)
+                walkIndex++
+            }
+            walkState = null
+            walkJob = null
+            completing = true
+            target.complete()
+            sync()
+        }
+    }
+
+    private fun stopWalkthrough() {
+        val job = walkJob ?: return
+        walkJob = null
+        job.cancel()
+        stopAudio()
+    }
+
+    /**
+     * Plays [path] and suspends until it ends, at most [WALK_STEP_CAP_MS] (a player that never reports the end must
+     * not hang the walkthrough); missing or unplayable audio waits the fixed fallback delay.
+     */
+    private suspend fun playAndWait(path: String?) {
+        stopAudio()
+        val token = ++audioToken
+        val ended = CompletableDeferred<Unit>()
+        audioPlaying = true
+        try {
+            val playing = path != null && audio.play(path) { if (token == audioToken) ended.complete(Unit) }
+            if (playing) {
+                if (withTimeoutOrNull(WALK_STEP_CAP_MS) { ended.await() } == null) audio.stop()
+            } else {
+                delay(MISSING_AUDIO_DELAY_MS)
+            }
+        } finally {
+            audioPlaying = false
+        }
+    }
+
+    private fun renderWalk(index: Int): StepUiState.Walkthrough {
+        val step = steps[index]
+        val visual = step.media(variantId)?.let { StepVisual(it.clip, it.still, animate = it.clip != null, scale = 1f, large = true) }
+        return StepUiState.Walkthrough(
+            stepIndex = index,
+            stepCount = steps.size,
+            sentence = step.textAr,
+            visual = visual,
+            reactionClip = if (visual == null) reaction(TALK) else null
+        )
+    }
+
     private fun ensureTicking() {
         if (tickJob?.isActive == true) return
         val target = runner ?: return
@@ -320,10 +433,13 @@ constructor(
         retryJob = null
     }
 
-    private fun render(current: RunnerState): StepUiState = when (current) {
-        is RunnerState.OnStep -> renderStep(current)
-        RunnerState.Finished -> StepUiState.Finished(reaction(IDLE))
-        RunnerState.Idle, is RunnerState.Error -> StepUiState.Waiting
+    private fun render(current: RunnerState): StepUiState = when {
+        awaitingStart && current !is RunnerState.Error && current != RunnerState.Idle ->
+            StepUiState.Start(taskName, steps.firstOrNull()?.media(variantId)?.still, reaction(IDLE), paused = localPaused)
+        current is RunnerState.OnStep -> renderStep(current)
+        current == RunnerState.Finished -> walkState?.copy(paused = localPaused) ?: StepUiState.Waiting
+        current == RunnerState.Completed -> StepUiState.Finished(reaction(IDLE))
+        else -> StepUiState.Waiting
     }
 
     private fun renderStep(current: RunnerState.OnStep): StepUiState {
@@ -377,6 +493,9 @@ constructor(
     companion object {
         private const val TAG = "DlsChild"
         const val MISSING_AUDIO_DELAY_MS = 1_500L
+
+        /** Longest a walkthrough step waits for its audio to end. */
+        const val WALK_STEP_CAP_MS = 15_000L
         const val TICK_MS = 1_000L
         const val RETRY_MS = 2_000L
         const val LEVEL_2_SCALE = 1.15f

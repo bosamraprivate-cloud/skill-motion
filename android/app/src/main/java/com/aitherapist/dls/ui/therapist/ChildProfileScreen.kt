@@ -29,6 +29,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -52,6 +55,7 @@ import com.aitherapist.dls.ui.theme.DlsTheme
 fun ChildProfileRoute(
     childId: String?,
     onResult: (ProfileResult) -> Unit,
+    onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> },
     viewModel: ChildProfileViewModel = hiltViewModel(
         key =
         childId ?: NEW_CHILD_KEY
@@ -67,13 +71,18 @@ fun ChildProfileRoute(
         }
     }
     LaunchedEffect(state) { if (state == ChildProfileUiState.Deleted) onResult(ProfileResult.Deleted) }
-    ChildProfileScreen(state = state, onEvent = viewModel::onEvent)
+    ChildProfileScreen(state = state, onEvent = viewModel::onEvent, onNewSession = onNewSession)
 }
 
 private const val NEW_CHILD_KEY = "child-profile-new"
 
 @Composable
-fun ChildProfileScreen(state: ChildProfileUiState, onEvent: (ChildProfileEvent) -> Unit, modifier: Modifier = Modifier) {
+fun ChildProfileScreen(
+    state: ChildProfileUiState,
+    onEvent: (ChildProfileEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> }
+) {
     Box(modifier = modifier.fillMaxSize()) {
         when (state) {
             ChildProfileUiState.Loading -> Skeleton(rows = 5, modifier = Modifier.padding(24.dp))
@@ -84,14 +93,20 @@ fun ChildProfileScreen(state: ChildProfileUiState, onEvent: (ChildProfileEvent) 
                     Modifier.align(Alignment.Center)
                 )
             ChildProfileUiState.Deleted -> Unit
-            is ChildProfileUiState.Content -> ChildProfileForm(state, onEvent)
+            is ChildProfileUiState.Content -> ChildProfileForm(state, onEvent, onNewSession)
         }
     }
 }
 
 @Composable
-private fun ChildProfileForm(state: ChildProfileUiState.Content, onEvent: (ChildProfileEvent) -> Unit) {
+private fun ChildProfileForm(
+    state: ChildProfileUiState.Content,
+    onEvent: (ChildProfileEvent) -> Unit,
+    onNewSession: (taskId: String, thenTaskId: String?) -> Unit
+) {
     val form = state.form
+    var newSessionOpen by rememberSaveable { mutableStateOf(false) }
+    var newSessionCount by rememberSaveable { mutableStateOf(0) }
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp).widthIn(max = 720.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -100,6 +115,12 @@ private fun ChildProfileForm(state: ChildProfileUiState.Content, onEvent: (Child
             stringResource(if (state.isNew) R.string.child_new_title else R.string.child_edit_title),
             style = MaterialTheme.typography.headlineSmall
         )
+        if (!state.isNew) {
+            Button(onClick = {
+                newSessionCount++
+                newSessionOpen = true
+            }, enabled = !state.busy) { Text(stringResource(R.string.new_session)) }
+        }
         FormField(form.name, R.string.child_name, state.errors.name, KeyboardType.Text) { onEvent(ChildProfileEvent.NameChanged(it)) }
         FormField(form.age, R.string.child_age, state.errors.age, KeyboardType.Number) { onEvent(ChildProfileEvent.AgeChanged(it)) }
 
@@ -141,6 +162,17 @@ private fun ChildProfileForm(state: ChildProfileUiState.Content, onEvent: (Child
                 Text(stringResource(R.string.child_delete), color = MaterialTheme.colorScheme.error)
             }
         }
+    }
+    if (newSessionOpen) {
+        NewSessionDialog(
+            // Keyed per child and per opening: every dialog starts with a fresh selection.
+            viewModel = hiltViewModel(key = "new-session-${state.childId}-$newSessionCount"),
+            onStart = { task, then ->
+                newSessionOpen = false
+                onNewSession(task, then)
+            },
+            onDismiss = { newSessionOpen = false }
+        )
     }
     if (state.confirmDelete) {
         AlertDialog(

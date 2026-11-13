@@ -61,7 +61,7 @@ fun TryStepScreenDialog(
                                 FilterChip(
                                     selected = id == s.taskId,
                                     onClick = { viewModel.onEvent(TryStepEvent.SelectTask(id)) },
-                                    label = { Text(id) }
+                                    label = { Text(s.taskNames[id] ?: id) }
                                 )
                             }
                         }

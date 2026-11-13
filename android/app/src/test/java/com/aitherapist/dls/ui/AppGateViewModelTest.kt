@@ -106,4 +106,19 @@ class AppGateViewModelTest {
         vm.continueSession("c1", "t1", "s1")
         assertEquals(listOf(ShellKey, ChildModeKey("c1", "t1", "s1")), vm.backStack.toList())
     }
+
+    @Test
+    fun `chained task replaces the finished run in place and keeps child mode on`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.openChildMode("c1", "t.on", "t.off")
+        val first = ChildModeKey("c1", "t.on", thenTaskId = "t.off")
+        assertEquals(listOf(ShellKey, first), vm.backStack.toList())
+        vm.nextChildTask(first)
+        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t.off")), vm.backStack.toList())
+        assertTrue(vm.childModeActive)
+        vm.nextChildTask(ChildModeKey("c1", "t.off"))
+        vm.nextChildTask(first)
+        assertEquals("nothing chained or not on top: unchanged", listOf(ShellKey, ChildModeKey("c1", "t.off")), vm.backStack.toList())
+    }
 }

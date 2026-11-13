@@ -82,10 +82,20 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
     /** The child step screen is on top: hardware keys mean Done there. */
     val childStepOnTop: Boolean get() = backStack.lastOrNull() is ChildModeKey
 
-    /** Enters locked child mode for [childId] on [taskId] (Story 2.14). */
-    fun openChildMode(childId: String, taskId: String) {
+    /** Enters locked child mode for [childId] on [taskId] (Story 2.14); [thenTaskId] runs after it (Story 2.16). */
+    fun openChildMode(childId: String, taskId: String, thenTaskId: String? = null) {
         if (childModeActive) return // a double tap must not push two runs
-        backStack.add(ChildModeKey(childId, taskId))
+        backStack.add(ChildModeKey(childId, taskId, thenTaskId = thenTaskId))
+    }
+
+    /**
+     * The run [current] finished its walkthrough: its chained task replaces it in place as a new session, so child
+     * mode (screen pinning) stays on. Ignored when [current] is not on top or has nothing chained.
+     */
+    fun nextChildTask(current: ChildModeKey) {
+        val next = current.thenTaskId ?: return
+        if (backStack.lastOrNull() != current) return
+        backStack[backStack.lastIndex] = ChildModeKey(current.childId, next)
     }
 
     /** Continue card: locked child mode continuing the saved session [sessionId] (Story 2.15). */

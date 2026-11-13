@@ -128,19 +128,30 @@ class StepViewModelTest {
 
     private fun vm(vararg steps: CatalogStep): StepViewModel = vmFor(null, *steps)
 
-    private fun vmFor(sessionId: String?, vararg steps: CatalogStep): StepViewModel {
+    /** Existing-flow tests tap Start at once; [tapStart] false keeps the task start screen. */
+    private fun vmFor(sessionId: String?, vararg steps: CatalogStep, tapStart: Boolean = true, named: Boolean = true): StepViewModel {
         val catalog =
             object : CatalogRepository {
                 override suspend fun load() = Result.success(
-                    Catalog(CatalogVersion("v1", false, steps.size, 0), listOf(CatalogTask("t.x", "a", steps.toList())), emptyList())
+                    Catalog(
+                        CatalogVersion("v1", false, steps.size, 0),
+                        listOf(CatalogTask("t.x", "a", steps.toList(), nameAr = if (named) "task name" else "t.x", hasName = named)),
+                        emptyList()
+                    )
                 )
             }
         val clock = Clock { scope.testScheduler.currentTime }
         val runners = AssessmentRunnerFactory(store, NoneVerifier, clock, dispatcher, newId = { "id${id++}" })
         return StepViewModel(catalog, children, { CharacterIndex(listOf(variant)) }, runners, resumable, audio, keys, clock, scope).also {
             it.start("c1", "t.x", sessionId)
+            if (tapStart && sessionId == null) {
+                scope.testScheduler.runCurrent() // Start only counts once the run exists
+                it.beginTask()
+            }
         }
     }
+
+    private fun StepViewModel.walk(): StepUiState.Walkthrough = uiState.value as StepUiState.Walkthrough
 
     private fun StepViewModel.step(): StepUiState.Step = uiState.value as StepUiState.Step
 
@@ -311,13 +322,234 @@ class StepViewModelTest {
     }
 
     @Test
-    fun `last step done finishes with the calm end visual`() = scope.runTest {
+    fun `last step done plays the walkthrough, then done and the calm end visual`() = scope.runTest {
         val vm = vm(step(1))
         listenThenAttempt(vm)
         vm.onEvent(StepEvent.Done)
         runCurrent()
+        assertEquals(
+            StepUiState.Walkthrough(0, 1, "sentence 1", StepVisual("clip1.webp", "still1.webp", true, 1f, true), null),
+            vm.uiState.value
+        )
+        assertEquals("still resumable during the walkthrough", SessionState.RUNNING, store.session?.state)
+        assertFalse(vm.completed.value)
+        audio.finish()
+        runCurrent()
         assertEquals(StepUiState.Finished("idle.webp"), vm.uiState.value)
         assertEquals(SessionState.DONE, store.session?.state)
+        assertTrue(vm.completed.value)
+    }
+
+    @Test
+    fun `new session opens on the task start screen and start shows the first step`() = scope.runTest {
+        val vm = vmFor(null, step(1), step(2), tapStart = false)
+        runCurrent()
+        assertEquals(StepUiState.Start("task name", "still1.webp", "idle.webp"), vm.uiState.value)
+        assertEquals("session row created before Start", SessionState.RUNNING, store.session?.state)
+        assertTrue("no step audio on the start screen", audio.played.isEmpty())
+        vm.onEvent(StepEvent.Done)
+        vm.onEvent(StepEvent.Help)
+        runCurrent()
+        assertTrue(vm.uiState.value is StepUiState.Start)
+        vm.beginTask()
+        runCurrent()
+        assertEquals(0, vm.step().stepIndex)
+        assertEquals(1, vm.step().promptLevel)
+        assertEquals(listOf("n1.mp3"), audio.played)
+    }
+
+    @Test
+    fun `start before the run exists is ignored and a missing task name shows no name`() = scope.runTest {
+        val vm = vmFor(null, step(1), tapStart = false, named = false)
+        vm.beginTask()
+        runCurrent()
+        assertEquals(StepUiState.Start(null, "still1.webp", "idle.webp"), vm.uiState.value)
+    }
+
+    @Test
+    fun `adult pause on the start screen dims, start is ignored, resume undims`() = scope.runTest {
+        val vm = vmFor(null, step(1), tapStart = false)
+        runCurrent()
+        vm.pause()
+        runCurrent()
+        assertTrue(vm.uiState.value.isPaused)
+        vm.beginTask()
+        runCurrent()
+        assertTrue(vm.uiState.value is StepUiState.Start)
+        vm.resume()
+        runCurrent()
+        assertFalse(vm.uiState.value.isPaused)
+        assertTrue(audio.played.isEmpty())
+    }
+
+    @Test
+    fun `adult pause stops the walkthrough and resume continues from the current step`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        repeat(2) {
+            listenThenAttempt(vm)
+            vm.onEvent(StepEvent.Done)
+            runCurrent()
+            advanceTimeBy(DoneDebouncer.WINDOW_MS)
+        }
+        audio.finish() // walkthrough step 1 done
+        runCurrent()
+        assertEquals(1, vm.walk().stepIndex)
+        vm.pause()
+        runCurrent()
+        assertTrue(vm.walk().paused)
+        assertFalse("audio stopped", audio.playing)
+        val played = audio.played.size
+        advanceTimeBy(60_000)
+        runCurrent()
+        assertEquals(1, vm.walk().stepIndex)
+        assertEquals(SessionState.RUNNING, store.session?.state)
+        vm.resume()
+        runCurrent()
+        assertFalse(vm.walk().paused)
+        assertEquals(1, vm.walk().stepIndex)
+        assertEquals(played + 1, audio.played.size)
+        assertEquals("n2.mp3", audio.played.last())
+        audio.finish()
+        runCurrent()
+        assertEquals(SessionState.DONE, store.session?.state)
+    }
+
+    @Test
+    fun `audio that never reports its end does not hang the walkthrough`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        repeat(2) {
+            listenThenAttempt(vm)
+            vm.onEvent(StepEvent.Done)
+            runCurrent()
+            advanceTimeBy(DoneDebouncer.WINDOW_MS)
+        }
+        assertEquals(0, vm.walk().stepIndex)
+        advanceTimeBy(StepViewModel.WALK_STEP_CAP_MS)
+        runCurrent()
+        assertEquals(1, vm.walk().stepIndex)
+        advanceTimeBy(StepViewModel.WALK_STEP_CAP_MS)
+        runCurrent()
+        assertEquals(SessionState.DONE, store.session?.state)
+        assertEquals(StepUiState.Finished("idle.webp"), vm.uiState.value)
+    }
+
+    @Test
+    fun `failed done save is retried without replaying the walkthrough`() = scope.runTest {
+        val vm = vm(step(1))
+        listenThenAttempt(vm)
+        vm.onEvent(StepEvent.Done)
+        runCurrent()
+        val played = audio.played.size
+        store.failNext = 1
+        audio.finish()
+        runCurrent()
+        assertEquals(SessionState.RUNNING, store.session?.state)
+        assertEquals(StepUiState.Waiting, vm.uiState.value)
+        advanceTimeBy(StepViewModel.RETRY_MS)
+        runCurrent()
+        assertEquals(SessionState.DONE, store.session?.state)
+        assertEquals(StepUiState.Finished("idle.webp"), vm.uiState.value)
+        assertEquals("walkthrough not replayed", played, audio.played.size)
+    }
+
+    @Test
+    fun `continue with nothing recorded opens the start screen, mid task opens the saved step`() = scope.runTest {
+        vmFor(null, step(1), step(2), tapStart = false)
+        runCurrent()
+        val fresh = store.session!!.copy(state = SessionState.PAUSED)
+        store.sessions[fresh.id] = fresh
+        val again = vmFor(fresh.id, step(1), step(2), tapStart = false)
+        runCurrent()
+        assertTrue(again.uiState.value is StepUiState.Start)
+
+        val first = vm(step(1), step(2))
+        listenThenAttempt(first)
+        first.onEvent(StepEvent.Done)
+        runCurrent()
+        val mid = store.session!!
+        val before = audio.played.size
+        val next = vmFor(mid.id, step(1), step(2), tapStart = false)
+        runCurrent()
+        assertEquals(1, next.step().stepIndex)
+        assertEquals("n2.mp3", audio.played.last())
+        assertTrue(audio.played.size > before)
+    }
+
+    @Test
+    fun `paired key on the start screen means start`() = scope.runTest {
+        val vm = vmFor(null, step(1), tapStart = false)
+        runCurrent()
+        keys.press()
+        runCurrent()
+        assertEquals(0, vm.step().stepIndex)
+        assertTrue(store.rows.isEmpty())
+    }
+
+    @Test
+    fun `walkthrough plays every step in order with its audio`() = scope.runTest {
+        val vm = vm(step(1), step(2), step(3))
+        repeat(3) {
+            listenThenAttempt(vm)
+            vm.onEvent(StepEvent.Done)
+            runCurrent()
+            advanceTimeBy(DoneDebouncer.WINDOW_MS)
+        }
+        val seen = mutableListOf<Int>()
+        repeat(3) {
+            seen += vm.walk().stepIndex
+            assertEquals(3, vm.walk().stepCount)
+            assertEquals("n${it + 1}.mp3", audio.played.last())
+            assertEquals("clip${it + 1}.webp", vm.walk().visual?.clip)
+            assertEquals(SessionState.RUNNING, store.session?.state)
+            audio.finish()
+            runCurrent()
+        }
+        assertEquals(listOf(0, 1, 2), seen)
+        assertEquals(SessionState.DONE, store.session?.state)
+        assertEquals(StepUiState.Finished("idle.webp"), vm.uiState.value)
+    }
+
+    @Test
+    fun `walkthrough uses the still without a clip and the reaction character without media, 1_5 s without audio`() = scope.runTest {
+        val vm = vm(step(1, audio = false, media = null), step(2, media = StepMedia(null, "still2.webp")))
+        repeat(2) {
+            runCurrent()
+            advanceTimeBy(StepViewModel.MISSING_AUDIO_DELAY_MS)
+            runCurrent()
+            audio.finish()
+            runCurrent()
+            vm.onEvent(StepEvent.Done)
+            runCurrent()
+            advanceTimeBy(DoneDebouncer.WINDOW_MS)
+        }
+        runCurrent()
+        val first = vm.walk()
+        assertEquals(0, first.stepIndex)
+        assertNull(first.visual)
+        assertEquals("talk.webp", first.reactionClip)
+        advanceTimeBy(StepViewModel.MISSING_AUDIO_DELAY_MS)
+        runCurrent()
+        val second = vm.walk()
+        assertEquals(1, second.stepIndex)
+        assertEquals(StepVisual(null, "still2.webp", animate = false, scale = 1f, large = true), second.visual)
+        assertNull(second.reactionClip)
+        audio.finish()
+        runCurrent()
+        assertEquals(SessionState.DONE, store.session?.state)
+    }
+
+    @Test
+    fun `continue after the last step replays the walkthrough then finishes`() = scope.runTest {
+        vm(step(1))
+        runCurrent()
+        val saved = store.session!!.copy(stepIndex = 1, state = SessionState.PAUSED)
+        store.sessions[saved.id] = saved
+        val next = vmFor(saved.id, step(1), tapStart = false)
+        runCurrent()
+        assertEquals(0, next.walk().stepIndex)
+        audio.finish()
+        runCurrent()
+        assertEquals(SessionState.DONE, store.sessions[saved.id]?.state)
     }
 
     @Test
@@ -382,6 +614,8 @@ class StepViewModelTest {
         val done = vm(step(1))
         listenThenAttempt(done)
         done.onEvent(StepEvent.Done)
+        runCurrent()
+        audio.finish() // walkthrough
         runCurrent()
         ViewModelStore().apply { put("vm2", done) }.clear()
         runCurrent()

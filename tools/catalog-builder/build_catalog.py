@@ -606,9 +606,20 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
         raise CatalogError("strings: top level must be an object")
     step_text = strings.get("steps", {})
     activity_text = strings.get("activities", {})
+    task_names = strings.get("tasks", {})
+    area_names = strings.get("areas", {})
+    task_order: list[Step] = []
+    for s in steps:
+        if not task_order or task_order[-1].task != s.task:
+            if any(t.task == s.task for t in task_order):
+                raise CatalogError(f"{s.source}: steps of task {s.task} are not contiguous")
+            task_order.append(s)
+    area_order = list(dict.fromkeys(s.area for s in steps))
     for section, table, known in (
         ("steps", step_text, set(step_ids)),
         ("activities", activity_text, {a.id for a in activities}),
+        ("tasks", task_names, {s.task for s in task_order}),
+        ("areas", area_names, set(area_order)),
     ):
         if not isinstance(table, dict) or not all(isinstance(v, str) for v in table.values()):
             raise CatalogError(f"strings: '{section}' must be an object of id -> string")
@@ -641,6 +652,27 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
 
     def asset(rel: str | None) -> bool:
         return bool(rel) and (paths.assets_dir / rel).is_file()
+
+    task_entries = []
+    for first in task_order:
+        name = str(task_names.get(first.task, "")).strip()
+        if not name:
+            problems.append(f"{first.task}: missing Arabic task name")
+        task_entries.append(
+            {
+                "id": first.task,
+                "area": first.area,
+                "nameAr": name or None,
+                "source": first.source,
+            }
+        )
+
+    area_entries = []
+    for area in area_order:
+        name = str(area_names.get(area, "")).strip()
+        if not name:
+            problems.append(f"{area}: missing Arabic area name")
+        area_entries.append({"id": area, "nameAr": name or None})
 
     step_entries = []
     for s in steps:
@@ -713,9 +745,9 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
         )
 
     if problems and not allow_missing_media:
-        raise CatalogError("missing media (strict mode):\n  " + "\n  ".join(problems))
+        raise CatalogError("missing media or strings (strict mode):\n  " + "\n  ".join(problems))
 
-    assessment = _dump({"steps": step_entries})
+    assessment = _dump({"areas": area_entries, "tasks": task_entries, "steps": step_entries})
     activities_bytes = _dump({"activities": activity_entries})
     version = hashlib.sha256(assessment + activities_bytes).hexdigest()[:12]
     version_bytes = _dump(

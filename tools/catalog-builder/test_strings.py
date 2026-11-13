@@ -26,11 +26,19 @@ def test_every_activity_has_arabic_sentence():
     _check("activities", [a.id for a in build_catalog.parse_activities()])
 
 
+def test_every_task_has_arabic_name():
+    _check("tasks", sorted({s.task for s in build_catalog.parse_steps()}))
+
+
+def test_every_area_has_arabic_name():
+    _check("areas", sorted({s.area for s in build_catalog.parse_steps()}))
+
+
 def test_ui_labels_present():
     for key in ("done", "help", "repeat", "start"):
         assert ARABIC.search(STRINGS["ui"][key])
 
 
 def test_notes_reference_known_ids():
-    known = set(STRINGS["steps"]) | set(STRINGS["activities"]) | {"_all"}
+    known = set(STRINGS["steps"]) | set(STRINGS["activities"]) | set(STRINGS["tasks"]) | {"_all", "_tasks"}
     assert set(STRINGS["notes"]) <= known

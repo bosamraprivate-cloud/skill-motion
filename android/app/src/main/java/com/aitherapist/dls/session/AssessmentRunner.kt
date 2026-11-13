@@ -100,9 +100,9 @@ class AssessmentRunner(
                 childId = childId,
                 taskId = taskId,
                 kind = SessionKind.ASSESSMENT,
-                state = if (steps.isEmpty()) SessionState.DONE else SessionState.RUNNING,
+                state = SessionState.RUNNING,
                 startedAt = now,
-                endedAt = if (steps.isEmpty()) now else null,
+                endedAt = null,
                 catalogVersion = catalogVersion,
                 rulesVersion = RulesEngine.RULES_VERSION,
                 stepIndex = 0,
@@ -125,7 +125,8 @@ class AssessmentRunner(
 
     /**
      * Continues a saved running/paused session ([sessionId] must be its id): the interrupted attempt restarts from
-     * LISTEN at the saved step, attempt number and prompt level; earlier rows are kept. A resume point outside the
+     * LISTEN at the saved step, attempt number and prompt level; earlier rows are kept. A session saved after its
+     * last step (stepIndex == step count, walkthrough not yet seen) continues at [RunnerState.Finished]. A resume point outside the
      * task, another task or another catalogue version marks the session `abandoned` and returns false (the runner
      * stays [RunnerState.Idle]).
      */
@@ -136,7 +137,7 @@ class AssessmentRunner(
         val valid =
             saved.taskId == taskId &&
                 saved.catalogVersion == catalogVersion &&
-                index in steps.indices &&
+                (index in steps.indices || index == steps.size) &&
                 saved.attemptNumber >= 1 &&
                 saved.promptLevel in PromptState.MIN_LEVEL..PromptState.MAX_LEVEL
         if (!valid) {
@@ -144,6 +145,16 @@ class AssessmentRunner(
             return@serialized false
         }
         session = saved
+        if (index == steps.size) {
+            guarded {
+                val running = saved.copy(state = SessionState.RUNNING)
+                store.update(running)
+                session = running
+                resetWindow()
+                mutableState.value = RunnerState.Finished
+            }
+            return@serialized true
+        }
         guarded {
             val prompt =
                 PromptState(
@@ -158,6 +169,9 @@ class AssessmentRunner(
         }
         true
     }
+
+    /** True when any attempt row is saved for this session (Continue shows the start screen when none). */
+    suspend fun hasAttempts(): Boolean = serialized { steps.any { store.attempts(sessionId, it.id).isNotEmpty() } }
 
     /** Adult pause: the open window is dropped (no row), the session is saved `paused`, then [RunnerState.Paused] shows. */
     suspend fun pause() = serialized {
@@ -213,6 +227,20 @@ class AssessmentRunner(
             store.update(running)
             session = running
             enterPrompt(current.stepIndex, current.prompt)
+        }
+    }
+
+    /**
+     * After the closing walkthrough (Story 2.16): the [RunnerState.Finished] session is saved `done` and
+     * [RunnerState.Completed] shows. Ignored in any other state.
+     */
+    suspend fun complete() = serialized {
+        if (mutableState.value != RunnerState.Finished) return@serialized
+        guarded {
+            val done = requireNotNull(session).copy(state = SessionState.DONE, endedAt = wallClock.nowMs())
+            store.update(done)
+            session = done
+            mutableState.value = RunnerState.Completed
         }
     }
 
@@ -406,10 +434,10 @@ class AssessmentRunner(
             enterPrompt(next, PromptState())
             return
         }
+        // Every step is recorded; the session stays resumable (running, past the last step) until the walkthrough
+        // ends and [complete] saves it `done`.
         resetWindow()
-        val done = requireNotNull(session).copy(state = SessionState.DONE, endedAt = wallClock.nowMs())
-        store.update(done)
-        session = done
+        save(steps.size, PromptState())
         mutableState.value = RunnerState.Finished
     }
 

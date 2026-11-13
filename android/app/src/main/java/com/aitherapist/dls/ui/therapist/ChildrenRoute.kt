@@ -30,7 +30,8 @@ private const val NEW_CHILD = "new"
 @Composable
 fun ChildrenRoute(
     modifier: Modifier = Modifier,
-    onContinue: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> }
+    onContinue: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> },
+    onNewSession: (childId: String, taskId: String, thenTaskId: String?) -> Unit = { _, _, _ -> }
 ) {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val scope = rememberCoroutineScope()
@@ -59,7 +60,9 @@ fun ChildrenRoute(
                             EmptyState(icon = Icons.Filled.Face, message = stringResource(R.string.children_select))
                         }
                     else ->
-                        ChildProfileRoute(childId = key.takeUnless { it == NEW_CHILD }, onResult = { result ->
+                        ChildProfileRoute(childId = key.takeUnless { it == NEW_CHILD }, onNewSession = { task, then ->
+                            if (key != NEW_CHILD) onNewSession(key, task, then)
+                        }, onResult = { result ->
                             when (result) {
                                 // First save of a new child: replace the "new" entry so Back never reopens the blank form.
                                 is ProfileResult.Saved -> if (key != result.childId) {

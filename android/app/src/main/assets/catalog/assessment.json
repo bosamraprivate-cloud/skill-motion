@@ -1,4 +1,22 @@
 {
+  "areas": [
+    {
+      "id": "eat",
+      "nameAr": "الأكل"
+    },
+    {
+      "id": "drink",
+      "nameAr": "الشرب"
+    },
+    {
+      "id": "hygiene",
+      "nameAr": "النظافة الشخصية"
+    },
+    {
+      "id": "dress",
+      "nameAr": "اللبس"
+    }
+  ],
   "steps": [
     {
       "area": "eat",
@@ -3634,6 +3652,98 @@
       "task": "dress.shoes.on",
       "textAr": "يلا نقفل الجزمة بالاسكوتش أو بالرباط.",
       "textEn": "Fastens the shoe using the hook-and-loop strap or the laces"
+    }
+  ],
+  "tasks": [
+    {
+      "area": "eat",
+      "id": "eat.sandwich",
+      "nameAr": "أكل الساندوتش",
+      "source": "eating-drinking-assessment-scale.md#Eating a sandwich"
+    },
+    {
+      "area": "eat",
+      "id": "eat.spoon",
+      "nameAr": "الأكل بالمعلقة",
+      "source": "eating-drinking-assessment-scale.md#Eating with a spoon"
+    },
+    {
+      "area": "eat",
+      "id": "eat.fork",
+      "nameAr": "الأكل بالشوكة",
+      "source": "eating-drinking-assessment-scale.md#Eating with a fork"
+    },
+    {
+      "area": "drink",
+      "id": "drink.cup",
+      "nameAr": "الشرب من الكوباية",
+      "source": "eating-drinking-assessment-scale.md#Drinking from a cup"
+    },
+    {
+      "area": "drink",
+      "id": "drink.bottle",
+      "nameAr": "الشرب من الإزازة",
+      "source": "eating-drinking-assessment-scale.md#Drinking from a bottle"
+    },
+    {
+      "area": "drink",
+      "id": "drink.straw",
+      "nameAr": "الشرب بالشفاطة",
+      "source": "eating-drinking-assessment-scale.md#Drinking with a straw"
+    },
+    {
+      "area": "hygiene",
+      "id": "hygiene.handwash",
+      "nameAr": "غسيل الإيدين",
+      "source": "personal-hygiene-assessment-scale.md#Handwashing"
+    },
+    {
+      "area": "hygiene",
+      "id": "hygiene.teeth",
+      "nameAr": "غسيل السنان",
+      "source": "personal-hygiene-assessment-scale.md#Toothbrushing"
+    },
+    {
+      "area": "dress",
+      "id": "dress.jacket.on",
+      "nameAr": "لبس الجاكيت",
+      "source": "dressing-assessment-scale.md#Putting on the jacket"
+    },
+    {
+      "area": "dress",
+      "id": "dress.jacket.off",
+      "nameAr": "قلع الجاكيت",
+      "source": "dressing-assessment-scale.md#Taking off the jacket"
+    },
+    {
+      "area": "dress",
+      "id": "dress.tshirt.on",
+      "nameAr": "لبس التيشيرت",
+      "source": "dressing-assessment-scale.md#T-shirt — Putting on"
+    },
+    {
+      "area": "dress",
+      "id": "dress.shirt.on",
+      "nameAr": "لبس القميص",
+      "source": "dressing-assessment-scale.md#Shirt — Putting on"
+    },
+    {
+      "area": "dress",
+      "id": "dress.trousers.on",
+      "nameAr": "لبس البنطلون",
+      "source": "dressing-assessment-scale.md#Trousers — Putting on"
+    },
+    {
+      "area": "dress",
+      "id": "dress.socks.on",
+      "nameAr": "لبس الشراب",
+      "source": "dressing-assessment-scale.md#Socks — Putting on"
+    },
+    {
+      "area": "dress",
+      "id": "dress.shoes.on",
+      "nameAr": "لبس الجزمة",
+      "source": "dressing-assessment-scale.md#Shoes — Putting on"
     }
   ]
 }

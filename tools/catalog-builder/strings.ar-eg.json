@@ -298,6 +298,29 @@
     "severe.hand.09": "يلا ننقل اللعبة من إيد للإيد التانية.",
     "severe.hand.10": "يلا نحط المكعب على الترابيزة."
   },
+  "areas": {
+    "eat": "الأكل",
+    "drink": "الشرب",
+    "hygiene": "النظافة الشخصية",
+    "dress": "اللبس"
+  },
+  "tasks": {
+    "eat.sandwich": "أكل الساندوتش",
+    "eat.spoon": "الأكل بالمعلقة",
+    "eat.fork": "الأكل بالشوكة",
+    "drink.cup": "الشرب من الكوباية",
+    "drink.bottle": "الشرب من الإزازة",
+    "drink.straw": "الشرب بالشفاطة",
+    "hygiene.handwash": "غسيل الإيدين",
+    "hygiene.teeth": "غسيل السنان",
+    "dress.jacket.on": "لبس الجاكيت",
+    "dress.jacket.off": "قلع الجاكيت",
+    "dress.tshirt.on": "لبس التيشيرت",
+    "dress.shirt.on": "لبس القميص",
+    "dress.trousers.on": "لبس البنطلون",
+    "dress.socks.on": "لبس الشراب",
+    "dress.shoes.on": "لبس الجزمة"
+  },
   "ui": {
     "done": "خلصت",
     "help": "ساعدني",
@@ -308,6 +331,7 @@
     "neutralRetry": "يلا نجرب تاني"
   },
   "notes": {
+    "_tasks": "Task names are short Egyptian Arabic translations of the source task headings in docs/reference/ (Story 2.16); author to confirm.",
     "_all": "Author decision: all step and activity sentences use the first-person plural 'let's' form (يلا نـ…) so they fit boys and girls and the character acts with the child. UI labels are [ASSUMPTION] from EXPERIENCE.md pending author review; praise changed from شاطر! to the neutral برافو!.",
     "eat.sandwich.06": "Source 'in a way that suits your motor abilities' simplified to 'the way that is comfortable for us'; author to confirm.",
     "dress.jacket.on.01": "Source steps for dressing are third-person observation criteria; rendered literally as 'let's' instructions.",

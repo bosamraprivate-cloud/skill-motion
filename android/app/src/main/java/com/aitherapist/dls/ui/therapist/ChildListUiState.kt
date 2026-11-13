@@ -8,7 +8,14 @@ data class ChildRow(val id: String, val name: String, val ageYears: Int, val cha
 }
 
 /** An interrupted (running or paused) session: child name and task only, never levels or results. */
-data class ContinueRow(val sessionId: String, val childId: String, val childName: String, val taskId: String) {
+data class ContinueRow(
+    val sessionId: String,
+    val childId: String,
+    val childName: String,
+    val taskId: String,
+    /** Arabic task name from the catalogue (the id when it cannot load). */
+    val taskName: String = taskId
+) {
     override fun toString(): String = "ContinueRow(sessionId=$sessionId)"
 }
 

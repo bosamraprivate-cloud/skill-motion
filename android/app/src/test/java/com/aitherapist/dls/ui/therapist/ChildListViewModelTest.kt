@@ -1,5 +1,9 @@
 package com.aitherapist.dls.ui.therapist
 
+import com.aitherapist.dls.catalog.Catalog
+import com.aitherapist.dls.catalog.CatalogRepository
+import com.aitherapist.dls.catalog.CatalogTask
+import com.aitherapist.dls.catalog.CatalogVersion
 import com.aitherapist.dls.data.ResumableSessions
 import com.aitherapist.dls.data.SessionEntity
 import com.aitherapist.dls.data.SessionKind
@@ -118,6 +122,26 @@ class ChildListViewModelTest {
         assertEquals(listOf(ContinueRow("s1", "1", "Mariam", "t1")), cards)
         open.value = emptyList()
         assertTrue("finished session: no card", (vm.uiState.value as ChildListUiState.Content).continueRows.isEmpty())
+    }
+
+    @Test
+    fun `continue card shows the arabic task name from the catalogue`() = runTest(dispatcher) {
+        val repo = FakeChildProfiles(child("1", "Mariam", "A1"))
+        val sessions =
+            object : ResumableSessions {
+                override fun observeResumable() = MutableStateFlow(listOf(session("s1", "1")))
+
+                override suspend fun session(id: String) = null
+            }
+        val catalog =
+            object : CatalogRepository {
+                override suspend fun load() = Result.success(
+                    Catalog(CatalogVersion("v", false, 0, 0), listOf(CatalogTask("t1", "a", emptyList(), "اسم")), emptyList())
+                )
+            }
+        val vm = ChildListViewModel(repo, dispatcher, sessions, catalog)
+        backgroundScope.launch { vm.uiState.collect {} }
+        assertEquals("اسم", (vm.uiState.value as ChildListUiState.Content).continueRows.single().taskName)
     }
 
     @Test

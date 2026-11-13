@@ -21,8 +21,14 @@ sealed interface TryStepUiState {
 
     data class Error(val reason: String) : TryStepUiState
 
-    data class Content(val children: List<ChildEntity>, val taskIds: List<String>, val childId: String?, val taskId: String?) :
-        TryStepUiState {
+    data class Content(
+        val children: List<ChildEntity>,
+        val taskIds: List<String>,
+        val childId: String?,
+        val taskId: String?,
+        /** Task id -> Arabic task name (Story 2.16). */
+        val taskNames: Map<String, String> = emptyMap()
+    ) : TryStepUiState {
         val canStart: Boolean get() = childId != null && taskId != null
     }
 }
@@ -45,8 +51,17 @@ constructor(private val children: ChildProfiles, private val catalog: CatalogRep
             state.value =
                 try {
                     val kids = children.observeChildren().first()
-                    val tasks = catalog.load().getOrThrow().tasks.map { it.id }
-                    TryStepUiState.Content(kids, tasks, kids.firstOrNull()?.id, tasks.firstOrNull())
+                    val loaded = catalog.load().getOrThrow().tasks
+                    val tasks = loaded.map { it.id }
+                    TryStepUiState.Content(
+                        kids,
+                        tasks,
+                        kids.firstOrNull()?.id,
+                        tasks.firstOrNull(),
+                        loaded.associate {
+                            it.id to it.nameAr
+                        }
+                    )
                 } catch (e: CancellationException) {
                     throw e
                 } catch (

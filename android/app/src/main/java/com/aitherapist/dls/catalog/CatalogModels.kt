@@ -180,9 +180,17 @@ data class Step(val id: String, val method: Method, val check: Check? = null, va
 
 /* ---- Generated catalogue shape (Story 2.7 builder output, Story 2.8 loader) ---- */
 
-/** `assessment.json`: `{"steps": [...]}` in catalogue order. */
+/** `assessment.json`: `{"areas": [...], "tasks": [...], "steps": [...]}` in catalogue order. */
 @Serializable
-data class AssessmentFile(val steps: List<CatalogStep>)
+data class AssessmentFile(val areas: List<AreaEntry>, val tasks: List<TaskEntry>, val steps: List<CatalogStep>)
+
+/** One area with its Arabic name; [nameAr] is null only in a dev catalogue missing it. */
+@Serializable
+data class AreaEntry(val id: String, val nameAr: String?)
+
+/** One task header from the builder; [nameAr] is null only in a dev catalogue missing the name (Story 2.16). */
+@Serializable
+data class TaskEntry(val id: String, val area: String, val nameAr: String?, val source: String)
 
 /** `activities.json`: `{"activities": [...]}`. */
 @Serializable
@@ -258,11 +266,20 @@ data class Activity(
     val counter: Criterion? = null
 )
 
-/** A task: its id and its steps in catalogue order. */
-data class CatalogTask(val id: String, val area: String, val steps: List<CatalogStep>)
+/**
+ * A task: its id, Arabic name (the id in a dev catalogue missing it) and its steps in catalogue order.
+ * [hasName] is false when the catalogue had no name (the child then sees no name text).
+ */
+data class CatalogTask(val id: String, val area: String, val steps: List<CatalogStep>, val nameAr: String = id, val hasName: Boolean = true)
 
 /** The whole loaded catalogue. */
-data class Catalog(val version: CatalogVersion, val tasks: List<CatalogTask>, val activities: List<Activity>) {
+data class Catalog(
+    val version: CatalogVersion,
+    val tasks: List<CatalogTask>,
+    val activities: List<Activity>,
+    /** Area id -> Arabic area name (the id in a dev catalogue missing it). */
+    val areaNames: Map<String, String> = emptyMap()
+) {
     val steps: List<CatalogStep> get() = tasks.flatMap { it.steps }
     val catalogVersion: String get() = version.catalogVersion
     val complete: Boolean get() = version.complete
@@ -304,7 +321,24 @@ object CatalogDecoder {
                 tasks += CatalogTask(step.task, step.area, listOf(step))
             }
         }
-        return Catalog(version, tasks, activities.activities)
+        check(assessment.tasks.map { it.id } == tasks.map { it.id }, ASSESSMENT) {
+            "tasks ${assessment.tasks.map { it.id }} do not match the step tasks ${tasks.map { it.id }}"
+        }
+        val named =
+            tasks.zip(assessment.tasks) { task, entry ->
+                check(entry.area == task.area, ASSESSMENT) { "task ${task.id} area ${entry.area} but steps say ${task.area}" }
+                if (version.complete) check(!entry.nameAr.isNullOrBlank(), ASSESSMENT) { "complete=true but task ${task.id} has no name" }
+                val name = entry.nameAr?.takeIf { it.isNotBlank() }
+                task.copy(nameAr = name ?: task.id, hasName = name != null)
+            }
+        check(assessment.areas.map { it.id } == named.map { it.area }.distinct(), ASSESSMENT) {
+            "areas ${assessment.areas.map { it.id }} do not match the task areas"
+        }
+        if (version.complete) {
+            check(assessment.areas.all { !it.nameAr.isNullOrBlank() }, ASSESSMENT) { "complete=true but an area has no name" }
+        }
+        val areaNames = assessment.areas.associate { it.id to (it.nameAr?.takeIf { n -> n.isNotBlank() } ?: it.id) }
+        return Catalog(version, named, activities.activities, areaNames)
     }
 
     private fun List<String>.duplicates(): List<String> = groupingBy { it }.eachCount().filterValues { it > 1 }.keys.toList()

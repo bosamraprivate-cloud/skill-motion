@@ -82,3 +82,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-14-child-step-screen-with-audio-prompts-and-locked-mode.md`
   summary: Show readable task names in the Try step screen picker; neutral a11y label for the adult corner.
   evidence: picker shows raw task ids; TalkBack announces "Adult corner".
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-16-start-assessment-content-only-tasks-and-character-walkthrough.md`
+  summary: Persist the planned second task of a jacket "both" run so Continue (or exiting during the chain delay) still offers jacket-off.
+  evidence: thenTaskId lives only on the navigation key; needs a session column and migration.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-16-start-assessment-content-only-tasks-and-character-walkthrough.md`
+  summary: Task-name audio on the child task start screen (with the audio generation at the end of the project).
+  evidence: start screen shows the task name as text only.

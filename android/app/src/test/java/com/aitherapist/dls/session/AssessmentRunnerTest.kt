@@ -26,7 +26,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -136,6 +135,7 @@ class AssessmentRunnerTest {
         r.abandon()
         val done = runner(FakeVerifier(Outcome.DONE), steps = emptyList())
         done.start()
+        done.complete()
         done.abandon()
         assertEquals(SessionState.DONE, store.session!!.state)
     }
@@ -358,8 +358,42 @@ class AssessmentRunnerTest {
         r.start()
         repeat(4) { r.attemptDone() }
         assertEquals(RunnerState.Finished, r.state.value)
+        // Resumable until the walkthrough ends: running, past the last step.
+        assertEquals(SessionState.RUNNING, store.session!!.state)
+        assertEquals(2, store.session!!.stepIndex)
+        assertEquals(null, store.session!!.endedAt)
+        now = 9_000
+        r.complete()
+        assertEquals(RunnerState.Completed, r.state.value)
         assertEquals(SessionState.DONE, store.session!!.state)
-        assertNotNull(store.session!!.endedAt)
+        assertEquals(9_000L, store.session!!.endedAt)
+    }
+
+    @Test
+    fun `complete is ignored before the last step and retried after a failed save`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE), steps = listOf(Step("s1", Method.POSE)))
+        r.start()
+        r.complete()
+        assertEquals(SessionState.RUNNING, store.session!!.state)
+        assertTrue(r.state.value is RunnerState.Listen)
+        r.attemptDone()
+        store.failNext = 1
+        r.complete()
+        assertEquals(RunnerState.Error(RunnerState.Finished), r.state.value)
+        assertEquals(SessionState.RUNNING, store.session!!.state)
+        r.onEvent(RunnerEvent.Retry)
+        assertEquals(RunnerState.Completed, r.state.value)
+        assertEquals(SessionState.DONE, store.session!!.state)
+    }
+
+    @Test
+    fun `restore after the last step continues at the walkthrough`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE))
+        assertTrue(r.restore(saved(state = SessionState.PAUSED, stepIndex = 2)))
+        assertEquals(RunnerState.Finished, r.state.value)
+        assertEquals(SessionState.RUNNING, store.sessions["sess"]!!.state)
+        r.complete()
+        assertEquals(SessionState.DONE, store.sessions["sess"]!!.state)
     }
 
     @Test
@@ -379,6 +413,8 @@ class AssessmentRunnerTest {
         val r = runner(FakeVerifier(), emptyList())
         r.start()
         assertEquals(RunnerState.Finished, r.state.value)
+        assertEquals(SessionState.RUNNING, store.session!!.state)
+        r.complete()
         assertEquals(SessionState.DONE, store.session!!.state)
     }
 
@@ -470,7 +506,7 @@ class AssessmentRunnerTest {
         r.attemptDone()
         r.pause()
         assertEquals(RunnerState.Finished, r.state.value)
-        assertEquals(SessionState.DONE, store.session!!.state)
+        assertEquals(SessionState.RUNNING, store.session!!.state)
     }
 
     @Test

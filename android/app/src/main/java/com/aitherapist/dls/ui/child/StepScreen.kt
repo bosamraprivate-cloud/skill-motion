@@ -65,18 +65,24 @@ import kotlinx.coroutines.withTimeoutOrNull
  * sentence under the visual. Bottom band: Done (start) and Help, Repeat (end). Positions never move.
  */
 @Composable
-fun StepScreen(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdultCorner: () -> Unit, modifier: Modifier = Modifier) {
+fun StepScreen(
+    state: StepUiState,
+    onEvent: (StepEvent) -> Unit,
+    onAdultCorner: () -> Unit,
+    modifier: Modifier = Modifier,
+    onStart: () -> Unit = {}
+) {
     Box(modifier.fillMaxSize()) {
-        StepContent(state, onEvent, onAdultCorner)
+        StepContent(state, onEvent, onAdultCorner, onStart)
         // Adult pause: a calm dim over everything, no text. It takes no touches, so the adult corner still works.
-        if ((state as? StepUiState.Step)?.paused == true) {
+        if (state.isPaused) {
             Box(Modifier.fillMaxSize().background(ChildColors.Ink.copy(alpha = PAUSE_DIM_ALPHA)))
         }
     }
 }
 
 @Composable
-private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdultCorner: () -> Unit) {
+private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdultCorner: () -> Unit, onStart: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().background(ChildColors.Canvas).padding(Spacing.S5)) {
         TopBand(state, onAdultCorner)
         Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -85,6 +91,8 @@ private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdul
                 is StepUiState.Finished ->
                     CharacterView(clip = state.reactionClip, loop = true, modifier = Modifier.fillMaxSize(0.7f).align(Alignment.Center))
                 is StepUiState.Step -> MainArea(state)
+                is StepUiState.Start -> TaskStartContent(state, onStart)
+                is StepUiState.Walkthrough -> WalkthroughContent(state)
             }
         }
         if (state is StepUiState.Step) BottomBand(state, onEvent)
@@ -96,7 +104,11 @@ private fun TopBand(state: StepUiState, onAdultCorner: () -> Unit) {
     Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
         StarBar(stars = (state as? StepUiState.Step)?.stars ?: 0)
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            if (state is StepUiState.Step) StepSchedule(current = state.stepIndex, count = state.stepCount)
+            when (state) {
+                is StepUiState.Step -> StepSchedule(current = state.stepIndex, count = state.stepCount)
+                is StepUiState.Walkthrough -> StepSchedule(current = state.stepIndex, count = state.stepCount)
+                else -> Unit
+            }
         }
         AdultCorner(onAdultCorner)
     }

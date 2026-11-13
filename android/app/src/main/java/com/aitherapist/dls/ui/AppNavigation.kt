@@ -48,9 +48,12 @@ data object SampleKey : NavKey
 @Serializable
 data object CharacterPreviewKey : NavKey
 
-/** Locked child mode: the step screen for one assessment run (Story 2.14), or a continued session [sessionId] (Story 2.15). */
+/**
+ * Locked child mode: one assessment run (Story 2.14), or a continued session [sessionId] (Story 2.15). [thenTaskId]
+ * runs next as a second session after this run's walkthrough (jacket "both", Story 2.16).
+ */
 @Serializable
-data class ChildModeKey(val childId: String, val taskId: String, val sessionId: String? = null) : NavKey
+data class ChildModeKey(val childId: String, val taskId: String, val sessionId: String? = null, val thenTaskId: String? = null) : NavKey
 
 /** PIN screen above the step screen; a right PIN leaves child mode. */
 @Serializable
@@ -96,14 +99,22 @@ fun AppNavigation(modifier: Modifier = Modifier, gate: AppGateViewModel = hiltVi
                 TherapistShell(
                     onOpenSample = { gate.open(SampleKey) },
                     onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
-                    onOpenChildMode = gate::openChildMode,
+                    onOpenChildMode = { child, task -> gate.openChildMode(child, task) },
+                    onNewSession = gate::openChildMode,
                     onContinueSession = gate::continueSession
                 )
             }
             entry<SampleKey> { SampleRoute() }
             entry<CharacterPreviewKey> { CharacterPreviewRoute() }
             entry<ChildModeKey> { key ->
-                ChildModeHost(childId = key.childId, taskId = key.taskId, sessionId = key.sessionId, onExit = gate::openChildPin)
+                ChildModeHost(
+                    childId = key.childId,
+                    taskId = key.taskId,
+                    sessionId = key.sessionId,
+                    hasNext = key.thenTaskId != null,
+                    onNext = { gate.nextChildTask(key) },
+                    onExit = gate::openChildPin
+                )
             }
             entry<ChildPinKey> { PinRoute(onUnlocked = gate::leaveChildMode) }
         }

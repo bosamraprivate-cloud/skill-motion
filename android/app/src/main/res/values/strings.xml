@@ -131,4 +131,11 @@
     <string name="try_step_cancel">Cancel</string>
     <string name="try_step_no_children">Add a child first.</string>
     <string name="try_step_error">Could not load children or tasks (%1$s)</string>
+    <string name="child_start">Let\'s start</string>
+    <string name="new_session">New session</string>
+    <string name="new_session_title">New session</string>
+    <string name="new_session_start">Start</string>
+    <string name="new_session_both">Both</string>
+    <string name="new_session_error">Could not load the tasks (%1$s)</string>
+    <string name="new_session_cancel">Cancel</string>
 </resources>

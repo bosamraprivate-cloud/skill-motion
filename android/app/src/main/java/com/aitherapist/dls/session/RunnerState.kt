@@ -27,8 +27,11 @@ sealed interface RunnerState {
     /** Adult pause: no window, nothing judged; [AssessmentRunner.resume] restarts this attempt from LISTEN. */
     data class Paused(override val stepIndex: Int, override val stepId: String, override val prompt: PromptState) : OnStep
 
-    /** Every step finished; the session is `done`. */
+    /** Every step recorded; the session stays resumable until the walkthrough ends and [AssessmentRunner.complete] runs. */
     data object Finished : RunnerState
+
+    /** After the walkthrough: the session is `done`. */
+    data object Completed : RunnerState
 
     /** A save failed; nothing advanced. [Event.Retry] repeats the failed save from [previous]. */
     data class Error(val previous: RunnerState) : RunnerState

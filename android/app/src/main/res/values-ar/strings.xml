@@ -131,4 +131,11 @@
     <string name="try_step_cancel">إلغاء</string>
     <string name="try_step_no_children">ضيف طفل الأول.</string>
     <string name="try_step_error">مقدرناش نحمّل الأطفال أو المهام (%1$s)</string>
+    <string name="child_start">يلا نبدأ</string>
+    <string name="new_session">جلسة جديدة</string>
+    <string name="new_session_title">جلسة جديدة</string>
+    <string name="new_session_start">ابدأ</string>
+    <string name="new_session_both">الاتنين</string>
+    <string name="new_session_error">مقدرناش نحمّل المهام (%1$s)</string>
+    <string name="new_session_cancel">إلغاء</string>
 </resources>

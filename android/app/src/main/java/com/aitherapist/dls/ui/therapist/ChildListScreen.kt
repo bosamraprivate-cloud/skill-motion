@@ -159,7 +159,7 @@ private fun ContinueCard(row: ContinueRow, onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.children_continue_title), style = MaterialTheme.typography.labelLarge)
                 Text(
-                    stringResource(R.string.children_continue_item, row.childName, row.taskId),
+                    stringResource(R.string.children_continue_item, row.childName, row.taskName),
                     style = MaterialTheme.typography.titleMedium
                 )
             }

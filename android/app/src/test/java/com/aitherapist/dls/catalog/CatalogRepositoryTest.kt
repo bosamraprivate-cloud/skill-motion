@@ -3,7 +3,11 @@ package com.aitherapist.dls.catalog
 import java.io.File
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -30,7 +34,8 @@ class CatalogRepositoryTest {
     @Test
     fun `tasks and steps keep file order`() {
         val text = File(assets, CatalogDecoder.ASSESSMENT).readText()
-        val fileOrder = Regex("\"id\": \"([^\"]+)\"").findAll(text).map { it.groupValues[1] }.toList()
+        val root = kotlinx.serialization.json.Json.parseToJsonElement(text).jsonObject
+        val fileOrder = root.getValue("steps").jsonArray.map { it.jsonObject.getValue("id").jsonPrimitive.content }
         val c = real()
         assertEquals(fileOrder, c.steps.map { it.id })
         assertEquals(fileOrder.map { it.substringBeforeLast('.') }.distinct(), c.tasks.map { it.id })
@@ -60,7 +65,10 @@ class CatalogRepositoryTest {
         """"source":"s","subSkills":"k","tags":[],"task":"$task","textAr":"ع","textEn":"e"$extra}"""
 
     private fun stepJson(detector: String = """{"method":"none","framing":null,"check":null}""", extra: String = "") =
-        """{"steps":[${stepObj(detector = detector, extra = extra)}]}"""
+        """{"areas":[{"id":"a","nameAr":"\u0645"}],"tasks":[${taskObj()}],"steps":[${stepObj(detector = detector, extra = extra)}]}"""
+
+    private fun taskObj(id: String = "x.y", area: String = "a", name: String? = "ع") =
+        """{"id":"$id","area":"$area","nameAr":${name?.let { "\"$it\"" } ?: "null"},"source":"s"}"""
 
     private fun activityObj(id: String = "p.d.01") =
         """{"id":"$id","plan":"p","domain":"d","number":1,"title":"t","textAr":"ع","generalGoal":"g","goal":"g",""" +
@@ -91,18 +99,30 @@ class CatalogRepositoryTest {
     @Test
     fun `integrity failures name the file`() {
         val a = CatalogDecoder.ASSESSMENT
-        val two = { s1: String, s2: String -> """{"steps":[$s1,$s2]}""" }
+        val two = { s1: String, s2: String -> """{"areas":[{"id":"a","nameAr":"\u0645"}],"tasks":[${taskObj()}],"steps":[$s1,$s2]}""" }
         // non-contiguous task
         assertFails(
             a,
             fixture(
-                """{"steps":[${stepObj("x.y.01")},${stepObj("x.z.01", "x.z")},${stepObj("x.y.02")}]}""",
+                """{"areas":[{"id":"a","nameAr":"\u0645"}],"tasks":[${taskObj()},${taskObj(
+                    "x.z"
+                )}],"steps":[${stepObj("x.y.01")},${stepObj("x.z.01", "x.z")},${stepObj("x.y.02")}]}""",
                 version = versionJson(steps = 3)
             )
         )
         assertFails(a, fixture(two(stepObj("x.y.01"), stepObj("x.y.01")), version = versionJson(steps = 2)))
         assertFails(a, fixture(two(stepObj("x.y.01"), stepObj("x.y.02", area = "b")), version = versionJson(steps = 2)))
-        assertFails(a, fixture("""{"steps":[]}""", version = versionJson(steps = 0)))
+        assertFails(a, fixture("""{"areas":[{"id":"a","nameAr":"\u0645"}],"tasks":[],"steps":[]}""", version = versionJson(steps = 0)))
+        // task headers must match the step tasks, in order and area
+        assertFails(a, fixture("""{"areas":[{"id":"a","nameAr":"\u0645"}],"tasks":[],"steps":[${stepObj()}]}"""))
+        assertFails(a, fixture("""{"areas":[{"id":"a","nameAr":"\u0645"}],"tasks":[${taskObj(area = "b")}],"steps":[${stepObj()}]}"""))
+        assertFails(
+            a,
+            fixture("""{"areas":[{"id":"a","nameAr":"\u0645"}],"tasks":[${taskObj()},${taskObj("x.z")}],"steps":[${stepObj()}]}""")
+        )
+        assertFails(a, fixture("""{"steps":[${stepObj()}]}"""))
+        // area headers must match the task areas
+        assertFails(a, fixture("""{"areas":[],"tasks":[${taskObj()}],"steps":[${stepObj()}]}"""))
         assertFails(a, fixture(stepJson(), version = versionJson(complete = true)))
         assertFails(CatalogDecoder.ACTIVITIES, fixture(stepJson(), """{"activities":[]}""", versionJson(activities = 0)))
         assertFails(
@@ -133,6 +153,26 @@ class CatalogRepositoryTest {
         assertTrue(repo.load().exceptionOrNull() is CatalogLoadException)
         fail = false
         assertTrue(repo.load().isSuccess)
+    }
+
+    @Test
+    fun `task names come from the task headers with the id as dev fallback`() {
+        assertEquals("ع", CatalogDecoder.decode(fixture(stepJson())).tasks.single().nameAr)
+        val noName = fixture("""{"areas":[{"id":"a","nameAr":"\u0645"}],"tasks":[${taskObj(name = null)}],"steps":[${stepObj()}]}""")
+        assertEquals("x.y", CatalogDecoder.decode(noName).tasks.single().nameAr)
+        assertFalse(CatalogDecoder.decode(noName).tasks.single().hasName)
+    }
+
+    @Test
+    fun `area names come from the catalogue`() {
+        assertEquals(mapOf("a" to "\u0645"), CatalogDecoder.decode(fixture(stepJson())).areaNames)
+        assertEquals(real().tasks.map { it.area }.distinct().toSet(), real().areaNames.keys)
+        real().areaNames.forEach { (id, name) -> assertTrue(id, name.any { it in '\u0600'..'\u06FF' }) }
+    }
+
+    @Test
+    fun `real assets name every task in Arabic`() {
+        real().tasks.forEach { t -> assertTrue(t.id, t.nameAr != t.id && t.nameAr.any { it in '؀'..'ۿ' }) }
     }
 
     @Test

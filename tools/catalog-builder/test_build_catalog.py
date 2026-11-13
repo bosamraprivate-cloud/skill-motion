@@ -397,6 +397,7 @@ def test_step_id_snapshot(real_steps):
 
 STEP_IDS = [s.id for s in bc.parse_steps()]
 ACTIVITY_IDS = [a.id for a in bc.parse_activities()]
+TASK_IDS = list(dict.fromkeys(s.task for s in bc.parse_steps()))
 
 
 @pytest.fixture
@@ -418,7 +419,12 @@ def full(tmp_path):
             steps.append({"id": sid, "clip": None, "still": still})
         variants.append({"id": v, "reactions": [], "tasks": [{"id": "all", "steps": steps}]})
     (assets / "character" / "index.json").write_text(json.dumps({"variants": variants}), encoding="utf-8")
-    strings = {"steps": {i: "نص" for i in STEP_IDS}, "activities": {i: "نص" for i in ACTIVITY_IDS}}
+    strings = {
+        "steps": {i: "نص" for i in STEP_IDS},
+        "activities": {i: "نص" for i in ACTIVITY_IDS},
+        "tasks": {t: "مهمة" for t in TASK_IDS},
+        "areas": {a: "مجال" for a in bc.EXPECTED_AREA_COUNTS},
+    }
     (tmp_path / "strings.json").write_text(json.dumps(strings, ensure_ascii=False), encoding="utf-8")
     detectors = {i: {"method": "none", "framing": None, "check": None} for i in STEP_IDS}
     (tmp_path / "detectors.json").write_text(json.dumps(detectors), encoding="utf-8")
@@ -629,4 +635,52 @@ def test_strings_rejections(full, mutate, match):
 def test_index_rejections(full, mutate, match):
     edit_json(full.assets_dir / "character" / "index.json", mutate)
     with pytest.raises(bc.CatalogError, match=match):
+        bc.build(full)
+
+
+# --- Story 2.16: task names ------------------------------------------------------
+
+
+def test_tasks_emitted_in_order_with_names(full):
+    files, _ = bc.build(full)
+    tasks = json.loads(files["assessment.json"])["tasks"]
+    assert [t["id"] for t in tasks] == TASK_IDS
+    assert len(tasks) == bc.EXPECTED_TASKS
+    assert all(t["nameAr"] == "مهمة" for t in tasks)
+    assert tasks[0]["source"].endswith("#Eating a sandwich")
+
+
+def test_missing_task_name_strict_fails_dev_warns(full, capsys):
+    edit_json(full.strings, lambda d: d["tasks"].pop("eat.fork"))
+    with pytest.raises(bc.CatalogError, match="eat.fork: missing Arabic task name"):
+        bc.build(full)
+    files, warnings = bc.build(full, allow_missing_media=True)
+    assert any("eat.fork" in w for w in warnings)
+    task = next(t for t in json.loads(files["assessment.json"])["tasks"] if t["id"] == "eat.fork")
+    assert task["nameAr"] is None
+
+
+def test_unknown_task_name_fails(full):
+    edit_json(full.strings, lambda d: d["tasks"].update({"eat.cake": "كيك"}))
+    with pytest.raises(bc.CatalogError, match="unknown tasks id"):
+        bc.build(full)
+
+
+def test_areas_emitted_with_names_and_missing_name_strict_fails(full):
+    files, _ = bc.build(full)
+    areas = json.loads(files["assessment.json"])["areas"]
+    assert [a["id"] for a in areas] == list(dict.fromkeys(s.split(".")[0] for s in STEP_IDS))
+    assert all(a["nameAr"] == "مجال" for a in areas)
+    edit_json(full.strings, lambda d: d["areas"].pop("eat"))
+    with pytest.raises(bc.CatalogError, match="eat: missing Arabic area name"):
+        bc.build(full)
+    files, warnings = bc.build(full, allow_missing_media=True)
+    assert any("eat" in w for w in warnings)
+
+
+def test_non_contiguous_task_steps_fail(full, monkeypatch):
+    real = bc.parse_steps()
+    moved = real[1:] + real[:1]
+    monkeypatch.setattr(bc, "parse_steps", lambda _dir=None: moved)
+    with pytest.raises(bc.CatalogError, match="not contiguous"):
         bc.build(full)
