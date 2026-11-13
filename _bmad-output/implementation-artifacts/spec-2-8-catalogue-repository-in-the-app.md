@@ -2,7 +2,8 @@
 title: 'Story 2.8: Catalogue repository in the app'
 type: 'feature'
 created: '2026-11-13'
-status: 'draft'
+status: 'done'
+baseline_commit: '82adfc0f00c9140e80bbb7515b2767c4d382b343'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -47,11 +48,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `catalog/CatalogModels.kt` -- generated-shape models: `CatalogStep`(or extended `Step`), `Detector`, `StepAudio`, `StepMedia`, `Activity`, `CatalogVersion`; `landmarkers` derivation.
-- [ ] `catalog/CatalogRepository.kt` -- interface + asset-backed implementation, Hilt binding, cached load, `Result`-style error.
-- [ ] update verifier/runner call sites if `Step` changed.
-- [ ] `test/.../catalog/CatalogRepositoryTest.kt` -- decode the real committed assets (counts, order, version, null media), unknown type/field fixtures.
-- [ ] `test/.../catalog/NoIdLiteralsTest.kt` -- scan `src/main` for step/activity ID literals.
+- [x] `catalog/CatalogModels.kt` -- generated-shape models: `CatalogStep`(or extended `Step`), `Detector`, `StepAudio`, `StepMedia`, `Activity`, `CatalogVersion`; `landmarkers` derivation.
+- [x] `catalog/CatalogRepository.kt` -- interface + asset-backed implementation, Hilt binding, cached load, `Result`-style error.
+- [x] update verifier/runner call sites if `Step` changed.
+- [x] `test/.../catalog/CatalogRepositoryTest.kt` -- decode the real committed assets (counts, order, version, null media), unknown type/field fixtures.
+- [x] `test/.../catalog/NoIdLiteralsTest.kt` -- scan `src/main` for step/activity ID literals.
 
 **Acceptance Criteria:**
 - Given the gate, when `./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` runs, then it passes.
@@ -61,6 +62,16 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence / route |
+|---|---|---|---|
+| 1 | decoder lacks integrity checks (contiguity, counts, duplicates, empty, area, complete+nulls) | medium | corrupted catalogue loads silently; patch |
+| 2 | failed load retry untested; activities/version error paths untested | medium | patch tests |
+| 3 | NoIdLiteralsTest misses ids inside longer strings | low | patch regex |
+| 4 | real asset reader only exercised on device | low | deferred to phone check at story end |
+| 5 | landmarkers rule duplicated in Kotlin | low | detectors are all `none` until Epic 3; revisit in 3.3; deferred |
+| 6 | test mp3s included in diff | false | untracked; unstaged before commit (audio comes at project end) |
+| 7 | concurrency of load(); exception message may quote JSON | low | catalogue holds no child data; rejected |
 
 ## Verification
 

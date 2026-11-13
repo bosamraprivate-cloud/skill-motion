@@ -177,3 +177,152 @@ data class Detector(val landmarkers: List<Landmarker>)
 
 @Serializable
 data class Step(val id: String, val method: Method, val check: Check? = null, val detector: Detector? = null)
+
+/* ---- Generated catalogue shape (Story 2.7 builder output, Story 2.8 loader) ---- */
+
+/** `assessment.json`: `{"steps": [...]}` in catalogue order. */
+@Serializable
+data class AssessmentFile(val steps: List<CatalogStep>)
+
+/** `activities.json`: `{"activities": [...]}`. */
+@Serializable
+data class ActivitiesFile(val activities: List<Activity>)
+
+/** `version.json`; [complete] is false for a dev catalogue with missing media or audio. */
+@Serializable
+data class CatalogVersion(val catalogVersion: String, val complete: Boolean, val steps: Int, val activities: Int)
+
+/** A step's detector setting as written by the builder from detectors.json. */
+@Serializable
+data class StepDetector(val method: Method, val framing: String? = null, val check: Check? = null) {
+    /** Landmarkers to run (AD-3): pose/hand from the method, both for cloud, none for `none`. */
+    val landmarkers: List<Landmarker>
+        get() = when (method) {
+            Method.NONE -> emptyList()
+            Method.CLOUD -> listOf(Landmarker.POSE, Landmarker.HAND)
+            Method.POSE -> if (check is Check.HandsRubbing) listOf(Landmarker.POSE, Landmarker.HAND) else listOf(Landmarker.POSE)
+            Method.HAND -> listOf(Landmarker.HAND)
+        }
+}
+
+/** Normal and slow audio paths relative to the assets root. */
+@Serializable
+data class StepAudio(val normal: String, val slow: String)
+
+/** Per-variant still frame and optional demonstration clip, relative to the assets root. */
+@Serializable
+data class StepMedia(val clip: String? = null, val still: String)
+
+@Serializable
+data class CatalogStep(
+    val id: String,
+    val area: String,
+    val task: String,
+    val number: Int,
+    val textAr: String,
+    val textEn: String,
+    val subSkills: String,
+    val tags: List<String>,
+    val source: String,
+    val detector: StepDetector,
+    val audio: StepAudio? = null,
+    /** Keyed by character variant id; a null value means that variant's media is missing (dev catalogue). */
+    val media: Map<String, StepMedia?>
+) {
+    fun media(variant: String): StepMedia? = media[variant]
+
+    /** The runtime step the runner and verifiers consume. */
+    fun toStep(): Step = Step(
+        id = id,
+        method = detector.method,
+        check = detector.check,
+        detector = Detector(detector.landmarkers)
+    )
+}
+
+@Serializable
+data class Activity(
+    val id: String,
+    val plan: String,
+    val domain: String,
+    val number: Int,
+    val title: String,
+    val textAr: String,
+    val generalGoal: String,
+    val goal: String,
+    val howToPerform: String,
+    val tools: String,
+    val criterion: String,
+    val source: String,
+    val audio: StepAudio? = null,
+    val counter: Criterion? = null
+)
+
+/** A task: its id and its steps in catalogue order. */
+data class CatalogTask(val id: String, val area: String, val steps: List<CatalogStep>)
+
+/** The whole loaded catalogue. */
+data class Catalog(val version: CatalogVersion, val tasks: List<CatalogTask>, val activities: List<Activity>) {
+    val steps: List<CatalogStep> get() = tasks.flatMap { it.steps }
+    val catalogVersion: String get() = version.catalogVersion
+    val complete: Boolean get() = version.complete
+}
+
+class CatalogLoadException(message: String, cause: Throwable? = null) : Exception(message, cause)
+
+/** Decodes the three generated files; failures name the file. Pure (no Android types). */
+object CatalogDecoder {
+    const val ASSESSMENT = "catalog/assessment.json"
+    const val ACTIVITIES = "catalog/activities.json"
+    const val VERSION = "catalog/version.json"
+
+    fun decode(read: (String) -> String): Catalog {
+        val assessment = parse(ASSESSMENT, read) { CatalogJson.json.decodeFromString(AssessmentFile.serializer(), it) }
+        val activities = parse(ACTIVITIES, read) { CatalogJson.json.decodeFromString(ActivitiesFile.serializer(), it) }
+        val version = parse(VERSION, read) { CatalogJson.json.decodeFromString(CatalogVersion.serializer(), it) }
+        val steps = assessment.steps
+        check(steps.isNotEmpty(), ASSESSMENT) { "no steps" }
+        check(activities.activities.isNotEmpty(), ACTIVITIES) { "no activities" }
+        steps.map { it.id }.duplicates().let { check(it.isEmpty(), ASSESSMENT) { "duplicate step ids $it" } }
+        activities.activities.map { it.id }.duplicates().let { check(it.isEmpty(), ACTIVITIES) { "duplicate activity ids $it" } }
+        check(version.steps == steps.size, VERSION) { "steps ${version.steps} but assessment has ${steps.size}" }
+        check(version.activities == activities.activities.size, VERSION) {
+            "activities ${version.activities} but activities file has ${activities.activities.size}"
+        }
+        if (version.complete) {
+            val missing = steps.filter { s -> s.audio == null || s.media.isEmpty() || s.media.values.any { it == null } }
+            check(missing.isEmpty(), ASSESSMENT) { "complete=true but audio/media null for ${missing.map { it.id }}" }
+        }
+        val tasks = mutableListOf<CatalogTask>()
+        for (step in steps) {
+            val last = tasks.lastOrNull()
+            if (last != null && last.id == step.task) {
+                check(last.area == step.area, ASSESSMENT) { "task ${step.task} mixes areas ${last.area} and ${step.area}" }
+                tasks[tasks.lastIndex] = last.copy(steps = last.steps + step)
+            } else {
+                check(tasks.none { it.id == step.task }, ASSESSMENT) { "task ${step.task} steps are not contiguous" }
+                tasks += CatalogTask(step.task, step.area, listOf(step))
+            }
+        }
+        return Catalog(version, tasks, activities.activities)
+    }
+
+    private fun List<String>.duplicates(): List<String> = groupingBy { it }.eachCount().filterValues { it > 1 }.keys.toList()
+
+    private inline fun check(ok: Boolean, file: String, message: () -> String) {
+        if (!ok) throw CatalogLoadException("$file: ${message()}")
+    }
+
+    private fun <T> parse(file: String, read: (String) -> String, block: (String) -> T): T {
+        val text = try {
+            read(file)
+        } catch (e: Exception) {
+            throw CatalogLoadException("$file: cannot read (${e.message})", e)
+        }
+        return try {
+            block(text)
+        } catch (e: Exception) {
+            throw CatalogLoadException("$file: ${e.message}", e)
+        }
+    }
+}

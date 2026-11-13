@@ -51,7 +51,7 @@ development_status:
   2-5-arabic-strings-and-elevenlabs-audio-generation: in-progress
   2-6-stickers-and-sound-effects: backlog
   2-7-catalogue-validation-merge-and-version-stamp: review
-  2-8-catalogue-repository-in-the-app: backlog
+  2-8-catalogue-repository-in-the-app: review
   2-9-encrypted-database-secure-settings-and-frame-store: review
   2-10-first-run-setup-and-pin-gate: review
   2-11-child-profiles-with-effect-level-and-cascade-delete: review
