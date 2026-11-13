@@ -67,7 +67,7 @@ development_status:
   3-1-all-body-check-evaluators: review
   3-2-hand-verifier-and-hands-rubbing: review
   3-3-detector-settings-for-the-41-steps-and-setup-zones: review
-  3-4-framing-check-screen: backlog
+  3-4-framing-check-screen: review
   3-5-live-verifiers-in-the-runner-with-evidence-frames: backlog
   3-6-network-loss-becomes-cannot-tell: backlog
   3-7-replay-mode-through-the-same-runner: backlog

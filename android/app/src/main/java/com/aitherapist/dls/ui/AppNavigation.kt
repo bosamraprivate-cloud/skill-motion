@@ -4,8 +4,13 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -20,6 +25,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.child.ChildModeHost
+import com.aitherapist.dls.ui.child.FramingCheckRoute
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.sample.SampleRoute
 import com.aitherapist.dls.ui.therapist.CharacterPreviewRoute
@@ -53,7 +59,21 @@ data object CharacterPreviewKey : NavKey
  * runs next as a second session after this run's last step (jacket "both", Story 2.16).
  */
 @Serializable
-data class ChildModeKey(val childId: String, val taskId: String, val sessionId: String? = null, val thenTaskId: String? = null) : NavKey
+data class ChildModeKey(
+    val childId: String,
+    val taskId: String,
+    val sessionId: String? = null,
+    val thenTaskId: String? = null,
+    /** A chained task: show the framing check inside child mode (pinning on) before its start screen. */
+    val framingFirst: Boolean = false
+) : NavKey
+
+/** Called right before the app opens system Settings, so that hop does not trigger the background PIN lock. */
+val LocalExternalHop = staticCompositionLocalOf<() -> Unit> { {} }
+
+/** Adult framing check before child mode (Story 3.4); "Hand to child" replaces it with the matching [ChildModeKey]. */
+@Serializable
+data class FramingCheckKey(val childId: String, val taskId: String, val sessionId: String? = null, val thenTaskId: String? = null) : NavKey
 
 /** PIN screen above the step screen; a right PIN leaves child mode. */
 @Serializable
@@ -63,7 +83,6 @@ data object ChildPinKey : NavKey
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier, gate: AppGateViewModel = hiltViewModel()) {
     val gateState by gate.gateState.collectAsStateWithLifecycle()
-    val activity = LocalActivity.current
     DisposableEffect(gate) {
         // Process-wide stop (not activity stop) so only real backgrounding re-locks therapist mode.
         val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) gate.onAppBackgrounded() }
@@ -82,6 +101,12 @@ fun AppNavigation(modifier: Modifier = Modifier, gate: AppGateViewModel = hiltVi
         }
         GateState.Ready -> Unit
     }
+    CompositionLocalProvider(LocalExternalHop provides gate::expectExternalReturn) { AppNavDisplay(gate, modifier) }
+}
+
+@Composable
+private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
+    val activity = LocalActivity.current
     NavDisplay(
         backStack = gate.backStack,
         modifier = modifier,
@@ -99,23 +124,29 @@ fun AppNavigation(modifier: Modifier = Modifier, gate: AppGateViewModel = hiltVi
                 TherapistShell(
                     onOpenSample = { gate.open(SampleKey) },
                     onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
-                    onOpenChildMode = { child, task -> gate.openChildMode(child, task) },
-                    onNewSession = gate::openChildMode,
-                    onContinueSession = gate::continueSession
+                    onOpenChildMode = { child, task -> gate.openFramingCheck(child, task) },
+                    onNewSession = { child, task, then -> gate.openFramingCheck(child, task, thenTaskId = then) },
+                    onContinueSession = { child, task, session -> gate.openFramingCheck(child, task, sessionId = session) }
                 )
             }
             entry<SampleKey> { SampleRoute() }
             entry<CharacterPreviewKey> { CharacterPreviewRoute() }
             entry<ChildModeKey> { key ->
-                ChildModeHost(
-                    childId = key.childId,
-                    taskId = key.taskId,
-                    sessionId = key.sessionId,
-                    hasNext = key.thenTaskId != null,
-                    onNext = { gate.nextChildTask(key) },
-                    onExit = gate::openChildPin
-                )
+                var framingDone by rememberSaveable(key) { mutableStateOf(!key.framingFirst) }
+                if (!framingDone) {
+                    FramingCheckRoute(taskId = key.taskId, onHandToChild = { framingDone = true })
+                } else {
+                    ChildModeHost(
+                        childId = key.childId,
+                        taskId = key.taskId,
+                        sessionId = key.sessionId,
+                        hasNext = key.thenTaskId != null,
+                        onNext = { gate.nextChildTask(key) },
+                        onExit = gate::openChildPin
+                    )
+                }
             }
+            entry<FramingCheckKey> { key -> FramingCheckRoute(taskId = key.taskId, onHandToChild = { gate.handToChild(key) }) }
             entry<ChildPinKey> { PinRoute(onUnlocked = gate::leaveChildMode) }
         }
     )

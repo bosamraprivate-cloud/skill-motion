@@ -95,13 +95,23 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
     fun nextChildTask(current: ChildModeKey) {
         val next = current.thenTaskId ?: return
         if (backStack.lastOrNull() != current) return
-        backStack[backStack.lastIndex] = ChildModeKey(current.childId, next)
+        // Pinning stays on; the chained task shows its framing check inside child mode (skipped if content-only).
+        backStack[backStack.lastIndex] = ChildModeKey(current.childId, next, framingFirst = true)
     }
 
-    /** Continue card: locked child mode continuing the saved session [sessionId] (Story 2.15). */
-    fun continueSession(childId: String, taskId: String, sessionId: String) {
-        if (childModeActive) return
-        backStack.add(ChildModeKey(childId, taskId, sessionId))
+    /**
+     * Story 3.4: the adult framing check before child mode (new run or continued session). Screen pinning starts only
+     * on [handToChild]; Back pops it back to the profile.
+     */
+    fun openFramingCheck(childId: String, taskId: String, thenTaskId: String? = null, sessionId: String? = null) {
+        if (childModeActive || backStack.lastOrNull() is FramingCheckKey) return
+        backStack.add(FramingCheckKey(childId, taskId, sessionId, thenTaskId))
+    }
+
+    /** "Hand to child" (or Start anyway, or a content-only task): the framing check becomes child mode in place. */
+    fun handToChild(key: FramingCheckKey) {
+        if (backStack.lastOrNull() != key) return
+        backStack[backStack.lastIndex] = ChildModeKey(key.childId, key.taskId, key.sessionId, key.thenTaskId)
     }
 
     /** Adult pause sheet Exit: the PIN screen above the (paused) step screen. */
@@ -124,8 +134,19 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         return true
     }
 
+    @Volatile private var externalReturnExpected = false
+
+    /** The app is about to open system Settings (camera permission) and come back: the next stop does not lock. */
+    fun expectExternalReturn() {
+        externalReturnExpected = true
+    }
+
     /** App went to the background: therapist mode needs the PIN again (FR-2). Setup in progress is kept. */
     fun onAppBackgrounded() {
+        if (externalReturnExpected) {
+            externalReturnExpected = false
+            return
+        }
         if (state.value == GateState.Ready && backStack.firstOrNull() == ShellKey) {
             backStack.clear()
             backStack.add(PinKey)

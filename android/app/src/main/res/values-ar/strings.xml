@@ -159,4 +159,19 @@
     <string name="zones_save_failed">المناطق ماتحفظتش. لسه مرسومة؛ جرّب تاني.</string>
     <string name="zones_try_again">جرّب تاني</string>
     <string name="zones_camera_error">الكاميرا مااشتغلتش (%1$s). اقفل أي تطبيق تاني بيستخدم الكاميرا وافتح الشاشة دي تاني.</string>
+    <string name="framing_title">التأكد من مكان الطفل</string>
+    <string name="framing_hand_to_child">سلّم للطفل</string>
+    <string name="framing_start_anyway">ابدأ على أي حال</string>
+    <string name="framing_unavailable">مقدرناش نحمّل فحص المكان (%1$s). ممكن تبدأ على أي حال.</string>
+    <string name="framing_engine_error">الكاميرا أو تتبع الجسم مااشتغلش (%1$s). ممكن تبدأ على أي حال.</string>
+    <string name="framing_permission_needed">محتاجين الكاميرا عشان نتأكد إن الطفل باين. اسمح بيها، أو ابدأ على أي حال.</string>
+    <string name="framing_looking">بندوّر على الطفل…</string>
+    <string name="framing_ready">المكان مظبوط. سلّم التابلت للطفل.</string>
+    <string name="framing_hold_still">قربنا، اثبت شوية.</string>
+    <string name="framing_no_person">مش شايفين حد. خلّي الطفل قدام الكاميرا.</string>
+    <string name="framing_move_closer">قرّب من التابلت.</string>
+    <string name="framing_step_back">ابعد شوية عن التابلت.</string>
+    <string name="framing_move_left">اتحرك شمال.</string>
+    <string name="framing_move_right">اتحرك يمين.</string>
+    <string name="framing_show_hands">خلّي الإيدين باينين للكاميرا.</string>
 </resources>

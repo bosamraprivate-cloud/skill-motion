@@ -65,6 +65,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.camera.CameraController
 import com.aitherapist.dls.data.Zone
+import com.aitherapist.dls.ui.LocalExternalHop
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.components.Skeleton
@@ -81,6 +82,7 @@ private enum class CameraAccess { CHECKING, GRANTED, DENIED }
 @Composable
 fun ZoneEditorRoute(onDone: () -> Unit, doneLabel: String, viewModel: ZoneEditorViewModel = hiltViewModel()) {
     val context = LocalContext.current
+    val externalHop = LocalExternalHop.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     // Saveable so a rotation never prompts again.
     var access by rememberSaveable { mutableStateOf(CameraAccess.CHECKING) }
@@ -110,6 +112,7 @@ fun ZoneEditorRoute(onDone: () -> Unit, doneLabel: String, viewModel: ZoneEditor
         onEvent = viewModel::onEvent,
         onRequestPermission = { launcher.launch(Manifest.permission.CAMERA) },
         onOpenSettings = {
+            externalHop()
             context.startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
             )

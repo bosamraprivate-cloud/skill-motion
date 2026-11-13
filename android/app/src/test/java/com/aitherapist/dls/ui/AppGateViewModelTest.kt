@@ -99,15 +99,6 @@ class AppGateViewModelTest {
     }
 
     @Test
-    fun `continue opens child mode for the saved session once`() {
-        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
-        vm.enterShell()
-        vm.continueSession("c1", "t1", "s1")
-        vm.continueSession("c1", "t1", "s1")
-        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t1", "s1")), vm.backStack.toList())
-    }
-
-    @Test
     fun `chained task replaces the finished run in place and keeps child mode on`() {
         val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
         vm.enterShell()
@@ -115,10 +106,52 @@ class AppGateViewModelTest {
         val first = ChildModeKey("c1", "t.on", thenTaskId = "t.off")
         assertEquals(listOf(ShellKey, first), vm.backStack.toList())
         vm.nextChildTask(first)
-        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t.off")), vm.backStack.toList())
+        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t.off", framingFirst = true)), vm.backStack.toList())
         assertTrue(vm.childModeActive)
-        vm.nextChildTask(ChildModeKey("c1", "t.off"))
+        vm.nextChildTask(ChildModeKey("c1", "t.off", framingFirst = true))
         vm.nextChildTask(first)
-        assertEquals("nothing chained or not on top: unchanged", listOf(ShellKey, ChildModeKey("c1", "t.off")), vm.backStack.toList())
+        assertEquals(
+            "nothing chained or not on top: unchanged",
+            listOf(ShellKey, ChildModeKey("c1", "t.off", framingFirst = true)),
+            vm.backStack.toList()
+        )
+    }
+
+    @Test
+    fun `framing check comes before child mode and hand to child replaces it`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.openFramingCheck("c1", "t1", thenTaskId = "t2")
+        vm.openFramingCheck("c1", "t1")
+        val framing = FramingCheckKey("c1", "t1", thenTaskId = "t2")
+        assertEquals(listOf(ShellKey, framing), vm.backStack.toList())
+        assertFalse("no pinning during the framing check", vm.childModeActive)
+        vm.handToChild(FramingCheckKey("c1", "other"))
+        assertEquals("not on top: unchanged", listOf(ShellKey, framing), vm.backStack.toList())
+        vm.handToChild(framing)
+        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t1", thenTaskId = "t2")), vm.backStack.toList())
+        assertTrue(vm.childModeActive)
+        vm.openFramingCheck("c1", "t1")
+        assertEquals(2, vm.backStack.size)
+    }
+
+    @Test
+    fun `back from the framing check returns without starting`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.openFramingCheck("c1", "t1", sessionId = "s1")
+        assertTrue(vm.back())
+        assertEquals(listOf(ShellKey), vm.backStack.toList())
+    }
+
+    @Test
+    fun `an expected settings hop skips one background lock`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.expectExternalReturn()
+        vm.onAppBackgrounded()
+        assertEquals(listOf(ShellKey), vm.backStack.toList())
+        vm.onAppBackgrounded()
+        assertEquals(listOf(PinKey), vm.backStack.toList())
     }
 }

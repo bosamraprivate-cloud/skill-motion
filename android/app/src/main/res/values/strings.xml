@@ -159,4 +159,19 @@
     <string name="zones_save_failed">The zones could not be saved. They are still drawn; try again.</string>
     <string name="zones_try_again">Try again</string>
     <string name="zones_camera_error">The camera could not start (%1$s). Close other camera apps and reopen this screen.</string>
+    <string name="framing_title">Framing check</string>
+    <string name="framing_hand_to_child">Hand to child</string>
+    <string name="framing_start_anyway">Start anyway</string>
+    <string name="framing_unavailable">The framing check could not load (%1$s). You can start anyway.</string>
+    <string name="framing_engine_error">The camera or body tracking could not start (%1$s). You can start anyway.</string>
+    <string name="framing_permission_needed">The camera is needed to check that the child is in view. Allow it, or start anyway.</string>
+    <string name="framing_looking">Looking for the child…</string>
+    <string name="framing_ready">Good position. Hand the tablet to the child.</string>
+    <string name="framing_hold_still">Almost there, hold still.</string>
+    <string name="framing_no_person">No one seen. Place the child in front of the camera.</string>
+    <string name="framing_move_closer">Move closer to the tablet.</string>
+    <string name="framing_step_back">Step back from the tablet.</string>
+    <string name="framing_move_left">Move left.</string>
+    <string name="framing_move_right">Move right.</string>
+    <string name="framing_show_hands">Show the hands to the camera.</string>
 </resources>

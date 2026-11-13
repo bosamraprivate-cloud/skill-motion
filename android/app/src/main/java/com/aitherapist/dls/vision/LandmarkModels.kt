@@ -17,6 +17,8 @@ object PoseLandmarkIndex {
     const val RIGHT_ELBOW = 14
     const val LEFT_WRIST = 15
     const val RIGHT_WRIST = 16
+    const val LEFT_HIP = 23
+    const val RIGHT_HIP = 24
 
     private val NAMES =
         listOf(

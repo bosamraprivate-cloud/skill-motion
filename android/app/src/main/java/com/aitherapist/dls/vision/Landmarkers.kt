@@ -41,21 +41,33 @@ data class LandmarkResult(val stream: FpsStream, val timestampMs: Long, val sets
 
 enum class InferenceDelegate { GPU, CPU }
 
+/** The live landmark engine as the framing check uses it (fakeable in tests). */
+interface LandmarkEngine {
+    val results: SharedFlow<LandmarkResult>
+    val errors: SharedFlow<String>
+
+    fun start(): InferenceDelegate
+
+    fun detect(bitmap: Bitmap, timestampMs: Long): Boolean
+
+    fun close()
+}
+
 /**
  * Pose + Hand landmarkers in LIVE_STREAM mode. Frames passed to [detect] must already be
  * un-mirrored: raw front-camera analysis frames, rotated upright and not flipped. Never logs frames or landmarks.
  */
 class Landmarkers
 @Inject
-constructor(@ApplicationContext private val context: Context) {
+constructor(@ApplicationContext private val context: Context) : LandmarkEngine {
     private val _results =
         MutableSharedFlow<LandmarkResult>(extraBufferCapacity = 16, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    val results: SharedFlow<LandmarkResult> = _results.asSharedFlow()
+    override val results: SharedFlow<LandmarkResult> = _results.asSharedFlow()
 
     private val _errors = MutableSharedFlow<String>(extraBufferCapacity = 4, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     /** Runtime errors reported by MediaPipe, as exception type names only. */
-    val errors: SharedFlow<String> = _errors.asSharedFlow()
+    override val errors: SharedFlow<String> = _errors.asSharedFlow()
 
     private var pose: PoseLandmarker? = null
     private var hand: HandLandmarker? = null
@@ -63,7 +75,7 @@ constructor(@ApplicationContext private val context: Context) {
 
     /** Creates both landmarkers, GPU first then CPU. Throws only if CPU also fails. */
     @Synchronized
-    fun start(): InferenceDelegate {
+    override fun start(): InferenceDelegate {
         close()
         return try {
             create(Delegate.GPU)
@@ -83,7 +95,7 @@ constructor(@ApplicationContext private val context: Context) {
      * (the error goes to [errors] by type name).
      */
     @Synchronized
-    fun detect(bitmap: Bitmap, timestampMs: Long): Boolean {
+    override fun detect(bitmap: Bitmap, timestampMs: Long): Boolean {
         val p = pose ?: return false
         val h = hand ?: return false
         if (timestampMs <= lastTimestampMs) return false // MediaPipe requires strictly increasing timestamps.
@@ -102,7 +114,7 @@ constructor(@ApplicationContext private val context: Context) {
     }
 
     @Synchronized
-    fun close() {
+    override fun close() {
         pose?.close()
         hand?.close()
         pose = null

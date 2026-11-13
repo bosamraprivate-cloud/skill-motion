@@ -55,6 +55,7 @@ import com.aitherapist.dls.R
 import com.aitherapist.dls.camera.CameraController
 import com.aitherapist.dls.camera.FrameBuffer
 import com.aitherapist.dls.camera.Mirror
+import com.aitherapist.dls.ui.LocalExternalHop
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.components.Skeleton
@@ -76,6 +77,7 @@ fun DiagnosticsRoute(
     viewModel: DiagnosticsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val externalHop = LocalExternalHop.current
     var showTryStep by rememberSaveable { mutableStateOf(false) }
     if (showTryStep) {
         TryStepScreenDialog(
@@ -110,6 +112,7 @@ fun DiagnosticsRoute(
         onEvent = viewModel::onEvent,
         onRequestPermission = { launcher.launch(Manifest.permission.CAMERA) },
         onOpenSettings = {
+            externalHop()
             context.startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
             )
