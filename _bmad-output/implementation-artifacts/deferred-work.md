@@ -94,3 +94,11 @@
 - Owner wants BOTH manual drawing (Story 3.3, done) and an AI "suggest zones" button in the zone editor: AI proposes mat/sink/place rectangles, the therapist confirms or redraws. Never saved without confirmation.
 - Constraints: setup frame must contain no child (prompt the therapist to clear the view); only send a downscaled frame without identifiers; check that the proxy model accepts images and returns usable boxes — measure accuracy before shipping; fall back to manual drawing on any doubt or error.
 - Planned slot: after Story 3.6 (proxy client exists), as a small story in Epic 3 or the Epic 3 UI/UX pass.
+
+## Story 3.5 phone test (2026-11-14)
+
+- Verified on phone: frames 3 per attempt; cloud verdict via proxy in ~1.9 s; cannot-tell repeats once then not scored (design rule); `none` steps pass unscored.
+- Bug to check: `drink.cup.02` logged two rows both `try=1` (attempt numbering on the cannot-tell repeat). Fix in the next runner-touching story (3.6).
+- Debug-only result strip in the corner of the child screen (verdict, reason, verifier) for testing; never in release. Do in the Epic 3 UI/UX pass or earlier if testing needs it.
+- Steps needing a zone (e.g. `drink.cup.02` mat) give `no_zone` until zones are drawn: framing check / session start should warn the adult when a needed zone is missing.
+- Debug log tag `DlsVerdict` (debug builds only; step id, verdict, reason; no child data).

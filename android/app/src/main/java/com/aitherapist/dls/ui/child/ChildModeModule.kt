@@ -76,7 +76,8 @@ object ChildModeModule {
             clock = clock,
             dispatcher = Dispatchers.IO,
             wallClock = { System.currentTimeMillis() },
-            evidence = FrameStoreEvidence(frames, BitmapJpegEncoder)
+            evidence = FrameStoreEvidence(frames, BitmapJpegEncoder),
+            debugLog = { if (com.aitherapist.dls.BuildConfig.DEBUG) android.util.Log.d("DlsVerdict", it) }
         )
 }
 

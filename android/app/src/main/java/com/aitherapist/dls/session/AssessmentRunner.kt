@@ -93,7 +93,9 @@ class AssessmentRunner(
     private val newId: () -> String = { UUID.randomUUID().toString() },
     /** Wall time for stored timestamps; [clock] (monotonic in the app) times windows and latency. */
     private val wallClock: Clock = clock,
-    private val evidence: EvidenceWriter = EvidenceWriter.NONE
+    private val evidence: EvidenceWriter = EvidenceWriter.NONE,
+    /** Debug-build trace of saved verdicts (step id, verdict, reason only; never child data). */
+    private val debugLog: (String) -> Unit = {}
 ) {
     private val mutableState = MutableStateFlow<RunnerState>(RunnerState.Idle)
     val state: StateFlow<RunnerState> = mutableState.asStateFlow()
@@ -510,6 +512,9 @@ class AssessmentRunner(
             }
         }
         unsaved = emptyList()
+        debugLog(
+            "step=${row.stepId} try=${row.number} level=${row.promptLevel} verdict=${row.verdict} reason=${row.reason} verifier=${row.verifier} frames=${row.framePaths.size} ms=${row.latencyMs}"
+        )
         advance(judge, store.attempts(sessionId, row.stepId))
     }
 

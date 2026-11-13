@@ -15,7 +15,8 @@ class AssessmentRunnerFactory(
     private val dispatcher: CoroutineDispatcher,
     private val newId: () -> String = { UUID.randomUUID().toString() },
     private val wallClock: Clock = clock,
-    private val evidence: EvidenceWriter = EvidenceWriter.NONE
+    private val evidence: EvidenceWriter = EvidenceWriter.NONE,
+    private val debugLog: (String) -> Unit = {}
 ) {
     fun create(childId: String, taskId: String, catalogVersion: String, steps: List<Step>): AssessmentRunner = AssessmentRunner(
         sessionId = newId(),
@@ -29,7 +30,8 @@ class AssessmentRunnerFactory(
         dispatcher = dispatcher,
         newId = newId,
         wallClock = wallClock,
-        evidence = evidence
+        evidence = evidence,
+        debugLog = debugLog
     )
 
     /**
@@ -48,6 +50,7 @@ class AssessmentRunnerFactory(
         dispatcher = dispatcher,
         newId = newId,
         wallClock = wallClock,
-        evidence = evidence
+        evidence = evidence,
+        debugLog = debugLog
     )
 }
