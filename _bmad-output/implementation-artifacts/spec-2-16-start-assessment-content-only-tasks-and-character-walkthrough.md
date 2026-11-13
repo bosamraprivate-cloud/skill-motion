@@ -2,7 +2,7 @@
 title: 'Story 2.16: Start assessment, content-only tasks and character walkthrough'
 type: 'feature'
 created: '2026-11-13'
-status: 'in-review'
+status: 'done'
 baseline_commit: '2701577a10ff8f7ee88b9a23038c26187b073836'
 route: 'dispatch'
 review_loop_iteration: 0
