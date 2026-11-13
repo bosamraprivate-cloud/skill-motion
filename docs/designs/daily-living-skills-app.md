@@ -182,12 +182,12 @@ The source describes a standalone device with a large touch screen and therapist
         cannot tell -> repeat the same attempt once; a second time -> "not scored"; next step
 ```
 
-*   Prompt ladder: attempt 1 = illustration, text and audio; attempt 2 = audio replayed while the character points at the illustration, which is enlarged; attempt 3 = the illustration full screen, the character acting the movement where an animation exists, and a slower recording of the instruction. Help moves to the next prompt level and counts as a prompt; Repeat replays the current level and does not.
+*   Prompt ladder (updated 2026-11-13): attempt 1 = still frame, text and audio; attempt 2 = the character's demonstration clip of the step with the audio; attempt 3 = the demonstration clip large with a slower recording of the instruction.
 *   Steps with `method: none` are shown and played, the child presses Done, and the step is saved as "not scored".
 *   A failed step does not stop the task; the next step is shown, as in the source example where later steps are still scored.
 *   Every state change is saved at once. The adult's pause button freezes the window; on resume the current attempt starts again from its beginning.
 *   At distance (jacket, sink) the child can press Done with a Bluetooth button paired in Android settings; the app treats its key press as the on-screen Done.
-*   At the end of the task the character walks through the whole task, one illustration per step with its audio, once (Stage 4).
+*   No end-of-task walkthrough (removed 2026-11-13); the character's demonstration clip appears from the second attempt.
 
 ### Verifiers
 

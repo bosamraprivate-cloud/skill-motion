@@ -43,7 +43,7 @@ FR-13: Attempt window opens at audio end; closes on Done, or >=20 s elapsed and 
 FR-14: Judging at window close: visibility first (out_of_frame -> cannot tell), then body or object judging; done -> Rule 1 level; not done -> next attempt or level 1 after attempt 3; cannot tell -> repeat once, second -> not scored; method none -> not scored; a failed step never stops the task.
 FR-15: Every state change saved immediately; pause/resume restarts current attempt; "Continue" card after app closed mid-task discards interrupted attempt's frames.
 FR-16: Evidence frames saved per attempt, linked, viewable in session detail.
-FR-17: Character walks through the whole task once at the end (one illustration per step with audio).
+FR-17: Removed 2026-11-13 (no walkthrough; demonstration clip from attempt 2 instead, FR-12).
 FR-18: Body steps judged on tablet from pose/hand landmarks with typed check; verdict within 300 ms; no frames leave the tablet.
 FR-19: Object steps: 3 cropped frames (start/middle/end) + question to proxy; no name/code; random request ID; max 3 images; shared secret required; proxy stores nothing.
 FR-20: Timeout (8 s), network error, refusal, malformed answer, non-200 -> cannot tell with reason; never not done.
@@ -144,7 +144,7 @@ FR-13: Epic 2 - attempt window (2.12)
 FR-14: Epic 2 runner (2.13); Epic 3 visibility/verifier wiring (3.5)
 FR-15: Epic 2 - pause, resume, continue (2.15)
 FR-16: Epic 3 - evidence frames (3.5)
-FR-17: Epic 2 - walkthrough (2.16)
+FR-17: removed
 FR-18: Epic 1 (1.3) and Epic 3 (3.1, 3.2, 3.5)
 FR-19: Epic 1 (1.4, 1.5) and Epic 3 (3.5)
 FR-20: Epic 1 (1.4, 1.5) and Epic 3 (3.6)
@@ -185,7 +185,7 @@ The team can prove on the chosen tablet that pose and hand landmarks run at >= 1
 
 ### Epic 2: Every task runs for a child, safely stored (M2)
 The therapist can set up the tablet, add children, and run any of the 15 tasks / 147 steps in locked child mode with illustration, Egyptian Arabic text and audio; every fact is saved encrypted and an interrupted session can continue. Includes the art and audio production pipeline.
-**FRs covered:** FR-1, FR-2, FR-3, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-17, FR-21, FR-22, FR-23, FR-41, FR-45
+**FRs covered:** FR-1, FR-2, FR-3, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-21, FR-22, FR-23, FR-41, FR-45
 
 ### Epic 3: The app scores the four camera-scored tasks by itself (M3)
 During an assessment the app judges all 41 camera-scored steps (6 local, 30 cloud, 5 none) with framing check, zones and evidence frames; network loss becomes "cannot tell"; volunteer clips can be replayed through the same runner and first accuracy is measured.
@@ -433,7 +433,7 @@ Files: `art/characters/*`, `art/poses/<variant>/idle*.png`, `art/animations/<var
 
 As the author,
 I want each task's real actions performed by both characters as short clips, with every step mapped to a clip segment or a still frame,
-So that the child sees exactly how to do each step (still frame first; the clip on Help, at prompt level 3, in the walkthrough and in training).
+So that the child sees exactly how to do each step (still frame first; the clip from the second attempt or on Help, in the walkthrough and in training).
 
 Implements: FR-9, FR-11, FR-12; AD-1, AD-11.
 Files: `art/objects/*.png` (reference images for every object the steps use), `art/animations/<variant>/steps/raw/<stepId>.mp4`, `tools/art/step_clips.json` (step → clip, startSec, endSec, or still only), `tools/art/export_clips.py`, `android/app/src/main/assets/character/<variant>/steps/<stepId>.webp` and `.still.webp`.
@@ -746,13 +746,13 @@ Files: `<pkg>/ui/child/AdultPauseSheet.kt`, `<pkg>/session/AssessmentRunner.kt`,
 **When** chosen
 **Then** the PIN is required.
 
-### Story 2.16: Start assessment, content-only tasks and character walkthrough
+### Story 2.16: Start assessment and content-only tasks
 
 As a therapist,
 I want to start any of the 15 tasks for a child and hand over,
-So that the child runs the whole task and sees the closing walkthrough.
+So that the child runs the whole task.
 
-Implements: FR-10, FR-17, FR-22, UX-DR8.
+Implements: FR-10, FR-22, UX-DR8.
 Files: `<pkg>/ui/therapist/NewSessionDialog.kt`, `<pkg>/ui/child/TaskPickerScreen.kt` (task start screen), `<pkg>/ui/child/WalkthroughScreen.kt`, `<pkg>/session/AssessmentRunner.kt`.
 
 **Acceptance Criteria:**
@@ -771,7 +771,7 @@ Files: `<pkg>/ui/therapist/NewSessionDialog.kt`, `<pkg>/ui/child/TaskPickerScree
 
 **Given** the last step finished
 **When** the task ends
-**Then** the walkthrough shows one illustration per step with its audio, then the session becomes `done`.
+**Then** the session becomes `done` and a calm end screen shows (walkthrough removed 2026-11-13).
 
 ### Story 2.17: M2 content completeness check
 
@@ -1179,7 +1179,7 @@ Files: `<pkg>/ui/child/TaskRewardScreen.kt`, `<pkg>/ui/child/StickerBookScreen.k
 **Acceptance Criteria:**
 
 **Given** a finished task
-**When** after the walkthrough
+**When** after the last step
 **Then** the screen shows stars earned, `celebrateBig` per effect level and a 3-slot sticker path.
 
 **Given** 3, 6, 9 finished assessment tasks
@@ -1396,7 +1396,7 @@ Files: `README.md`, `<pkg>/ui/therapist/AboutScreen.kt` (open-source credits), `
 | FR-14 | 2.13, 3.5 |
 | FR-15 | 2.15 |
 | FR-16 | 3.5, 5.1 |
-| FR-17 | 2.16 |
+| FR-17 | removed 2026-11-13 |
 | FR-18 | 1.3, 3.1, 3.2, 3.5, 3.9 |
 | FR-19 | 1.4, 1.5, 3.5, 3.9 |
 | FR-20 | 1.4, 1.5, 3.6 |

@@ -166,7 +166,7 @@ Each step screen shows a large illustration, the animated character, one sentenc
 - Done can also be triggered by a paired Bluetooth button.
 
 #### FR-12: Prompt ladder
-Attempt 1 uses prompt level 1 (illustration, text, audio); attempt 2 uses level 2 (audio replayed, character points, illustration enlarged); attempt 3 uses level 3 (illustration full screen, character acts the movement where an animation exists, slow audio).
+Attempt 1 uses prompt level 1 (still frame, text, audio); attempt 2 uses level 2 (the step's demonstration clip: the character performs the step, with the audio); attempt 3 uses level 3 (the demonstration clip large, slow audio). Decided 2026-11-13: the demonstration appears from the second attempt on, so a child who did not do the step sees it modelled at once.
 - Help moves to the next prompt level and counts as a prompt.
 - Repeat replays the current prompt level and does not count as a prompt.
 
@@ -192,8 +192,8 @@ Every state change is saved immediately. The adult can pause; on resume the curr
 The app saves evidence frames for every attempt and links them to the attempt.
 - Frames are viewable in session detail (FR-26).
 
-#### FR-17: Character walkthrough
-At the end of each task the character walks through the whole task once, one illustration per step with its audio (source Stage 4).
+#### FR-17: Character walkthrough (removed 2026-11-13)
+No end-of-task walkthrough. The demonstration clip is shown inside the step from the second attempt (FR-12) instead.
 
 ### 4.5 Automatic Scoring
 
