@@ -2,7 +2,7 @@
 title: 'Story 2.17: M2 content completeness check'
 type: 'feature'
 created: '2026-11-13'
-status: 'in-progress'
+status: 'done'
 baseline_commit: 'a1f0d757ba048f13565e392f4bcb91809a43dc3d'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -63,3 +63,7 @@ context:
 **Commands:**
 - `cd android && ./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` -- expected: BUILD SUCCESSFUL
 - `cd android && ./gradlew connectedDebugAndroidTest` -- expected: pass (strict test skipped)
+
+## Implementation Notes
+
+Phone run 2026-11-13: connectedDebugAndroidTest 20 tests, 0 failures, 1 skipped (strict completeness gate, complete=false). Strict gate turns on when media are finished.
