@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -49,6 +51,7 @@ import com.aitherapist.dls.rewards.RewardRules
 import com.aitherapist.dls.rewards.TaskReward
 import com.aitherapist.dls.ui.theme.ChildColors
 import com.aitherapist.dls.ui.theme.ChildType
+import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 import com.aitherapist.dls.ui.therapist.CharacterIndexSource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -196,33 +199,63 @@ fun TaskRewardScreen(
     val fade = remember { Animatable(if (full) 1f else 0f) }
     LaunchedEffect(Unit) { fade.animateTo(1f, tween(CALM_FADE_MS, easing = LinearEasing)) }
     Box(modifier.fillMaxSize().background(ChildColors.Canvas)) {
-        Column(
+        // Landscape balance: the celebrating character on the start half, stars, sticker path and buttons on the end half.
+        Row(
             Modifier.fillMaxSize().padding(Spacing.S5),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.S4)
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.S5)
         ) {
-            val starsLabel = stringResource(R.string.reward_stars, childDigits(state.stars))
-            Row(
-                Modifier.semantics { contentDescription = starsLabel },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.S2)
-            ) {
-                Icon(Icons.Filled.Star, contentDescription = null, tint = ChildColors.Star, modifier = Modifier.size(96.dp))
-                Text(childDigits(state.stars), style = ChildType.Count, color = ChildColors.Ink)
-            }
-            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
                 CharacterView(clip = state.clip, loop = true, modifier = Modifier.fillMaxSize().alpha(fade.value))
             }
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
-                StickerPath(RewardRules.pathFilled(state.finishedTasks))
-                state.newSticker?.let { sticker ->
-                    val label = stringResource(R.string.reward_sticker_new)
-                    StickerArt.Sticker(sticker, earned = true, modifier = Modifier.size(120.dp).semantics { contentDescription = label })
+            Column(
+                Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Spacing.S5)
+            ) {
+                val starsLabel = stringResource(R.string.reward_stars, childDigits(state.stars))
+                Row(
+                    Modifier
+                        .semantics { contentDescription = starsLabel }
+                        .background(ChildColors.Surface, RoundedCornerShape(percent = 50))
+                        .padding(horizontal = Spacing.S6, vertical = Spacing.S2),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.S3)
+                ) {
+                    Icon(Icons.Filled.Star, contentDescription = null, tint = ChildColors.Star, modifier = Modifier.size(96.dp))
+                    Text(childDigits(state.stars), style = ChildType.Count, color = ChildColors.Ink)
                 }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S5)) {
-                ChildBigButton(stringResource(R.string.reward_sticker_book), ChildColors.Repeat, onStickerBook)
-                ChildBigButton(stringResource(R.string.reward_next), ChildColors.Done, onNext)
+                Row(
+                    Modifier.background(ChildColors.Surface, RoundedCornerShape(Radius.Lg)).padding(Spacing.S4),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.S4)
+                ) {
+                    StickerPath(RewardRules.pathFilled(state.finishedTasks))
+                    state.newSticker?.let { sticker ->
+                        val label = stringResource(R.string.reward_sticker_new)
+                        StickerArt.Sticker(
+                            sticker,
+                            earned = true,
+                            modifier = Modifier.size(112.dp).semantics {
+                                contentDescription = label
+                            }
+                        )
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
+                    ChildBigButton(
+                        stringResource(R.string.reward_sticker_book),
+                        ChildColors.Repeat,
+                        onStickerBook,
+                        icon = Icons.Filled.Star
+                    )
+                    ChildBigButton(
+                        stringResource(R.string.reward_next),
+                        ChildColors.Done,
+                        onNext,
+                        icon = Icons.AutoMirrored.Filled.ArrowForward
+                    )
+                }
             }
         }
         if (full) {

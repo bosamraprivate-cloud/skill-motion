@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** The post-PIN session summary: [childId]'s sessions of the visit that just ended (may be empty). */
+data class SummaryRequest(val childId: String, val sessionIds: List<String>)
+
 /** Start-up state of the gate: still reading settings, ready to show the back stack, or the read failed. */
 sealed interface GateState {
     data object Loading : GateState
@@ -86,6 +89,7 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
     /** Enters locked child mode for [childId] on [taskId] (Story 2.14); [thenTaskId] runs after it (Story 2.16). */
     fun openChildMode(childId: String, taskId: String, thenTaskId: String? = null) {
         if (childModeActive) return // a double tap must not push two runs
+        visitSessions.clear()
         backStack.add(ChildModeKey(childId, taskId, thenTaskId = thenTaskId))
     }
 
@@ -113,6 +117,7 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
     /** "Hand to child" (or Start anyway, or a content-only task): the framing check becomes child mode in place. */
     fun handToChild(key: FramingCheckKey) {
         if (backStack.lastOrNull() != key) return
+        visitSessions.clear()
         backStack[backStack.lastIndex] = ChildModeKey(key.childId, key.taskId, key.sessionId, key.thenTaskId)
     }
 
@@ -138,7 +143,28 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
     fun leaveChildMode() {
         val index = backStack.indexOfFirst { it is ChildModeKey || it is TrainingRunKey }
         if (index < 0) return
+        // After an assessment visit the therapist first sees the summary of exactly this visit's sessions (agreed IA).
+        (backStack[index] as? ChildModeKey)?.let { summary.value = SummaryRequest(it.childId, visitSessions.toList()) }
+        visitSessions.clear()
         while (backStack.size > index) backStack.removeAt(backStack.lastIndex)
+    }
+
+    private val summary = MutableStateFlow<SummaryRequest?>(null)
+
+    /** The summary the shell should show after leaving child mode; null when none. */
+    val pendingSummary: StateFlow<SummaryRequest?> = summary.asStateFlow()
+
+    /** Assessment sessions of the current child-mode visit, in run order (a jacket chain adds the second). */
+    private val visitSessions = mutableListOf<String>()
+
+    /** Child mode reports the session it runs (new or continued); kept for the post-PIN summary. */
+    fun onChildSession(sessionId: String) {
+        if (childModeActive && sessionId !in visitSessions) visitSessions += sessionId
+    }
+
+    /** The shell showed (or closed) the pending summary. */
+    fun consumeSummary() {
+        summary.value = null
     }
 
     /** Pops one entry; returns false at the root so the caller can move the task to the back. Blocked on the child step screen. */

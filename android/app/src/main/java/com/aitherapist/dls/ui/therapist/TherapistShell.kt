@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
+import com.aitherapist.dls.ui.SummaryRequest
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.ui.theme.Spacing
@@ -82,16 +83,29 @@ fun TherapistShell(
     onContinueSession: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> },
     onNewSession: (childId: String, taskId: String, thenTaskId: String?) -> Unit = { _, _, _ -> },
     onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false },
+    pendingSummary: SummaryRequest? = null,
+    onSummaryShown: () -> Unit = {},
     networkViewModel: NetworkBannerViewModel = hiltViewModel()
 ) {
     var selected by rememberSaveable { mutableStateOf(ShellDestination.CHILDREN) }
     val banner by networkViewModel.banner.collectAsStateWithLifecycle()
+    // Return from child mode: the session summary first, then the child's profile (Overview, or Report on request).
+    var summary by remember { mutableStateOf<SummaryRequest?>(null) }
+    var tabRequest by remember { mutableStateOf<ProfileTabRequest?>(null) }
+    LaunchedEffect(pendingSummary) {
+        val request = pendingSummary ?: return@LaunchedEffect
+        selected = ShellDestination.CHILDREN
+        // No session of this visit (left before the first step): straight back to the child's Overview.
+        if (request.sessionIds.isEmpty()) tabRequest = ProfileTabRequest(request.childId, ProfileTab.OVERVIEW) else summary = request
+        onSummaryShown()
+    }
     TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier, banner = banner) { destination ->
         when (destination) {
             ShellDestination.CHILDREN -> ChildrenRoute(
                 onContinue = onContinueSession,
                 onNewSession = onNewSession,
-                onStartTraining = onStartTraining
+                onStartTraining = onStartTraining,
+                tabRequest = tabRequest
             )
             ShellDestination.SETTINGS -> SettingsRoute(
                 onOpenSample = onOpenSample,
@@ -99,6 +113,21 @@ fun TherapistShell(
                 onOpenChildMode = onOpenChildMode
             )
         }
+    }
+    summary?.let { request ->
+        val child = request.childId
+        SessionSummaryDialog(
+            childId = child,
+            sessionIds = request.sessionIds,
+            onOpenReport = {
+                summary = null
+                tabRequest = ProfileTabRequest(child, ProfileTab.REPORT)
+            },
+            onDismiss = {
+                summary = null
+                tabRequest = ProfileTabRequest(child, ProfileTab.OVERVIEW)
+            }
+        )
     }
 }
 

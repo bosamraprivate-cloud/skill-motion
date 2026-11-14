@@ -129,6 +129,10 @@ internal interface RewardDao {
     @Query("SELECT COALESCE(SUM(stars), 0) FROM reward WHERE id LIKE :prefix || '%'")
     suspend fun starsForPrefix(prefix: String): Int
 
+    /** Every reward row of [childId] (read-only session history, Epic 4 UI pass). */
+    @Query("SELECT * FROM reward WHERE childId = :childId ORDER BY createdAt, id")
+    suspend fun forChild(childId: String): List<RewardEntity>
+
     /** Stickers [childId] has unlocked, in unlock order. */
     @Query("SELECT stickerId FROM reward WHERE childId = :childId AND stickerId IS NOT NULL ORDER BY createdAt, id")
     suspend fun stickerIds(childId: String): List<String>

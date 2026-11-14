@@ -130,7 +130,10 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
             entry<SetupKey> { SetupRoute(onFinished = gate::enterShell) }
             entry<PinKey> { PinRoute(onUnlocked = gate::enterShell) }
             entry<ShellKey> {
+                val pendingSummary by gate.pendingSummary.collectAsStateWithLifecycle()
                 TherapistShell(
+                    pendingSummary = pendingSummary,
+                    onSummaryShown = gate::consumeSummary,
                     onOpenSample = { gate.open(SampleKey) },
                     onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
                     onOpenChildMode = { child, task -> gate.openFramingCheck(child, task) },
@@ -152,6 +155,7 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                         sessionId = key.sessionId,
                         thenTaskId = key.thenTaskId,
                         onNext = { next -> gate.nextChildTask(key, next) },
+                        onSession = gate::onChildSession,
                         onExit = gate::openChildPin
                     )
                 }

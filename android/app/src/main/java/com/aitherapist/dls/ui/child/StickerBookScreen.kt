@@ -1,22 +1,26 @@
 package com.aitherapist.dls.ui.child
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,6 +32,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -106,47 +112,81 @@ fun StickerBookScreen(state: StickerBookUiState, onBack: () -> Unit, modifier: M
                 color = ChildColors.Ink,
                 modifier = Modifier.weight(1f)
             )
-            ChildBigButton(stringResource(R.string.sticker_book_back), ChildColors.Help, onBack)
+            ChildBigButton(
+                stringResource(R.string.sticker_book_back),
+                ChildColors.Help,
+                onBack,
+                icon = Icons.AutoMirrored.Filled.ArrowBack
+            )
         }
         val content = state as? StickerBookUiState.Content ?: return@Column
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
+        Row(
+            Modifier.fillMaxWidth().background(ChildColors.Surface, RoundedCornerShape(Radius.Lg)).padding(
+                horizontal = Spacing.S5,
+                vertical = Spacing.S3
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.S5)
+        ) {
             StickerPath(RewardRules.pathFilled(content.finishedTasks))
+            Spacer(Modifier.weight(1f))
             Text(
-                stringResource(R.string.sticker_book_count, childDigits(content.unlocked.size)),
+                pluralStringResource(R.plurals.sticker_book_count, content.unlocked.size, childDigits(content.unlocked.size)),
                 style = ChildType.Button,
                 color = ChildColors.InkSoft
             )
         }
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(140.dp),
-            contentPadding = PaddingValues(Spacing.S2),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.S4),
-            verticalArrangement = Arrangement.spacedBy(Spacing.S4),
+            columns = GridCells.Adaptive(STICKER_CELL),
+            contentPadding = PaddingValues(vertical = Spacing.S3),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.S5),
+            verticalArrangement = Arrangement.spacedBy(Spacing.S5),
             modifier = Modifier.weight(1f)
         ) {
             items(List(maxOf(Stickers.BOOK_SLOTS, content.unlocked.size)) { Stickers.idFor(it) }) { id ->
                 val earned = id in content.unlocked
                 val label = stringResource(if (earned) R.string.sticker_earned else R.string.sticker_locked)
-                StickerArt.Sticker(id, earned, Modifier.aspectRatio(1f).semantics { contentDescription = label })
+                Box(
+                    Modifier
+                        .aspectRatio(1f)
+                        .background(if (earned) ChildColors.Surface else Color.Transparent, RoundedCornerShape(Radius.Lg))
+                        .padding(Spacing.S3)
+                        .semantics { contentDescription = label },
+                    contentAlignment = Alignment.Center
+                ) { StickerArt.Sticker(id, earned, Modifier.fillMaxSize()) }
             }
         }
     }
 }
 
-/** Three slots toward the next sticker: [filled] slots hold a gold star, the rest are soft outlines. */
+/**
+ * Three slots toward the next sticker joined by a soft path: [filled] slots hold a gold star and the path up to them
+ * turns light sage; the rest stay sand outlines.
+ */
 @Composable
 fun StickerPath(filled: Int, modifier: Modifier = Modifier) {
     val label = stringResource(R.string.reward_path, childDigits(filled), childDigits(RewardRules.TASKS_PER_STICKER))
-    Row(modifier.semantics { contentDescription = label }, horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+    Row(modifier.semantics { contentDescription = label }, verticalAlignment = Alignment.CenterVertically) {
         repeat(RewardRules.TASKS_PER_STICKER) { slot ->
+            if (slot > 0) {
+                Box(
+                    Modifier
+                        .size(width = PATH_LINK, height = 8.dp)
+                        .background(if (slot < filled) ChildColors.ScheduleDone else ChildColors.StarEmpty, RoundedCornerShape(50))
+                )
+            }
+            val reached = slot < filled
             Box(
-                Modifier.size(72.dp).background(ChildColors.Surface, RoundedCornerShape(Radius.Md)),
+                Modifier
+                    .size(PATH_SLOT)
+                    .background(if (reached) ChildColors.Surface else ChildColors.Canvas, RoundedCornerShape(Radius.Md))
+                    .border(3.dp, if (reached) ChildColors.Star else ChildColors.StarEmpty, RoundedCornerShape(Radius.Md)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Filled.Star,
                     contentDescription = null,
-                    tint = if (slot < filled) ChildColors.Star else ChildColors.StarEmpty,
+                    tint = if (reached) ChildColors.Star else ChildColors.StarEmpty,
                     modifier = Modifier.size(52.dp)
                 )
             }
@@ -154,15 +194,35 @@ fun StickerPath(filled: Int, modifier: Modifier = Modifier) {
     }
 }
 
-/** A big (at least 120 dp) child button. */
+private val STICKER_CELL = 160.dp
+private val PATH_SLOT = 80.dp
+private val PATH_LINK = 32.dp
+
+/** A big (at least 220 x 120 dp) child button: optional icon plus the word, child ink on the calm colours. */
 @Composable
-fun ChildBigButton(text: String, color: Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun ChildBigButton(text: String, color: Color, onClick: () -> Unit, modifier: Modifier = Modifier, icon: ImageVector? = null) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(Radius.Lg),
-        colors = ButtonDefaults.buttonColors(containerColor = color),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = color,
+            contentColor = if (color ==
+                ChildColors.Done
+            ) {
+                Color.White
+            } else {
+                ChildColors.Ink
+            }
+        ),
+        contentPadding = PaddingValues(horizontal = Spacing.S5, vertical = Spacing.S3),
         modifier = modifier.sizeIn(minWidth = 220.dp, minHeight = 120.dp)
-    ) { Text(text, style = ChildType.Button) }
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(40.dp))
+            Spacer(Modifier.width(Spacing.S3))
+        }
+        Text(text, style = ChildType.Button)
+    }
 }
 
 /** Arabic-Indic digits in child mode (the app locale's digits). */

@@ -11,6 +11,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +33,8 @@ fun ChildrenRoute(
     modifier: Modifier = Modifier,
     onContinue: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> },
     onNewSession: (childId: String, taskId: String, thenTaskId: String?) -> Unit = { _, _, _ -> },
-    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false }
+    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false },
+    tabRequest: ProfileTabRequest? = null
 ) {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val scope = rememberCoroutineScope()
@@ -42,6 +44,12 @@ fun ChildrenRoute(
 
     fun open(key: String) {
         scope.launch { navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, key) }
+    }
+
+    // A request for a child's tab (after the session summary) opens that child in the detail pane.
+    LaunchedEffect(tabRequest) {
+        val request = tabRequest ?: return@LaunchedEffect
+        if (detailKey != request.childId) navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, request.childId)
     }
 
     ListDetailPaneScaffold(
@@ -63,7 +71,7 @@ fun ChildrenRoute(
                     else ->
                         ChildProfileRoute(childId = key.takeUnless { it == NEW_CHILD }, onNewSession = { task, then ->
                             if (key != NEW_CHILD) onNewSession(key, task, then)
-                        }, onStartTraining = onStartTraining, onResult = { result ->
+                        }, onStartTraining = onStartTraining, tabRequest = tabRequest, onResult = { result ->
                             when (result) {
                                 // First save of a new child: replace the "new" entry so Back never reopens the blank form.
                                 is ProfileResult.Saved -> if (key != result.childId) {

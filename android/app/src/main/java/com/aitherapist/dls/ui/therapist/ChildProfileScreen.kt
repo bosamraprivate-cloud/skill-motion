@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -80,6 +80,9 @@ import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 
+/** A request from outside the profile to show [tab] of [childId] (e.g. after the session summary); [nonce] repeats it. */
+data class ProfileTabRequest(val childId: String, val tab: ProfileTab, val nonce: Long = System.nanoTime())
+
 /** Add ([childId] null) or edit a child. [onResult] fires once per save or delete. */
 @Composable
 fun ChildProfileRoute(
@@ -87,6 +90,7 @@ fun ChildProfileRoute(
     onResult: (ProfileResult) -> Unit,
     onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> },
     onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false },
+    tabRequest: ProfileTabRequest? = null,
     viewModel: ChildProfileViewModel = hiltViewModel(
         key =
         childId ?: NEW_CHILD_KEY
@@ -102,7 +106,13 @@ fun ChildProfileRoute(
         }
     }
     LaunchedEffect(state) { if (state == ChildProfileUiState.Deleted) onResult(ProfileResult.Deleted) }
-    ChildProfileScreen(state = state, onEvent = viewModel::onEvent, onNewSession = onNewSession, onStartTraining = onStartTraining)
+    ChildProfileScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onNewSession = onNewSession,
+        onStartTraining = onStartTraining,
+        tabRequest = tabRequest
+    )
 }
 
 private const val NEW_CHILD_KEY = "child-profile-new"
@@ -113,7 +123,8 @@ fun ChildProfileScreen(
     onEvent: (ChildProfileEvent) -> Unit,
     modifier: Modifier = Modifier,
     onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> },
-    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false }
+    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false },
+    tabRequest: ProfileTabRequest? = null
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         when (state) {
@@ -125,7 +136,7 @@ fun ChildProfileScreen(
                     Modifier.align(Alignment.Center)
                 )
             ChildProfileUiState.Deleted -> Unit
-            is ChildProfileUiState.Content -> ChildProfileForm(state, onEvent, onNewSession, onStartTraining)
+            is ChildProfileUiState.Content -> ChildProfileForm(state, onEvent, onNewSession, onStartTraining, tabRequest)
         }
     }
 }
@@ -135,21 +146,34 @@ private fun ChildProfileForm(
     state: ChildProfileUiState.Content,
     onEvent: (ChildProfileEvent) -> Unit,
     onNewSession: (taskId: String, thenTaskId: String?) -> Unit,
-    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean
+    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean,
+    tabRequest: ProfileTabRequest?
 ) {
     val form = state.form
     var newSessionOpen by rememberSaveable { mutableStateOf(false) }
     var stickerBookOpen by rememberSaveable { mutableStateOf(false) }
     var newSessionCount by rememberSaveable { mutableStateOf(0) }
+    var summarySession by rememberSaveable(state.childId) { mutableStateOf<String?>(null) }
     // View mode by default for a saved child; a new child is always the form. A successful save returns to view mode.
     var editing by rememberSaveable(state.childId) { mutableStateOf(false) }
     LaunchedEffect(state.saved) { if (state.saved) editing = false }
     val showForm = state.isNew || editing
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Spacing.S4).widthIn(max = 760.dp),
-        verticalArrangement = Arrangement.spacedBy(Spacing.S3)
-    ) {
-        PageHeader(stringResource(if (state.isNew) R.string.child_new_title else R.string.child_edit_title)) {
+    var tab by rememberSaveable(state.childId) { mutableStateOf(ProfileTab.OVERVIEW) }
+    LaunchedEffect(tabRequest) {
+        if (tabRequest != null && tabRequest.childId == state.childId) {
+            editing = false
+            tab = tabRequest.tab
+        }
+    }
+    val startSession: () -> Unit = {
+        newSessionCount++
+        newSessionOpen = true
+    }
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = Spacing.S4).widthIn(max = 880.dp)) {
+        PageHeader(
+            stringResource(if (state.isNew) R.string.child_new_title else R.string.child_edit_title),
+            modifier = Modifier.padding(top = Spacing.S3)
+        ) {
             if (!showForm) {
                 OutlinedButton(
                     onClick = { editing = true },
@@ -162,32 +186,65 @@ private fun ChildProfileForm(
                 }
             }
         }
-        if (showForm) {
-            ProfileEditCard(state, onEvent)
+        val childId = state.childId
+        if (showForm || childId == null) {
+            Column(
+                Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(vertical = Spacing.S3),
+                verticalArrangement = Arrangement.spacedBy(Spacing.S3)
+            ) { ProfileEditCard(state, onEvent) }
         } else {
-            var tab by rememberSaveable(state.childId) { mutableStateOf(ProfileTab.OVERVIEW) }
             ProfileTabs(tab) { tab = it }
-            if (tab == ProfileTab.OVERVIEW) {
-                ProfileHeaderCard(form, enabled = !state.busy) {
-                    newSessionCount++
-                    newSessionOpen = true
-                }
-                state.message?.let { MessageText(it) }
-                if (state.childId != null) {
-                    OutlinedButton(onClick = { stickerBookOpen = true }, shape = RoundedCornerShape(Radius.Sm)) {
-                        Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Text(stringResource(R.string.profile_sticker_book), modifier = Modifier.padding(start = Spacing.S2))
-                    }
-                }
-            } else if (tab == ProfileTab.REPORT && state.childId != null) {
-                ReportRoute(state.childId)
-            } else if (tab == ProfileTab.PLAN && state.childId != null) {
-                PlanRoute(state.childId, onStartTraining)
-            } else {
-                OutlinedSurfaceCard {
-                    EmptyState(icon = tab.icon, message = stringResource(R.string.profile_tab_later, stringResource(tab.label)))
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                when (tab) {
+                    ProfileTab.PLAN -> PlanRoute(childId, onStartTraining, onStartSession = startSession)
+                    else ->
+                        Column(
+                            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(vertical = Spacing.S4),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.S4)
+                        ) {
+                            when (tab) {
+                                ProfileTab.OVERVIEW -> {
+                                    ProfileHeaderCard(form, enabled = !state.busy, onStartSession = startSession)
+                                    state.message?.let { MessageText(it) }
+                                    OverviewStatsSection(childId, onStickerBook = { stickerBookOpen = true })
+                                }
+                                ProfileTab.SESSIONS -> {
+                                    val vm: SessionsViewModel = hiltViewModel(key = "sessions-$childId")
+                                    LaunchedEffect(childId) { vm.load(childId) }
+                                    val sessions by vm.uiState.collectAsStateWithLifecycle()
+                                    SessionsScreen(
+                                        sessions,
+                                        onRetry = vm::retry,
+                                        onOpenSummary = { summarySession = it },
+                                        onStartSession = startSession
+                                    )
+                                }
+                                ProfileTab.REPORT -> ReportRoute(childId, onStartSession = startSession)
+                                else ->
+                                    TCard {
+                                        EmptyState(
+                                            icon = tab.icon,
+                                            message = stringResource(R.string.profile_tab_later, stringResource(tab.label))
+                                        )
+                                    }
+                            }
+                        }
                 }
             }
+        }
+    }
+    val summaryChild = state.childId
+    summarySession?.let { sessionId ->
+        if (summaryChild != null) {
+            SessionSummaryDialog(
+                childId = summaryChild,
+                sessionIds = listOf(sessionId),
+                onOpenReport = {
+                    summarySession = null
+                    tab = ProfileTab.REPORT
+                },
+                onDismiss = { summarySession = null }
+            )
         }
     }
     val bookChild = state.childId
@@ -225,8 +282,64 @@ private fun ChildProfileForm(
     }
 }
 
-/** Agreed child-profile tabs (EXPERIENCE.md, therapist IA); only Overview has content until later epics. */
-private enum class ProfileTab(val label: Int, val icon: ImageVector) {
+/** Overview quick stats (last assessment, tasks finished, stickers) and the sticker book entry. */
+@Composable
+private fun OverviewStatsSection(childId: String, onStickerBook: () -> Unit) {
+    val vm: SessionsViewModel = hiltViewModel(key = "sessions-$childId")
+    LaunchedEffect(childId) { vm.load(childId) }
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    val stats = (state as? SessionsUiState.Content)?.stats
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.S3)) {
+        StatTile(
+            Icons.Filled.DateRange,
+            stringResource(R.string.overview_last_assessment),
+            stats?.let { s -> s.lastAssessmentAt?.let { formatDate(it) } ?: stringResource(R.string.overview_none_yet) },
+            Modifier.weight(1f)
+        )
+        StatTile(
+            Icons.Filled.CheckCircle,
+            stringResource(R.string.overview_tasks_finished),
+            stats?.let { westernDigits(it.finishedTasks) },
+            Modifier.weight(1f)
+        )
+        StatTile(
+            Icons.Filled.Star,
+            stringResource(R.string.overview_stickers),
+            stats?.let { westernDigits(it.stickers) },
+            Modifier.weight(1f),
+            action = stringResource(R.string.profile_sticker_book),
+            onAction = onStickerBook
+        )
+    }
+}
+
+@Composable
+private fun StatTile(
+    icon: ImageVector,
+    label: String,
+    value: String?,
+    modifier: Modifier,
+    action: String? = null,
+    onAction: () -> Unit = {}
+) {
+    TCard(modifier = modifier, spacing = Spacing.S2) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+            Box(
+                Modifier.size(36.dp).background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(Radius.Sm)),
+                contentAlignment = Alignment.Center
+            ) { Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp)) }
+            Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        // Placeholder dash while loading keeps the tile height stable.
+        Text(value ?: "—", style = MaterialTheme.typography.headlineSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (action != null) {
+            TextButton(onClick = onAction, contentPadding = PaddingValues(0.dp)) { Text(action) }
+        }
+    }
+}
+
+/** Agreed child-profile tabs (EXPERIENCE.md, therapist IA); Progress fills in Epic 5. */
+enum class ProfileTab(val label: Int, val icon: ImageVector) {
     OVERVIEW(R.string.profile_tab_overview, Icons.Filled.Face),
     SESSIONS(R.string.profile_tab_sessions, Icons.AutoMirrored.Filled.List),
     REPORT(R.string.profile_tab_report, Icons.Filled.Info),
@@ -257,7 +370,7 @@ private fun ProfileTabs(selected: ProfileTab, onSelect: (ProfileTab) -> Unit) {
 /** View mode: avatar, name, age, character and effect level, with the prominent "Start session" action. */
 @Composable
 private fun ProfileHeaderCard(form: ChildForm, enabled: Boolean, onStartSession: () -> Unit) {
-    OutlinedSurfaceCard {
+    TCard {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
             form.character?.let { CharacterAvatar(it, size = 112.dp) }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.S1)) {
@@ -309,7 +422,7 @@ private fun InfoChip(label: String, value: String) {
 @Composable
 private fun ProfileEditCard(state: ChildProfileUiState.Content, onEvent: (ChildProfileEvent) -> Unit) {
     val form = state.form
-    OutlinedSurfaceCard {
+    TCard {
         FormField(form.name, R.string.child_name, state.errors.name, KeyboardType.Text) { onEvent(ChildProfileEvent.NameChanged(it)) }
         FormField(form.age, R.string.child_age, state.errors.age, KeyboardType.Number) { onEvent(ChildProfileEvent.AgeChanged(it)) }
 
@@ -377,19 +490,6 @@ private fun MessageText(message: ProfileMessage) {
 @Composable
 private fun SectionLabel(text: String) {
     Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = Spacing.S2))
-}
-
-/** t-card: white surface, 16dp corners, 1dp t-border outline, no shadow. */
-@Composable
-private fun OutlinedSurfaceCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        shape = RoundedCornerShape(Radius.Md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(Modifier.padding(Spacing.S4), verticalArrangement = Arrangement.spacedBy(Spacing.S3), content = content)
-    }
 }
 
 @Composable

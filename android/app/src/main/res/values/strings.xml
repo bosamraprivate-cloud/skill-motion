@@ -237,18 +237,15 @@
     <string name="profile_tab_progress">Progress</string>
     <string name="profile_tab_later">%1$s comes in a later update.</string>
     <string name="report_title">Functional report</string>
-    <string name="report_list_separator">", "</string>
     <string name="report_empty">No finished assessment yet. Start a session from Overview to see the report.</string>
     <string name="report_error">The report could not be loaded.</string>
     <string name="report_strengths">Strengths</string>
     <string name="report_needs">Needs</string>
     <string name="report_no_strengths">No independent steps in this assessment.</string>
     <string name="report_no_needs">No steps needed help in this assessment.</string>
-    <string name="report_may_relate">May be related to: %1$s</string>
     <string name="report_no_domain">No domain tag in the scale</string>
     <string name="report_domains">Functional domains</string>
     <string name="report_no_scored_steps">No scored steps</string>
-    <string name="report_step_number">Step %1$s</string>
     <string name="report_chart_description">Domain averages chart</string>
     <string name="plan_strength">Strength</string>
     <string name="plan_mild">Mild weakness</string>
@@ -273,10 +270,6 @@
     <plurals name="report_unknown_note">
         <item quantity="one">%1$s scored step is not in the current catalogue and feeds no domain.</item>
         <item quantity="other">%1$s scored steps are not in the current catalogue and feed no domain.</item>
-    </plurals>
-    <plurals name="report_scored_steps">
-        <item quantity="one">%1$s scored step</item>
-        <item quantity="other">%1$s scored steps</item>
     </plurals>
     <plurals name="report_domain_description">
         <item quantity="one">%2$s: average %3$s, %4$s, %1$s scored step</item>
@@ -323,9 +316,63 @@
     <string name="reward_sticker_new">New sticker!</string>
     <string name="reward_path">Sticker path: %1$s of %2$s</string>
     <string name="sticker_book_title">My stickers</string>
-    <string name="sticker_book_count">%1$s stickers</string>
     <string name="sticker_book_back">Back</string>
     <string name="sticker_earned">Sticker earned</string>
     <string name="sticker_locked">Sticker not earned yet</string>
     <string name="profile_sticker_book">Sticker book</string>
+    <string name="report_assessed_on">Assessed on %1$s</string>
+    <string name="report_may_relate_label">May be related to:</string>
+    <string name="report_col_domain">Domain</string>
+    <string name="report_col_average">Average</string>
+    <string name="report_col_plan">Plan level</string>
+    <string name="report_col_steps">Scored steps</string>
+    <string name="level_not_scored">Not scored</string>
+    <string name="plan_intro">Pick activities for training, then start. Tap an activity for its details.</string>
+    <string name="plan_start_training_count">Start training (%1$s)</string>
+    <string name="sessions_error">The sessions could not be loaded.</string>
+    <string name="sessions_empty">No sessions yet. Start the first session to see it here.</string>
+    <string name="sessions_kind_assessment">Assessment</string>
+    <string name="sessions_kind_training">Training</string>
+    <string name="sessions_open_summary">Open session summary</string>
+    <plurals name="sessions_activities">
+        <item quantity="one">%1$s activity</item>
+        <item quantity="other">%1$s activities</item>
+    </plurals>
+    <plurals name="sessions_stars">
+        <item quantity="one">%1$s star</item>
+        <item quantity="other">%1$s stars</item>
+    </plurals>
+    <string name="history_state_done">Done</string>
+    <string name="history_state_paused">Paused</string>
+    <string name="history_state_abandoned">Stopped early</string>
+    <string name="summary_title">Session summary</string>
+    <string name="summary_empty">No assessment session to summarise.</string>
+    <string name="summary_error">The summary could not be loaded.</string>
+    <string name="summary_close">Close</string>
+    <string name="summary_open_report">Open report</string>
+    <string name="summary_cannot_tell">Cannot tell: %1$s</string>
+    <plurals name="summary_steps">
+        <item quantity="one">%1$s step</item>
+        <item quantity="other">%1$s steps</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$s minute</item>
+        <item quantity="other">%1$s minutes</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%1$s second</item>
+        <item quantity="other">%1$s seconds</item>
+    </plurals>
+    <string name="overview_last_assessment">Last assessment</string>
+    <string name="overview_none_yet">None yet</string>
+    <string name="overview_tasks_finished">Tasks finished</string>
+    <string name="overview_stickers">Stickers</string>
+    <string name="training_of_target">of %1$s</string>
+    <plurals name="sticker_book_count">
+        <item quantity="one">%1$s sticker</item>
+        <item quantity="other">%1$s stickers</item>
+    </plurals>
+    <string name="summary_not_finished">This session was left before its end. Nothing to summarise yet; continue it from the Children list.</string>
+    <string name="summary_not_reached">Not reached: %1$s</string>
+    <string name="history_state_not_finished">Not finished</string>
 </resources>

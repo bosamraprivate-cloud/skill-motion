@@ -39,6 +39,7 @@ fun ChildModeHost(
     sessionId: String? = null,
     thenTaskId: String? = null,
     onNext: (nextTaskId: String) -> Unit = {},
+    onSession: (sessionId: String) -> Unit = {},
     viewModel: StepViewModel = hiltViewModel()
 ) {
     LaunchedEffect(childId, taskId, sessionId) { viewModel.start(childId, taskId, sessionId, thenTaskId) }
@@ -48,6 +49,8 @@ fun ChildModeHost(
         onStopOrDispose { viewModel.setActive(false) }
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // Report this run's session (new or continued) so the post-PIN summary shows exactly this visit.
+    LaunchedEffect(state) { viewModel.sessionId?.let(onSession) }
     val effect by viewModel.effect.collectAsStateWithLifecycle()
     var starTarget by remember { mutableStateOf<Offset?>(null) }
     val scope = rememberCoroutineScope()

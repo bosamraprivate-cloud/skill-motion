@@ -237,18 +237,15 @@
     <string name="profile_tab_progress">التقدم</string>
     <string name="profile_tab_later">%1$s جاي في تحديث بعدين.</string>
     <string name="report_title">التقرير الوظيفي</string>
-    <string name="report_list_separator">"، "</string>
     <string name="report_empty">لسه مفيش تقييم مكتمل. ابدأ جلسة من نظرة عامة علشان يظهر التقرير.</string>
     <string name="report_error">التقرير ماتحمّلش.</string>
     <string name="report_strengths">نقاط القوة</string>
     <string name="report_needs">الاحتياجات</string>
     <string name="report_no_strengths">مفيش خطوات اتعملت باستقلال في التقييم ده.</string>
     <string name="report_no_needs">مفيش خطوات احتاجت مساعدة في التقييم ده.</string>
-    <string name="report_may_relate">قد يكون مرتبطًا بـ: %1$s</string>
     <string name="report_no_domain">مفيش مجال مكتوب في المقياس</string>
     <string name="report_domains">المجالات الوظيفية</string>
     <string name="report_no_scored_steps">مفيش خطوات مُقيَّمة</string>
-    <string name="report_step_number">خطوة %1$s</string>
     <string name="report_chart_description">رسم متوسطات المجالات</string>
     <string name="plan_strength">قوة</string>
     <string name="plan_mild">ضعف بسيط</string>
@@ -285,14 +282,6 @@
         <item quantity="few">%1$s خطوات مُقيَّمة مش موجودة في الكتالوج الحالي.</item>
         <item quantity="many">%1$s خطوة مُقيَّمة مش موجودة في الكتالوج الحالي.</item>
         <item quantity="other">%1$s خطوة مُقيَّمة مش موجودة في الكتالوج الحالي.</item>
-    </plurals>
-    <plurals name="report_scored_steps">
-        <item quantity="zero">%1$s خطوات مُقيَّمة</item>
-        <item quantity="one">خطوة مُقيَّمة واحدة</item>
-        <item quantity="two">خطوتين مُقيَّمتين</item>
-        <item quantity="few">%1$s خطوات مُقيَّمة</item>
-        <item quantity="many">%1$s خطوة مُقيَّمة</item>
-        <item quantity="other">%1$s خطوة مُقيَّمة</item>
     </plurals>
     <plurals name="report_domain_description">
         <item quantity="zero">%2$s: المتوسط %3$s، %4$s، %1$s خطوات مُقيَّمة</item>
@@ -347,9 +336,87 @@
     <string name="reward_sticker_new">ستيكر جديد!</string>
     <string name="reward_path">طريق الستيكر: %1$s من %2$s</string>
     <string name="sticker_book_title">ستيكراتي</string>
-    <string name="sticker_book_count">%1$s ستيكر</string>
     <string name="sticker_book_back">رجوع</string>
     <string name="sticker_earned">ستيكر كسبته</string>
     <string name="sticker_locked">ستيكر لسه مستنيك</string>
     <string name="profile_sticker_book">كتاب الستيكرات</string>
+    <string name="report_assessed_on">اتقيّم يوم %1$s</string>
+    <string name="report_may_relate_label">ممكن يكون ليها علاقة بـ:</string>
+    <string name="report_col_domain">المجال</string>
+    <string name="report_col_average">المتوسط</string>
+    <string name="report_col_plan">مستوى الخطة</string>
+    <string name="report_col_steps">خطوات مُقيَّمة</string>
+    <string name="level_not_scored">غير مُقيَّمة</string>
+    <string name="plan_intro">اختار أنشطة للتدريب وبعدين ابدأ. دوس على النشاط علشان تشوف تفاصيله.</string>
+    <string name="plan_start_training_count">ابدأ التدريب (%1$s)</string>
+    <string name="sessions_error">مقدرناش نحمّل الجلسات.</string>
+    <string name="sessions_empty">لسه مفيش جلسات. ابدأ أول جلسة علشان تظهر هنا.</string>
+    <string name="sessions_kind_assessment">تقييم</string>
+    <string name="sessions_kind_training">تدريب</string>
+    <string name="sessions_open_summary">افتح ملخص الجلسة</string>
+    <plurals name="sessions_activities">
+        <item quantity="zero">%1$s نشاط</item>
+        <item quantity="one">نشاط واحد</item>
+        <item quantity="two">نشاطين</item>
+        <item quantity="few">%1$s أنشطة</item>
+        <item quantity="many">%1$s نشاط</item>
+        <item quantity="other">%1$s نشاط</item>
+    </plurals>
+    <plurals name="sessions_stars">
+        <item quantity="zero">%1$s نجمة</item>
+        <item quantity="one">نجمة واحدة</item>
+        <item quantity="two">نجمتين</item>
+        <item quantity="few">%1$s نجوم</item>
+        <item quantity="many">%1$s نجمة</item>
+        <item quantity="other">%1$s نجمة</item>
+    </plurals>
+    <string name="history_state_done">خلصت</string>
+    <string name="history_state_paused">متوقفة مؤقتًا</string>
+    <string name="history_state_abandoned">اتوقفت بدري</string>
+    <string name="summary_title">ملخص الجلسة</string>
+    <string name="summary_empty">مفيش جلسة تقييم نعمل لها ملخص.</string>
+    <string name="summary_error">مقدرناش نحمّل الملخص.</string>
+    <string name="summary_close">إغلاق</string>
+    <string name="summary_open_report">افتح التقرير</string>
+    <string name="summary_cannot_tell">مش واضح: %1$s</string>
+    <plurals name="summary_steps">
+        <item quantity="zero">%1$s خطوة</item>
+        <item quantity="one">خطوة واحدة</item>
+        <item quantity="two">خطوتين</item>
+        <item quantity="few">%1$s خطوات</item>
+        <item quantity="many">%1$s خطوة</item>
+        <item quantity="other">%1$s خطوة</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="zero">%1$s دقيقة</item>
+        <item quantity="one">دقيقة واحدة</item>
+        <item quantity="two">دقيقتين</item>
+        <item quantity="few">%1$s دقايق</item>
+        <item quantity="many">%1$s دقيقة</item>
+        <item quantity="other">%1$s دقيقة</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="zero">%1$s ثانية</item>
+        <item quantity="one">ثانية واحدة</item>
+        <item quantity="two">ثانيتين</item>
+        <item quantity="few">%1$s ثواني</item>
+        <item quantity="many">%1$s ثانية</item>
+        <item quantity="other">%1$s ثانية</item>
+    </plurals>
+    <string name="overview_last_assessment">آخر تقييم</string>
+    <string name="overview_none_yet">لسه مفيش</string>
+    <string name="overview_tasks_finished">مهام خلصت</string>
+    <string name="overview_stickers">الستيكرات</string>
+    <string name="training_of_target">من %1$s</string>
+    <plurals name="sticker_book_count">
+        <item quantity="zero">%1$s ستيكر</item>
+        <item quantity="one">ستيكر واحد</item>
+        <item quantity="two">ستيكرين</item>
+        <item quantity="few">%1$s ستيكرات</item>
+        <item quantity="many">%1$s ستيكر</item>
+        <item quantity="other">%1$s ستيكر</item>
+    </plurals>
+    <string name="summary_not_finished">الجلسة اتقفلت قبل ما تخلص. مفيش ملخص لسه؛ كمّلها من قائمة الأطفال.</string>
+    <string name="summary_not_reached">موصلش لها: %1$s</string>
+    <string name="history_state_not_finished">لسه مخلصتش</string>
 </resources>

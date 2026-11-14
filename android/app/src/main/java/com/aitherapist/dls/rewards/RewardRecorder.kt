@@ -2,6 +2,7 @@ package com.aitherapist.dls.rewards
 
 import com.aitherapist.dls.data.RewardEntity
 import com.aitherapist.dls.data.RewardStore
+import com.aitherapist.dls.training.TrainingResultIds
 
 /**
  * The only writer of `reward` rows (AD-9, Story 4.7). Called after a step's attempt facts are saved (by
@@ -34,7 +35,7 @@ class RewardRecorder(private val store: RewardStore, private val wallClock: () -
 
     /** End of training run [runId] (result ids `"$runId:<index>"`): the run counts as one finished task. */
     suspend fun finishTrainingRun(childId: String, runId: String): TaskReward? =
-        finishTask(childId, null, taskRowId = "task:run:$runId", starPrefix = "$TRAINING_PREFIX$runId:")
+        finishTask(childId, null, taskRowId = "$TASK_RUN_PREFIX$runId", starPrefix = TRAINING_PREFIX + TrainingResultIds.runPrefix(runId))
 
     /**
      * Writes the task's own zero-star row (deterministic id; it also marks a finished training run) and, when the
@@ -63,7 +64,11 @@ class RewardRecorder(private val store: RewardStore, private val wallClock: () -
     }
 
     companion object {
-        private const val TRAINING_PREFIX = "training:"
+        /** Id prefix of a training set's reward row (`training:<resultId>`). */
+        const val TRAINING_PREFIX = "training:"
+
+        /** Id prefix of a finished training run's task row (`task:run:<runId>`). */
+        const val TASK_RUN_PREFIX = "task:run:"
 
         fun stepKey(sessionId: String, stepId: String): String = "step:$sessionId:$stepId"
     }

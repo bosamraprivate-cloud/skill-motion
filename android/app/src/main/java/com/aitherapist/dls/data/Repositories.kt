@@ -234,3 +234,51 @@ internal constructor(private val holder: DatabaseHolder) : TrainingResultStore {
 
     suspend fun forChild(childId: String): List<TrainingResultEntity> = holder.get().trainingResultDao().forChild(childId)
 }
+
+/**
+ * Read-only facts of one child's history for the Sessions tab, session summary and Overview stats (implemented by
+ * [HistoryRepository]; faked in unit tests). Nothing here writes; the eval child has no history.
+ */
+interface SessionHistory {
+    /** The child's assessment sessions (any state), newest first. */
+    suspend fun assessmentSessions(childId: String): List<SessionEntity>
+
+    /** The assessment session [id] of a listed (non-eval) child; null for replay sessions or the eval child. */
+    suspend fun session(id: String): SessionEntity?
+
+    /** Attempts of [sessionId] in saved order. */
+    suspend fun attempts(sessionId: String): List<AttemptEntity>
+
+    /** Corrections of [sessionId] in saved order. */
+    suspend fun corrections(sessionId: String): List<CorrectionEntity>
+
+    /** Saved training activities of the child, newest first. */
+    suspend fun trainingResults(childId: String): List<TrainingResultEntity>
+
+    /** Every reward row of the child. */
+    suspend fun rewards(childId: String): List<RewardEntity>
+}
+
+/** History reads skip the hidden eval child (never listed) and only return assessment sessions. */
+@Singleton
+class HistoryRepository
+@Inject
+internal constructor(private val holder: DatabaseHolder) : SessionHistory {
+    private suspend fun listed(childId: String): Boolean = holder.get().childDao().byId(childId)?.isEval == false
+
+    override suspend fun assessmentSessions(childId: String): List<SessionEntity> =
+        if (listed(childId)) holder.get().sessionDao().forChild(childId) else emptyList()
+
+    override suspend fun session(id: String): SessionEntity? =
+        holder.get().sessionDao().byId(id)?.takeIf { it.kind == SessionKind.ASSESSMENT && listed(it.childId) }
+
+    override suspend fun attempts(sessionId: String): List<AttemptEntity> = holder.get().attemptDao().forSession(sessionId)
+
+    override suspend fun corrections(sessionId: String): List<CorrectionEntity> = holder.get().correctionDao().forSession(sessionId)
+
+    override suspend fun trainingResults(childId: String): List<TrainingResultEntity> =
+        if (listed(childId)) holder.get().trainingResultDao().forChild(childId) else emptyList()
+
+    override suspend fun rewards(childId: String): List<RewardEntity> =
+        if (listed(childId)) holder.get().rewardDao().forChild(childId) else emptyList()
+}

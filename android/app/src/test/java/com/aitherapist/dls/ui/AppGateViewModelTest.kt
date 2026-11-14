@@ -49,6 +49,31 @@ class AppGateViewModelTest {
         assertEquals(ChildPinKey, vm.backStack.last())
         vm.leaveChildMode()
         assertEquals(listOf(ShellKey), vm.backStack.toList())
+        // A training run has no assessment summary.
+        assertEquals(null, vm.pendingSummary.value)
+    }
+
+    @Test
+    fun `leaving an assessment visit asks once for exactly its sessions`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.onChildSession("stale") // outside child mode: ignored
+        vm.openChildMode("c1", "t.on", "t.off")
+        vm.onChildSession("s1")
+        vm.onChildSession("s1")
+        vm.nextChildTask(ChildModeKey("c1", "t.on", thenTaskId = "t.off"))
+        vm.onChildSession("s2")
+        assertEquals(null, vm.pendingSummary.value)
+        vm.openChildPin()
+        vm.leaveChildMode()
+        assertEquals(SummaryRequest("c1", listOf("s1", "s2")), vm.pendingSummary.value)
+        vm.consumeSummary()
+        assertEquals(null, vm.pendingSummary.value)
+        // The next visit starts clean: no stale session from the previous one.
+        vm.openChildMode("c1", "t1")
+        vm.openChildPin()
+        vm.leaveChildMode()
+        assertEquals(SummaryRequest("c1", emptyList()), vm.pendingSummary.value)
     }
 
     @Test

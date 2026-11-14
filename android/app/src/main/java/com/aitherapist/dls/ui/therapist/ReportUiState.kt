@@ -31,7 +31,9 @@ data class TaskReport(
     /** Scored steps without a domain tag. */
     val untaggedCount: Int,
     /** Scored steps missing from the catalogue (feed no domain). */
-    val unknownCount: Int
+    val unknownCount: Int,
+    /** When the assessment finished (its start when no end is saved); 0 = unknown. */
+    val assessedAt: Long = 0L
 )
 
 sealed interface ReportUiState {
@@ -88,6 +90,7 @@ private fun taskReport(result: SessionResult, catalog: Catalog): TaskReport {
             DomainRow(domain, avg, avg?.let(RulesEngine::planLevel), averages.scoredCounts[domain] ?: 0, domain in taskDomains)
         },
         untaggedCount = averages.untaggedScored,
-        unknownCount = averages.unknownSteps.size
+        unknownCount = averages.unknownSteps.size,
+        assessedAt = result.session.endedAt ?: result.session.startedAt
     )
 }

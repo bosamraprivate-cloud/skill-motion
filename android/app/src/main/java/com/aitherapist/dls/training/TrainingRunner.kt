@@ -70,7 +70,7 @@ class TrainingRunner(
         if (index < activities.size) begin(index) else state.value = state.value.copy(ended = true)
     }
 
-    fun resultId(index: Int): String = "$runId:$index"
+    fun resultId(index: Int): String = TrainingResultIds.make(runId, index)
 
     private fun begin(index: Int) {
         val activity = activities[index]
