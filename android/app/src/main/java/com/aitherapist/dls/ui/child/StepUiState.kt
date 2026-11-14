@@ -17,17 +17,25 @@ sealed interface StepUiState {
         val sentence: String,
         /** Null when the step has no media for the child's character (dev catalogue): reaction character only. */
         val visual: StepVisual?,
-        /** Reaction clip asset path; null hides the reaction character. */
+        /** Side character clip asset path; null hides the character. */
         val reactionClip: String?,
         val doneEnabled: Boolean,
         val promptLevel: Int,
         val stars: Int = 0,
         /** Adult pause: the screen dims and the character idles; Done/Help/Repeat do nothing. */
-        val paused: Boolean = false
+        val paused: Boolean = false,
+        /** Portrait layout clip: the character stands above the main area, so `point` (sideways) becomes `idle`. */
+        val portraitClip: String? = reactionClip
     ) : StepUiState
 
     /** New session (Story 2.16): task name, task picture and a big Start; the first step waits for the tap. */
-    data class Start(val taskName: String?, val picture: String?, val reactionClip: String?, val paused: Boolean = false) : StepUiState
+    data class Start(
+        val taskName: String?,
+        val picture: String?,
+        val reactionClip: String?,
+        val paused: Boolean = false,
+        val portraitClip: String? = reactionClip
+    ) : StepUiState
 
     /** Adult pause dim is on (step or start screen). */
     val isPaused: Boolean

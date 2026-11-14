@@ -155,8 +155,14 @@ fun TrainingScreen(
                         if (state.training.ended) {
                             EndPanel(stringResource(R.string.training_end), onFinish)
                         } else {
-                            ActivityPanel(state, onDone)
+                            ActivityPanel(state)
                         }
+                }
+            }
+            // Bottom band as on the step screen: Done keeps its full size in its own band, never inside the zones.
+            if (content != null && !content.training.ended) {
+                Row(Modifier.fillMaxWidth().padding(top = Spacing.S3), verticalAlignment = Alignment.CenterVertically) {
+                    DoneButton(enabled = content.doneReady && !content.training.paused, onClick = onDone)
                 }
             }
         }
@@ -168,13 +174,20 @@ fun TrainingScreen(
 }
 
 /**
- * One activity: the instruction card across the top, the counter ring (or timer) centred in the main area, and the
- * Done area in the bottom start corner, as on the step screen.
+ * One activity, in the step screen's two zones: the side character (talks while the instruction plays) and the main
+ * area with the instruction card on top and the counter ring (or timer) centred. Done lives in the bottom band.
  */
 @Composable
-private fun ActivityPanel(state: TrainingUiState.Content, onDone: () -> Unit) {
+private fun ActivityPanel(state: TrainingUiState.Content) {
     val t = state.training
-    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(Spacing.S4)) {
+    SideCharacterLayout(clip = state.reactionClip, modifier = Modifier.padding(vertical = Spacing.S3)) { mainModifier ->
+        ActivityMain(t, mainModifier)
+    }
+}
+
+@Composable
+private fun ActivityMain(t: TrainingState, modifier: Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.S4)) {
         Box(
             Modifier.fillMaxWidth().background(ChildColors.Surface, RoundedCornerShape(Radius.Lg)).padding(
                 horizontal = Spacing.S5,
@@ -194,7 +207,6 @@ private fun ActivityPanel(state: TrainingUiState.Content, onDone: () -> Unit) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
             val criterion = t.criterion
             Box(Modifier.align(Alignment.Center)) { if (criterion == null) GuidedTimer(t) else Counter(t, criterion) }
-            Box(Modifier.align(Alignment.BottomStart)) { DoneButton(enabled = state.doneReady && !t.paused, onClick = onDone) }
         }
     }
 }

@@ -133,6 +133,10 @@ constructor(
     private var steps: List<CatalogStep> = emptyList()
     private var variant: CharacterVariant? = null
     private var variantId: String = ""
+    private var pointStep = -1
+    private var pointLevel = 0
+    private var pointing = false
+    private var pointJob: Job? = null
     private var taskName: String? = null
     private var starCount = 0
 
@@ -551,7 +555,13 @@ constructor(
 
     private fun renderPlain(current: RunnerState): StepUiState = when {
         awaitingStart && current !is RunnerState.Error && current != RunnerState.Idle ->
-            StepUiState.Start(taskName, steps.firstOrNull()?.media(variantId)?.still, reaction(POINT), paused = localPaused)
+            StepUiState.Start(
+                taskName,
+                steps.firstOrNull()?.media(variantId)?.still,
+                reaction(POINT),
+                paused = localPaused,
+                portraitClip = reaction(IDLE)
+            )
         current is RunnerState.OnStep -> renderStep(current)
         current == RunnerState.Completed -> StepUiState.Finished(reaction(IDLE))
         else -> StepUiState.Waiting
@@ -573,20 +583,52 @@ constructor(
             }
         val listening = current is RunnerState.Listen && audioPlaying
         val paused = current is RunnerState.Paused
-        val reactionState = if (!paused && listening) TALK else IDLE
-        // Only one moving clip on screen: the reaction character hides whenever the demonstration clip shows.
-        val hideReaction = visual?.animate == true
+        trackPoint(current.stepIndex, level)
+        // The side character guides every step (EXPERIENCE "Side character"): talk while the instruction plays (any
+        // level), point toward the demonstration for a moment when the level rises to 2+, idle while the child tries.
+        val reactionState =
+            when {
+                paused -> IDLE
+                listening -> TALK
+                pointing -> POINT
+                else -> IDLE
+            }
         return StepUiState.Step(
             stepIndex = current.stepIndex,
             stepCount = steps.size,
             sentence = step.textAr,
             visual = if (paused) visual?.copy(animate = false) else visual,
-            reactionClip = if (hideReaction) null else reaction(reactionState),
+            reactionClip = reaction(reactionState),
+            portraitClip = reaction(if (reactionState == POINT) IDLE else reactionState),
             doneEnabled = current is RunnerState.Attempt,
             promptLevel = level,
             stars = starCount,
             paused = paused
         ).also { shownSteps[current.stepIndex] = it }
+    }
+
+    /**
+     * Starts the short `point` when the prompt level rises to 2+ on a step; it ends after [POINT_MS] (or earlier in
+     * effect, because instruction audio wins with `talk`). A new step resets the tracking.
+     */
+    private fun trackPoint(stepIndex: Int, level: Int) {
+        if (stepIndex != pointStep) {
+            pointStep = stepIndex
+            pointLevel = level
+            pointing = false
+            pointJob?.cancel()
+            return
+        }
+        if (level == pointLevel) return
+        pointLevel = level
+        if (level < 2) return
+        pointing = true
+        pointJob?.cancel()
+        pointJob = viewModelScope.launch {
+            delay(POINT_MS)
+            pointing = false
+            runner?.let { state.value = render(it.state.value) }
+        }
     }
 
     /** The character clip of the effect on screen: celebrateSmall or encourage. */
@@ -597,6 +639,7 @@ constructor(
     private fun reaction(name: String): String? = variant?.reactions?.let { list ->
         (
             list.firstOrNull { it.state == name }
+                ?: list.firstOrNull { it.state == IDLE }
                 ?: list.firstOrNull()
             )?.file
     }
@@ -613,6 +656,9 @@ constructor(
         private const val TAG = "DlsChild"
         const val MISSING_AUDIO_DELAY_MS = 1_500L
 
+        /** How long the side character points after the level rises to 2+ (unless the instruction audio starts). */
+        const val POINT_MS = 2_000L
+
         const val TICK_MS = 1_000L
         const val RETRY_MS = 2_000L
         private const val STAR_RETRY_MS = 500L
@@ -622,7 +668,7 @@ constructor(
         private const val IDLE = "idle"
         private const val TALK = "talk"
 
-        // The start screen character points toward the Start button.
+        // Points toward the main area: the Start button, or the demonstration from level 2.
         private const val POINT = "point"
 
         // Story 4.8 step-end reactions.

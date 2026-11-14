@@ -7,13 +7,17 @@ import androidx.lifecycle.viewModelScope
 import com.aitherapist.dls.audio.AudioPlayer
 import com.aitherapist.dls.catalog.CatalogRepository
 import com.aitherapist.dls.catalog.Landmarker
+import com.aitherapist.dls.catalog.ReactionClip
+import com.aitherapist.dls.data.ChildProfiles
 import com.aitherapist.dls.data.TrainingResultStore
 import com.aitherapist.dls.rewards.RewardRecorder
 import com.aitherapist.dls.session.Clock
 import com.aitherapist.dls.training.TrainingRunner
 import com.aitherapist.dls.training.TrainingState
+import com.aitherapist.dls.ui.therapist.CharacterIndexSource
 import com.aitherapist.dls.vision.AttemptCapture
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -32,7 +36,7 @@ sealed interface TrainingUiState {
     data object Empty : TrainingUiState
 
     /** [doneReady] is false while the instruction plays (or the 1.5 s fallback runs). */
-    data class Content(val training: TrainingState, val doneReady: Boolean) : TrainingUiState
+    data class Content(val training: TrainingState, val doneReady: Boolean, val reactionClip: String? = null) : TrainingUiState
 }
 
 /**
@@ -51,7 +55,10 @@ internal constructor(
     private val capture: AttemptCapture,
     private val keys: ChildModeKeys,
     /** Warning sink (exception type only, never child data); injectable so JVM tests never touch android.util.Log. */
-    private val warn: (String) -> Unit
+    private val warn: (String) -> Unit,
+    /** The child's character for the side guide; null (tests) shows no character. */
+    private val children: ChildProfiles? = null,
+    private val characters: CharacterIndexSource? = null
 ) : ViewModel() {
     @Inject constructor(
         catalog: CatalogRepository,
@@ -60,8 +67,10 @@ internal constructor(
         audio: AudioPlayer,
         clock: Clock,
         capture: AttemptCapture,
-        keys: ChildModeKeys
-    ) : this(catalog, results, rewards, audio, clock, capture, keys, { Log.w(TAG, it) })
+        keys: ChildModeKeys,
+        children: ChildProfiles,
+        characters: CharacterIndexSource
+    ) : this(catalog, results, rewards, audio, clock, capture, keys, { Log.w(TAG, it) }, children, characters)
 
     private val state = MutableStateFlow<TrainingUiState>(TrainingUiState.Loading)
     val uiState: StateFlow<TrainingUiState> = state.asStateFlow()
@@ -80,6 +89,7 @@ internal constructor(
     private var finishing = false
     private var promptJob: Job? = null
     private var audioPlaying = false
+    private var reactions: List<ReactionClip> = emptyList()
 
     /** [runId] is stable for this run (kept in the nav key) so result ids survive a restore. */
     fun start(childId: String, activityIds: List<String>, runId: String) {
@@ -97,6 +107,7 @@ internal constructor(
                     state.value = TrainingUiState.Empty
                     return@launch
                 }
+            reactions = loadReactions(childId)
             val byId = loaded.activities.associateBy { it.id }
             val picked = activityIds.mapNotNull { byId[it] }
             if (picked.isEmpty()) {
@@ -149,7 +160,26 @@ internal constructor(
     }
 
     private fun publish(t: TrainingState? = runner?.current?.value) {
-        if (t != null) state.value = TrainingUiState.Content(t, doneReady)
+        if (t != null) state.value = TrainingUiState.Content(t, doneReady, reaction(t))
+    }
+
+    /** Side character: `talk` while the instruction plays, `idle` otherwise (and while paused). */
+    private fun reaction(t: TrainingState): String? {
+        val name = if (audioPlaying && !t.paused) TALK else IDLE
+        return (reactions.firstOrNull { it.state == name } ?: reactions.firstOrNull())?.file
+    }
+
+    private suspend fun loadReactions(childId: String): List<ReactionClip> = try {
+        val child = children?.get(childId)
+        val variantId = child?.characterVariant?.name?.lowercase(Locale.ROOT)
+        if (variantId == null) emptyList() else characters?.load()?.variants?.firstOrNull { it.id == variantId }?.reactions.orEmpty()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (
+        @Suppress("TooGenericExceptionCaught") e: Exception
+    ) {
+        warn("training character failed: ${e::class.simpleName}")
+        emptyList()
     }
 
     /** Instruction audio when present; Done unlocks when it ends or after the 1.5 s fallback. */
@@ -165,10 +195,12 @@ internal constructor(
                 audio.play(path) {
                     viewModelScope.launch {
                         audioPlaying = false
+                        publish()
                         unlock(index)
                     }
                 }
         audioPlaying = playing
+        publish()
         if (!playing) {
             promptJob = viewModelScope.launch {
                 delay(FALLBACK_MS)
@@ -225,6 +257,7 @@ internal constructor(
             audio.stop()
             audioPlaying = false
             promptJob?.cancel()
+            publish()
         } else {
             ensureUnlock()
         }
@@ -262,6 +295,7 @@ internal constructor(
         audio.stop()
         audioPlaying = false
         promptJob?.cancel()
+        publish()
     }
 
     fun resume() {
@@ -288,5 +322,7 @@ internal constructor(
         const val TAG = "DlsTraining"
         const val TICK_MS = 250L
         const val FALLBACK_MS = 1_500L
+        const val IDLE = "idle"
+        const val TALK = "talk"
     }
 }

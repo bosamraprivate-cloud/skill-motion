@@ -199,7 +199,7 @@ class StepViewModelTest {
     }
 
     @Test
-    fun `help raises to level 2 with normal audio again and the clip in place of the reaction character`() = scope.runTest {
+    fun `help raises to level 2 with normal audio again, the clip and the side character talking`() = scope.runTest {
         val vm = vm(step(1), step(2))
         listenThenAttempt(vm)
         vm.onEvent(StepEvent.Help)
@@ -208,12 +208,12 @@ class StepViewModelTest {
         assertEquals(2, ui.promptLevel)
         assertEquals(listOf("n1.mp3", "n1.mp3"), audio.played)
         assertEquals(StepVisual("clip1.webp", "still1.webp", animate = true, large = false), ui.visual)
-        assertNull(ui.reactionClip)
+        assertEquals("talk.webp", ui.reactionClip)
         assertFalse(ui.doneEnabled)
     }
 
     @Test
-    fun `level 2 without a clip shows the still enlarged with the reaction character`() = scope.runTest {
+    fun `level 2 without a clip shows the still enlarged with the side character talking`() = scope.runTest {
         val vm = vm(step(1, media = StepMedia(null, "still1.webp")))
         listenThenAttempt(vm)
         vm.onEvent(StepEvent.Help)
@@ -224,7 +224,33 @@ class StepViewModelTest {
     }
 
     @Test
-    fun `level 3 plays the clip large with slow audio and hides the reaction character`() = scope.runTest {
+    fun `side character points for 2 s after the level rises once the audio ends, then idles`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        listenThenAttempt(vm)
+        assertEquals("idle.webp", vm.step().reactionClip)
+        vm.onEvent(StepEvent.Help)
+        runCurrent()
+        assertEquals("instruction audio wins at any level", "talk.webp", vm.step().reactionClip)
+        audio.finish()
+        runCurrent()
+        assertEquals("point.webp", vm.step().reactionClip)
+        assertEquals("portrait never points sideways", "idle.webp", vm.step().portraitClip)
+        advanceTimeBy(StepViewModel.POINT_MS)
+        runCurrent()
+        assertEquals("idle.webp", vm.step().reactionClip)
+    }
+
+    @Test
+    fun `paused side character idles`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        runCurrent()
+        vm.pause()
+        runCurrent()
+        assertEquals("idle.webp", vm.step().reactionClip)
+    }
+
+    @Test
+    fun `level 3 plays the clip large with slow audio while the side character talks`() = scope.runTest {
         val vm = vm(step(1), step(2))
         runCurrent()
         vm.onEvent(StepEvent.Help)
@@ -236,7 +262,7 @@ class StepViewModelTest {
         assertEquals(3, ui.promptLevel)
         assertEquals("s1.mp3", audio.played.last())
         assertEquals(StepVisual("clip1.webp", "still1.webp", animate = true, large = true), ui.visual)
-        assertNull(ui.reactionClip)
+        assertEquals("talk.webp", ui.reactionClip)
     }
 
     @Test
@@ -358,7 +384,7 @@ class StepViewModelTest {
     fun `new session opens on the task start screen and start shows the first step`() = scope.runTest {
         val vm = vmFor(null, step(1), step(2), tapStart = false)
         runCurrent()
-        assertEquals(StepUiState.Start("task name", "still1.webp", "point.webp"), vm.uiState.value)
+        assertEquals(StepUiState.Start("task name", "still1.webp", "point.webp", portraitClip = "idle.webp"), vm.uiState.value)
         assertEquals("session row created before Start", SessionState.RUNNING, store.session?.state)
         assertTrue("no step audio on the start screen", audio.played.isEmpty())
         vm.onEvent(StepEvent.Done)
@@ -377,7 +403,7 @@ class StepViewModelTest {
         val vm = vmFor(null, step(1), tapStart = false, named = false)
         vm.beginTask()
         runCurrent()
-        assertEquals(StepUiState.Start(null, "still1.webp", "point.webp"), vm.uiState.value)
+        assertEquals(StepUiState.Start(null, "still1.webp", "point.webp", portraitClip = "idle.webp"), vm.uiState.value)
     }
 
     @Test

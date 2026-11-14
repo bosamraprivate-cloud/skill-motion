@@ -1,16 +1,24 @@
 package com.aitherapist.dls.ui.child
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,12 +49,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -55,6 +65,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.theme.ChildColors
@@ -66,8 +77,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * The fixed-zone child step screen (UX DESIGN Layout, RTL: start = right edge). Top band: star bar, step schedule,
- * adult corner. Main area: step visual (about 60% width, start side) with the reaction character beside it,
- * sentence under the visual. Bottom band: Done (start) and Help, Repeat (end). Positions never move.
+ * adult corner. Below it the side character (start side, always visible, guiding) and the main area (step visual,
+ * sentence under it). Bottom band: Done (start) and Help, Repeat (end). Positions never move.
  */
 @Composable
 fun StepScreen(
@@ -76,10 +87,11 @@ fun StepScreen(
     onAdultCorner: () -> Unit,
     modifier: Modifier = Modifier,
     onStart: () -> Unit = {},
-    onStarBarPositioned: (Offset) -> Unit = {}
+    onStarBarPositioned: (Offset) -> Unit = {},
+    onCharacterCentre: (Offset) -> Unit = {}
 ) {
     Box(modifier.fillMaxSize()) {
-        StepContent(state, onEvent, onAdultCorner, onStart, onStarBarPositioned)
+        StepContent(state, onEvent, onAdultCorner, onStart, onStarBarPositioned, onCharacterCentre)
         // Adult pause: a calm dim over everything, no text. It takes no touches, so the adult corner still works.
         if (state.isPaused) {
             Box(Modifier.fillMaxSize().background(ChildColors.Ink.copy(alpha = PAUSE_DIM_ALPHA)))
@@ -93,7 +105,8 @@ private fun StepContent(
     onEvent: (StepEvent) -> Unit,
     onAdultCorner: () -> Unit,
     onStart: () -> Unit,
-    onStarBarPositioned: (Offset) -> Unit
+    onStarBarPositioned: (Offset) -> Unit,
+    onCharacterCentre: (Offset) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().background(ChildColors.Canvas).padding(Spacing.S5)) {
         TopBand(state, onAdultCorner, onStarBarPositioned)
@@ -101,9 +114,14 @@ private fun StepContent(
             when (state) {
                 StepUiState.Waiting -> WaitVisual(Modifier.align(Alignment.Center))
                 is StepUiState.Finished ->
-                    CharacterView(clip = state.reactionClip, loop = true, modifier = Modifier.fillMaxSize(0.7f).align(Alignment.Center))
-                is StepUiState.Step -> MainArea(state)
-                is StepUiState.Start -> TaskStartContent(state, onStart)
+                    SideCharacter(
+                        clip = state.reactionClip,
+                        modifier = Modifier.fillMaxSize(FINISHED_SIZE).align(Alignment.Center).onGloballyPositioned {
+                            onCharacterCentre(it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f))
+                        }
+                    )
+                is StepUiState.Step -> StepBody(state, onCharacterCentre)
+                is StepUiState.Start -> TaskStartContent(state, onStart, onCharacterCentre = onCharacterCentre)
             }
         }
         if (state is StepUiState.Step) BottomBand(state, onEvent)
@@ -158,43 +176,78 @@ private fun AdultCorner(onLongPress: () -> Unit) {
     }
 }
 
+/**
+ * Two zones: the side character (always visible, guiding) and the main area. Level 1 shows the step picture; from
+ * level 2 the demonstration clip slides and fades in from the character's side while it points, and the card grows
+ * (about 15% at level 2, full height at level 3). Reduced motion switches instantly.
+ */
 @Composable
-private fun MainArea(state: StepUiState.Step) {
+private fun StepBody(state: StepUiState.Step, onCharacterCentre: (Offset) -> Unit) {
+    SideCharacterLayout(
+        clip = state.reactionClip,
+        modifier = Modifier.padding(vertical = Spacing.S3),
+        portraitClip = state.portraitClip,
+        snapKey = state.stepIndex to state.promptLevel,
+        onCharacterCentre = onCharacterCentre
+    ) { mainModifier -> MainArea(state, mainModifier) }
+}
+
+@Composable
+private fun MainArea(state: StepUiState.Step, modifier: Modifier) {
     val visual = state.visual
-    Row(Modifier.fillMaxSize().padding(vertical = Spacing.S3), horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
-        if (visual != null) {
-            Column(
-                Modifier.weight(if (visual.large) 1f else VISUAL_WEIGHT).fillMaxHeight(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    Modifier.weight(1f).fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CharacterView(
-                        clip = visual.clip,
-                        loop = false,
-                        still = visual.still,
-                        stillMode = !visual.animate,
-                        // The card takes the clip's portrait aspect, so the clip fills it edge to edge (no band).
-                        modifier = Modifier.fillMaxHeight().aspectRatio(CLIP_ASPECT, matchHeightConstraintsFirst = true)
-                            .clip(RoundedCornerShape(Radius.Lg))
-                    )
+    val reduced = rememberReducedMotion()
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val demo = state.promptLevel >= 2
+    val fraction by animateFloatAsState(
+        targetValue = when {
+            visual?.large == true -> 1f
+            demo -> LEVEL2_HEIGHT
+            else -> LEVEL1_HEIGHT
+        },
+        animationSpec = if (reduced) snap() else tween(GROW_MS, easing = FastOutSlowInEasing),
+        label = "visualSize"
+    )
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        AnimatedContent(
+            targetState = state,
+            // Only a new step or the switch to the demonstration animates; other changes update in place.
+            contentKey = { it.stepIndex to (it.promptLevel >= 2) },
+            transitionSpec = {
+                if (reduced) {
+                    EnterTransition.None togetherWith ExitTransition.None
+                } else {
+                    // Enters from the character's side (start), as if the character hands it over.
+                    val slide = slideInHorizontally(tween(ENTER_MS, easing = FastOutSlowInEasing)) { w ->
+                        if (rtl) w / SLIDE_PART else -w / SLIDE_PART
+                    }
+                    (fadeIn(tween(ENTER_MS)) + slide) togetherWith fadeOut(tween(EXIT_MS))
                 }
-                Sentence(state.sentence)
+            },
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            label = "mainArea"
+        ) { shown ->
+            val shownVisual = shown.visual
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                if (shownVisual != null) {
+                    CharacterView(
+                        clip = shownVisual.clip,
+                        loop = false,
+                        still = shownVisual.still,
+                        stillMode = !shownVisual.animate,
+                        // The card takes the clip's portrait aspect, so the clip fills it edge to edge (no band).
+                        modifier = Modifier
+                            .fillMaxHeight(fraction)
+                            .aspectRatio(CLIP_ASPECT, matchHeightConstraintsFirst = true)
+                            .shadow(CARD_ELEVATION, RoundedCornerShape(Radius.Lg))
+                            .clip(RoundedCornerShape(Radius.Lg))
+                            .background(ChildColors.Surface)
+                    )
+                } else {
+                    Sentence(shown.sentence)
+                }
             }
-            // Level 2 demonstration without the reaction character keeps its normal size.
-            if (!visual.large && state.reactionClip == null) Spacer(Modifier.weight(1f - VISUAL_WEIGHT))
         }
-        state.reactionClip?.let { clip ->
-            Column(Modifier.weight(1f - if (visual != null) VISUAL_WEIGHT else 0f).fillMaxHeight()) {
-                CharacterView(clip = clip, loop = true, modifier = Modifier.weight(1f).fillMaxWidth())
-                if (visual == null) Sentence(state.sentence)
-            }
-        }
-        if (visual == null && state.reactionClip == null) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Sentence(state.sentence) }
-        }
+        if (visual != null) Sentence(state.sentence)
     }
 }
 
@@ -281,7 +334,14 @@ private fun WaitVisual(modifier: Modifier = Modifier) {
     Box(modifier.size(160.dp).scale(scale).background(ChildColors.ScheduleDone, CircleShape))
 }
 
-private const val VISUAL_WEIGHT = 0.6f
+private const val LEVEL1_HEIGHT = 0.82f
+private const val LEVEL2_HEIGHT = 0.94f
+private const val FINISHED_SIZE = 0.7f
+private const val GROW_MS = 500
+private const val ENTER_MS = 500
+private const val EXIT_MS = 250
+private const val SLIDE_PART = 6
+private val CARD_ELEVATION = 2.dp
 private val ADULT_CORNER_SIZE = 48.dp
 private const val DIMMED_ALPHA = 0.4f
 private const val PAUSE_DIM_ALPHA = 0.45f
@@ -299,7 +359,7 @@ private fun StepScreenPreview() {
                 stepCount = 12,
                 sentence = "Sentence",
                 visual = null,
-                reactionClip = null,
+                reactionClip = "character/boy/react/idle.webp",
                 doneEnabled = false,
                 promptLevel = 1
             ),

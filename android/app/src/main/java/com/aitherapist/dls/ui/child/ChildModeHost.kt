@@ -53,6 +53,7 @@ fun ChildModeHost(
     LaunchedEffect(state) { viewModel.sessionId?.let(onSession) }
     val effect by viewModel.effect.collectAsStateWithLifecycle()
     var starTarget by remember { mutableStateOf<Offset?>(null) }
+    var characterCentre by remember { mutableStateOf<Offset?>(null) }
     val scope = rememberCoroutineScope()
     val sheetOpen by viewModel.adultSheet.collectAsStateWithLifecycle()
     val completed by viewModel.completed.collectAsStateWithLifecycle()
@@ -82,9 +83,10 @@ fun ChildModeHost(
                 onEvent = viewModel::onEvent,
                 onAdultCorner = viewModel::openAdultSheet,
                 onStart = viewModel::beginTask,
-                onStarBarPositioned = { starTarget = it }
+                onStarBarPositioned = { starTarget = it },
+                onCharacterCentre = { characterCentre = it }
             )
-            RewardEffects(effect, Modifier.fillMaxSize(), starTarget)
+            RewardEffects(effect, Modifier.fillMaxSize(), starTarget, characterCentre)
         }
         DebugResultStrip()
     }

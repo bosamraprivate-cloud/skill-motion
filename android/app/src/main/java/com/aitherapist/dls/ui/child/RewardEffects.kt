@@ -65,7 +65,7 @@ import nl.dionsegijn.konfetti.core.emitter.Emitter
  * and bounds the duration. Takes no touches, so the buttons underneath stay usable.
  */
 @Composable
-fun RewardEffects(effect: StepEffect?, modifier: Modifier = Modifier, starTarget: Offset? = null) {
+fun RewardEffects(effect: StepEffect?, modifier: Modifier = Modifier, starTarget: Offset? = null, characterCentre: Offset? = null) {
     effect ?: return
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -77,12 +77,21 @@ fun RewardEffects(effect: StepEffect?, modifier: Modifier = Modifier, starTarget
     val level = if (reducedMotion) EffectLevel.CALM else effect.level
     var origin by remember { mutableStateOf(Offset.Zero) }
     val target = starTarget?.minus(origin)
+    // The celebration happens on the side character: the star and the burst start at its centre.
+    // Captured once when the effect starts, so later layout passes never restart the burst.
+    val from = remember(effect.id) { characterCentre?.minus(origin) }
     Box(modifier.onGloballyPositioned { origin = it.positionInRoot() }) {
         when (effect.kind) {
             StepEffect.Kind.ENCOURAGE -> EncourageLine(effect.id, Modifier.align(Alignment.BottomCenter))
             StepEffect.Kind.CELEBRATE -> {
                 RewardSound(effect.id, RewardSounds.forCelebration(level))
-                if (level == EffectLevel.FULL) FullCelebration(effect.id, target) else CalmStar(effect.id, target)
+                if (level ==
+                    EffectLevel.FULL
+                ) {
+                    FullCelebration(effect.id, target, from)
+                } else {
+                    CalmStar(effect.id, target, from, reducedMotion)
+                }
             }
         }
     }
@@ -100,7 +109,7 @@ private fun RewardSound(id: Int, path: String) {
 }
 
 @Composable
-private fun FullCelebration(id: Int, target: Offset?) {
+private fun FullCelebration(id: Int, target: Offset?, from: Offset?) {
     val progress = remember(id) { Animatable(0f) }
     val twinkle = remember(id) { Animatable(1f) }
     LaunchedEffect(id) {
@@ -114,7 +123,7 @@ private fun FullCelebration(id: Int, target: Offset?) {
         }
     }
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val parties = remember(id, rtl) {
+    val parties = remember(id) {
         listOf(
             Party(
                 speed = 0f,
@@ -122,20 +131,29 @@ private fun FullCelebration(id: Int, target: Offset?) {
                 damping = CONFETTI_DAMPING,
                 spread = FULL_CIRCLE,
                 colors = CONFETTI_COLORS,
-                position = Position.Relative(visualX(rtl).toDouble(), VISUAL_Y.toDouble()),
+                position = from?.let { Position.Absolute(it.x, it.y) }
+                    ?: Position.Relative(visualX(rtl).toDouble(), VISUAL_Y.toDouble()),
                 emitter = Emitter(duration = BURST_MS, TimeUnit.MILLISECONDS).max(PARTICLES)
             )
         )
     }
     KonfettiView(modifier = Modifier.fillMaxSize(), parties = parties)
-    FlyingStar(progress.value, twinkle.value, alpha = 1f, target = target)
+    FlyingStar(progress.value, twinkle.value, alpha = 1f, target = target, from = from)
 }
 
+/**
+ * Calm: the star fades in on the side character, then glides slowly to the bar. With animations removed it does not
+ * travel: it shows on the character, then appears at the bar.
+ */
 @Composable
-private fun CalmStar(id: Int, target: Offset?) {
+private fun CalmStar(id: Int, target: Offset?, from: Offset?, reducedMotion: Boolean) {
     val fade = remember(id) { Animatable(0f) }
-    LaunchedEffect(id) { fade.animateTo(1f, tween(CALM_FADE_MS, easing = LinearEasing)) }
-    FlyingStar(progress = 1f, scale = 1f, alpha = fade.value, target = target)
+    val travel = remember(id) { Animatable(0f) }
+    LaunchedEffect(id) {
+        fade.animateTo(1f, tween(CALM_FADE_MS / 2, easing = LinearEasing))
+        if (reducedMotion) travel.snapTo(1f) else travel.animateTo(1f, tween(CALM_FADE_MS, easing = FastOutSlowInEasing))
+    }
+    FlyingStar(progress = travel.value, scale = 1f, alpha = fade.value, target = target, from = from)
 }
 
 /**
@@ -143,13 +161,13 @@ private fun CalmStar(id: Int, target: Offset?) {
  * coordinates (progress 1). Absolute coordinates: measured positions are already physical, so nothing is mirrored.
  */
 @Composable
-private fun FlyingStar(progress: Float, scale: Float, alpha: Float, target: Offset?) {
+private fun FlyingStar(progress: Float, scale: Float, alpha: Float, target: Offset?, from: Offset? = null) {
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val half = with(LocalDensity.current) { STAR_SIZE.toPx() / 2 }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val w = constraints.maxWidth.toFloat()
         val h = constraints.maxHeight.toFloat()
-        val start = Offset(w * visualX(rtl), h * VISUAL_Y)
+        val start = from ?: Offset(w * visualX(rtl), h * VISUAL_Y)
         // No measurement yet: the star bar sits in the top start corner.
         val end = target ?: Offset(if (rtl) w - half * 2 else half * 2, half * 2)
         val at = start + (end - start) * progress
