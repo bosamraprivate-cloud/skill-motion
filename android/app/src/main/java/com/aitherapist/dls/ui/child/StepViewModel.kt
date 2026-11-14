@@ -87,6 +87,10 @@ constructor(
     /** Jacket "both": the task to run after this one (new run: the chained task; continued run: the saved one). */
     val nextTaskId: StateFlow<String?> = nextTaskFlow.asStateFlow()
 
+    /** The running session's id (Story 4.9 task reward), null until a run exists. */
+    val sessionId: String?
+        get() = runner?.id
+
     private val cameraFlow = MutableStateFlow(false)
 
     /** The camera should run (a camera-scored step is on screen and the run is not held); the host binds it. */

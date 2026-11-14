@@ -2,6 +2,9 @@ package com.aitherapist.dls.rewards
 
 import com.aitherapist.dls.data.RewardEntity
 import com.aitherapist.dls.data.RewardStore
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.yield
 
 /** In-memory [RewardStore]; [evalChildren] earn nothing, [finishedAssessments] feeds [finishedTasks]. */
 class FakeRewardStore(
@@ -26,5 +29,29 @@ class FakeRewardStore(
     override suspend fun starsForSession(sessionId: String): Int = rows.values.filter { it.sessionId == sessionId }.sumOf { it.stars }
 
     override suspend fun finishedTasks(childId: String): Int =
-        finishedAssessments + rows.values.count { it.childId == childId && it.sessionId == null }
+        finishedAssessments + rows.values.count { it.childId == childId && it.id.startsWith("task:run:") }
+
+    override suspend fun starsForPrefix(prefix: String): Int = rows.values.filter { it.id.startsWith(prefix) }.sumOf { it.stars }
+
+    override suspend fun stickerOf(rowId: String): String? = rows[rowId]?.stickerId
+
+    private val lock = Mutex()
+
+    override suspend fun <T> inTransaction(block: suspend () -> T): T = lock.withLock { block() }
+
+    /** Yields first, so concurrent callers interleave unless [inTransaction] serialises them. */
+    override suspend fun stickerIds(childId: String): List<String> {
+        yield()
+        return rows.values
+            .filter { it.childId == childId && it.stickerId != null }
+            .sortedWith(compareBy({ it.createdAt }, { it.id }))
+            .mapNotNull { it.stickerId }
+    }
+
+    override suspend fun setStickerIfAbsent(rowId: String, stickerId: String): Boolean {
+        val row = rows[rowId] ?: return false
+        if (row.stickerId != null) return false
+        rows[rowId] = row.copy(stickerId = stickerId)
+        return true
+    }
 }

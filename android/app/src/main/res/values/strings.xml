@@ -317,4 +317,15 @@
     <string name="training_end">Well done! Training is over.</string>
     <string name="training_empty">No activities to practise right now.</string>
     <string name="training_back_to_adult">Back to the adult</string>
+    <string name="reward_stars">Stars: %1$s</string>
+    <string name="reward_next">Next</string>
+    <string name="reward_sticker_book">My stickers</string>
+    <string name="reward_sticker_new">New sticker!</string>
+    <string name="reward_path">Sticker path: %1$s of %2$s</string>
+    <string name="sticker_book_title">My stickers</string>
+    <string name="sticker_book_count">%1$s stickers</string>
+    <string name="sticker_book_back">Back</string>
+    <string name="sticker_earned">Sticker earned</string>
+    <string name="sticker_locked">Sticker not earned yet</string>
+    <string name="profile_sticker_book">Sticker book</string>
 </resources>

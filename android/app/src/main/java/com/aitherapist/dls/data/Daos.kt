@@ -121,9 +121,24 @@ internal interface RewardDao {
     @Query("SELECT COALESCE(SUM(stars), 0) FROM reward WHERE sessionId = :sessionId")
     fun observeStarsForSession(sessionId: String): Flow<Int>
 
-    /** Training sets that earned a reward (rows without a session). */
-    @Query("SELECT COUNT(*) FROM reward WHERE childId = :childId AND sessionId IS NULL")
-    suspend fun trainingSets(childId: String): Int
+    /** Finished training runs: one zero-star task row (`task:run:<runId>`) per run. */
+    @Query("SELECT COUNT(*) FROM reward WHERE childId = :childId AND id LIKE 'task:run:%'")
+    suspend fun finishedRuns(childId: String): Int
+
+    /** Stars of the rows whose id starts with [prefix] (one session's steps or one training run's sets). */
+    @Query("SELECT COALESCE(SUM(stars), 0) FROM reward WHERE id LIKE :prefix || '%'")
+    suspend fun starsForPrefix(prefix: String): Int
+
+    /** Stickers [childId] has unlocked, in unlock order. */
+    @Query("SELECT stickerId FROM reward WHERE childId = :childId AND stickerId IS NOT NULL ORDER BY createdAt, id")
+    suspend fun stickerIds(childId: String): List<String>
+
+    @Query("SELECT stickerId FROM reward WHERE id = :id")
+    suspend fun stickerOf(id: String): String?
+
+    /** Sets the sticker of row [id] only when it has none; returns the rows changed (0 or 1). */
+    @Query("UPDATE reward SET stickerId = :stickerId WHERE id = :id AND stickerId IS NULL")
+    suspend fun setStickerIfAbsent(id: String, stickerId: String): Int
 }
 
 @Dao

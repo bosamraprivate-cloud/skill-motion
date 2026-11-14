@@ -30,13 +30,13 @@ class RewardRecorderTest {
     }
 
     @Test
-    fun `a training set follows the same rules and counts as a finished task`() = runTest {
+    fun `a training set follows the same rules and only a finished run counts as a task`() = runTest {
         store.finishedAssessments = 2
         assertTrue(recorder.recordTrainingSet("c", Finish.Done(firstTry = true), resultId = "t1"))
         assertFalse(recorder.recordTrainingSet("c", Finish.Done(firstTry = true), resultId = "t1"))
         assertTrue(recorder.recordTrainingSet("c", Finish.Finished, resultId = "t2"))
         assertEquals(listOf(2, 1), store.rows.values.map { it.stars })
         assertTrue(store.rows.values.all { it.sessionId == null })
-        assertEquals(4, recorder.totalFinishedTasks("c"))
+        assertEquals(2, recorder.totalFinishedTasks("c"))
     }
 }

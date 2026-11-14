@@ -37,4 +37,7 @@ object RewardRules {
 
     /** Finished tasks still needed for the next sticker (1..3). */
     fun tasksToNextSticker(finishedTasks: Int): Int = TASKS_PER_STICKER - finishedTasks.coerceAtLeast(0) % TASKS_PER_STICKER
+
+    /** Filled slots on the 3-slot sticker path after [finishedTasks]: the unlocking task shows it full (3 -> 3, 4 -> 1). */
+    fun pathFilled(finishedTasks: Int): Int = if (finishedTasks <= 0) 0 else (finishedTasks - 1) % TASKS_PER_STICKER + 1
 }

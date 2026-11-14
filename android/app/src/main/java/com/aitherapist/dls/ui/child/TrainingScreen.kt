@@ -28,12 +28,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -54,7 +56,6 @@ import com.aitherapist.dls.ui.theme.ChildColors
 import com.aitherapist.dls.ui.theme.ChildType
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
-import java.text.NumberFormat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -84,7 +85,19 @@ fun TrainingRoute(
     val cameraUnavailable by viewModel.cameraUnavailable.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     if (cameraWanted) TrainingCamera(viewModel::onFrame, viewModel::onCameraError)
-    TrainingScreen(state = state, onDone = viewModel::done, onAdultCorner = viewModel::openAdultSheet, onFinish = onExit)
+    // Story 4.9: the end of the run shows the task reward first, then the calm end screen.
+    var rewardShown by rememberSaveable(runId) { mutableStateOf(false) }
+    if ((state as? TrainingUiState.Content)?.training?.ended == true && !rewardShown) {
+        TaskRewardRoute(
+            childId,
+            RewardTask.Training(runId),
+            onNext = { rewardShown = true },
+            paused = sheetOpen,
+            onAdultCorner = viewModel::openAdultSheet
+        )
+    } else {
+        TrainingScreen(state = state, onDone = viewModel::done, onAdultCorner = viewModel::openAdultSheet, onFinish = onExit)
+    }
     if (sheetOpen) {
         val paused = (state as? TrainingUiState.Content)?.training?.paused == true
         AdultPauseSheet(
@@ -246,19 +259,12 @@ private fun EndPanel(message: String, onFinish: () -> Unit) {
     }
 }
 
-/** Arabic-Indic digits in child mode (app locale ar-EG). */
-@Composable
-private fun digits(value: Int, minDigits: Int = 1): String {
-    val locale = LocalConfiguration.current.locales[0]
-    return NumberFormat.getIntegerInstance(locale).apply {
-        minimumIntegerDigits = minDigits
-        isGroupingUsed = false
-    }.format(value)
-}
+/** Arabic-Indic digits in child mode. */
+private fun digits(value: Int, minDigits: Int = 1): String = childNumber(value, minDigits)
 
 /** Small low-contrast target; only a 2 s press opens the adult pause sheet (same gesture as the step screen). */
 @Composable
-private fun TrainingAdultCorner(onLongPress: () -> Unit) {
+internal fun TrainingAdultCorner(onLongPress: () -> Unit) {
     val label = stringResource(R.string.child_adult_corner)
     Box(
         Modifier

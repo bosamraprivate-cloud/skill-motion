@@ -63,12 +63,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.data.ChildCharacter
 import com.aitherapist.dls.data.EffectLevel
 import com.aitherapist.dls.ui.child.CharacterView
+import com.aitherapist.dls.ui.child.StickerBookRoute
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.components.PageHeader
@@ -136,6 +139,7 @@ private fun ChildProfileForm(
 ) {
     val form = state.form
     var newSessionOpen by rememberSaveable { mutableStateOf(false) }
+    var stickerBookOpen by rememberSaveable { mutableStateOf(false) }
     var newSessionCount by rememberSaveable { mutableStateOf(0) }
     // View mode by default for a saved child; a new child is always the form. A successful save returns to view mode.
     var editing by rememberSaveable(state.childId) { mutableStateOf(false) }
@@ -169,6 +173,12 @@ private fun ChildProfileForm(
                     newSessionOpen = true
                 }
                 state.message?.let { MessageText(it) }
+                if (state.childId != null) {
+                    OutlinedButton(onClick = { stickerBookOpen = true }, shape = RoundedCornerShape(Radius.Sm)) {
+                        Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(stringResource(R.string.profile_sticker_book), modifier = Modifier.padding(start = Spacing.S2))
+                    }
+                }
             } else if (tab == ProfileTab.REPORT && state.childId != null) {
                 ReportRoute(state.childId)
             } else if (tab == ProfileTab.PLAN && state.childId != null) {
@@ -178,6 +188,12 @@ private fun ChildProfileForm(
                     EmptyState(icon = tab.icon, message = stringResource(R.string.profile_tab_later, stringResource(tab.label)))
                 }
             }
+        }
+    }
+    val bookChild = state.childId
+    if (stickerBookOpen && bookChild != null) {
+        Dialog(onDismissRequest = { stickerBookOpen = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            StickerBookRoute(bookChild, onBack = { stickerBookOpen = false })
         }
     }
     if (newSessionOpen) {

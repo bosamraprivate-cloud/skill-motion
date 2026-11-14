@@ -159,8 +159,23 @@ interface RewardStore {
 
     suspend fun starsForSession(sessionId: String): Int
 
-    /** Finished (`done`) assessment sessions plus rewarded training sets of [childId]. */
+    /** Finished (`done`) assessment sessions plus finished training runs of [childId]. */
     suspend fun finishedTasks(childId: String): Int
+
+    /** Stars of the rows whose id starts with [prefix]. */
+    suspend fun starsForPrefix(prefix: String): Int
+
+    /** Sticker stored on row [rowId], if any. */
+    suspend fun stickerOf(rowId: String): String?
+
+    /** Runs [block] in one database transaction (sticker read, compute and write). */
+    suspend fun <T> inTransaction(block: suspend () -> T): T
+
+    /** Unlocked sticker ids of [childId] in unlock order. */
+    suspend fun stickerIds(childId: String): List<String>
+
+    /** Stores [stickerId] on row [rowId] unless it already has one; true when stored. */
+    suspend fun setStickerIfAbsent(rowId: String, stickerId: String): Boolean
 }
 
 /** Live star count of one session for the child star bar. */
@@ -183,8 +198,19 @@ internal constructor(private val holder: DatabaseHolder) :
 
     override suspend fun finishedTasks(childId: String): Int {
         val db = holder.get()
-        return db.sessionDao().finishedAssessmentCount(childId) + db.rewardDao().trainingSets(childId)
+        return db.sessionDao().finishedAssessmentCount(childId) + db.rewardDao().finishedRuns(childId)
     }
+
+    override suspend fun starsForPrefix(prefix: String): Int = holder.get().rewardDao().starsForPrefix(prefix)
+
+    override suspend fun stickerOf(rowId: String): String? = holder.get().rewardDao().stickerOf(rowId)
+
+    override suspend fun <T> inTransaction(block: suspend () -> T): T = holder.get().withTransaction { block() }
+
+    override suspend fun stickerIds(childId: String): List<String> = holder.get().rewardDao().stickerIds(childId)
+
+    override suspend fun setStickerIfAbsent(rowId: String, stickerId: String): Boolean =
+        holder.get().rewardDao().setStickerIfAbsent(rowId, stickerId) > 0
 
     override fun observe(sessionId: String): Flow<Int> = flow { emitAll(holder.get().rewardDao().observeStarsForSession(sessionId)) }
 }

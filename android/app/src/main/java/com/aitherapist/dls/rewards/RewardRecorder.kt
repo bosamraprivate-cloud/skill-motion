@@ -25,6 +25,36 @@ class RewardRecorder(private val store: RewardStore, private val wallClock: () -
     /** Finished assessment tasks plus finished training tasks (sticker progress, Stories 4.8/4.9). */
     suspend fun totalFinishedTasks(childId: String): Int = store.finishedTasks(childId)
 
+    /** Stickers [childId] has unlocked, in unlock order. */
+    suspend fun stickerIds(childId: String): List<String> = store.stickerIds(childId)
+
+    /** Task end of assessment session [sessionId]: its stars, the finished-task count and any sticker it unlocks. */
+    suspend fun finishAssessment(childId: String, sessionId: String): TaskReward? =
+        finishTask(childId, sessionId, taskRowId = "task:session:$sessionId", starPrefix = "step:$sessionId:")
+
+    /** End of training run [runId] (result ids `"$runId:<index>"`): the run counts as one finished task. */
+    suspend fun finishTrainingRun(childId: String, runId: String): TaskReward? =
+        finishTask(childId, null, taskRowId = "task:run:$runId", starPrefix = "$TRAINING_PREFIX$runId:")
+
+    /**
+     * Writes the task's own zero-star row (deterministic id; it also marks a finished training run) and, when the
+     * finished-task count owes a sticker, stores at most one on that row. Read, compute and write run in one
+     * transaction, so retries, restores or concurrent calls never duplicate a sticker or put it on a later task.
+     * Null for the eval child (no reward screen).
+     */
+    private suspend fun finishTask(childId: String, sessionId: String?, taskRowId: String, starPrefix: String): TaskReward? {
+        if (store.isEvalOrMissing(childId)) return null
+        return store.inTransaction {
+            store.addIfAbsent(RewardEntity(id = taskRowId, childId = childId, sessionId = sessionId, stars = 0, createdAt = wallClock()))
+            val finished = store.finishedTasks(childId)
+            val stored = store.stickerIds(childId).size
+            if (RewardRules.stickersUnlocked(finished) > stored && store.stickerOf(taskRowId) == null) {
+                store.setStickerIfAbsent(taskRowId, Stickers.idFor(stored))
+            }
+            TaskReward(store.starsForPrefix(starPrefix), finished, store.stickerOf(taskRowId))
+        }
+    }
+
     private suspend fun write(id: String, childId: String, sessionId: String?, finish: Finish): Boolean {
         if (store.isEvalOrMissing(childId)) return false
         return store.addIfAbsent(

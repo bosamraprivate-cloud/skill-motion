@@ -341,4 +341,15 @@
     <string name="training_end">برافو! خلصنا التمرين.</string>
     <string name="training_empty">مفيش أنشطة دلوقتي.</string>
     <string name="training_back_to_adult">ارجع للكبير</string>
+    <string name="reward_stars">النجوم: %1$s</string>
+    <string name="reward_next">يلا نكمل</string>
+    <string name="reward_sticker_book">ستيكراتي</string>
+    <string name="reward_sticker_new">ستيكر جديد!</string>
+    <string name="reward_path">طريق الستيكر: %1$s من %2$s</string>
+    <string name="sticker_book_title">ستيكراتي</string>
+    <string name="sticker_book_count">%1$s ستيكر</string>
+    <string name="sticker_book_back">رجوع</string>
+    <string name="sticker_earned">ستيكر كسبته</string>
+    <string name="sticker_locked">ستيكر لسه مستنيك</string>
+    <string name="profile_sticker_book">كتاب الستيكرات</string>
 </resources>

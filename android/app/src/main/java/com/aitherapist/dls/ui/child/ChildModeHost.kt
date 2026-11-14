@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -19,7 +20,6 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.camera.CameraController
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -27,7 +27,8 @@ import kotlinx.coroutines.launch
  * [sessionId]. Screen pinning and hardware keys are handled by the activity while child mode is on. The adult corner
  * opens the pause sheet; its Exit pauses the session and calls [onExit] (the PIN). The ViewModel is scoped to this
  * nav entry (AppNavigation's ViewModelStore decorator), so every run gets a fresh one. When a next task exists (jacket
- * "both": [thenTaskId] for a new run, the session's saved `nextTaskId` for a continued one), [onNext] fires a moment after this run's last step has saved the session `done`.
+ * "both": [thenTaskId] for a new run, the session's saved `nextTaskId` for a continued one), [onNext] fires when the
+ * task reward screen (Story 4.9) continues after this run's last step has saved the session `done`.
  */
 @Composable
 fun ChildModeHost(
@@ -56,22 +57,32 @@ fun ChildModeHost(
     val cameraUnavailable by viewModel.cameraUnavailable.collectAsStateWithLifecycle()
     if (cameraWanted) BackgroundCamera(viewModel::onFrame, viewModel::onCameraError)
     val nextTaskId by viewModel.nextTaskId.collectAsStateWithLifecycle()
-    LaunchedEffect(completed, nextTaskId) {
-        val next = nextTaskId
-        if (completed && next != null) {
-            delay(NEXT_TASK_DELAY_MS) // the calm end shows briefly before the next task's start screen
-            onNext(next)
-        }
-    }
+    // Story 4.9: a finished task shows the task reward first, then continues (next chained task, or the calm end).
+    var rewardShown by rememberSaveable(childId, taskId, sessionId) { mutableStateOf(false) }
+    val finishedSession = viewModel.sessionId.takeIf { completed }
     Box(modifier) {
-        StepScreen(
-            state = state,
-            onEvent = viewModel::onEvent,
-            onAdultCorner = viewModel::openAdultSheet,
-            onStart = viewModel::beginTask,
-            onStarBarPositioned = { starTarget = it }
-        )
-        RewardEffects(effect, Modifier.fillMaxSize(), starTarget)
+        if (finishedSession != null && !rewardShown) {
+            // Story 4.9: the task reward replaces the step screen (no layered touches).
+            TaskRewardRoute(
+                childId,
+                RewardTask.Assessment(finishedSession),
+                onNext = {
+                    rewardShown = true
+                    nextTaskId?.let(onNext)
+                },
+                paused = sheetOpen,
+                onAdultCorner = viewModel::openAdultSheet
+            )
+        } else {
+            StepScreen(
+                state = state,
+                onEvent = viewModel::onEvent,
+                onAdultCorner = viewModel::openAdultSheet,
+                onStart = viewModel::beginTask,
+                onStarBarPositioned = { starTarget = it }
+            )
+            RewardEffects(effect, Modifier.fillMaxSize(), starTarget)
+        }
         DebugResultStrip()
     }
     if (sheetOpen) {
@@ -90,8 +101,6 @@ fun ChildModeHost(
         )
     }
 }
-
-private const val NEXT_TASK_DELAY_MS = 2_000L
 
 /** Story 3.5: the front camera's analysis stream while a camera-scored step runs; no preview is shown to the child. */
 @Composable
