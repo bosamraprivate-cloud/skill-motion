@@ -40,4 +40,18 @@ class MigrationSqlTest {
         assertEquals(4, AppDatabase.MIGRATION_4_5.startVersion)
         assertEquals(5, AppDatabase.MIGRATION_4_5.endVersion)
     }
+
+    @Test
+    fun `migration 5 to 6 makes the exported correction index unique`() {
+        val schema = File("schemas/com.aitherapist.dls.data.AppDatabase/6.json").readText()
+        val create = AppDatabase.SQL_5_6.last()
+        assertTrue(create, create.startsWith("CREATE UNIQUE INDEX"))
+        assertTrue(
+            schema.contains(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_correction_sessionId_stepId` ON `\${TABLE_NAME}` (`sessionId`, `stepId`)"
+            )
+        )
+        assertEquals(5, AppDatabase.MIGRATION_5_6.startVersion)
+        assertEquals(6, AppDatabase.MIGRATION_5_6.endVersion)
+    }
 }

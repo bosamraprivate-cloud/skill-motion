@@ -19,7 +19,7 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         RewardEntity::class,
         TrainingResultEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -99,7 +99,28 @@ internal abstract class AppDatabase : RoomDatabase() {
                 "CREATE INDEX IF NOT EXISTS `index_training_result_childId` ON `training_result` (`childId`)"
             )
 
-        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+        /**
+         * v5 -> v6 (Story 5.2): `correction (sessionId, stepId)` becomes unique. Duplicates are removed first, keeping
+         * the latest row per step (highest createdAt, then highest rowid), which is the row reads already used.
+         */
+        val MIGRATION_5_6 =
+            object : Migration(5, 6) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    SQL_5_6.forEach(db::execSQL)
+                }
+            }
+
+        val SQL_5_6 =
+            listOf(
+                "DELETE FROM `correction` WHERE EXISTS (SELECT 1 FROM `correction` AS newer " +
+                    "WHERE newer.sessionId = `correction`.sessionId " +
+                    "AND newer.stepId = `correction`.stepId AND (newer.createdAt > `correction`.createdAt OR " +
+                    "(newer.createdAt = `correction`.createdAt AND newer.rowid > `correction`.rowid)))",
+                "DROP INDEX IF EXISTS `index_correction_sessionId_stepId`",
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_correction_sessionId_stepId` ON `correction` (`sessionId`, `stepId`)"
+            )
+
+        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
 
         /** Opens (or creates) the SQLCipher database [name] keyed with [passphrase]. */
         fun build(context: Context, passphrase: ByteArray, name: String = NAME): AppDatabase {

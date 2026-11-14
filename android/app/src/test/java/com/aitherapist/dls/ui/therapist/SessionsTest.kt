@@ -140,9 +140,9 @@ class SessionsTest {
         val s1 = list.first { it.id == "s1" }
         assertEquals("Task A", s1.title)
         assertEquals(2, s1.stars)
-        assertTrue(s1.opensSummary)
-        assertFalse(list.first { it.id == "s2" }.opensSummary)
-        assertFalse(run1.opensSummary)
+        assertTrue(s1.opensDetail)
+        assertTrue(list.first { it.id == "s2" }.opensDetail)
+        assertFalse(run1.opensDetail)
 
         val stats = buildOverviewStats(sessions, rewards)
         assertEquals(OverviewStats(lastAssessmentAt = 60_100, finishedTasks = 2, stickers = 1), stats)

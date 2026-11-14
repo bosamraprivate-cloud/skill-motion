@@ -101,6 +101,10 @@ internal interface AttemptDao {
 internal interface CorrectionDao {
     @Insert suspend fun insert(correction: CorrectionEntity)
 
+    /** Saves the step's correction; REPLACE drops the step's previous row through the unique (sessionId, stepId) index. */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(correction: CorrectionEntity)
+
     /** Corrections of [sessionId] in saved order (the last per step wins). */
     @Query("SELECT * FROM correction WHERE sessionId = :sessionId ORDER BY createdAt, rowid")
     suspend fun forSession(sessionId: String): List<CorrectionEntity>

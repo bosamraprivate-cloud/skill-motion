@@ -87,9 +87,9 @@ development_status:
   4-9-task-reward-screen-and-sticker-book: review
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-session-list-and-session-detail-with-evidence: backlog
-  5-2-correct-a-step-level: backlog
+  epic-5: in-progress
+  5-1-session-list-and-session-detail-with-evidence: review
+  5-2-correct-a-step-level: review
   5-3-compare-two-assessments: backlog
   5-4-training-history: backlog
   5-5-diagnostics-screen: backlog

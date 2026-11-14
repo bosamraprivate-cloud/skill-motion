@@ -83,4 +83,16 @@ class ResultsTest {
             assertFalse(countsForResults(session(SessionKind.ASSESSMENT, it)))
         }
     }
+
+    @Test
+    fun `latest correction is highest createdAt then later saved row`() {
+        val rows =
+            listOf(
+                CorrectionEntity("a", "s", "st", 1, null, 5),
+                CorrectionEntity("b", "s", "st", 2, null, 9),
+                CorrectionEntity("c", "s", "st", 3, null, 9)
+            )
+        assertEquals("c", latestCorrection(rows).id)
+        assertEquals("b", latestCorrection(rows.take(2)).id)
+    }
 }

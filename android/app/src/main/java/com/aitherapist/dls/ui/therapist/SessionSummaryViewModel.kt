@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Read-only summary of one assessment session (therapist mode); no corrections here (Epic 5). */
+/** Read-only summary of one assessment session (therapist mode); levels include saved corrections (made in Session detail). */
 @HiltViewModel
 class SessionSummaryViewModel
 internal constructor(

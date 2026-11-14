@@ -37,7 +37,7 @@ import com.aitherapist.dls.ui.theme.ChildColors
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 
-/** Sessions tab: the child's assessments and training runs, newest first; read-only. A done assessment opens its summary. */
+/** Sessions tab: the child's assessments and training runs, newest first; read-only. An assessment opens its session detail. */
 @Composable
 fun SessionsScreen(
     state: SessionsUiState,
@@ -74,7 +74,7 @@ fun SessionsScreen(
 
 @Composable
 private fun SessionRow(item: SessionListItem, onOpenSummary: (String) -> Unit) {
-    val clickable = item.opensSummary
+    val clickable = item.opensDetail
     Row(
         Modifier
             .fillMaxWidth()

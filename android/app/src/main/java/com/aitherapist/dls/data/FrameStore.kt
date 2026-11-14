@@ -51,6 +51,16 @@ class FrameStore internal constructor(private val filesDir: File, private val ke
         return keys.decrypt(data)
     }
 
+    /**
+     * Decrypted JPEG bytes of a stored relative path (`frames/<sessionId>/<attemptId>-<n>.bin`), or null when the
+     * path is malformed, outside the frames folder, missing or fails to decrypt. Never throws, never logs.
+     */
+    fun readRelative(path: String): ByteArray? {
+        val match = RELATIVE.matchEntire(path) ?: return null
+        val (sessionId, attemptId, n) = match.destructured
+        return runCatching { read(sessionId, attemptId, n.toInt()) }.getOrNull()
+    }
+
     /** Deletes one frame by its stored relative path; only paths under the frames folder are touched. */
     fun deleteRelative(path: String): Boolean {
         val f = File(filesDir, path).canonicalFile
@@ -68,5 +78,6 @@ class FrameStore internal constructor(private val filesDir: File, private val ke
 
     private companion object {
         val ID = Regex("[A-Za-z0-9-]+")
+        val RELATIVE = Regex("frames/([A-Za-z0-9-]+)/([A-Za-z0-9-]+)-([0-9]{1,4})\\.bin")
     }
 }

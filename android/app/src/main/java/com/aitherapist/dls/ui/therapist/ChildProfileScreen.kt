@@ -233,18 +233,10 @@ private fun ChildProfileForm(
             }
         }
     }
-    val summaryChild = state.childId
+    val detailChild = state.childId
     summarySession?.let { sessionId ->
-        if (summaryChild != null) {
-            SessionSummaryDialog(
-                childId = summaryChild,
-                sessionIds = listOf(sessionId),
-                onOpenReport = {
-                    summarySession = null
-                    tab = ProfileTab.REPORT
-                },
-                onDismiss = { summarySession = null }
-            )
+        if (detailChild != null) {
+            SessionDetailDialog(childId = detailChild, sessionId = sessionId, onDismiss = { summarySession = null })
         }
     }
     val bookChild = state.childId

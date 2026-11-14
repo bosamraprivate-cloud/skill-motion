@@ -165,4 +165,38 @@ class MigrationTest {
             }
         }
     }
+
+    @Test
+    fun migrate5To6DedupesCorrectionsKeepingLatestAndMakesThemUnique() {
+        helper.createDatabase(DB, 5).use { db ->
+            db.execSQL(
+                "INSERT INTO child (id, name, code, ageYears, effectLevel, characterVariant, isEval, createdAt) " +
+                    "VALUES ('c', 'n', 'C1', 5, 'calm', 'boy', 0, 0)"
+            )
+            db.execSQL(
+                "INSERT INTO session (id, childId, taskId, kind, state, startedAt, endedAt, catalogVersion, rulesVersion, " +
+                    "stepIndex, attemptNumber, promptLevel, nextTaskId) VALUES ('s', 'c', 't', 'assessment', 'done', 0, 0, 'v', '3', 0, 1, 1, NULL)"
+            )
+            db.execSQL("INSERT INTO correction (id, sessionId, stepId, level, reason, createdAt) VALUES ('k1', 's', 'st', 1, NULL, 1)")
+            db.execSQL("INSERT INTO correction (id, sessionId, stepId, level, reason, createdAt) VALUES ('k2', 's', 'st', 3, NULL, 5)")
+            db.execSQL("INSERT INTO correction (id, sessionId, stepId, level, reason, createdAt) VALUES ('k3', 's', 'st', 2, NULL, 5)")
+            db.execSQL(
+                "INSERT INTO correction (id, sessionId, stepId, level, reason, createdAt) VALUES ('k4', 's', 'other', NULL, NULL, 2)"
+            )
+        }
+        helper.runMigrationsAndValidate(DB, 6, true, AppDatabase.MIGRATION_5_6).use { db ->
+            db.query("SELECT id FROM correction ORDER BY stepId").use { c ->
+                val ids = mutableListOf<String>()
+                while (c.moveToNext()) ids += c.getString(0)
+                assertEquals("latest per step kept (same createdAt: last inserted)", listOf("k4", "k3"), ids)
+            }
+            db.execSQL(
+                "INSERT OR REPLACE INTO correction (id, sessionId, stepId, level, reason, createdAt) VALUES ('k5', 's', 'st', 1, NULL, 9)"
+            )
+            db.query("SELECT COUNT(*) FROM correction WHERE stepId = 'st'").use { c ->
+                c.moveToFirst()
+                assertEquals("unique (sessionId, stepId)", 1, c.getInt(0))
+            }
+        }
+    }
 }

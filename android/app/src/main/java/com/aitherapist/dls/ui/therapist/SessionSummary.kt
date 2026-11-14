@@ -55,7 +55,7 @@ import com.aitherapist.dls.ui.theme.Spacing
 
 /**
  * Session summary sheet (therapist): after a child-mode visit returns through the PIN ([sessionIds] = that visit's
- * sessions; a jacket chain gives two sections), or from a Sessions row. Read-only; corrections come in Epic 5.
+ * sessions; a jacket chain gives two sections), or from a Sessions row. Read-only overview; corrections are made in the Session detail (Story 5.2) and show here on the next load.
  */
 @Composable
 fun SessionSummaryDialog(

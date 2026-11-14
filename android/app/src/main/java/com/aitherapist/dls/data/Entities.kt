@@ -72,14 +72,14 @@ data class AttemptEntity(
 
 /**
  * Therapist correction of one step's level in one session (AD-9, Story 4.1). [level] 0..3 is a score, null means
- * "not scored". The latest row per (sessionId, stepId) wins over the automatic Rule 1 level.
+ * "not scored". One row per (sessionId, stepId) (unique since v6, Story 5.2); it wins over the automatic Rule 1 level.
  */
 @Entity(
     tableName = "correction",
     foreignKeys = [
         ForeignKey(entity = SessionEntity::class, parentColumns = ["id"], childColumns = ["sessionId"], onDelete = ForeignKey.CASCADE)
     ],
-    indices = [Index(value = ["sessionId", "stepId"])]
+    indices = [Index(value = ["sessionId", "stepId"], unique = true)]
 )
 data class CorrectionEntity(
     @PrimaryKey val id: String,

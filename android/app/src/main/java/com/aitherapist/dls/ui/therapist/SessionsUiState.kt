@@ -34,8 +34,8 @@ data class SessionListItem(
     /** Number of activities in a training run (0 for an assessment). */
     val activities: Int = 0
 ) {
-    /** Only a finished assessment opens the session summary. */
-    val opensSummary: Boolean get() = kind == HistoryKind.ASSESSMENT && state == HistoryState.DONE
+    /** Every assessment opens its session detail (Story 5.1); an unfinished one opens read-only for open steps. */
+    val opensDetail: Boolean get() = kind == HistoryKind.ASSESSMENT
 }
 
 /** Overview quick stats; [lastAssessmentAt] is null before the first finished assessment. */
