@@ -148,3 +148,43 @@ internal constructor(private val holder: DatabaseHolder, private val frames: Fra
     override suspend fun attempts(sessionId: String, stepId: String): List<AttemptEntity> =
         holder.get().attemptDao().forStep(sessionId, stepId)
 }
+
+/** Reward rows as `rewards/RewardRecorder` writes and reads them (implemented by [RewardRepository]; faked in tests). */
+interface RewardStore {
+    /** Inserts [reward] unless a row with its id exists; true when inserted. */
+    suspend fun addIfAbsent(reward: RewardEntity): Boolean
+
+    /** Whether [childId] is the hidden eval child (or missing): such children earn nothing. */
+    suspend fun isEvalOrMissing(childId: String): Boolean
+
+    suspend fun starsForSession(sessionId: String): Int
+
+    /** Finished (`done`) assessment sessions plus rewarded training sets of [childId]. */
+    suspend fun finishedTasks(childId: String): Int
+}
+
+/** Live star count of one session for the child star bar. */
+fun interface SessionStars {
+    fun observe(sessionId: String): Flow<Int>
+}
+
+/** Reward rows (written only through `rewards/RewardRecorder`). */
+@Singleton
+class RewardRepository
+@Inject
+internal constructor(private val holder: DatabaseHolder) :
+    RewardStore,
+    SessionStars {
+    override suspend fun addIfAbsent(reward: RewardEntity): Boolean = holder.get().rewardDao().insertIfAbsent(reward) != -1L
+
+    override suspend fun isEvalOrMissing(childId: String): Boolean = holder.get().childDao().byId(childId)?.isEval ?: true
+
+    override suspend fun starsForSession(sessionId: String): Int = holder.get().rewardDao().starsForSession(sessionId)
+
+    override suspend fun finishedTasks(childId: String): Int {
+        val db = holder.get()
+        return db.sessionDao().finishedAssessmentCount(childId) + db.rewardDao().trainingSets(childId)
+    }
+
+    override fun observe(sessionId: String): Flow<Int> = flow { emitAll(holder.get().rewardDao().observeStarsForSession(sessionId)) }
+}

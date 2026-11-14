@@ -5,9 +5,11 @@ import com.aitherapist.dls.audio.AssetAudioPlayer
 import com.aitherapist.dls.audio.AudioPlayer
 import com.aitherapist.dls.data.FrameStore
 import com.aitherapist.dls.data.NetworkStatus
+import com.aitherapist.dls.data.RewardStore
 import com.aitherapist.dls.data.SessionRepository
 import com.aitherapist.dls.data.TherapistSettings
 import com.aitherapist.dls.data.ZoneStore
+import com.aitherapist.dls.rewards.RewardRecorder
 import com.aitherapist.dls.session.AssessmentRunnerFactory
 import com.aitherapist.dls.session.Clock
 import com.aitherapist.dls.session.FrameStoreEvidence
@@ -80,21 +82,30 @@ object ChildModeModule {
         )
 
     @Provides
-    fun runnerFactory(sessions: SessionRepository, clock: Clock, router: VerifierRouter, frames: FrameStore): AssessmentRunnerFactory =
-        AssessmentRunnerFactory(
-            store = sessions,
-            verifier = router,
-            clock = clock,
-            dispatcher = Dispatchers.IO,
-            wallClock = { System.currentTimeMillis() },
-            evidence = FrameStoreEvidence(frames, BitmapJpegEncoder),
-            debugLog = {
-                if (com.aitherapist.dls.BuildConfig.DEBUG) {
-                    android.util.Log.d("DlsVerdict", it)
-                    DebugVerdictTrace.publish(it)
-                }
+    fun rewardRecorder(store: RewardStore): RewardRecorder = RewardRecorder(store)
+
+    @Provides
+    fun runnerFactory(
+        sessions: SessionRepository,
+        clock: Clock,
+        router: VerifierRouter,
+        frames: FrameStore,
+        rewards: RewardRecorder
+    ): AssessmentRunnerFactory = AssessmentRunnerFactory(
+        store = sessions,
+        verifier = router,
+        clock = clock,
+        dispatcher = Dispatchers.IO,
+        wallClock = { System.currentTimeMillis() },
+        evidence = FrameStoreEvidence(frames, BitmapJpegEncoder),
+        debugLog = {
+            if (com.aitherapist.dls.BuildConfig.DEBUG) {
+                android.util.Log.d("DlsVerdict", it)
+                DebugVerdictTrace.publish(it)
             }
-        )
+        },
+        rewards = rewards
+    )
 }
 
 /** Wrapper so the cloud client does not collide with any other OkHttpClient binding. */

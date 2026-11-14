@@ -12,6 +12,7 @@ import com.aitherapist.dls.catalog.Landmarker
 import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.data.ChildProfiles
 import com.aitherapist.dls.data.ResumableSessions
+import com.aitherapist.dls.data.SessionStars
 import com.aitherapist.dls.session.AssessmentRunner
 import com.aitherapist.dls.session.AssessmentRunnerFactory
 import com.aitherapist.dls.session.Clock
@@ -32,6 +33,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -64,7 +66,9 @@ constructor(
     /** Outlives this ViewModel: saves the session `paused` after the step screen is gone. */
     private val outerScope: CoroutineScope,
     /** Story 3.5: background camera landmarks for camera-scored steps (no preview). */
-    private val capture: AttemptCapture? = null
+    private val capture: AttemptCapture? = null,
+    /** Story 4.7: live star count of the current session for the star bar. */
+    private val stars: SessionStars? = null
 ) : ViewModel() {
     private val state = MutableStateFlow<StepUiState>(StepUiState.Waiting)
     val uiState: StateFlow<StepUiState> = state.asStateFlow()
@@ -108,6 +112,7 @@ constructor(
     private var variant: CharacterVariant? = null
     private var variantId: String = ""
     private var taskName: String? = null
+    private var starCount = 0
 
     /** New session: the task start screen shows until the child taps Start ([beginTask]). */
     private var awaitingStart = false
@@ -200,6 +205,7 @@ constructor(
                 runner = created
                 awaitingStart = true
                 launch { created.state.collect { sync() } }
+                observeStars(created.id)
                 created.start()
                 sync()
             } catch (e: CancellationException) {
@@ -243,7 +249,27 @@ constructor(
         // A session interrupted before anything was recorded starts again from the task start screen.
         awaitingStart = saved.stepIndex == 0 && !created.hasAttempts()
         viewModelScope.launch { created.state.collect { sync() } }
+        observeStars(created.id)
         sync()
+    }
+
+    /** Keeps the star bar on the session's saved star total (stars only; effects come in Story 4.8). */
+    private fun observeStars(sessionId: String) {
+        val source = stars ?: return
+        viewModelScope.launch {
+            source
+                .observe(sessionId)
+                .retryWhen { e, attempt ->
+                    // The star bar keeps its last count and retries with a short backoff; type only, no data.
+                    if (e is CancellationException) return@retryWhen false
+                    runCatching { Log.w(TAG, "star count failed: ${e::class.simpleName}") }
+                    delay(STAR_RETRY_MS * (attempt + 1).coerceAtMost(STAR_RETRY_MAX_STEPS))
+                    true
+                }.collect { n ->
+                    starCount = n
+                    (state.value as? StepUiState.Step)?.let { state.value = it.copy(stars = n) }
+                }
+        }
     }
 
     /** No run: the calm end visual until the adult leaves. */
@@ -481,6 +507,7 @@ constructor(
             reactionClip = if (hideReaction) null else reaction(reactionState),
             doneEnabled = current is RunnerState.Attempt,
             promptLevel = level,
+            stars = starCount,
             paused = paused
         )
     }
@@ -506,6 +533,8 @@ constructor(
 
         const val TICK_MS = 1_000L
         const val RETRY_MS = 2_000L
+        private const val STAR_RETRY_MS = 500L
+        private const val STAR_RETRY_MAX_STEPS = 10L
 
         // Reaction clip states from the character index (Story 2.3).
         private const val IDLE = "idle"

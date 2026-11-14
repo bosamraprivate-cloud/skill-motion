@@ -108,3 +108,4 @@
 - Activity details (tools, how to perform, goal, criterion) are English in the catalogue; only titles have Arabic (`textAr`). Translate them into `strings.ar-eg.json` with line-by-line review at the end of the project (with audio).
 - After a PIN lock the therapist lands on the Children list, not the previous child profile tab (Story 4.3 review). Restore the last shell destination + profile tab.
 - Arabic domain / plan-level / step-level labels and short domain labels were authored (not in docs/reference); owner review needed.
+- Design doc still mentions Rive in several places (character section, library table, art layout); stack is animated WebP clips. Clean up wording.

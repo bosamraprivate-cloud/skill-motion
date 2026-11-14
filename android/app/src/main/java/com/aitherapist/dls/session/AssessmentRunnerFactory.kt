@@ -4,6 +4,7 @@ import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.data.SessionEntity
 import com.aitherapist.dls.data.SessionKind
 import com.aitherapist.dls.data.SessionStore
+import com.aitherapist.dls.rewards.RewardRecorder
 import com.aitherapist.dls.vision.Verifier
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,7 +18,9 @@ class AssessmentRunnerFactory(
     private val newId: () -> String = { UUID.randomUUID().toString() },
     private val wallClock: Clock = clock,
     private val evidence: EvidenceWriter = EvidenceWriter.NONE,
-    private val debugLog: (String) -> Unit = {}
+    private val debugLog: (String) -> Unit = {},
+    /** Story 4.7: live and restored child-mode runs record stars; replay runners never get it. */
+    private val rewards: RewardRecorder? = null
 ) {
     fun create(childId: String, taskId: String, catalogVersion: String, steps: List<Step>, nextTaskId: String? = null): AssessmentRunner =
         AssessmentRunner(
@@ -34,7 +37,8 @@ class AssessmentRunnerFactory(
             wallClock = wallClock,
             evidence = evidence,
             debugLog = debugLog,
-            nextTaskId = nextTaskId
+            nextTaskId = nextTaskId,
+            rewards = rewards
         )
 
     /** A replay-mode runner (Story 3.7) for the hidden eval child: same router, gate, verifiers and evidence as live. */
@@ -72,6 +76,7 @@ class AssessmentRunnerFactory(
         newId = newId,
         wallClock = wallClock,
         evidence = evidence,
-        debugLog = debugLog
+        debugLog = debugLog,
+        rewards = rewards
     )
 }

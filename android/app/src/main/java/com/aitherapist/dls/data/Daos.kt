@@ -2,6 +2,7 @@ package com.aitherapist.dls.data
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +49,9 @@ internal interface SessionDao {
             "AND (:taskId IS NULL OR taskId = :taskId) ORDER BY startedAt DESC, rowid DESC"
     )
     suspend fun finishedAssessments(childId: String, taskId: String?): List<SessionEntity>
+
+    @Query("SELECT COUNT(*) FROM session WHERE childId = :childId AND kind = 'assessment' AND state = 'done'")
+    suspend fun finishedAssessmentCount(childId: String): Int
 
     /** Whether the child has a finished assessment of [taskId] that started after [since] (jacket chain, Story 4.1). */
     @Query(
@@ -103,4 +107,21 @@ internal interface CorrectionDao {
 
     @Query("DELETE FROM correction WHERE sessionId = :sessionId AND stepId = :stepId")
     suspend fun deleteFor(sessionId: String, stepId: String)
+}
+
+@Dao
+internal interface RewardDao {
+    /** Returns -1 when a row with the same id exists (idempotent per session step / training result). */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIfAbsent(reward: RewardEntity): Long
+
+    @Query("SELECT COALESCE(SUM(stars), 0) FROM reward WHERE sessionId = :sessionId")
+    suspend fun starsForSession(sessionId: String): Int
+
+    @Query("SELECT COALESCE(SUM(stars), 0) FROM reward WHERE sessionId = :sessionId")
+    fun observeStarsForSession(sessionId: String): Flow<Int>
+
+    /** Training sets that earned a reward (rows without a session). */
+    @Query("SELECT COUNT(*) FROM reward WHERE childId = :childId AND sessionId IS NULL")
+    suspend fun trainingSets(childId: String): Int
 }

@@ -228,7 +228,7 @@ The child mode looks and feels like a calm game, so children want to continue:
 *   **Effect levels:** many autistic children are sensitive to sound and motion, so each child profile has an effect level set by the therapist: **full** (particles, sounds, celebration), **calm** (slow fade and soft sound, no particles); level off was removed 2026-11-12. Effects never flash more than 3 times per second and never play while the instruction audio is speaking.
 *   **Scoring is not affected:** rewards are shown after the verdict is saved and do not change levels. During training, stars follow the same rules per repetition set.
 
-Effects are built with Rive (character celebrations) and Konfetti (particle bursts in Compose); sound effects are generated once with ElevenLabs sound effects and reviewed.
+Effects are built with character animation clips (animated WebP: `celebrateSmall`, `celebrateBig`, `encourage`) and Konfetti (particle bursts in Compose); sound effects are generated once with ElevenLabs sound effects and reviewed.
 
 ### Therapist mode and dashboard
 

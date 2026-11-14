@@ -27,6 +27,19 @@ class ResultsTest {
         SessionResult(session(SessionKind.ASSESSMENT, SessionState.DONE, id, taskId, startedAt), emptyMap())
 
     @Test
+    fun `reward rows never change results`() {
+        // AD-9: levels come only from attempts and corrections; sessionLevels takes no reward input, so reward rows
+        // saved for the same session leave the computed levels identical.
+        val attempts =
+            listOf(attempt("a", 1, AttemptVerdict.DONE), attempt("b", 1, AttemptVerdict.NOT_DONE), attempt("b", 2, AttemptVerdict.DONE))
+        val before = sessionLevels(attempts, emptyList())
+        val rewards = listOf(RewardEntity("step:s:a", "c", "s", 2, null, 1), RewardEntity("step:s:b", "c", "s", 1, null, 2))
+        assertEquals(3, rewards.sumOf { it.stars })
+        assertEquals(before, sessionLevels(attempts, emptyList()))
+        assertEquals(StepLevel.THREE, before["a"])
+    }
+
+    @Test
     fun `invalid stored correction level is ignored and reported without data`() {
         val reported = mutableListOf<String>()
         val corrections = listOf(correction("a", 0, 1), correction("a", 4, 2))

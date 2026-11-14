@@ -89,3 +89,24 @@ data class CorrectionEntity(
     val reason: String? = null,
     val createdAt: Long
 )
+
+/**
+ * Stars earned in child mode (AD-9, Story 4.7); written only by `rewards/RewardRecorder`. [id] is deterministic per
+ * (session, step) or per training result, so a retried or restored write is ignored. [sessionId] is null for a
+ * training set. [stickerId] is assigned in Story 4.9 (null until then). Rewards never feed scoring.
+ */
+@Entity(
+    tableName = "reward",
+    foreignKeys = [
+        ForeignKey(entity = ChildEntity::class, parentColumns = ["id"], childColumns = ["childId"], onDelete = ForeignKey.CASCADE)
+    ],
+    indices = [Index("childId"), Index("sessionId")]
+)
+data class RewardEntity(
+    @PrimaryKey val id: String,
+    val childId: String,
+    val sessionId: String?,
+    val stars: Int,
+    val stickerId: String? = null,
+    val createdAt: Long
+)

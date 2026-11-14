@@ -45,6 +45,12 @@ internal object DataModule {
     fun resumableSessions(repository: SessionRepository): ResumableSessions = repository
 
     @Provides
+    fun rewardStore(repository: RewardRepository): RewardStore = repository
+
+    @Provides
+    fun sessionStars(repository: RewardRepository): SessionStars = repository
+
+    @Provides
     fun replayStore(repository: ReplayRepository): ReplayStore = repository
 
     @Provides

@@ -60,8 +60,18 @@ class ArchitectureTest {
             }
     }
 
+    @Test
+    fun `scoring never depends on rewards`() {
+        // AD-9: rewards never feed RulesEngine or levels.
+        productionFiles
+            .withPackage("$ROOT.scoring..")
+            .assertFalse(additionalMessage = "Rewards must never feed scoring.") { file ->
+                file.imports.any { it.name.startsWith("$ROOT.rewards.") } || file.text.contains("$ROOT.rewards")
+            }
+    }
+
     private companion object {
-        val DATA_INTERNALS = setOf("ChildDao", "SessionDao", "AttemptDao", "CorrectionDao", "AppDatabase")
+        val DATA_INTERNALS = setOf("ChildDao", "SessionDao", "AttemptDao", "CorrectionDao", "RewardDao", "AppDatabase")
         const val ROOT = "com.aitherapist.dls"
         val CORE_PACKAGES = arrayOf("$ROOT.scoring..", "$ROOT.rewards..", "$ROOT.catalog..")
         val PURE_VISION_FILES =

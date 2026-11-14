@@ -9,6 +9,8 @@ import com.aitherapist.dls.data.SessionKind
 import com.aitherapist.dls.data.SessionState
 import com.aitherapist.dls.data.SessionStore
 import com.aitherapist.dls.data.VerifierKind
+import com.aitherapist.dls.rewards.FakeRewardStore
+import com.aitherapist.dls.rewards.RewardRecorder
 import com.aitherapist.dls.scoring.RulesEngine
 import com.aitherapist.dls.vision.Frame
 import com.aitherapist.dls.vision.LandmarkFrame
@@ -125,8 +127,10 @@ class AssessmentRunnerTest {
         verifier: Verifier,
         steps: List<Step> = listOf(Step("s1", Method.POSE), Step("s2", Method.POSE)),
         kind: SessionKind = SessionKind.ASSESSMENT,
-        nextTaskId: String? = null
+        nextTaskId: String? = null,
+        rewards: RewardRecorder? = null
     ) = AssessmentRunner(
+        rewards = rewards,
         kind = kind,
         nextTaskId = nextTaskId,
         evidence = evidence,
@@ -176,6 +180,74 @@ class AssessmentRunnerTest {
     fun `chained task id is saved on the new session`() = runTest {
         runner(FakeVerifier(Outcome.DONE), nextTaskId = "t.off").start()
         assertEquals("t.off", store.session!!.nextTaskId)
+    }
+
+    @Test
+    fun `finished steps earn 2 then 1 star, after their rows are saved, once each`() = runTest {
+        val rewards = FakeRewardStore(onWrite = { log += "reward" })
+        val r = runner(FakeVerifier(Outcome.DONE, Outcome.NOT_DONE, Outcome.DONE), rewards = RewardRecorder(rewards))
+        r.start()
+        log.clear()
+        r.attemptDone()
+        // Session saves on window open/close, then the attempt row, then the reward, then the next step's save.
+        val rewardAt = log.indexOf("reward")
+        assertTrue(rewardAt > 0 && store.rows.size == 1)
+        assertEquals("save", log[rewardAt - 1])
+        r.attemptDone()
+        r.attemptDone()
+        assertEquals(RunnerState.Finished, r.state.value)
+        assertEquals(listOf(2, 1), rewards.rows.values.map { it.stars })
+        assertEquals(3, rewards.starsForSession("sess"))
+    }
+
+    @Test
+    fun `a done on the cannot-tell repeat still earns the first-try bonus`() = runTest {
+        val rewards = FakeRewardStore()
+        val r =
+            runner(
+                FakeVerifier(Outcome.CANNOT_TELL, Outcome.DONE),
+                steps = listOf(Step("c1", Method.POSE)),
+                rewards = RewardRecorder(rewards)
+            )
+        r.start()
+        r.attemptDone()
+        r.attemptDone()
+        assertEquals(RunnerState.Finished, r.state.value)
+        assertEquals(2, rewards.starsForSession("sess"))
+    }
+
+    @Test
+    fun `a failed fact save writes no reward and the retry rewards once`() = runTest {
+        val rewards = FakeRewardStore()
+        val r = runner(FakeVerifier(Outcome.DONE), rewards = RewardRecorder(rewards))
+        r.start()
+        store.failRow = true
+        r.attemptDone()
+        assertTrue(r.state.value is RunnerState.Error)
+        assertTrue(rewards.rows.isEmpty())
+        r.onEvent(RunnerEvent.Retry)
+        r.onEvent(RunnerEvent.Retry)
+        assertEquals(1, rewards.rows.size)
+        assertEquals(2, rewards.starsForSession("sess"))
+    }
+
+    @Test
+    fun `a failed reward write never stops the task, and not done after 3 earns 1 star`() = runTest {
+        val failing = FakeRewardStore().apply { fail = true }
+        val r = runner(FakeVerifier(Outcome.DONE), rewards = RewardRecorder(failing))
+        r.start()
+        r.attemptDone()
+        assertEquals(1, stepIndex(r))
+        val rewards = FakeRewardStore()
+        val notDone =
+            runner(
+                FakeVerifier(Outcome.NOT_DONE, Outcome.NOT_DONE, Outcome.NOT_DONE),
+                steps = listOf(Step("n1", Method.POSE)),
+                rewards = RewardRecorder(rewards)
+            )
+        notDone.start()
+        repeat(3) { notDone.attemptDone() }
+        assertEquals(1, rewards.starsForSession("sess"))
     }
 
     @Test

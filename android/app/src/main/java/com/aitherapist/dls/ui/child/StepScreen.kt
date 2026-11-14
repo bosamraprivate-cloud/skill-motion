@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -102,12 +103,14 @@ private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdul
 @Composable
 private fun TopBand(state: StepUiState, onAdultCorner: () -> Unit) {
     Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
-        // Star bar hidden until rewards exist (Epic 4); an equal-width spacer keeps the schedule centred.
-        Spacer(Modifier.size(ADULT_CORNER_SIZE))
-        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+        // Equal-width side zones keep the schedule centred: star bar at the start, adult corner at the end.
+        Box(Modifier.weight(1f).widthIn(min = ADULT_CORNER_SIZE), contentAlignment = Alignment.CenterStart) {
+            if (state is StepUiState.Step) StarBar(state.stars)
+        }
+        Box(contentAlignment = Alignment.Center) {
             if (state is StepUiState.Step) StepSchedule(current = state.stepIndex, count = state.stepCount)
         }
-        AdultCorner(onAdultCorner)
+        Box(Modifier.weight(1f).widthIn(min = ADULT_CORNER_SIZE), contentAlignment = Alignment.CenterEnd) { AdultCorner(onAdultCorner) }
     }
 }
 

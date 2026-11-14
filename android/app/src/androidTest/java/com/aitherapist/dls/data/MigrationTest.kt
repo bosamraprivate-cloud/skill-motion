@@ -106,4 +106,36 @@ class MigrationTest {
     private companion object {
         const val DB = "migration-test.db"
     }
+
+    @Test
+    fun migrate3To4KeepsRowsAndAddsReward() {
+        helper.createDatabase(DB, 3).use { db ->
+            db.execSQL(
+                "INSERT INTO child (id, name, code, ageYears, effectLevel, characterVariant, isEval, createdAt) " +
+                    "VALUES ('c', 'n', 'C1', 5, 'calm', 'boy', 0, 0)"
+            )
+            db.execSQL(
+                "INSERT INTO session (id, childId, taskId, kind, state, startedAt, endedAt, catalogVersion, rulesVersion, " +
+                    "stepIndex, attemptNumber, promptLevel, nextTaskId) VALUES ('s', 'c', 't', 'assessment', 'done', 0, 0, 'v', '2', 0, 1, 1, NULL)"
+            )
+            db.execSQL("INSERT INTO correction (id, sessionId, stepId, level, reason, createdAt) VALUES ('k', 's', 'st', 2, NULL, 1)")
+        }
+        helper.runMigrationsAndValidate(DB, 4, true, AppDatabase.MIGRATION_3_4).use { db ->
+            db.query("SELECT taskId FROM session WHERE id = 's'").use { c ->
+                c.moveToFirst()
+                assertEquals("t", c.getString(0))
+            }
+            db.query("SELECT level FROM correction WHERE id = 'k'").use { c ->
+                c.moveToFirst()
+                assertEquals(2, c.getInt(0))
+            }
+            db.execSQL("INSERT INTO reward (id, childId, sessionId, stars, stickerId, createdAt) VALUES ('r', 'c', 's', 2, NULL, 1)")
+            db.execSQL("PRAGMA foreign_keys = ON")
+            db.execSQL("DELETE FROM child WHERE id = 'c'")
+            db.query("SELECT COUNT(*) FROM reward").use { c ->
+                c.moveToFirst()
+                assertEquals("rewards cascade with their child", 0, c.getInt(0))
+            }
+        }
+    }
 }

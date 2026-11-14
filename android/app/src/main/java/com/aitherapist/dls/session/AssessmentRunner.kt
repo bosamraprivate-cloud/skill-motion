@@ -9,6 +9,8 @@ import com.aitherapist.dls.data.SessionKind
 import com.aitherapist.dls.data.SessionState
 import com.aitherapist.dls.data.SessionStore
 import com.aitherapist.dls.data.VerifierKind
+import com.aitherapist.dls.rewards.Finish
+import com.aitherapist.dls.rewards.RewardRecorder
 import com.aitherapist.dls.scoring.RuleAttempt
 import com.aitherapist.dls.scoring.RuleOutcome
 import com.aitherapist.dls.scoring.RulesEngine
@@ -99,7 +101,9 @@ class AssessmentRunner(
     /** [SessionKind.REPLAY] for replay mode ([startReplay] / [scoreClip]). */
     private val kind: SessionKind = SessionKind.ASSESSMENT,
     /** Jacket "both": the task chained after this one, saved on the session so Continue keeps it (Story 4.1). */
-    private val nextTaskId: String? = null
+    private val nextTaskId: String? = null,
+    /** Story 4.7: stars for a finished step, recorded after its attempt rows are saved; never in replay. */
+    private val rewards: RewardRecorder? = null
 ) {
     private val mutableState = MutableStateFlow<RunnerState>(RunnerState.Idle)
     val state: StateFlow<RunnerState> = mutableState.asStateFlow()
@@ -610,6 +614,7 @@ class AssessmentRunner(
     private suspend fun advance(judge: RunnerState.Judge, rows: List<AttemptEntity>) {
         val level = RulesEngine.stepLevel(rows.map { it.toRule() })
         if (level != null) {
+            reward(judge.stepId, rows)
             nextStep(judge.stepIndex)
             return
         }
@@ -621,6 +626,27 @@ class AssessmentRunner(
                 else -> PromptState(level = (last.promptLevel + 1).coerceAtMost(PromptState.MAX_LEVEL), attempt = last.number + 1)
             }
         enterPrompt(judge.stepIndex, next)
+    }
+
+    /**
+     * The step is finished (its rows are saved): records its stars. Idempotent per (session, step), so a retried
+     * advance never double-counts; a failed reward write never stops the task. Replay earns nothing.
+     */
+    private suspend fun reward(stepId: String, rows: List<AttemptEntity>) {
+        val recorder = rewards ?: return
+        if (kind != SessionKind.ASSESSMENT) return
+        val doneAt = rows.indexOfFirst { it.verdict == AttemptVerdict.DONE }
+        val finish =
+            if (doneAt < 0) {
+                Finish.Finished
+            } else {
+                // Mirrors Rule 1 level 3: no earlier not_done and done at prompt level 1 (a cannot-tell repeat still counts).
+                val firstTry =
+                    rows[doneAt].promptLevel == PromptState.MIN_LEVEL &&
+                        rows.take(doneAt).none { it.verdict == AttemptVerdict.NOT_DONE }
+                Finish.Done(firstTry)
+            }
+        quietly { recorder.recordStep(childId, sessionId, stepId, finish) }
     }
 
     private suspend fun nextStep(index: Int) {

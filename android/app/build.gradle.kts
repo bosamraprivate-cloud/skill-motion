@@ -160,6 +160,8 @@ kover {
                         "com.aitherapist.dls.vision.VisibilityGate*",
                         "com.aitherapist.dls.vision.FrameCropper*",
                         "com.aitherapist.dls.scoring.RulesEngine*",
+                        "com.aitherapist.dls.rewards.RewardRules*",
+                        "com.aitherapist.dls.rewards.Finish*",
                         "com.aitherapist.dls.training.RepCounter*",
                         "com.aitherapist.dls.session.WindowRules",
                         "com.aitherapist.dls.session.Movement",

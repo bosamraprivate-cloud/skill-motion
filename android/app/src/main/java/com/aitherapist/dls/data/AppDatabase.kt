@@ -11,8 +11,8 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 /** Encrypted app database (AD-8). Schema changes need an explicit Migration; destructive migration is forbidden. */
 @Database(
-    entities = [ChildEntity::class, SessionEntity::class, AttemptEntity::class, CorrectionEntity::class],
-    version = 3,
+    entities = [ChildEntity::class, SessionEntity::class, AttemptEntity::class, CorrectionEntity::class, RewardEntity::class],
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -24,6 +24,8 @@ internal abstract class AppDatabase : RoomDatabase() {
     abstract fun attemptDao(): AttemptDao
 
     abstract fun correctionDao(): CorrectionDao
+
+    abstract fun rewardDao(): RewardDao
 
     companion object {
         const val NAME = "dls.db"
@@ -55,7 +57,24 @@ internal abstract class AppDatabase : RoomDatabase() {
                 "CREATE INDEX IF NOT EXISTS `index_correction_sessionId_stepId` ON `correction` (`sessionId`, `stepId`)"
             )
 
-        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
+        /** v3 -> v4 (Story 4.7): `reward` table; existing rows are kept. */
+        val MIGRATION_3_4 =
+            object : Migration(3, 4) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    SQL_3_4.forEach(db::execSQL)
+                }
+            }
+
+        val SQL_3_4 =
+            listOf(
+                "CREATE TABLE IF NOT EXISTS `reward` (`id` TEXT NOT NULL, `childId` TEXT NOT NULL, `sessionId` TEXT, " +
+                    "`stars` INTEGER NOT NULL, `stickerId` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), " +
+                    "FOREIGN KEY(`childId`) REFERENCES `child`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                "CREATE INDEX IF NOT EXISTS `index_reward_childId` ON `reward` (`childId`)",
+                "CREATE INDEX IF NOT EXISTS `index_reward_sessionId` ON `reward` (`sessionId`)"
+            )
+
+        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
 
         /** Opens (or creates) the SQLCipher database [name] keyed with [passphrase]. */
         fun build(context: Context, passphrase: ByteArray, name: String = NAME): AppDatabase {
