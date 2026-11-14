@@ -547,4 +547,87 @@
     <string name="export_working">بنحفظ النتايج…</string>
     <string name="export_done">النتايج اتحفظت.</string>
     <string name="export_failed">الملف ما اتحفظش. جرّب تاني أو اختار مكان تاني.</string>
+    <string name="about_title">عن التطبيق</string>
+    <string name="about_app_name">Skillmotion</string>
+    <string name="about_purpose">بيقيّم ويدرّب مهارات الحياة اليومية (اللبس، الأكل والشرب، النظافة) للأطفال، على التابلت ده.</string>
+    <string name="about_version">نسخة التطبيق: %1$s</string>
+    <string name="about_catalog_version">نسخة الكتالوج: %1$s</string>
+    <string name="about_rules_version">نسخة القواعد: %1$s</string>
+    <string name="about_credits_title">مكتبات مفتوحة المصدر</string>
+    <string name="about_row_hint">النسخة والكتالوج وتراخيص المكتبات المفتوحة المصدر</string>
+    <plurals name="pin_locked_wait">
+        <item quantity="zero">محاولات غلط كتير. استنى %1$d ثانية.</item>
+        <item quantity="one">محاولات غلط كتير. استنى ثانية واحدة.</item>
+        <item quantity="two">محاولات غلط كتير. استنى ثانيتين.</item>
+        <item quantity="few">محاولات غلط كتير. استنى %1$d ثواني.</item>
+        <item quantity="many">محاولات غلط كتير. استنى %1$d ثانية.</item>
+        <item quantity="other">محاولات غلط كتير. استنى %1$d ثانية.</item>
+    </plurals>
+    <string name="pinning_failed_notice">الشاشة مش مقفولة — الطفل ممكن يخرج من التطبيق.</string>
+    <string name="pinning_retry">جرّب تاني</string>
+    <string name="pinning_start_unlocked">ابدأ من غير قفل</string>
+    <!-- Story 5.8 metrics dashboard -->
+    <string name="settings_tool_metrics_title">الدقة</string>
+    <string name="settings_tool_metrics_hint">قد إيه التطبيق بيتفق مع المراجعة العمياء (الهدف ٨)</string>
+    <string name="metrics_title_volunteer">دقة المتطوعين</string>
+    <string name="metrics_title_live">الدقة (جلسات حقيقية)</string>
+    <string name="metrics_subtitle">نتايج التطبيق مقارنة بالمراجعة العمياء. "مش واضح" عمره ما يتحسب اختلاف. ده مش تحقق إكلينيكي.</string>
+    <string name="metrics_filter_volunteer">فيديوهات المتطوعين</string>
+    <string name="metrics_filter_live">جلسات حقيقية</string>
+    <string name="metrics_empty">لسه مفيش محاولات في الجلسات دي.</string>
+    <string name="metrics_error">مقدرناش نحسب الدقة (%1$s).</string>
+    <string name="metrics_no_blind_hint">لسه مفيش تقييمات عمياء. اعمل مراجعة عمياء علشان تشوف الاتفاق والكابا.</string>
+    <string name="metrics_agreement">الاتفاق مع المراجعة العمياء</string>
+    <string name="metrics_kappa">كابا على المستويات</string>
+    <string name="metrics_cannot_tell">نسبة "مش واضح"</string>
+    <string name="metrics_target_min">الهدف: %1$s على الأقل</string>
+    <string name="metrics_target_max">الهدف: %1$s على الأكثر</string>
+    <string name="metrics_met">حقق الهدف</string>
+    <string name="metrics_below">أقل من الهدف</string>
+    <string name="metrics_na">غير متاح</string>
+    <plurals name="metrics_steps">
+        <item quantity="zero">%1$s خطوات</item>
+        <item quantity="one">خطوة واحدة</item>
+        <item quantity="two">خطوتين</item>
+        <item quantity="few">%1$s خطوات</item>
+        <item quantity="many">%1$s خطوة</item>
+        <item quantity="other">%1$s خطوة</item>
+    </plurals>
+    <string name="metrics_counts_title">الأعداد</string>
+    <string name="metrics_counts_attempts">المحاولات: %1$s؛ متقيمة بشكل أعمى: %2$s؛ مش متقيمة: %3$s.</string>
+    <string name="metrics_counts_cannot_tell">محاولات متقيمة فيها "مش واضح" من أي ناحية (مش اختلاف): %1$s.</string>
+    <string name="metrics_counts_steps">الخطوات: %1$s؛ في الكابا: %2$s؛ مستبعدة: متقيمة جزئيًا %3$s، غير مُقيَّمة %4$s، مفتوحة في التطبيق %5$s، مفتوحة في المراجعة %6$s.</string>
+    <string name="metrics_counts_corrections">تصحيحات الأخصائي (مش داخلة في الدقة): %1$s خطوات، %2$s مختلفة عن المستوى التلقائي.</string>
+    <string name="metrics_confusion_title">جدول الخلط لكل خطوة (المراجعة العمياء / التطبيق)</string>
+    <string name="metrics_confusion_legend">الحرف الأول: المراجعة العمياء؛ التاني: التطبيق. d = اتعملت، n = متعملتش، c = مش واضح.</string>
+    <string name="metrics_step">الخطوة</string>
+    <string name="metrics_verdict_done">اتعملت</string>
+    <string name="metrics_verdict_not_done">متعملتش</string>
+    <string name="metrics_verdict_cannot_tell">مش واضح</string>
+    <string name="metrics_cell_description">المراجعة %1$s، التطبيق %2$s: %3$s</string>
+    <string name="metrics_cell_header">المراجعة %1$s، التطبيق %2$s</string>
+    <plurals name="metrics_missing_codes">
+        <item quantity="zero">%1$s جلسات من غير كود طفل. مش هنقدر نحسب الدقة لحد ما تتصلح.</item>
+        <item quantity="one">جلسة واحدة من غير كود طفل. مش هنقدر نحسب الدقة لحد ما تتصلح.</item>
+        <item quantity="two">جلستين من غير كود طفل. مش هنقدر نحسب الدقة لحد ما يتصلحوا.</item>
+        <item quantity="few">%1$s جلسات من غير كود طفل. مش هنقدر نحسب الدقة لحد ما تتصلح.</item>
+        <item quantity="many">%1$s جلسة من غير كود طفل. مش هنقدر نحسب الدقة لحد ما تتصلح.</item>
+        <item quantity="other">%1$s جلسة من غير كود طفل. مش هنقدر نحسب الدقة لحد ما تتصلح.</item>
+    </plurals>
+    <plurals name="metrics_excluded_sessions">
+        <item quantity="zero">%1$s جلسات مستبعدة (مش إعادة متطوع ولا تقييم حقيقي).</item>
+        <item quantity="one">جلسة واحدة مستبعدة (مش إعادة متطوع ولا تقييم حقيقي).</item>
+        <item quantity="two">جلستين مستبعدتين (مش إعادة متطوع ولا تقييم حقيقي).</item>
+        <item quantity="few">%1$s جلسات مستبعدة (مش إعادة متطوع ولا تقييم حقيقي).</item>
+        <item quantity="many">%1$s جلسة مستبعدة (مش إعادة متطوع ولا تقييم حقيقي).</item>
+        <item quantity="other">%1$s جلسة مستبعدة (مش إعادة متطوع ولا تقييم حقيقي).</item>
+    </plurals>
+    <plurals name="export_missing_codes">
+        <item quantity="zero">مااتحفظش: %1$s جلسات من غير كود طفل.</item>
+        <item quantity="one">مااتحفظش: جلسة واحدة من غير كود طفل.</item>
+        <item quantity="two">مااتحفظش: جلستين من غير كود طفل.</item>
+        <item quantity="few">مااتحفظش: %1$s جلسات من غير كود طفل.</item>
+        <item quantity="many">مااتحفظش: %1$s جلسة من غير كود طفل.</item>
+        <item quantity="other">مااتحفظش: %1$s جلسة من غير كود طفل.</item>
+    </plurals>
 </resources>

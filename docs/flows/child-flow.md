@@ -60,7 +60,7 @@ What happens:
 
 Edge cases:
 - [PENDING ASSETS] No instruction audio exists yet. When audio is missing, the sentence shows and the window opens after a fixed 1.5 s (`MISSING_AUDIO_DELAY_MS`).
-- Screen covered (PIN on top) or app stopped: audio stops; on return the current prompt restarts with a fresh window.
+- Screen covered (PIN on top) or app stopped: audio stops; on return the current prompt restarts with a fresh window. Screen off or app backgrounded: back within 60 s, the same screen returns without the PIN; after 60 s the PIN is asked and the session is saved `paused` (owner decision 2026-11-14).
 - A step-end effect from the previous step finishes first; the next audio waits (effects never overlap instruction audio).
 
 ## 4. Side character states [BUILT, PENDING ASSETS for girl]
@@ -224,14 +224,14 @@ Edge cases:
 - Pause freezes the timer and ignores frames. A criterion reached while the sheet was open is checked again on resume.
 - Exit mid-activity: nothing is saved for that activity.
 - Save fails: the activity stays on screen; Done retries the same row ID (no duplicates); stars are re-recorded idempotently.
-- Process death: result IDs are `runId:index`, and the runner skips activities that already have a row. But the run key lives only in memory, so after process death the PIN is shown and the run is not resumed (see open questions).
+- Process death: result IDs are `runId:index`, and the runner skips activities that already have a row. But the run key lives only in memory, so after process death the PIN is shown and the run is not resumed. Decided 2026-11-14: this stays as is (no resume for an interrupted training run); finished activities keep their rows.
 - Catalogue fails or no picked activity exists: a calm message and the adult way out.
 
 ---
 
 ## Open questions / things to verify on the phone
 
-1. **Screen off during a step.** The background lock clears the stack to the PIN screen. Check that the session ends up `paused` with a Continue card, and that the child does not see the PIN screen mid-task in a confusing way.
+1. **Screen off during a step.** Decided 2026-11-14: within 60 s the same child screen returns (attempt restarts); after 60 s the PIN shows and the session is `paused` with a Continue card. Verify both on the phone.
 2. Bluetooth clicker as Done at 1.8 m (jacket), and as Start on the start screen.
 3. Timing of the 1.5 s missing-audio fallback feels right until real audio exists.
 4. Girl character: step clips missing, so levels 2-3 show the enlarged still only.
@@ -240,4 +240,4 @@ Edge cases:
 7. Calm vs full effects at a distance; star readable at 1.8 m.
 8. Is 1 star for a "not scored" step (two cannot tells) the wanted rule? The docs were silent; the code gives 1 star.
 9. Should a training run count toward sticker unlocks? The code counts it; Epic 4 context says "finished assessment tasks".
-10. Training after process death cannot be resumed; decide if that is acceptable.
+10. Training after process death cannot be resumed: accepted as is (owner decision 2026-11-14).

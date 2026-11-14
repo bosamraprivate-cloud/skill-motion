@@ -219,4 +219,82 @@ class AppGateViewModelTest {
         vm.onAppBackgrounded()
         assertEquals(listOf(PinKey), vm.backStack.toList())
     }
+
+    private fun childModeGate(now: () -> Long): AppGateViewModel =
+        AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher, now).apply {
+            enterShell()
+            openChildMode("c", "t")
+        }
+
+    @Test
+    fun `child mode back within 60 s keeps the same child screen without pin`() {
+        var now = 1_000L
+        val vm = childModeGate { now }
+        val before = vm.backStack.toList()
+        vm.onAppBackgrounded()
+        assertEquals(before, vm.backStack.toList())
+        now += AppGateViewModel.CHILD_GRACE_MS - 1
+        vm.onAppForegrounded()
+        assertEquals(before, vm.backStack.toList())
+        assertTrue(vm.childModeActive)
+    }
+
+    @Test
+    fun `child mode back after 60 s asks for the pin`() {
+        var now = 1_000L
+        val vm = childModeGate { now }
+        vm.onAppBackgrounded()
+        now += AppGateViewModel.CHILD_GRACE_MS + 1
+        vm.onAppForegrounded()
+        assertEquals(listOf(PinKey), vm.backStack.toList())
+        assertFalse(vm.childModeActive)
+    }
+
+    @Test
+    fun `therapist mode still locks at once on background`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher) { 0L }
+        vm.enterShell()
+        vm.onAppBackgrounded()
+        assertEquals(listOf(PinKey), vm.backStack.toList())
+    }
+
+    @Test
+    fun `hand-off starts child mode once pinning holds`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher) { 0L }
+        vm.enterShell()
+        vm.openFramingCheck("c", "t")
+        val key = FramingCheckKey("c", "t")
+        vm.requestHandOff(key)
+        assertEquals(PinningState.Requesting, vm.pinning)
+        assertTrue(vm.lockWanted)
+        assertFalse(vm.childModeActive)
+        vm.onPinningResult(true)
+        assertEquals(listOf(ShellKey, ChildModeKey("c", "t")), vm.backStack.toList())
+        assertEquals(PinningState.Idle, vm.pinning)
+        assertTrue(vm.lockWanted)
+    }
+
+    @Test
+    fun `refused pinning shows the notice, retry and start without lock`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher) { 0L }
+        vm.enterShell()
+        vm.openTraining("c", listOf("a"))
+        val key = TrainingKey("c", listOf("a"))
+        vm.requestHandOff(key)
+        vm.onPinningResult(false)
+        assertEquals(PinningState.Failed, vm.pinning)
+        assertEquals(key, vm.pendingHandOff)
+        assertEquals(key, vm.backStack.last()) // still on the adult hand-off screen
+        assertFalse(vm.lockWanted)
+        vm.requestHandOff(key) // retry asks the system again
+        assertEquals(PinningState.Requesting, vm.pinning)
+        vm.onPinningResult(false)
+        vm.handOffUnpinned()
+        assertTrue(vm.backStack.last() is TrainingRunKey)
+        assertTrue(vm.childModeActive)
+        assertFalse(vm.lockWanted) // no new pinning prompt for this visit
+        vm.openChildPin()
+        vm.leaveChildMode()
+        assertEquals(listOf(ShellKey), vm.backStack.toList())
+    }
 }

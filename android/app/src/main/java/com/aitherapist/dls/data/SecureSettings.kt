@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import java.security.SecureRandom
 import java.util.Base64
@@ -75,6 +76,18 @@ class SecureSettings internal constructor(private val store: DataStore<Preferenc
 
     override suspend fun verifyPin(pin: String): Boolean = pin()?.let { PinHasher.verify(pin, it) } ?: false
 
+    override suspend fun pinAttempts(): PinAttempts {
+        val prefs = store.data.first()
+        return PinAttempts(prefs[PIN_FAILURES] ?: 0, prefs[PIN_LOCKED_UNTIL] ?: 0L)
+    }
+
+    override suspend fun setPinAttempts(attempts: PinAttempts) {
+        store.edit {
+            it[PIN_FAILURES] = attempts.failures
+            it[PIN_LOCKED_UNTIL] = attempts.lockedUntil
+        }
+    }
+
     override suspend fun hasSharedSecret(): Boolean = store.data.first()[SHARED_SECRET] != null
 
     override suspend fun setProxyUrl(url: String) {
@@ -124,6 +137,8 @@ class SecureSettings internal constructor(private val store: DataStore<Preferenc
         val PIN_HASH = stringPreferencesKey("pin_hash")
         val PIN_SALT = stringPreferencesKey("pin_salt")
         val PIN_ITERATIONS = intPreferencesKey("pin_iterations")
+        val PIN_FAILURES = intPreferencesKey("pin_failures")
+        val PIN_LOCKED_UNTIL = longPreferencesKey("pin_locked_until")
         val PROXY_URL = stringPreferencesKey("proxy_url")
         val SHARED_SECRET = stringPreferencesKey("shared_secret_enc")
         val ZONES = stringPreferencesKey("zones")

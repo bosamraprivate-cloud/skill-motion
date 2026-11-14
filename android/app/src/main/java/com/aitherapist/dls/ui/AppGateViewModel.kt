@@ -1,6 +1,10 @@
 package com.aitherapist.dls.ui
 
+import android.os.SystemClock
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -36,7 +40,12 @@ sealed interface GateState {
  */
 @HiltViewModel
 class AppGateViewModel
-internal constructor(private val settings: TherapistSettings, private val io: CoroutineDispatcher) : ViewModel() {
+internal constructor(
+    private val settings: TherapistSettings,
+    private val io: CoroutineDispatcher,
+    /** Monotonic clock in ms that keeps counting while the screen is off (injectable for tests). */
+    private val clock: () -> Long = SystemClock::elapsedRealtime
+) : ViewModel() {
     @Inject constructor(settings: TherapistSettings) : this(settings, Dispatchers.IO)
 
     val backStack: SnapshotStateList<NavKey> = mutableStateListOf()
@@ -80,8 +89,56 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         backStack.add(key)
     }
 
-    /** Child mode is on (step screen or its PIN exit on the stack): screen pinning stays active. */
+    /** Child mode is on (step screen or its PIN exit on the stack). */
     val childModeActive: Boolean get() = backStack.any { it is ChildModeKey || it is TrainingRunKey }
+
+    /** Hand-off pinning (screen pinning attempt before child mode starts); read as Compose state. */
+    var pinning: PinningState by mutableStateOf(PinningState.Idle)
+        private set
+
+    /** The adult chose "Start without lock" after pinning failed: this visit runs unpinned (no new prompt). */
+    private var unpinnedVisit by mutableStateOf(false)
+
+    /** The activity should hold screen pinning: child mode on (unless started unpinned), or a hand-off is asking for it. */
+    val lockWanted: Boolean get() = (childModeActive && !unpinnedVisit) || pinning == PinningState.Requesting
+
+    /** The framing check (or training hand-off) [key] waiting for the pinning result, if any. */
+    var pendingHandOff: NavKey? by mutableStateOf(null)
+        private set
+
+    /**
+     * "Hand to child" on [key] ([FramingCheckKey] or [TrainingKey]): pinning is tried first; the activity reports back
+     * with [onPinningResult]. Child mode starts on success; on failure the adult sees a notice with retry.
+     */
+    fun requestHandOff(key: NavKey) {
+        if (backStack.lastOrNull() != key || pinning == PinningState.Requesting) return
+        pendingHandOff = key
+        pinning = PinningState.Requesting
+    }
+
+    /** The activity's pinning attempt ended: [locked] true starts child mode; false shows the adult notice. */
+    fun onPinningResult(locked: Boolean) {
+        if (pinning != PinningState.Requesting) return
+        val key = pendingHandOff ?: return
+        if (locked) completeHandOff(key) else pinning = PinningState.Failed
+    }
+
+    /** Notice "Start without lock": child mode still starts, without screen pinning for this visit. */
+    fun handOffUnpinned() {
+        val key = pendingHandOff ?: return
+        if (pinning != PinningState.Failed) return
+        unpinnedVisit = true
+        completeHandOff(key)
+    }
+
+    private fun completeHandOff(key: NavKey) {
+        pinning = PinningState.Idle
+        pendingHandOff = null
+        when (key) {
+            is FramingCheckKey -> handToChild(key)
+            is TrainingKey -> handToTraining(key)
+        }
+    }
 
     /** The child step screen is on top: hardware keys mean Done there. */
     val childStepOnTop: Boolean get() = backStack.lastOrNull().let { it is ChildModeKey || it is TrainingRunKey }
@@ -147,6 +204,7 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         (backStack[index] as? ChildModeKey)?.let { summary.value = SummaryRequest(it.childId, visitSessions.toList()) }
         visitSessions.clear()
         while (backStack.size > index) backStack.removeAt(backStack.lastIndex)
+        unpinnedVisit = false
     }
 
     private val summary = MutableStateFlow<SummaryRequest?>(null)
@@ -171,6 +229,10 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
     fun back(): Boolean {
         if (childStepOnTop) return true
         if (backStack.size <= 1) return false
+        if (backStack.last() == pendingHandOff) {
+            pendingHandOff = null
+            pinning = PinningState.Idle
+        }
         backStack.removeAt(backStack.lastIndex)
         return true
     }
@@ -182,15 +244,53 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         externalReturnExpected = true
     }
 
-    /** App went to the background: therapist mode needs the PIN again (FR-2). Setup in progress is kept. */
+    /** When child mode went to the background (clock ms); null when it is in the foreground. */
+    private var childBackgroundedAt: Long? = null
+
+    /**
+     * App went to the background. Therapist mode needs the PIN again at once (FR-2); setup in progress is kept. Child
+     * mode only notes the time: [onAppForegrounded] decides (short screen-off returns to the same child screen).
+     */
     fun onAppBackgrounded() {
         if (externalReturnExpected) {
             externalReturnExpected = false
             return
         }
-        if (state.value == GateState.Ready && backStack.firstOrNull() == ShellKey) {
-            backStack.clear()
-            backStack.add(PinKey)
+        if (state.value != GateState.Ready || backStack.firstOrNull() != ShellKey) return
+        if (childModeActive) {
+            childBackgroundedAt = clock()
+        } else {
+            lockToPin()
         }
     }
+
+    /**
+     * App is back in the foreground. Child mode back within [CHILD_GRACE_MS]: the same child screen stays (its attempt
+     * restarts like Resume). Later: the PIN, and the torn-down step screen saves the session `paused` (Continue card).
+     */
+    fun onAppForegrounded() {
+        val since = childBackgroundedAt ?: return
+        childBackgroundedAt = null
+        if (!childModeActive) return
+        if (clock() - since > CHILD_GRACE_MS) {
+            visitSessions.clear()
+            unpinnedVisit = false
+            lockToPin()
+        }
+    }
+
+    private fun lockToPin() {
+        pendingHandOff = null
+        pinning = PinningState.Idle
+        backStack.clear()
+        backStack.add(PinKey)
+    }
+
+    companion object {
+        /** Child mode survives a screen-off or background this long (owner decision 2026-11-14). */
+        const val CHILD_GRACE_MS = 60_000L
+    }
 }
+
+/** Screen pinning attempt at hand-off: none, waiting for the system, or refused/failed (adult notice shown). */
+enum class PinningState { Idle, Requesting, Failed }

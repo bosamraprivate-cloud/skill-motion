@@ -15,7 +15,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,7 +49,16 @@ fun PinScreen(state: PinUiState, onEvent: (PinEvent) -> Unit, modifier: Modifier
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.widthIn(max = 360.dp)) {
                         Text(stringResource(R.string.pin_title), style = MaterialTheme.typography.headlineMedium)
                         PinDots(filled = state.entered.length, total = PinRules.MAX_LENGTH)
-                        if (state.wrong) Text(stringResource(R.string.pin_wrong), color = MaterialTheme.colorScheme.error)
+                        if (state.locked) {
+                            // Calm, not alarming: neutral colour, a plain countdown (owner decision 2026-11-14).
+                            Text(
+                                pluralStringResource(R.plurals.pin_locked_wait, state.lockedSeconds, state.lockedSeconds),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+                            )
+                        } else if (state.wrong) {
+                            Text(stringResource(R.string.pin_wrong), color = MaterialTheme.colorScheme.error)
+                        }
                         Button(onClick = { onEvent(PinEvent.Submit) }, enabled = state.canSubmit) {
                             Text(stringResource(R.string.pin_unlock))
                         }
@@ -53,7 +66,7 @@ fun PinScreen(state: PinUiState, onEvent: (PinEvent) -> Unit, modifier: Modifier
                     PinPad(
                         onDigit = { onEvent(PinEvent.Digit(it)) },
                         onDelete = { onEvent(PinEvent.Delete) },
-                        enabled = !state.checking
+                        enabled = !state.checking && !state.locked
                     )
                 }
             PinUiState.Unlocked -> Unit

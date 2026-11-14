@@ -1,5 +1,6 @@
 package com.aitherapist.dls.ui.therapist
 
+import com.aitherapist.dls.data.PinAttempts
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -87,5 +88,50 @@ class PinViewModelTest {
     @Test
     fun `toString hides the entered digits`() {
         assertFalse(PinUiState.Content(entered = "975310").toString().contains("975310"))
+    }
+
+    private fun PinViewModel.wrong(times: Int) = repeat(times) {
+        type("1111")
+        onEvent(PinEvent.Submit)
+    }
+
+    @Test
+    fun `five wrong pins lock the pad for 30 s with a countdown`() {
+        val s = FakeTherapistSettings(pin = "2468")
+        val vm = PinViewModel(s, dispatcher) { dispatcher.scheduler.currentTime }
+        vm.wrong(4)
+        assertFalse(vm.content.locked)
+        assertEquals(4, s.attempts.failures)
+        vm.wrong(1)
+        assertEquals(30, vm.content.lockedSeconds)
+        assertEquals(PinViewModel.LOCKOUT_MS, s.attempts.lockedUntil)
+        vm.type("2468")
+        assertEquals("", vm.content.entered) // the pad ignores digits while locked
+        dispatcher.scheduler.advanceTimeBy(10_001)
+        assertEquals(20, vm.content.lockedSeconds)
+        dispatcher.scheduler.advanceTimeBy(20_000)
+        assertFalse(vm.content.locked)
+        vm.type("2468")
+        vm.onEvent(PinEvent.Submit)
+        assertEquals(PinUiState.Unlocked, vm.uiState.value)
+    }
+
+    @Test
+    fun `right pin resets the wrong counter`() {
+        val s = FakeTherapistSettings(pin = "2468")
+        val vm = PinViewModel(s, dispatcher) { 0L }
+        vm.wrong(4)
+        vm.type("2468")
+        vm.onEvent(PinEvent.Submit)
+        assertEquals(PinAttempts(), s.attempts)
+    }
+
+    @Test
+    fun `persisted lockout survives a restart`() {
+        val s = FakeTherapistSettings(pin = "2468").apply { attempts = PinAttempts(0, 25_000L) }
+        val vm = PinViewModel(s, dispatcher) { 10_000L + dispatcher.scheduler.currentTime }
+        assertEquals(15, vm.content.lockedSeconds)
+        dispatcher.scheduler.advanceTimeBy(15_001)
+        assertFalse(vm.content.locked)
     }
 }

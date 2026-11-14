@@ -1,6 +1,7 @@
 package com.aitherapist.dls
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
@@ -14,11 +15,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.lifecycleScope
 import com.aitherapist.dls.ui.AppGateViewModel
 import com.aitherapist.dls.ui.AppNavigation
+import com.aitherapist.dls.ui.PinningState
 import com.aitherapist.dls.ui.child.ChildModeKeys
 import com.aitherapist.dls.ui.theme.DlsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -43,20 +47,36 @@ class MainActivity : ComponentActivity() {
                 AppNavigation(gate = gate)
             }
         }
-        // Screen pinning while child mode is on (step screen or its PIN exit); off when the adult leaves.
+        // Screen pinning while child mode is on (step screen or its PIN exit) or a hand-off asks for it; off on leave.
         lifecycleScope.launch {
-            snapshotFlow { gate.childModeActive }.distinctUntilChanged().collect { active -> setLockTask(active) }
+            snapshotFlow { gate.lockWanted }.distinctUntilChanged().collect { active -> setLockTask(active) }
+        }
+        // Hand-off: report whether pinning actually took hold, so the adult sees a notice when it did not.
+        lifecycleScope.launch {
+            snapshotFlow { gate.pinning }.distinctUntilChanged().collectLatest { pinning ->
+                if (pinning == PinningState.Requesting) gate.onPinningResult(awaitPinned())
+            }
         }
     }
 
-    private fun setLockTask(active: Boolean) {
-        try {
-            if (active) startLockTask() else stopLockTask()
-        } catch (
-            @Suppress("TooGenericExceptionCaught") e: Exception
-        ) {
-            Log.w(TAG, "lock task ${if (active) "start" else "stop"} failed: ${e::class.simpleName}")
+    /** Polls the lock-task state; the system pinning prompt may need a moment (or be declined). */
+    private suspend fun awaitPinned(): Boolean {
+        val manager = getSystemService(ActivityManager::class.java) ?: return false
+        repeat(PIN_POLLS) {
+            if (manager.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE) return true
+            delay(PIN_POLL_MS)
         }
+        return manager.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE
+    }
+
+    private fun setLockTask(active: Boolean): Boolean = try {
+        if (active) startLockTask() else stopLockTask()
+        true
+    } catch (
+        @Suppress("TooGenericExceptionCaught") e: Exception
+    ) {
+        Log.w(TAG, "lock task ${if (active) "start" else "stop"} failed: ${e::class.simpleName}")
+        false
     }
 
     /** On the child step screen any key press (Bluetooth clicker included) except volume/power is Done; Back does nothing there. */
@@ -73,6 +93,8 @@ class MainActivity : ComponentActivity() {
 
     private companion object {
         const val TAG = "DlsMain"
+        const val PIN_POLLS = 24
+        const val PIN_POLL_MS = 250L
 
         /** Volume and power keep their system meaning; every other key is Done. */
         val PASS_THROUGH_KEYS =

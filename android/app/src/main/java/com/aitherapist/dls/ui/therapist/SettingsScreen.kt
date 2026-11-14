@@ -27,8 +27,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
@@ -59,6 +61,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Devices
@@ -82,7 +85,7 @@ import com.aitherapist.dls.ui.theme.Warning
 import com.aitherapist.dls.ui.theme.ZoneColors
 
 /** Pages reached from Settings; everything except [MAIN] and [ZONES] is a debug-only advanced tool. */
-private enum class SettingsPage { MAIN, ZONES, DIAGNOSTICS, REPLAY, BLIND_REVIEW }
+private enum class SettingsPage { MAIN, ZONES, DIAGNOSTICS, REPLAY, BLIND_REVIEW, ABOUT, METRICS }
 
 /** What the Connection card says about reaching the cloud check. */
 enum class ConnectionStatus { NOT_SET_UP, READY, OFFLINE, LAST_CHECK_FAILED }
@@ -142,6 +145,9 @@ fun SettingsRoute(
             }
         // Blind review is for the evaluating therapist in release too (Story 5.7), behind the PIN like all of Settings.
         page == SettingsPage.BLIND_REVIEW -> SubPage(onBack = { page = SettingsPage.MAIN }) { BlindReviewRoute() }
+        page == SettingsPage.METRICS -> SubPage(onBack = { page = SettingsPage.MAIN }) { MetricsRoute() }
+        // About is visible in release too (Story 5.10).
+        page == SettingsPage.ABOUT -> SubPage(onBack = { page = SettingsPage.MAIN }) { AboutRoute() }
         else ->
             SettingsScreen(
                 state = state,
@@ -151,6 +157,9 @@ fun SettingsRoute(
                 onOpenZones = { page = SettingsPage.ZONES },
                 onDiagnostics = { page = SettingsPage.DIAGNOSTICS },
                 onBlindReview = { page = SettingsPage.BLIND_REVIEW },
+                onMetrics = { page = SettingsPage.METRICS },
+                exportBroken = exportViewModel.brokenSessions,
+                onAbout = { page = SettingsPage.ABOUT },
                 exportStatus = exportStatus,
                 onExport = { exportLauncher.launch(RESULTS_FILE_NAME) },
                 advanced =
@@ -192,9 +201,12 @@ fun SettingsScreen(
     onOpenZones: () -> Unit = {},
     onDiagnostics: () -> Unit = {},
     onBlindReview: () -> Unit = {},
+    onMetrics: () -> Unit = {},
+    exportBroken: Int = 0,
     exportStatus: ExportStatus = ExportStatus.IDLE,
     onExport: () -> Unit = {},
-    advanced: AdvancedTools? = null
+    advanced: AdvancedTools? = null,
+    onAbout: () -> Unit = {}
 ) {
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Spacing.S4),
@@ -220,8 +232,17 @@ fun SettingsScreen(
                 SectionCard(stringResource(R.string.settings_group_evaluation), CARD_WIDTH, icon = Icons.Filled.Search) {
                     ToolRow(Icons.Filled.Search, R.string.blind_title, R.string.settings_tool_blind_hint, onBlindReview)
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    ToolRow(Icons.Filled.Check, R.string.settings_tool_metrics_title, R.string.settings_tool_metrics_hint, onMetrics)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     ToolRow(Icons.Filled.DateRange, R.string.export_title, R.string.export_hint) {
                         if (exportStatus != ExportStatus.WORKING) onExport()
+                    }
+                    if (exportStatus == ExportStatus.MISSING_CODES) {
+                        Text(
+                            pluralStringResource(R.plurals.export_missing_codes, exportBroken, exportBroken.toString()),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
                     exportMessage(exportStatus)?.let { (text, error) ->
                         Text(
@@ -234,6 +255,10 @@ fun SettingsScreen(
                 advanced?.let {
                     GroupTitle(stringResource(R.string.settings_advanced_section))
                     AdvancedSection(it)
+                }
+                GroupTitle(stringResource(R.string.about_title))
+                SectionCard(stringResource(R.string.about_title), CARD_WIDTH, icon = Icons.Filled.Info) {
+                    ToolRow(Icons.Filled.Info, R.string.about_app_name, R.string.about_row_hint, onAbout)
                 }
             }
         }
@@ -249,6 +274,7 @@ private fun exportMessage(status: ExportStatus): Pair<Int, Boolean>? = when (sta
     ExportStatus.WORKING -> R.string.export_working to false
     ExportStatus.DONE -> R.string.export_done to false
     ExportStatus.FAILED -> R.string.export_failed to true
+    ExportStatus.MISSING_CODES -> null
 }
 
 private val CARD_WIDTH = Modifier.widthIn(max = 760.dp).fillMaxWidth()

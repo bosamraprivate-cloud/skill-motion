@@ -137,6 +137,9 @@ Rules: never more than 3 flashes per second; no effect or sound while instructio
 - **Motor:** child targets at least 120dp; Done at least 220×160dp; no precision gestures.
 - **No failure signal:** errors, network problems and cannot-tell are invisible to the child.
 - **Lock-in:** screen pinning; leaving requires the adult corner + PIN.
+- **Short interruptions (2026-11-14):** screen off or app backgrounded in child mode for at most 60 s returns to the same child screen without the PIN (the attempt restarts, as Resume); longer asks for the PIN and keeps the session `paused` (Continue card). Therapist mode locks at once. A training run interrupted by process death is not resumed (accepted).
+- **Pinning refused (2026-11-14):** if screen pinning is declined or fails at hand-off, the adult hand-off screen shows "Screen is not locked — the child could leave the app" with Try again and Start without lock; the child never sees it.
+- **PIN lockout (2026-11-14):** after 5 wrong PINs in a row the pad waits 30 s with a calm countdown (neutral colour); a right PIN resets the counter; the end time is persisted so restarting the app does not skip it.
 - **Therapist:** Material 3 contrast AA, colour plus text on all level encodings, TalkBack labels on chips and charts.
 
 ## Key Flows

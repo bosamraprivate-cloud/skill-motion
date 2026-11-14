@@ -59,7 +59,7 @@ What happens:
 - Right PIN opens the therapist shell; the PIN screen is replaced so Back cannot return to it.
 
 Edge cases:
-- Wrong PIN: the field clears. No lockout, no hint.
+- Wrong PIN: the field clears, no hint. After 5 wrong PINs in a row the pad is disabled for 30 s with a calm countdown ("Please wait N seconds", neutral colour). A right PIN resets the counter. The counter and the lockout end time are saved in DataStore (`SecureSettings`), so killing the app does not skip the wait; a clock set back never stretches it past 30 s (owner decision 2026-11-14).
 - App goes to background from any therapist screen: the whole stack is cleared and the PIN is asked again (FR-2). After unlocking, the therapist lands on the Children list, not the previous profile tab (known gap, deferred).
 - Opening system Settings for the camera permission does not trigger the lock (an "external return" is expected once).
 - Process death: the back stack is not saved, so the PIN is always asked again.
@@ -150,11 +150,11 @@ Edge cases:
 ## 8. Hand to child [BUILT]
 
 What happens:
-- "Hand to child" replaces the framing check with child mode. Screen pinning (lock task) starts. See `child-flow.md` for everything the child sees.
+- "Hand to child" first asks for screen pinning (lock task) while the framing check is still on screen; once pinning holds, child mode replaces the framing check. See `child-flow.md` for everything the child sees.
 - While on the child step screen, any key except volume and power counts as Done (Bluetooth clicker), and Back does nothing.
 
 Edge cases:
-- Screen pinning is not device-owner allow-listed: Android shows its own pinning prompt each time and it can be declined; failure is only logged (deferred: show it to the adult, set up device owner).
+- Screen pinning is not device-owner allow-listed: Android may show its own pinning prompt and it can be declined. If pinning is refused or fails (not active within about 6 s), the hand-off screen shows an adult-only notice: "Screen is not locked — the child could leave the app", with "Try again" (asks again) and "Start without lock" (child mode still starts, unpinned for this visit, no new prompt). The child never sees the notice (owner decision 2026-11-14). Device-owner setup is still deferred. Same for the training hand-off.
 - Jacket "both": after the first task's reward screen, the second task shows its framing check inside child mode (pinning stays on), then its start screen.
 
 ## 9. Return via PIN and session summary [BUILT]
@@ -168,8 +168,8 @@ Edge cases:
 - Visit left before any session existed (for example on the start screen of a new run): no summary, straight to Overview.
 - The summary shows only sessions saved `done`. An exited, unfinished session is `paused` and shows a Continue card instead.
 - The summary is read-only. Corrections are made in Session detail (stage 13) and show here next time it loads.
-- Wrong PIN in child mode: field clears; the child screen stays paused below.
-- App goes to background (or screen turns off) while in child mode: see "Open questions" (the lock clears the stack to the PIN; the session is saved `paused` and offered as Continue).
+- Wrong PIN in child mode: field clears; the child screen stays paused below. The 5-try lockout applies here too.
+- App goes to background (or screen turns off) while in child mode (owner decision 2026-11-14): back within 60 s, the same child screen returns without the PIN and the current attempt restarts (as Resume). After more than 60 s, the PIN is asked, the stack is cleared, the session is saved `paused` and offered as a Continue card (no summary). Therapist mode still locks at once.
 
 ## 10. Report [BUILT]
 
@@ -293,13 +293,13 @@ Edge cases:
 
 ## Open questions / things to verify on the phone
 
-1. **Screen off or background during child mode.** `onAppBackgrounded` clears the whole stack to the PIN screen whenever the shell is the root, including during child mode. The step screen is torn down and the session saved `paused`. Check: after unlocking, is there no summary and a Continue card instead? Is that the wanted behaviour, or should child mode survive a short screen-off?
+1. **Screen off or background during child mode.** Decided 2026-11-14: 60 s grace (see stage 9). Check on the phone: short screen-off returns to the child screen; long one shows the PIN and a Continue card.
 2. Landing on the Children list after a PIN lock instead of the last profile tab (known gap).
-3. Screen pinning prompt appears on each hand-off and can be declined; confirm on the tablet and decide on device-owner setup.
+3. Screen pinning can be declined; the adult notice with retry is built (2026-11-14). Confirm on the tablet and decide on device-owner setup.
 4. Proxy with a wrong secret: during a session every cloud step becomes cannot tell `refused` (any non-200). Confirm Diagnostics clearly says "wrong secret" and the banner shows.
 5. Evidence frames load fast enough in Session detail with many attempts.
 6. Delete child really removes evidence frame folders (orphan sweep is deferred).
 7. Blind review (5.7) is uncommitted: run it on the phone with real attempts.
 8. Report and plan labels in Arabic need owner review; activity details still English.
-9. PIN has no lockout after many wrong tries: is that acceptable?
+9. PIN lockout decided 2026-11-14: 5 wrong tries, then 30 s (see stage 2).
 10. Training has no post-PIN summary; confirm that is wanted.

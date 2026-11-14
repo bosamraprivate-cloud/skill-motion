@@ -1,5 +1,6 @@
 package com.aitherapist.dls.ui.therapist
 
+import com.aitherapist.dls.data.PinAttempts
 import com.aitherapist.dls.data.PinHash
 import com.aitherapist.dls.data.PinHasher
 import com.aitherapist.dls.data.TherapistSettings
@@ -24,6 +25,14 @@ class FakeTherapistSettings(pin: String? = null, var url: String? = null, var se
     override suspend fun verifyPin(pin: String): Boolean {
         if (failReads) throw IOException("disk")
         return pinHash?.let { PinHasher.verify(pin, it) } ?: false
+    }
+
+    var attempts = PinAttempts()
+
+    override suspend fun pinAttempts(): PinAttempts = attempts
+
+    override suspend fun setPinAttempts(attempts: PinAttempts) {
+        this.attempts = attempts
     }
 
     override suspend fun proxyUrl(): String? = url

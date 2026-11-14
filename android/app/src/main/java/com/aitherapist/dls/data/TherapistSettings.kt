@@ -9,6 +9,11 @@ interface TherapistSettings {
 
     suspend fun verifyPin(pin: String): Boolean
 
+    /** Persisted PIN lockout: consecutive wrong PINs and the wall-clock ms the lockout ends (0 = none). */
+    suspend fun pinAttempts(): PinAttempts
+
+    suspend fun setPinAttempts(attempts: PinAttempts)
+
     suspend fun proxyUrl(): String?
 
     suspend fun setProxyUrl(url: String)
@@ -19,3 +24,6 @@ interface TherapistSettings {
 
     suspend fun hasSharedSecret(): Boolean
 }
+
+/** Consecutive wrong PINs since the last right one, and when the current lockout ends (wall-clock ms, 0 = none). */
+data class PinAttempts(val failures: Int = 0, val lockedUntil: Long = 0L)

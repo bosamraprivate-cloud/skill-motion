@@ -495,4 +495,67 @@
     <string name="export_working">Saving results…</string>
     <string name="export_done">Results saved.</string>
     <string name="export_failed">The file could not be saved. Please try again or pick another place.</string>
+    <string name="about_title">About</string>
+    <string name="about_app_name">Skillmotion</string>
+    <string name="about_purpose">Assesses and trains daily living skills (dressing, eating and drinking, hygiene) for children, on this tablet.</string>
+    <string name="about_version">App version: %1$s</string>
+    <string name="about_catalog_version">Catalogue version: %1$s</string>
+    <string name="about_rules_version">Rules version: %1$s</string>
+    <string name="about_credits_title">Open-source credits</string>
+    <string name="about_row_hint">Version, catalogue and open-source licences</string>
+    <!-- Story 5.8 metrics dashboard -->
+    <string name="settings_tool_metrics_title">Accuracy</string>
+    <string name="settings_tool_metrics_hint">How often the app agrees with blind review (Goal 8)</string>
+    <string name="metrics_title_volunteer">Volunteer accuracy</string>
+    <string name="metrics_title_live">Accuracy (live sessions)</string>
+    <string name="metrics_subtitle">App results compared with blind review. Doubt (cannot tell) is never counted as disagreement. Not a clinical validation.</string>
+    <string name="metrics_filter_volunteer">Volunteer clips</string>
+    <string name="metrics_filter_live">Live sessions</string>
+    <string name="metrics_empty">No attempts in these sessions yet.</string>
+    <string name="metrics_error">Could not compute accuracy (%1$s).</string>
+    <string name="metrics_no_blind_hint">No blind ratings yet. Run Blind review to see agreement and kappa.</string>
+    <string name="metrics_agreement">Agreement with blind review</string>
+    <string name="metrics_kappa">Kappa on levels</string>
+    <string name="metrics_cannot_tell">Cannot tell rate</string>
+    <string name="metrics_target_min">Target: at least %1$s</string>
+    <string name="metrics_target_max">Target: at most %1$s</string>
+    <string name="metrics_met">Meets target</string>
+    <string name="metrics_below">Below target</string>
+    <string name="metrics_na">n/a</string>
+    <plurals name="metrics_steps">
+        <item quantity="one">%1$s step</item>
+        <item quantity="other">%1$s steps</item>
+    </plurals>
+    <string name="metrics_counts_title">Counts</string>
+    <string name="metrics_counts_attempts">Attempts: %1$s; blind rated: %2$s; not rated: %3$s.</string>
+    <string name="metrics_counts_cannot_tell">Rated attempts with cannot tell on either side (not disagreement): %1$s.</string>
+    <string name="metrics_counts_steps">Steps: %1$s; in kappa: %2$s; excluded: partially rated %3$s, not scored %4$s, app open %5$s, blind open %6$s.</string>
+    <string name="metrics_counts_corrections">Therapist corrections (not used for accuracy): %1$s steps, %2$s differ from the automatic level.</string>
+    <string name="metrics_confusion_title">Per-step confusion (blind review / app)</string>
+    <string name="metrics_confusion_legend">First letter: blind review; second letter: app. d = done, n = not done, c = cannot tell.</string>
+    <string name="metrics_step">Step</string>
+    <string name="metrics_verdict_done">done</string>
+    <string name="metrics_verdict_not_done">not done</string>
+    <string name="metrics_verdict_cannot_tell">cannot tell</string>
+    <string name="metrics_cell_description">blind %1$s, app %2$s: %3$s</string>
+    <plurals name="pin_locked_wait">
+        <item quantity="one">Too many wrong tries. Please wait %1$d second.</item>
+        <item quantity="other">Too many wrong tries. Please wait %1$d seconds.</item>
+    </plurals>
+    <string name="pinning_failed_notice">Screen is not locked — the child could leave the app.</string>
+    <string name="pinning_retry">Try again</string>
+    <string name="pinning_start_unlocked">Start without lock</string>
+    <string name="metrics_cell_header">blind %1$s, app %2$s</string>
+    <plurals name="metrics_missing_codes">
+        <item quantity="one">%1$s session has no child code. Accuracy cannot be computed until it is fixed.</item>
+        <item quantity="other">%1$s sessions have no child code. Accuracy cannot be computed until they are fixed.</item>
+    </plurals>
+    <plurals name="metrics_excluded_sessions">
+        <item quantity="one">%1$s session is neither a volunteer replay nor a live assessment and is excluded.</item>
+        <item quantity="other">%1$s sessions are neither volunteer replays nor live assessments and are excluded.</item>
+    </plurals>
+    <plurals name="export_missing_codes">
+        <item quantity="one">Not saved: %1$s session has no child code.</item>
+        <item quantity="other">Not saved: %1$s sessions have no child code.</item>
+    </plurals>
 </resources>
