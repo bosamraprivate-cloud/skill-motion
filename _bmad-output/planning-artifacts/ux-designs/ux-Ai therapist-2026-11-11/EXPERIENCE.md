@@ -30,7 +30,7 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 | Surface | Reached from | Purpose |
 |---|---|---|
 | Task start ("Start") | Therapist starts assessment/training | Character greets, task picture, big Start (source Stage 1) |
-| Framing check | Task start, camera-scored tasks | Preview with outline; adult confirms position |
+| Framing check | Task start, camera-scored tasks | Preview with outline; one positioning line from the task posture (sits at the table / stands / stands, may sit); adult confirms position |
 | Step screen | Sequence | One step: character still frame, sentence, audio, Done / Help / Repeat; Help plays the character's demonstration clip |
 | Step reward moment | After verdict saved | Stars and effect per effect level (overlay, 1.5–3 s) |
 | Task reward screen | After the last step | Stars earned, big celebration, sticker progress |
@@ -46,7 +46,7 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 | PIN screen | App start, leaving child mode | Gate |
 | Child list | Rail "Children" (home) | Children, search by name, Add, "Continue" card for interrupted sessions |
 | Child profile | Child list row | Details, effect level, sessions tab, report, plan, training history, compare |
-| New session dialog | Profile | Pick task (jacket: on/off/both), or Training → hand-off |
+| New session dialog | Profile | Pick task (garment: take off/put on/both, default both; both = take off, then put on), or Training → hand-off |
 | Session detail | Session row | Steps with levels, attempts, evidence frames, reasons, Correct |
 | Functional report | Profile / session | Strengths, needs, domain averages, plan levels, step counts |
 | Plan + activity picker | Profile | Activities per weak domain (weakest first), select for training |

@@ -80,6 +80,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.camera.CameraController
+import com.aitherapist.dls.catalog.Posture
 import com.aitherapist.dls.ui.LocalExternalHop
 import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.ChildColors
@@ -277,6 +278,15 @@ private fun SidePanel(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        if (check != null) {
+            postureHint(check.posture)?.let { hint ->
+                Text(
+                    stringResource(hint),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        }
         if (check != null && cameraGranted && check.engineError == null) GuidancePill(check)
         if (check != null && check.missingZones.isNotEmpty()) MissingZonesNotice(check.missingZones, onDrawZones)
         Spacer(Modifier.weight(1f))
@@ -383,6 +393,14 @@ private fun PermissionPanel(cameraDenied: Boolean, onRequestPermission: () -> Un
             if (cameraDenied) OutlinedButton(onClick = onOpenSettings) { Text(stringResource(R.string.diagnostics_open_settings)) }
         }
     }
+}
+
+/** Positioning line for the task's posture (owner staging source); null when the catalogue has none. */
+internal fun postureHint(posture: Posture): Int? = when (posture) {
+    Posture.SEATED -> R.string.framing_posture_seated
+    Posture.STANDING -> R.string.framing_posture_standing
+    Posture.STANDING_OR_SEATED -> R.string.framing_posture_standing_or_seated
+    Posture.UNKNOWN -> null
 }
 
 private fun guidanceText(guidance: FramingGuidance?, framed: Boolean): Int = when {

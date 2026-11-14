@@ -4,7 +4,7 @@ Status as of 2026-11-14. Tags: **[BUILT]** = in the code now; **[PLANNED]** = in
 
 ## Overview
 
-The occupational therapist runs everything on one landscape tablet. On first launch the therapist sets a PIN and the cloud-check (proxy) address and secret. Every later launch starts at the PIN screen. The home screen is the children list. The therapist adds a child, opens the child's profile, and starts a session: picks a task (the jacket can be "on", "off" or "both"), checks the camera framing, and hands the tablet to the child. Child mode is locked with screen pinning. To leave it, the adult holds a hidden corner for 2 seconds and enters the PIN. The therapist then sees a summary of that visit, and can read the report, open the treatment plan, start training, check each session's evidence and correct levels, compare assessments, and use Settings (PIN, proxy, zones, diagnostics, blind review). All child data stays on the tablet.
+The occupational therapist runs everything on one landscape tablet. On first launch the therapist sets a PIN and the cloud-check (proxy) address and secret. Every later launch starts at the PIN screen. The home screen is the children list. The therapist adds a child, opens the child's profile, and starts a session: picks a task (a garment can be "take off", "put on" or "both", default both), checks the camera framing, and hands the tablet to the child. Child mode is locked with screen pinning. To leave it, the adult holds a hidden corner for 2 seconds and enters the PIN. The therapist then sees a summary of that visit, and can read the report, open the treatment plan, start training, check each session's evidence and correct levels, compare assessments, and use Settings (PIN, proxy, zones, diagnostics, blind review). All child data stays on the tablet.
 
 ```mermaid
 flowchart TD
@@ -16,7 +16,7 @@ flowchart TD
     E --> F[Child profile: Overview]
     D -->|tap child| F
     D -->|Continue card| G
-    F -->|Start session| H[New session dialog: task, jacket on/off/both]
+    F -->|Start session| H[New session dialog: task, garment take off/put on/both]
     H --> G[Framing check]
     G -->|Hand to child / Start anyway| I[Child mode, screen pinned]
     I -->|adult corner 2 s + Exit + PIN| J[Session summary]
@@ -112,12 +112,12 @@ Edge cases:
 - Every tab reloads when opened; nothing derived (levels, averages, plans) is stored.
 - Errors show inline with Retry; the reason is only the exception type, never child data.
 
-## 6. New session, jacket choice, continue [BUILT]
+## 6. New session, garment choice, continue [BUILT]
 
 What happens:
 - "Start session" opens the New session dialog: task tiles grouped by area, in catalogue order. Each tile shows the first step's still for the child's character.
-- The jacket (a task with `.on` and `.off` siblings) is one tile with **on**, **off** or **both**. "Both" runs jacket-on, then jacket-off as a second session, inside the same child-mode visit.
-- Start opens the framing check.
+- Every garment with `.on` and `.off` tasks in the catalogue (jacket, T-shirt, shirt, trousers, socks, shoes) is one tile with **take off**, **put on** or **both** (in that order; a pair defaults to **both**). "Both" runs take-off first, then put-on as a second session, inside the same child-mode visit (owners' order, `docs/reference/owner-posture-and-order.md`). The take-off steps for T-shirt, shirt, trousers, socks and shoes come from the team draft `docs/reference/undressing-steps-team-draft.md`, pending owner review.
+- Start opens the framing check. It shows one positioning line from the task's catalogue posture: the child sits on a chair at the table (socks, shoes, eating, drinking), stands (jacket, T-shirt, shirt, handwashing, teeth), or stands and may sit if needed (trousers). Posture is staging only and never changes scoring. Content-only tasks (no camera check) skip the framing check, so they show no line.
 - Continue card (children list) opens the framing check for the saved session, which then resumes it.
 
 Edge cases:
@@ -126,7 +126,7 @@ Edge cases:
 - Missing tile picture: the character's idle still is shown instead.
 - Continue of a session whose task, catalogue version or resume point no longer fits: the session is marked abandoned, the child sees a calm end, and the card disappears.
 - Continue of a session interrupted before any attempt was saved: it starts again at the task start screen.
-- Jacket "both" chain: the second task is saved on the session (`nextTaskId`, Story 4.1), so Continue keeps the chain. A chained task already finished after the session started is not run again.
+- Garment "both" chain: the second task is saved on the session (`nextTaskId`, Story 4.1), so Continue keeps the chain. A chained task already finished after the session started is not run again.
 - Training is not started here; it is started from the Plan tab (stage 10).
 
 ## 7. Framing check [BUILT]
@@ -155,13 +155,13 @@ What happens:
 
 Edge cases:
 - Screen pinning is not device-owner allow-listed: Android may show its own pinning prompt and it can be declined. If pinning is refused or fails (not active within about 6 s), the hand-off screen shows an adult-only notice: "Screen is not locked — the child could leave the app", with "Try again" (asks again) and "Start without lock" (child mode still starts, unpinned for this visit, no new prompt). The child never sees the notice (owner decision 2026-11-14). Device-owner setup is still deferred. Same for the training hand-off.
-- Jacket "both": after the first task's reward screen, the second task shows its framing check inside child mode (pinning stays on), then its start screen.
+- Garment "both": after the first task's reward screen, the second task shows its framing check inside child mode (pinning stays on), then its start screen.
 
 ## 9. Return via PIN and session summary [BUILT]
 
 What happens:
 - Adult holds the corner 2 s, the pause sheet opens, Exit saves the session `paused`, then the PIN screen opens above child mode.
-- Right PIN leaves child mode (pinning stops) and shows the **session summary** of exactly this visit's sessions (two sections for a jacket chain): each step and its level, with counts per level.
+- Right PIN leaves child mode (pinning stops) and shows the **session summary** of exactly this visit's sessions (two sections for a garment chain): each step and its level, with counts per level.
 - Close goes to the child's Overview; "Open report" goes to the Report tab.
 
 Edge cases:

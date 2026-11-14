@@ -1149,7 +1149,10 @@
       },
       "id": "drink.cup.01",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.01.webp",
+          "still": "character/boy/steps/drink.cup.01.still.webp"
+        },
         "girl": null
       },
       "number": 1,
@@ -1180,7 +1183,10 @@
       },
       "id": "drink.cup.02",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.02.webp",
+          "still": "character/boy/steps/drink.cup.02.still.webp"
+        },
         "girl": null
       },
       "number": 2,
@@ -1207,7 +1213,10 @@
       },
       "id": "drink.cup.03",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.03.webp",
+          "still": "character/boy/steps/drink.cup.03.still.webp"
+        },
         "girl": null
       },
       "number": 3,
@@ -1233,7 +1242,10 @@
       },
       "id": "drink.cup.04",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.04.webp",
+          "still": "character/boy/steps/drink.cup.04.still.webp"
+        },
         "girl": null
       },
       "number": 4,
@@ -1271,7 +1283,10 @@
       },
       "id": "drink.cup.05",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.05.webp",
+          "still": "character/boy/steps/drink.cup.05.still.webp"
+        },
         "girl": null
       },
       "number": 5,
@@ -1298,7 +1313,10 @@
       },
       "id": "drink.cup.06",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.06.webp",
+          "still": "character/boy/steps/drink.cup.06.still.webp"
+        },
         "girl": null
       },
       "number": 6,
@@ -1325,7 +1343,10 @@
       },
       "id": "drink.cup.07",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.07.webp",
+          "still": "character/boy/steps/drink.cup.07.still.webp"
+        },
         "girl": null
       },
       "number": 7,
@@ -1349,7 +1370,10 @@
       },
       "id": "drink.cup.08",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.08.webp",
+          "still": "character/boy/steps/drink.cup.08.still.webp"
+        },
         "girl": null
       },
       "number": 8,
@@ -1372,7 +1396,10 @@
       },
       "id": "drink.cup.09",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.09.webp",
+          "still": "character/boy/steps/drink.cup.09.still.webp"
+        },
         "girl": null
       },
       "number": 9,
@@ -1398,7 +1425,10 @@
       },
       "id": "drink.cup.10",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.10.webp",
+          "still": "character/boy/steps/drink.cup.10.still.webp"
+        },
         "girl": null
       },
       "number": 10,
@@ -1436,7 +1466,10 @@
       },
       "id": "drink.cup.11",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.11.webp",
+          "still": "character/boy/steps/drink.cup.11.still.webp"
+        },
         "girl": null
       },
       "number": 11,
@@ -1463,7 +1496,10 @@
       },
       "id": "drink.cup.12",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.12.webp",
+          "still": "character/boy/steps/drink.cup.12.still.webp"
+        },
         "girl": null
       },
       "number": 12,
@@ -1490,7 +1526,10 @@
       },
       "id": "drink.cup.13",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.cup.13.webp",
+          "still": "character/boy/steps/drink.cup.13.still.webp"
+        },
         "girl": null
       },
       "number": 13,
@@ -1513,7 +1552,10 @@
       },
       "id": "drink.bottle.01",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.01.webp",
+          "still": "character/boy/steps/drink.bottle.01.still.webp"
+        },
         "girl": null
       },
       "number": 1,
@@ -1536,7 +1578,10 @@
       },
       "id": "drink.bottle.02",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.02.webp",
+          "still": "character/boy/steps/drink.bottle.02.still.webp"
+        },
         "girl": null
       },
       "number": 2,
@@ -1560,7 +1605,10 @@
       },
       "id": "drink.bottle.03",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.03.webp",
+          "still": "character/boy/steps/drink.bottle.03.still.webp"
+        },
         "girl": null
       },
       "number": 3,
@@ -1583,7 +1631,10 @@
       },
       "id": "drink.bottle.04",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.04.webp",
+          "still": "character/boy/steps/drink.bottle.04.still.webp"
+        },
         "girl": null
       },
       "number": 4,
@@ -1607,7 +1658,10 @@
       },
       "id": "drink.bottle.05",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.05.webp",
+          "still": "character/boy/steps/drink.bottle.05.still.webp"
+        },
         "girl": null
       },
       "number": 5,
@@ -1631,7 +1685,10 @@
       },
       "id": "drink.bottle.06",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.06.webp",
+          "still": "character/boy/steps/drink.bottle.06.still.webp"
+        },
         "girl": null
       },
       "number": 6,
@@ -1655,7 +1712,10 @@
       },
       "id": "drink.bottle.07",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.07.webp",
+          "still": "character/boy/steps/drink.bottle.07.still.webp"
+        },
         "girl": null
       },
       "number": 7,
@@ -1679,7 +1739,10 @@
       },
       "id": "drink.bottle.08",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.08.webp",
+          "still": "character/boy/steps/drink.bottle.08.still.webp"
+        },
         "girl": null
       },
       "number": 8,
@@ -1702,7 +1765,10 @@
       },
       "id": "drink.bottle.09",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.09.webp",
+          "still": "character/boy/steps/drink.bottle.09.still.webp"
+        },
         "girl": null
       },
       "number": 9,
@@ -1725,7 +1791,10 @@
       },
       "id": "drink.bottle.10",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.10.webp",
+          "still": "character/boy/steps/drink.bottle.10.still.webp"
+        },
         "girl": null
       },
       "number": 10,
@@ -1749,7 +1818,10 @@
       },
       "id": "drink.bottle.11",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.11.webp",
+          "still": "character/boy/steps/drink.bottle.11.still.webp"
+        },
         "girl": null
       },
       "number": 11,
@@ -1773,7 +1845,10 @@
       },
       "id": "drink.bottle.12",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.12.webp",
+          "still": "character/boy/steps/drink.bottle.12.still.webp"
+        },
         "girl": null
       },
       "number": 12,
@@ -1797,7 +1872,10 @@
       },
       "id": "drink.bottle.13",
       "media": {
-        "boy": null,
+        "boy": {
+          "clip": "character/boy/steps/drink.bottle.13.webp",
+          "still": "character/boy/steps/drink.bottle.13.still.webp"
+        },
         "girl": null
       },
       "number": 13,
@@ -2787,145 +2865,6 @@
       "area": "dress",
       "audio": null,
       "detector": {
-        "check": {
-          "text": "Is the child holding the jacket up with the collar at the top and the inside facing the child?",
-          "type": "question"
-        },
-        "framing": "standing",
-        "method": "cloud"
-      },
-      "id": "dress.jacket.on.01",
-      "media": {
-        "boy": null,
-        "girl": null
-      },
-      "number": 1,
-      "source": "dressing-assessment-scale.md#Putting on the jacket",
-      "subSkills": "Motor planning: spatial planning",
-      "tags": [
-        "Motor planning"
-      ],
-      "task": "dress.jacket.on",
-      "textAr": "يلا نعرف قدام الجاكيت وورا الجاكيت.",
-      "textEn": "Identifies the front and the back of the jacket"
-    },
-    {
-      "area": "dress",
-      "audio": null,
-      "detector": {
-        "check": {
-          "text": "Is the child holding the jacket open by both front edges?",
-          "type": "question"
-        },
-        "framing": "standing",
-        "method": "cloud"
-      },
-      "id": "dress.jacket.on.02",
-      "media": {
-        "boy": null,
-        "girl": null
-      },
-      "number": 2,
-      "source": "dressing-assessment-scale.md#Putting on the jacket",
-      "subSkills": "Hand skills: extends the hands to reach the jacket (reach); holds the edges of the jacket (grasp); lifts the jacket and moves it to the body (carry). Motor coordination: holds the jacket by both sides and spreads it out with both hands (symmetrical bilateral coordination)",
-      "tags": [
-        "Motor planning",
-        "Hand skills",
-        "Motor coordination"
-      ],
-      "task": "dress.jacket.on",
-      "textAr": "يلا نفتح الجاكيت ونجهزه علشان نلبسه.",
-      "textEn": "Opens the jacket and prepares it for putting on"
-    },
-    {
-      "area": "dress",
-      "audio": null,
-      "detector": {
-        "check": {
-          "text": "Are both of the child's arms inside the jacket sleeves?",
-          "type": "question"
-        },
-        "framing": "standing",
-        "method": "cloud"
-      },
-      "id": "dress.jacket.on.03",
-      "media": {
-        "boy": null,
-        "girl": null
-      },
-      "number": 3,
-      "source": "dressing-assessment-scale.md#Putting on the jacket",
-      "subSkills": "Range of motion: extends the arms backward; bends and extends the elbows; inserts the arms into the sleeves. Motor coordination: stabilises the jacket with one hand and guides the other arm into the sleeve (asymmetrical bilateral coordination); follows the sleeve opening and the position of the arm with the eyes (visual-motor coordination). Midline crossing: extends one hand across the middle of the body to reach the sleeve on the opposite side",
-      "tags": [
-        "Motor planning",
-        "Range of motion",
-        "Motor coordination",
-        "Midline crossing"
-      ],
-      "task": "dress.jacket.on",
-      "textAr": "يلا ندخل دراعنا الأولاني في الكم وبعدين الدراع التاني.",
-      "textEn": "Inserts the first arm into the sleeve and then the second arm"
-    },
-    {
-      "area": "dress",
-      "audio": null,
-      "detector": {
-        "check": {
-          "text": "Is the jacket resting on both of the child's shoulders?",
-          "type": "question"
-        },
-        "framing": "standing",
-        "method": "cloud"
-      },
-      "id": "dress.jacket.on.04",
-      "media": {
-        "boy": null,
-        "girl": null
-      },
-      "number": 4,
-      "source": "dressing-assessment-scale.md#Putting on the jacket",
-      "subSkills": "Range of motion: moves the shoulders to adjust the jacket; pulls the jacket onto the body. Motor coordination: inserts the arms and then adjusts the jacket on the shoulders (sequential motor coordination). Midline crossing: reaches with the hand to the edge of the jacket on the other side to adjust it on the body. Hand skills: lets go of the jacket after putting it on and adjusting it (release)",
-      "tags": [
-        "Motor planning",
-        "Range of motion",
-        "Motor coordination",
-        "Midline crossing",
-        "Hand skills"
-      ],
-      "task": "dress.jacket.on",
-      "textAr": "يلا نسحب الجاكيت على كتافنا ونظبطه.",
-      "textEn": "Pulls the jacket onto the shoulders and adjusts it"
-    },
-    {
-      "area": "dress",
-      "audio": null,
-      "detector": {
-        "check": {
-          "text": "Is the jacket zipper closed at least up to the chest?",
-          "type": "question"
-        },
-        "framing": "standing",
-        "method": "cloud"
-      },
-      "id": "dress.jacket.on.05",
-      "media": {
-        "boy": null,
-        "girl": null
-      },
-      "number": 5,
-      "source": "dressing-assessment-scale.md#Putting on the jacket",
-      "subSkills": "Motor planning: sequential planning",
-      "tags": [
-        "Motor planning"
-      ],
-      "task": "dress.jacket.on",
-      "textAr": "يلا نقفل الجاكيت من تحت لفوق بالترتيب.",
-      "textEn": "Fastens the jacket from bottom to top in order"
-    },
-    {
-      "area": "dress",
-      "audio": null,
-      "detector": {
         "check": null,
         "framing": "standing",
         "method": "none"
@@ -3183,6 +3122,292 @@
       "area": "dress",
       "audio": null,
       "detector": {
+        "check": {
+          "text": "Is the child holding the jacket up with the collar at the top and the inside facing the child?",
+          "type": "question"
+        },
+        "framing": "standing",
+        "method": "cloud"
+      },
+      "id": "dress.jacket.on.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Motor planning: spatial planning",
+      "tags": [
+        "Motor planning"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا نعرف قدام الجاكيت وورا الجاكيت.",
+      "textEn": "Identifies the front and the back of the jacket"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": {
+          "text": "Is the child holding the jacket open by both front edges?",
+          "type": "question"
+        },
+        "framing": "standing",
+        "method": "cloud"
+      },
+      "id": "dress.jacket.on.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Hand skills: extends the hands to reach the jacket (reach); holds the edges of the jacket (grasp); lifts the jacket and moves it to the body (carry). Motor coordination: holds the jacket by both sides and spreads it out with both hands (symmetrical bilateral coordination)",
+      "tags": [
+        "Motor planning",
+        "Hand skills",
+        "Motor coordination"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا نفتح الجاكيت ونجهزه علشان نلبسه.",
+      "textEn": "Opens the jacket and prepares it for putting on"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": {
+          "text": "Are both of the child's arms inside the jacket sleeves?",
+          "type": "question"
+        },
+        "framing": "standing",
+        "method": "cloud"
+      },
+      "id": "dress.jacket.on.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Range of motion: extends the arms backward; bends and extends the elbows; inserts the arms into the sleeves. Motor coordination: stabilises the jacket with one hand and guides the other arm into the sleeve (asymmetrical bilateral coordination); follows the sleeve opening and the position of the arm with the eyes (visual-motor coordination). Midline crossing: extends one hand across the middle of the body to reach the sleeve on the opposite side",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Midline crossing"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا ندخل دراعنا الأولاني في الكم وبعدين الدراع التاني.",
+      "textEn": "Inserts the first arm into the sleeve and then the second arm"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": {
+          "text": "Is the jacket resting on both of the child's shoulders?",
+          "type": "question"
+        },
+        "framing": "standing",
+        "method": "cloud"
+      },
+      "id": "dress.jacket.on.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Range of motion: moves the shoulders to adjust the jacket; pulls the jacket onto the body. Motor coordination: inserts the arms and then adjusts the jacket on the shoulders (sequential motor coordination). Midline crossing: reaches with the hand to the edge of the jacket on the other side to adjust it on the body. Hand skills: lets go of the jacket after putting it on and adjusting it (release)",
+      "tags": [
+        "Motor planning",
+        "Range of motion",
+        "Motor coordination",
+        "Midline crossing",
+        "Hand skills"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا نسحب الجاكيت على كتافنا ونظبطه.",
+      "textEn": "Pulls the jacket onto the shoulders and adjusts it"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": {
+          "text": "Is the jacket zipper closed at least up to the chest?",
+          "type": "question"
+        },
+        "framing": "standing",
+        "method": "cloud"
+      },
+      "id": "dress.jacket.on.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Putting on the jacket",
+      "subSkills": "Motor planning: sequential planning",
+      "tags": [
+        "Motor planning"
+      ],
+      "task": "dress.jacket.on",
+      "textAr": "يلا نقفل الجاكيت من تحت لفوق بالترتيب.",
+      "textEn": "Fastens the jacket from bottom to top in order"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.tshirt.off.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Taking off the T-shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.tshirt.off",
+      "textAr": "يلا نمسك طرف التيشيرت من تحت بإيدينا الاتنين.",
+      "textEn": "Grasp the bottom edge of the T-shirt with both hands"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.tshirt.off.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Taking off the T-shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.tshirt.off",
+      "textAr": "يلا نرفع التيشيرت لحد صدرنا.",
+      "textEn": "Pull the T-shirt up to the chest"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.tshirt.off.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Taking off the T-shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.tshirt.off",
+      "textAr": "يلا نطلع دراعنا الأولاني من الكم.",
+      "textEn": "Take the first arm out of the sleeve"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.tshirt.off.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Taking off the T-shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.tshirt.off",
+      "textAr": "يلا نطلع دراعنا التاني من الكم.",
+      "textEn": "Take the second arm out of the sleeve"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.tshirt.off.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Taking off the T-shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.tshirt.off",
+      "textAr": "يلا نطلع التيشيرت من فوق راسنا.",
+      "textEn": "Pull the T-shirt over the head"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.tshirt.off.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "dressing-assessment-scale.md#Taking off the T-shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.tshirt.off",
+      "textAr": "يلا نقلع التيشيرت خالص.",
+      "textEn": "Take the T-shirt off completely"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.tshirt.off.07",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 7,
+      "source": "dressing-assessment-scale.md#Taking off the T-shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.tshirt.off",
+      "textAr": "يلا نحط التيشيرت في مكانه.",
+      "textEn": "Put the T-shirt in the designated place"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
         "check": null,
         "framing": null,
         "method": "none"
@@ -3193,7 +3418,7 @@
         "girl": null
       },
       "number": 1,
-      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the T-shirt",
       "subSkills": "Hand skills: extends the hand toward the T-shirt to reach it (reach); holds the two edges of the T-shirt with the fingers and the palm (grasp). Motor coordination: holds the two edges of the T-shirt with both hands to open it (symmetrical bilateral coordination)",
       "tags": [
         "Motor planning",
@@ -3218,7 +3443,7 @@
         "girl": null
       },
       "number": 2,
-      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the T-shirt",
       "subSkills": "Motor planning: motor planning",
       "tags": [
         "Motor planning"
@@ -3241,7 +3466,7 @@
         "girl": null
       },
       "number": 3,
-      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the T-shirt",
       "subSkills": "Range of motion: raises the arms upward; bends and extends the elbows; raises the head to insert it into the T-shirt opening; inserts the arms into the sleeves. Motor coordination: stabilises the T-shirt with one hand and guides the other arm into the sleeve (asymmetrical bilateral coordination); directs the sleeve opening toward the arm while following the movement with the eyes (visual-motor coordination). Hand skills: lifts the T-shirt and moves it toward the body (carry). Midline crossing: extends the right hand across the middle of the body to reach the sleeve on the left side, and vice versa",
       "tags": [
         "Motor planning",
@@ -3268,7 +3493,7 @@
         "girl": null
       },
       "number": 4,
-      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the T-shirt",
       "subSkills": "Range of motion: pulls the T-shirt downward. Motor coordination: inserts the arms and then pulls the T-shirt downward in sequential order (sequential motor coordination)",
       "tags": [
         "Motor planning",
@@ -3293,7 +3518,7 @@
         "girl": null
       },
       "number": 5,
-      "source": "dressing-assessment-scale.md#T-shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the T-shirt",
       "subSkills": "Midline crossing: uses one hand to reach the edge of the T-shirt on the opposite side and adjust it. Hand skills: opens the hands and lets go of the T-shirt after securing it in place (release)",
       "tags": [
         "Motor planning",
@@ -3309,6 +3534,174 @@
       "audio": null,
       "detector": {
         "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.shirt.off.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Taking off the shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shirt.off",
+      "textAr": "يلا ندور على الزراير.",
+      "textEn": "Locate the buttons"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.shirt.off.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Taking off the shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shirt.off",
+      "textAr": "يلا نفك الزراير واحد ورا التاني من فوق لتحت.",
+      "textEn": "Unfasten the buttons one after another from top to bottom"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.shirt.off.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Taking off the shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shirt.off",
+      "textAr": "يلا نفتح جنبين القميص.",
+      "textEn": "Open the two sides of the shirt"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.shirt.off.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Taking off the shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shirt.off",
+      "textAr": "يلا ننزل القميص من على كتافنا.",
+      "textEn": "Move the shirt off the shoulders"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.shirt.off.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Taking off the shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shirt.off",
+      "textAr": "يلا نطلع دراعنا الأولاني من الكم.",
+      "textEn": "Take the first arm out of the sleeve"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.shirt.off.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "dressing-assessment-scale.md#Taking off the shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shirt.off",
+      "textAr": "يلا نطلع دراعنا التاني من الكم.",
+      "textEn": "Take the second arm out of the sleeve"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.shirt.off.07",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 7,
+      "source": "dressing-assessment-scale.md#Taking off the shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shirt.off",
+      "textAr": "يلا نقلع القميص خالص.",
+      "textEn": "Take the shirt off completely"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.shirt.off.08",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 8,
+      "source": "dressing-assessment-scale.md#Taking off the shirt",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shirt.off",
+      "textAr": "يلا نحط القميص في مكانه.",
+      "textEn": "Put the shirt in the designated place"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
         "framing": null,
         "method": "none"
       },
@@ -3318,7 +3711,7 @@
         "girl": null
       },
       "number": 1,
-      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shirt",
       "subSkills": "Hand skills: extends the hand to reach the shirt and the buttons (reach); holds the edges of the shirt and the buttons using the fingers (grasp); lifts the shirt and moves it to the body (carry). Motor coordination: spreads out the shirt and holds its two sides with both hands (symmetrical bilateral coordination)",
       "tags": [
         "Motor planning",
@@ -3343,7 +3736,7 @@
         "girl": null
       },
       "number": 2,
-      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shirt",
       "subSkills": "Range of motion: raises the arms; bends and extends the elbows; inserts the arms into the sleeves. Motor coordination: stabilises the shirt with one hand and inserts the other arm into the sleeve (asymmetrical bilateral coordination). Midline crossing: extends one hand across the middle of the body to reach the opposite sleeve",
       "tags": [
         "Motor planning",
@@ -3369,7 +3762,7 @@
         "girl": null
       },
       "number": 3,
-      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shirt",
       "subSkills": "Range of motion: moves the hands in front of the body; brings the two sides of the shirt together",
       "tags": [
         "Motor planning",
@@ -3393,7 +3786,7 @@
         "girl": null
       },
       "number": 4,
-      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shirt",
       "subSkills": "Range of motion: fastens the buttons in order. Motor coordination: directs the buttons toward the buttonholes and follows their position with the eyes (visual-motor coordination). Midline crossing: reaches with one hand to the buttons on the opposite side of the shirt; reaches the opposite buttonhole to insert the button into it",
       "tags": [
         "Motor planning",
@@ -3419,7 +3812,7 @@
         "girl": null
       },
       "number": 5,
-      "source": "dressing-assessment-scale.md#Shirt — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shirt",
       "subSkills": "Motor coordination: inserts the buttons into the buttonholes in sequence using both hands (sequential motor coordination). Hand skills: lets go of the shirt after adjusting it and fastening the buttons (release)",
       "tags": [
         "Motor planning",
@@ -3435,6 +3828,132 @@
       "audio": null,
       "detector": {
         "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.trousers.off.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Taking off the trousers",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.trousers.off",
+      "textAr": "يلا نفتح زرار أو سوستة البنطلون لو موجودة.",
+      "textEn": "Open the button or the zipper of the trousers, if there is one"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.trousers.off.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Taking off the trousers",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.trousers.off",
+      "textAr": "يلا نمسك وسط البنطلون بإيدينا الاتنين.",
+      "textEn": "Grasp the waistband with both hands"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.trousers.off.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Taking off the trousers",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.trousers.off",
+      "textAr": "يلا ننزل البنطلون بالراحة لحد ركبنا.",
+      "textEn": "Push the trousers down gradually to the knees"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.trousers.off.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Taking off the trousers",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.trousers.off",
+      "textAr": "يلا نطلع رجلنا الأولانية من البنطلون.",
+      "textEn": "Take the first foot out of the trouser leg"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.trousers.off.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Taking off the trousers",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.trousers.off",
+      "textAr": "يلا نطلع رجلنا التانية من البنطلون.",
+      "textEn": "Take the second foot out of the trouser leg"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": "standing",
+        "method": "none"
+      },
+      "id": "dress.trousers.off.06",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 6,
+      "source": "dressing-assessment-scale.md#Taking off the trousers",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.trousers.off",
+      "textAr": "يلا نحط البنطلون في مكانه.",
+      "textEn": "Put the trousers in the designated place"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
         "framing": null,
         "method": "none"
       },
@@ -3444,7 +3963,7 @@
         "girl": null
       },
       "number": 1,
-      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the trousers",
       "subSkills": "Motor planning: spatial planning",
       "tags": [
         "Motor planning"
@@ -3467,7 +3986,7 @@
         "girl": null
       },
       "number": 2,
-      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the trousers",
       "subSkills": "Hand skills: extends the hand to reach the trousers (reach); holds the two edges of the trousers (grasp); lifts the trousers and moves them toward the feet and the body (carry). Motor coordination: holds the two sides of the trousers with both hands and opens them (symmetrical bilateral coordination)",
       "tags": [
         "Motor planning",
@@ -3492,7 +4011,7 @@
         "girl": null
       },
       "number": 3,
-      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the trousers",
       "subSkills": "Range of motion: leans the trunk forward; bends the knees; lifts each foot to insert it into the trousers. Motor coordination: stabilises the trousers with one hand and guides the foot with the other (asymmetrical bilateral coordination); directs the foot toward the trouser opening while following it with the eyes (visual-motor coordination)",
       "tags": [
         "Motor planning",
@@ -3517,7 +4036,7 @@
         "girl": null
       },
       "number": 4,
-      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the trousers",
       "subSkills": "Range of motion: extends the body to the upright position; pulls the trousers up to waist level. Motor coordination: inserts the feet and then pulls the trousers upward in sequence (sequential motor coordination). Midline crossing: uses the hand to reach the edge of the trousers on the other side while pulling them upward",
       "tags": [
         "Motor planning",
@@ -3543,7 +4062,7 @@
         "girl": null
       },
       "number": 5,
-      "source": "dressing-assessment-scale.md#Trousers — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the trousers",
       "subSkills": "Midline crossing: extends one hand across the middle of the body to reach the opposite side of the trousers and adjust it. Hand skills: lets go of the trousers after adjusting them in place (release)",
       "tags": [
         "Motor planning",
@@ -3562,13 +4081,118 @@
         "framing": null,
         "method": "none"
       },
+      "id": "dress.socks.off.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Taking off the socks",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.socks.off",
+      "textAr": "يلا نوصل لطرف الشراب من فوق.",
+      "textEn": "Reach the top edge of the sock"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.off.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Taking off the socks",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.socks.off",
+      "textAr": "يلا ندخل صوابعنا جوه طرف الشراب.",
+      "textEn": "Hook the fingers inside the edge of the sock"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.off.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Taking off the socks",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.socks.off",
+      "textAr": "يلا ننزل الشراب من على الكعب.",
+      "textEn": "Push the sock down over the heel"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.off.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Taking off the socks",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.socks.off",
+      "textAr": "يلا نسحب الشراب من على صوابع رجلنا.",
+      "textEn": "Pull the sock off the toes"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.socks.off.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Taking off the socks",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.socks.off",
+      "textAr": "يلا نحط الشراب في مكانه.",
+      "textEn": "Put the sock in the designated place"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
       "id": "dress.socks.on.01",
       "media": {
         "boy": null,
         "girl": null
       },
       "number": 1,
-      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the socks",
       "subSkills": "Hand skills: extends the hand to reach the sock (reach); holds the two edges of the sock with the fingers (grasp). Midline crossing: extends one hand across the middle of the body to reach the sock located beside the opposite foot",
       "tags": [
         "Motor planning",
@@ -3593,7 +4217,7 @@
         "girl": null
       },
       "number": 2,
-      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the socks",
       "subSkills": "Range of motion: opens the sock. Motor coordination: holds the two edges of the sock with both hands and opens it (symmetrical bilateral coordination). Hand skills: lifts the sock and moves it toward the foot (carry)",
       "tags": [
         "Motor planning",
@@ -3619,7 +4243,7 @@
         "girl": null
       },
       "number": 3,
-      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the socks",
       "subSkills": "Range of motion: leans the trunk forward; bends one knee; lifts the foot in order to reach it; extends the hands toward the foot; inserts the toes and pulls the sock over the heel. Motor coordination: stabilises the sock with one hand and guides the toes with the other (asymmetrical bilateral coordination); directs the toes into the sock opening while following them with the eyes (visual-motor coordination)",
       "tags": [
         "Motor planning",
@@ -3644,7 +4268,7 @@
         "girl": null
       },
       "number": 4,
-      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the socks",
       "subSkills": "Motor coordination: pulls the sock gradually until it covers the foot (sequential motor coordination)",
       "tags": [
         "Motor planning",
@@ -3668,7 +4292,7 @@
         "girl": null
       },
       "number": 5,
-      "source": "dressing-assessment-scale.md#Socks — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the socks",
       "subSkills": "Midline crossing: reaches with the hand to the edge of the sock on the opposite side to adjust it. Hand skills: lets go of the sock after pulling it on and securing it on the foot (release)",
       "tags": [
         "Motor planning",
@@ -3687,13 +4311,118 @@
         "framing": null,
         "method": "none"
       },
+      "id": "dress.shoes.off.01",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 1,
+      "source": "dressing-assessment-scale.md#Taking off the shoes",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shoes.off",
+      "textAr": "يلا نفتح اللزق أو نفك الرباط.",
+      "textEn": "Open the hook-and-loop strap or untie the laces"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.off.02",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 2,
+      "source": "dressing-assessment-scale.md#Taking off the shoes",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shoes.off",
+      "textAr": "يلا نوسع فتحة الجزمة.",
+      "textEn": "Loosen the opening of the shoe"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.off.03",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 3,
+      "source": "dressing-assessment-scale.md#Taking off the shoes",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shoes.off",
+      "textAr": "يلا نمسك الجزمة من ورا.",
+      "textEn": "Hold the back of the shoe"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.off.04",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 4,
+      "source": "dressing-assessment-scale.md#Taking off the shoes",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shoes.off",
+      "textAr": "يلا نطلع الكعب وبعدين رجلنا من الجزمة.",
+      "textEn": "Pull the heel and then the foot out of the shoe"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
+      "id": "dress.shoes.off.05",
+      "media": {
+        "boy": null,
+        "girl": null
+      },
+      "number": 5,
+      "source": "dressing-assessment-scale.md#Taking off the shoes",
+      "subSkills": "",
+      "tags": [],
+      "task": "dress.shoes.off",
+      "textAr": "يلا نحط الجزمة في مكانها.",
+      "textEn": "Put the shoes in the designated place"
+    },
+    {
+      "area": "dress",
+      "audio": null,
+      "detector": {
+        "check": null,
+        "framing": null,
+        "method": "none"
+      },
       "id": "dress.shoes.on.01",
       "media": {
         "boy": null,
         "girl": null
       },
       "number": 1,
-      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shoes",
       "subSkills": "Hand skills: extends the hand to reach the shoe (reach); holds the shoe by its edges (grasp). Midline crossing: extends one hand across the middle of the body to reach the shoe located beside the opposite foot",
       "tags": [
         "Motor planning",
@@ -3718,7 +4447,7 @@
         "girl": null
       },
       "number": 2,
-      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shoes",
       "subSkills": "Range of motion: opens the shoe. Motor coordination: holds the shoe with both hands and opens it (symmetrical bilateral coordination). Hand skills: lifts the shoe and moves it toward the foot (carry)",
       "tags": [
         "Motor planning",
@@ -3744,7 +4473,7 @@
         "girl": null
       },
       "number": 3,
-      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shoes",
       "subSkills": "Range of motion: leans the trunk forward; bends the knee; lifts the foot; extends the hand toward the shoe; inserts the foot and adjusts the heel. Motor coordination: stabilises the shoe with one hand and guides the foot with the other (asymmetrical bilateral coordination); directs the foot into the shoe while following its position with the eyes (visual-motor coordination)",
       "tags": [
         "Motor planning",
@@ -3769,7 +4498,7 @@
         "girl": null
       },
       "number": 4,
-      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shoes",
       "subSkills": "Midline crossing: reaches with the hand to the outer part of the shoe to adjust its position if it is on the opposite side",
       "tags": [
         "Motor planning",
@@ -3793,7 +4522,7 @@
         "girl": null
       },
       "number": 5,
-      "source": "dressing-assessment-scale.md#Shoes — Putting on",
+      "source": "dressing-assessment-scale.md#Putting on the shoes",
       "subSkills": "Range of motion: fastens the shoe if it has a fastening mechanism. Motor coordination: adjusts the position of the shoe and fastens it if it has a lace or a hook-and-loop strap (sequential motor coordination). Hand skills: lets go of the shoe after putting it on and adjusting it (release)",
       "tags": [
         "Motor planning",
@@ -3811,91 +4540,141 @@
       "area": "eat",
       "id": "eat.sandwich",
       "nameAr": "أكل الساندوتش",
+      "posture": "seated",
       "source": "eating-drinking-assessment-scale.md#Eating a sandwich"
     },
     {
       "area": "eat",
       "id": "eat.spoon",
       "nameAr": "الأكل بالمعلقة",
+      "posture": "seated",
       "source": "eating-drinking-assessment-scale.md#Eating with a spoon"
     },
     {
       "area": "eat",
       "id": "eat.fork",
       "nameAr": "الأكل بالشوكة",
+      "posture": "seated",
       "source": "eating-drinking-assessment-scale.md#Eating with a fork"
     },
     {
       "area": "drink",
       "id": "drink.cup",
       "nameAr": "الشرب من الكوباية",
+      "posture": "seated",
       "source": "eating-drinking-assessment-scale.md#Drinking from a cup"
     },
     {
       "area": "drink",
       "id": "drink.bottle",
       "nameAr": "الشرب من الإزازة",
+      "posture": "seated",
       "source": "eating-drinking-assessment-scale.md#Drinking from a bottle"
     },
     {
       "area": "drink",
       "id": "drink.straw",
       "nameAr": "الشرب بالشفاطة",
+      "posture": "seated",
       "source": "eating-drinking-assessment-scale.md#Drinking with a straw"
     },
     {
       "area": "hygiene",
       "id": "hygiene.handwash",
       "nameAr": "غسيل الإيدين",
+      "posture": "standing",
       "source": "personal-hygiene-assessment-scale.md#Handwashing"
     },
     {
       "area": "hygiene",
       "id": "hygiene.teeth",
       "nameAr": "غسيل السنان",
+      "posture": "standing",
       "source": "personal-hygiene-assessment-scale.md#Toothbrushing"
-    },
-    {
-      "area": "dress",
-      "id": "dress.jacket.on",
-      "nameAr": "لبس الجاكيت",
-      "source": "dressing-assessment-scale.md#Putting on the jacket"
     },
     {
       "area": "dress",
       "id": "dress.jacket.off",
       "nameAr": "قلع الجاكيت",
+      "posture": "standing",
       "source": "dressing-assessment-scale.md#Taking off the jacket"
+    },
+    {
+      "area": "dress",
+      "id": "dress.jacket.on",
+      "nameAr": "لبس الجاكيت",
+      "posture": "standing",
+      "source": "dressing-assessment-scale.md#Putting on the jacket"
+    },
+    {
+      "area": "dress",
+      "id": "dress.tshirt.off",
+      "nameAr": "قلع التيشيرت",
+      "posture": "standing",
+      "source": "dressing-assessment-scale.md#Taking off the T-shirt"
     },
     {
       "area": "dress",
       "id": "dress.tshirt.on",
       "nameAr": "لبس التيشيرت",
-      "source": "dressing-assessment-scale.md#T-shirt — Putting on"
+      "posture": "standing",
+      "source": "dressing-assessment-scale.md#Putting on the T-shirt"
+    },
+    {
+      "area": "dress",
+      "id": "dress.shirt.off",
+      "nameAr": "قلع القميص",
+      "posture": "standing",
+      "source": "dressing-assessment-scale.md#Taking off the shirt"
     },
     {
       "area": "dress",
       "id": "dress.shirt.on",
       "nameAr": "لبس القميص",
-      "source": "dressing-assessment-scale.md#Shirt — Putting on"
+      "posture": "standing",
+      "source": "dressing-assessment-scale.md#Putting on the shirt"
+    },
+    {
+      "area": "dress",
+      "id": "dress.trousers.off",
+      "nameAr": "قلع البنطلون",
+      "posture": "standing_or_seated",
+      "source": "dressing-assessment-scale.md#Taking off the trousers"
     },
     {
       "area": "dress",
       "id": "dress.trousers.on",
       "nameAr": "لبس البنطلون",
-      "source": "dressing-assessment-scale.md#Trousers — Putting on"
+      "posture": "standing_or_seated",
+      "source": "dressing-assessment-scale.md#Putting on the trousers"
+    },
+    {
+      "area": "dress",
+      "id": "dress.socks.off",
+      "nameAr": "قلع الشراب",
+      "posture": "seated",
+      "source": "dressing-assessment-scale.md#Taking off the socks"
     },
     {
       "area": "dress",
       "id": "dress.socks.on",
       "nameAr": "لبس الشراب",
-      "source": "dressing-assessment-scale.md#Socks — Putting on"
+      "posture": "seated",
+      "source": "dressing-assessment-scale.md#Putting on the socks"
+    },
+    {
+      "area": "dress",
+      "id": "dress.shoes.off",
+      "nameAr": "قلع الجزمة",
+      "posture": "seated",
+      "source": "dressing-assessment-scale.md#Taking off the shoes"
     },
     {
       "area": "dress",
       "id": "dress.shoes.on",
       "nameAr": "لبس الجزمة",
-      "source": "dressing-assessment-scale.md#Shoes — Putting on"
+      "posture": "seated",
+      "source": "dressing-assessment-scale.md#Putting on the shoes"
     }
   ]
 }

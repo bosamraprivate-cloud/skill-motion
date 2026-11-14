@@ -157,6 +157,9 @@
     <string name="zones_save_failed">The zones could not be saved. They are still drawn; try again.</string>
     <string name="zones_try_again">Try again</string>
     <string name="zones_camera_error">The camera could not start (%1$s). Close other camera apps and reopen this screen.</string>
+    <string name="framing_posture_seated">The child sits on a chair at the table.</string>
+    <string name="framing_posture_standing">The child stands.</string>
+    <string name="framing_posture_standing_or_seated">The child stands; sitting is fine if needed.</string>
     <string name="framing_title">Framing check</string>
     <string name="framing_hand_to_child">Hand to child</string>
     <string name="framing_start_anyway">Start anyway</string>

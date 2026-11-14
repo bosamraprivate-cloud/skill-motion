@@ -71,18 +71,31 @@ class NewSessionViewModelTest {
     }
 
     @Test
-    fun `jacket choice on, off or both`() {
+    fun `pair defaults to both, take off first then put on`() {
         val vm = NewSessionViewModel(catalog())
+        assertEquals(listOf(PairChoice.OFF, PairChoice.ON, PairChoice.BOTH), PairChoice.entries)
         vm.onEvent(NewSessionEvent.Select("dress.coat.on"))
+        assertEquals(PairChoice.BOTH, content(vm).choice)
+        assertEquals("dress.coat.off" to "dress.coat.on", vm.plan())
+        vm.onEvent(NewSessionEvent.Choose(PairChoice.ON))
         assertEquals("dress.coat.on" to null, vm.plan())
         vm.onEvent(NewSessionEvent.Choose(PairChoice.OFF))
         assertEquals("dress.coat.off" to null, vm.plan())
-        vm.onEvent(NewSessionEvent.Choose(PairChoice.BOTH))
-        assertEquals("dress.coat.on" to "dress.coat.off", vm.plan())
         vm.onEvent(NewSessionEvent.Select("eat.cake"))
         assertEquals(PairChoice.ON, content(vm).choice)
         vm.onEvent(NewSessionEvent.Choose(PairChoice.BOTH))
         assertEquals("a single task ignores the pair choice", "eat.cake" to null, vm.plan())
+    }
+
+    @Test
+    fun `off listed before on in the catalogue still folds into one pair option`() {
+        val reordered = listOf(
+            CatalogTask("dress.sock.off", "dress", emptyList(), "قلع"),
+            CatalogTask("dress.sock.on", "dress", emptyList(), "لبس")
+        )
+        val options = TaskOption.from(reordered)
+        assertEquals(listOf("dress.sock.on"), options.map { it.id })
+        assertEquals("dress.sock.off" to "dress.sock.on", options.single().plan(PairChoice.BOTH))
     }
 
     @Test

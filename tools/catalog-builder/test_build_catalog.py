@@ -29,11 +29,11 @@ def real_steps():
 
 
 def test_real_sources_counts_and_unique_ids(real_steps):
-    assert len(real_steps) == 147
+    assert len(real_steps) == 178
     assert {s.task for s in real_steps} == set(bc.TASK_IDS.values())
     counts = {a: sum(s.area == a for s in real_steps) for a in ("eat", "drink", "hygiene", "dress")}
-    assert counts == {"eat": 42, "drink": 38, "hygiene": 27, "dress": 40}
-    assert len({s.id for s in real_steps}) == 147
+    assert counts == {"eat": 42, "drink": 38, "hygiene": 27, "dress": 71}
+    assert len({s.id for s in real_steps}) == 178
 
 
 def test_spot_check_drink_cup_06(real_steps):
@@ -52,7 +52,7 @@ def test_id_format(real_steps):
 def test_jacket_off_untagged_rows(real_steps):
     steps = {s.id: s for s in real_steps}
     assert steps["dress.jacket.off.01"].tags == ()
-    assert sum(s.tags == () for s in real_steps) == 8
+    assert sum(s.tags == () for s in real_steps) == 39  # 8 jacket-off + 31 team-draft take-off
 
 
 # --- parsing --------------------------------------------------------------------
@@ -199,7 +199,7 @@ def test_missing_source_file(tmp_path):
 def test_cli_check(capsys):
     assert bc.main(["--check"]) == 0
     out = capsys.readouterr().out
-    expected = ("dress: 40", "eat: 42", "drink: 38", "hygiene: 27", "total: 147", "tasks: 15", "untagged: 8")
+    expected = ("dress: 71", "eat: 42", "drink: 38", "hygiene: 27", "total: 178", "tasks: 20", "untagged: 39")
     for line in expected:
         assert line in out
 
@@ -759,7 +759,8 @@ def test_index_rejections(full, mutate, match):
 def test_tasks_emitted_in_order_with_names(full):
     files, _ = bc.build(full)
     tasks = json.loads(files["assessment.json"])["tasks"]
-    assert [t["id"] for t in tasks] == TASK_IDS
+    firsts = list({s.task: s for s in reversed(bc.parse_steps())}.values())[::-1]
+    assert [t["id"] for t in tasks] == [t.task for t in bc._off_before_on(firsts)]
     assert len(tasks) == bc.EXPECTED_TASKS
     assert all(t["nameAr"] == "مهمة" for t in tasks)
     assert tasks[0]["source"].endswith("#Eating a sandwich")
@@ -840,3 +841,37 @@ def test_real_detectors_match_design_table(real_steps):
             assert detectors[sid]["check"]["type"] == check.split("`")[1], sid
     others = [s.id for s in real_steps if s.task not in CAMERA_TASKS]
     assert all(detectors.get(sid, {"method": "none"})["method"] == "none" for sid in others)
+
+
+# --- Story 6.1: task posture + take-off before put-on --------------------------
+
+
+def test_tasks_carry_posture_and_off_before_on(full):
+    files, _ = bc.build(full)
+    data = json.loads(files["assessment.json"])
+    tasks = {t["id"]: t for t in data["tasks"]}
+    assert tasks["eat.spoon"]["posture"] == "seated"
+    assert tasks["dress.jacket.on"]["posture"] == "standing"
+    assert tasks["dress.trousers.on"]["posture"] == "standing_or_seated"
+    assert tasks["dress.socks.on"]["posture"] == "seated"
+    order = [t["id"] for t in data["tasks"]]
+    assert order.index("dress.jacket.off") + 1 == order.index("dress.jacket.on")
+    step_tasks = list(dict.fromkeys(s["task"] for s in data["steps"]))
+    assert step_tasks == order
+
+
+@pytest.mark.parametrize(
+    "mutate, needle",
+    [
+        (lambda d: d.pop("eat.fork"), "missing task id(s): eat.fork"),
+        (lambda d: d.update({"dress.hat.on": "seated"}), "unknown task id(s): dress.hat.on"),
+        (lambda d: d.update({"eat.fork": "lying"}), "unknown posture for: eat.fork"),
+    ],
+)
+def test_posture_validation(full, tmp_path, mutate, needle):
+    src = json.loads(bc.Paths().task_posture.read_text(encoding="utf-8"))
+    mutate(src)
+    p = tmp_path / "posture.json"
+    p.write_text(json.dumps(src), encoding="utf-8")
+    with pytest.raises(bc.CatalogError, match=re.escape(needle)):
+        bc.build(replace(full, task_posture=p))

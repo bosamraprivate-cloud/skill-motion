@@ -888,5 +888,160 @@
     "check": null,
     "framing": null,
     "method": "none"
+  },
+  "dress.tshirt.off.01": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.tshirt.off.02": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.tshirt.off.03": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.tshirt.off.04": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.tshirt.off.05": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.tshirt.off.06": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.tshirt.off.07": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.shirt.off.01": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.shirt.off.02": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.shirt.off.03": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.shirt.off.04": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.shirt.off.05": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.shirt.off.06": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.shirt.off.07": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.shirt.off.08": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.trousers.off.01": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.trousers.off.02": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.trousers.off.03": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.trousers.off.04": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.trousers.off.05": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.trousers.off.06": {
+    "method": "none",
+    "check": null,
+    "framing": "standing"
+  },
+  "dress.socks.off.01": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.socks.off.02": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.socks.off.03": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.socks.off.04": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.socks.off.05": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.shoes.off.01": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.shoes.off.02": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.shoes.off.03": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.shoes.off.04": {
+    "method": "none",
+    "check": null,
+    "framing": null
+  },
+  "dress.shoes.off.05": {
+    "method": "none",
+    "check": null,
+    "framing": null
   }
 }

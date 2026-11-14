@@ -22,7 +22,7 @@ flowchart TD
     I --> J
     J -->|no| C
     J -->|yes| K[Task reward: stars, celebrateBig, sticker path]
-    K -->|jacket both| L[Framing check, then start of jacket-off]
+    K -->|garment both| L[Framing check, then start of put-on]
     L --> B
     K --> M[Calm end screen until adult exits]
 ```
@@ -190,9 +190,9 @@ Edge cases:
 - [PENDING ASSETS] No sticker art yet (Story 2.6 deferred): placeholder badges drawn by index. Real art can replace them without code changes.
 - Load failure: a calm empty book, never an error.
 
-## 13. Jacket chain ("both") [BUILT]
+## 13. Garment chain ("both") [BUILT]
 
-- After jacket-on's reward screen, jacket-off replaces it in place as a new session. Screen pinning stays on.
+- Take-off runs first (owners' order). After the take-off reward screen, put-on replaces it in place as a new session. Screen pinning stays on.
 - The framing check shows inside child mode first (skipped if content-only), then the start screen.
 - The chain is saved on the session, so Continue keeps it.
 

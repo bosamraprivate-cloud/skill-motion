@@ -7,6 +7,7 @@ import com.aitherapist.dls.catalog.Catalog
 import com.aitherapist.dls.catalog.CatalogRepository
 import com.aitherapist.dls.catalog.Check
 import com.aitherapist.dls.catalog.Method
+import com.aitherapist.dls.catalog.Posture
 import com.aitherapist.dls.catalog.StepDetector
 import com.aitherapist.dls.data.ZoneStore
 import com.aitherapist.dls.vision.FpsStream
@@ -53,7 +54,9 @@ sealed interface FramingUiState {
         val canOverride: Boolean = false,
         val engineError: String? = null,
         /** `inZone` zones this task needs that are not drawn yet (those checks would become cannot tell); start stays allowed. */
-        val missingZones: List<String> = emptyList()
+        val missingZones: List<String> = emptyList(),
+        /** How to position the child for this task (staging hint only; never changes scoring). */
+        val posture: Posture = Posture.UNKNOWN
     ) : FramingUiState
 
     /** The catalogue could not load: message plus Start anyway. */
@@ -86,7 +89,10 @@ internal constructor(
     private val recentHands = ArrayDeque<LandmarkResult>()
 
     /** Loads [taskId]'s needed landmarks once; starts the 10 s override timer. */
-    fun load(taskId: String) = load(taskId) { catalog -> catalog.tasks.firstOrNull { it.id == taskId }?.steps?.map { it.detector } }
+    fun load(taskId: String) = load(
+        taskId,
+        postureOf = { catalog -> catalog.tasks.firstOrNull { it.id == taskId }?.posture ?: Posture.UNKNOWN }
+    ) { catalog -> catalog.tasks.firstOrNull { it.id == taskId }?.steps?.map { it.detector } }
 
     /**
      * Training (Story 4.6): the framing check for the picked activities' camera counters (pose checks); with no
@@ -98,7 +104,7 @@ internal constructor(
         }.mapNotNull { a -> a.counter?.let { StepDetector(Method.POSE, check = it.check) } }
     }
 
-    private fun load(key: String, detectorsOf: (Catalog) -> List<StepDetector>?) {
+    private fun load(key: String, postureOf: (Catalog) -> Posture = { Posture.UNKNOWN }, detectorsOf: (Catalog) -> List<StepDetector>?) {
         if (loadedTask == key) return
         loadedTask = key
         viewModelScope.launch {
@@ -124,7 +130,11 @@ internal constructor(
                 return@launch
             }
             neededZones = detectors.mapNotNull { (it.check as? Check.InZone)?.zone }.distinct()
-            state.value = FramingUiState.Check(Framing.of(detectors.firstNotNullOfOrNull { it.framing }), missingZones = missingZones())
+            state.value = FramingUiState.Check(
+                Framing.of(detectors.firstNotNullOfOrNull { it.framing }),
+                missingZones = missingZones(),
+                posture = postureOf(loaded)
+            )
             delay(OVERRIDE_AFTER_MS)
             edit { it.copy(canOverride = true) }
         }

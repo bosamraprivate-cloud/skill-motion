@@ -49,11 +49,16 @@ TASK_IDS = {
     "Toothbrushing": "hygiene.teeth",
     "Putting on the jacket": "dress.jacket.on",
     "Taking off the jacket": "dress.jacket.off",
-    "T-shirt — Putting on": "dress.tshirt.on",
-    "Shirt — Putting on": "dress.shirt.on",
-    "Trousers — Putting on": "dress.trousers.on",
-    "Socks — Putting on": "dress.socks.on",
-    "Shoes — Putting on": "dress.shoes.on",
+    "Putting on the T-shirt": "dress.tshirt.on",
+    "Taking off the T-shirt": "dress.tshirt.off",
+    "Putting on the shirt": "dress.shirt.on",
+    "Taking off the shirt": "dress.shirt.off",
+    "Putting on the trousers": "dress.trousers.on",
+    "Taking off the trousers": "dress.trousers.off",
+    "Putting on the socks": "dress.socks.on",
+    "Taking off the socks": "dress.socks.off",
+    "Putting on the shoes": "dress.shoes.on",
+    "Taking off the shoes": "dress.shoes.off",
 }
 
 ALLOWED_TAGS = frozenset(
@@ -69,10 +74,11 @@ ALLOWED_TAGS = frozenset(
 UNTAGGED = "Not tagged in source"
 
 # Expected counts from the Story 2.1 spec and the PRD (FR-7):
-# eating 42, drinking 38, hygiene 27, dressing 40 = 147 steps in 15 tasks.
-EXPECTED_AREA_COUNTS = {"dress": 40, "eat": 42, "drink": 38, "hygiene": 27}
-EXPECTED_TOTAL = 147
-EXPECTED_TASKS = 15
+# eating 42, drinking 38, hygiene 27, dressing 71 = 178 steps in 20 tasks
+# (Story 6.1 added 31 take-off steps from the team draft, pending owner review).
+EXPECTED_AREA_COUNTS = {"dress": 71, "eat": 42, "drink": 38, "hygiene": 27}
+EXPECTED_TOTAL = 178
+EXPECTED_TASKS = 20
 
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*$")
 _NUMBER_PREFIX_RE = re.compile(r"^\d+(?:\.\d+)*\.?\s+")
@@ -500,6 +506,7 @@ class Paths:
     strings: Path = TOOL_DIR / "strings.ar-eg.json"
     detectors: Path = TOOL_DIR / "detectors.json"
     activity_counters: Path = TOOL_DIR / "activity_counters.json"
+    task_posture: Path = TOOL_DIR / "task_posture.json"
     check_schema: Path = TOOL_DIR / "schema" / "check.schema.json"
     criterion_schema: Path = TOOL_DIR / "schema" / "criterion.schema.json"
     assets_dir: Path = ASSETS_DIR  # holds audio/ar-eg/ and character/index.json + files
@@ -517,6 +524,42 @@ def _load_json(path: Path) -> Any:
 
 def _dump(data: Any) -> bytes:
     return (json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+POSTURES = ("seated", "standing", "standing_or_seated")
+
+
+def _off_before_on(task_order: list) -> list:
+    """Owner order: a garment's take-off task ('<x>.off') runs right before its put-on ('<x>.on')."""
+    ids = {t.task for t in task_order}
+    out: list = []
+    for t in task_order:
+        if t.task.endswith(".off") and t.task[:-4] + ".on" in ids:
+            continue  # placed with its put-on task
+        if t.task.endswith(".on"):
+            off = next((o for o in task_order if o.task == t.task[:-3] + ".off"), None)
+            if off is not None:
+                out.append(off)
+        out.append(t)
+    return out
+
+
+def _validate_posture(data: Any, task_ids: list[str]) -> dict[str, str]:
+    if not isinstance(data, dict):
+        raise CatalogError("task_posture.json: top level must be an object of task id -> posture")
+    data = {k: v for k, v in data.items() if not k.startswith("_")}
+    unknown = sorted(set(data) - set(task_ids))
+    if unknown:
+        raise CatalogError(f"task_posture.json: unknown task id(s): {', '.join(unknown)}")
+    missing = [t for t in task_ids if t not in data]
+    if missing:
+        raise CatalogError(f"task_posture.json: missing task id(s): {', '.join(missing)}")
+    bad = sorted(k for k, v in data.items() if v not in POSTURES)
+    if bad:
+        raise CatalogError(
+            f"task_posture.json: unknown posture for: {', '.join(bad)} (allowed: {', '.join(POSTURES)})"
+        )
+    return data
 
 
 def _validate_detectors(detectors: Any, step_ids: list[str], schema_path: Path) -> dict[str, dict]:
@@ -687,7 +730,11 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
             if any(t.task == s.task for t in task_order):
                 raise CatalogError(f"{s.source}: steps of task {s.task} are not contiguous")
             task_order.append(s)
+    task_order = _off_before_on(task_order)
+    rank = {t.task: i for i, t in enumerate(task_order)}
+    steps = sorted(steps, key=lambda s: rank[s.task])  # stable: step order inside a task kept
     area_order = list(dict.fromkeys(s.area for s in steps))
+    posture = _validate_posture(_load_json(paths.task_posture), [t.task for t in task_order])
     for section, table, known in (
         ("steps", step_text, set(step_ids)),
         ("activities", activity_text, {a.id for a in activities}),
@@ -730,6 +777,7 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
                 "id": first.task,
                 "area": first.area,
                 "nameAr": name or None,
+                "posture": posture[first.task],
                 "source": first.source,
             }
         )

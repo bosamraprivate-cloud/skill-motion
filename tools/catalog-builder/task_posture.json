@@ -1,0 +1,23 @@
+{
+  "_source": "docs/reference/owner-posture-and-order.md (staging only; never changes scoring)",
+  "eat.sandwich": "seated",
+  "eat.spoon": "seated",
+  "eat.fork": "seated",
+  "drink.cup": "seated",
+  "drink.bottle": "seated",
+  "drink.straw": "seated",
+  "hygiene.handwash": "standing",
+  "hygiene.teeth": "standing",
+  "dress.jacket.on": "standing",
+  "dress.jacket.off": "standing",
+  "dress.tshirt.on": "standing",
+  "dress.shirt.on": "standing",
+  "dress.trousers.on": "standing_or_seated",
+  "dress.socks.on": "seated",
+  "dress.shoes.on": "seated",
+  "dress.tshirt.off": "standing",
+  "dress.shirt.off": "standing",
+  "dress.trousers.off": "standing_or_seated",
+  "dress.socks.off": "seated",
+  "dress.shoes.off": "seated"
+}

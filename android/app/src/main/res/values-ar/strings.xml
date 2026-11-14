@@ -157,6 +157,9 @@
     <string name="zones_save_failed">المناطق ماتحفظتش. لسه مرسومة؛ جرّب تاني.</string>
     <string name="zones_try_again">جرّب تاني</string>
     <string name="zones_camera_error">الكاميرا مااشتغلتش (%1$s). اقفل أي تطبيق تاني بيستخدم الكاميرا وافتح الشاشة دي تاني.</string>
+    <string name="framing_posture_seated">الطفل يقعد على كرسي قدام الترابيزة.</string>
+    <string name="framing_posture_standing">الطفل يقف.</string>
+    <string name="framing_posture_standing_or_seated">الطفل يقف، ولو محتاج يقعد عادي.</string>
     <string name="framing_title">التأكد من مكان الطفل</string>
     <string name="framing_hand_to_child">سلّم للطفل</string>
     <string name="framing_start_anyway">ابدأ على أي حال</string>

@@ -1,6 +1,7 @@
 package com.aitherapist.dls.ui.child
 
 import android.graphics.Bitmap
+import com.aitherapist.dls.R
 import com.aitherapist.dls.catalog.Catalog
 import com.aitherapist.dls.catalog.CatalogRepository
 import com.aitherapist.dls.catalog.CatalogStep
@@ -9,6 +10,7 @@ import com.aitherapist.dls.catalog.CatalogVersion
 import com.aitherapist.dls.catalog.Check
 import com.aitherapist.dls.catalog.LandmarkRef
 import com.aitherapist.dls.catalog.Method
+import com.aitherapist.dls.catalog.Posture
 import com.aitherapist.dls.catalog.Side
 import com.aitherapist.dls.catalog.StepDetector
 import com.aitherapist.dls.data.Zone
@@ -73,9 +75,15 @@ class FramingCheckViewModelTest {
     private fun step(n: Int, method: Method, check: Check? = null) =
         CatalogStep("t.x.0$n", "a", "t.x", n, "", "", "", emptyList(), "", StepDetector(method, "table", check), null, emptyMap())
 
+    private var posture = Posture.UNKNOWN
+
     private fun repo(vararg steps: CatalogStep) = object : CatalogRepository {
         override suspend fun load() = Result.success(
-            Catalog(CatalogVersion("v1", false, steps.size, 0), listOf(CatalogTask("t.x", "a", steps.toList())), emptyList())
+            Catalog(
+                CatalogVersion("v1", false, steps.size, 0),
+                listOf(CatalogTask("t.x", "a", steps.toList(), posture = posture)),
+                emptyList()
+            )
         )
     }
 
@@ -114,6 +122,17 @@ class FramingCheckViewModelTest {
         assertEquals(emptyList<String>(), (vm(FakeEngine(), cloud).uiState.value as FramingUiState.Check).missingZones)
     }
     private val visiblePose = List(33) { i -> LandmarkPoint(if (i % 2 == 0) 0.3f else 0.7f, if (i % 4 < 2) 0.3f else 0.7f, 0.9f) }
+
+    @Test
+    fun `the task posture reaches the check state and maps to its hint`() = runTest(dispatcher) {
+        assertEquals(Posture.UNKNOWN, (vm(FakeEngine(), cloud).uiState.value as FramingUiState.Check).posture)
+        posture = Posture.SEATED
+        assertEquals(Posture.SEATED, (vm(FakeEngine(), cloud).uiState.value as FramingUiState.Check).posture)
+        assertEquals(R.string.framing_posture_seated, postureHint(Posture.SEATED))
+        assertEquals(R.string.framing_posture_standing, postureHint(Posture.STANDING))
+        assertEquals(R.string.framing_posture_standing_or_seated, postureHint(Posture.STANDING_OR_SEATED))
+        assertEquals(null, postureHint(Posture.UNKNOWN))
+    }
 
     @Test
     fun `content-only task skips`() = runTest(dispatcher) {

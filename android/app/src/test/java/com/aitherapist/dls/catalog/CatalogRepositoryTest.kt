@@ -21,14 +21,27 @@ class CatalogRepositoryTest {
     private fun real(): Catalog = CatalogDecoder.decode(realRead)
 
     @Test
-    fun `real assets give 15 tasks 147 steps 148 activities and the version`() {
+    fun `real assets give 20 tasks 178 steps 148 activities and the version`() {
         val c = real()
-        assertEquals(15, c.tasks.size)
-        assertEquals(147, c.steps.size)
+        assertEquals(20, c.tasks.size)
+        assertEquals(178, c.steps.size)
         assertEquals(148, c.activities.size)
         assertTrue(Regex("[0-9a-f]{12}").matches(c.catalogVersion))
         assertEquals(c.version.steps, c.steps.size)
         assertEquals(c.version.activities, c.activities.size)
+    }
+
+    @Test
+    fun `every real task has a posture and each garment is taken off before it is put on`() {
+        val c = real()
+        assertTrue(c.tasks.none { it.posture == Posture.UNKNOWN })
+        val ids = c.tasks.map { it.id }
+        ids.filter { it.endsWith(".off") }.forEach { off ->
+            val on = off.removeSuffix(".off") + ".on"
+            assertEquals("$off right before $on", ids.indexOf(off) + 1, ids.indexOf(on))
+        }
+        assertEquals(Posture.UNKNOWN, Posture.parse(null))
+        assertEquals(Posture.STANDING_OR_SEATED, Posture.parse("standing_or_seated"))
     }
 
     @Test

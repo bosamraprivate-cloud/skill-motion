@@ -190,7 +190,7 @@ data class AreaEntry(val id: String, val nameAr: String?)
 
 /** One task header from the builder; [nameAr] is null only in a dev catalogue missing the name (Story 2.16). */
 @Serializable
-data class TaskEntry(val id: String, val area: String, val nameAr: String?, val source: String)
+data class TaskEntry(val id: String, val area: String, val nameAr: String?, val source: String, val posture: String? = null)
 
 /** `activities.json`: `{"activities": [...]}`. */
 @Serializable
@@ -271,7 +271,32 @@ data class Activity(
  * A task: its id, Arabic name (the id in a dev catalogue missing it) and its steps in catalogue order.
  * [hasName] is false when the catalogue had no name (the child then sees no name text).
  */
-data class CatalogTask(val id: String, val area: String, val steps: List<CatalogStep>, val nameAr: String = id, val hasName: Boolean = true)
+data class CatalogTask(
+    val id: String,
+    val area: String,
+    val steps: List<CatalogStep>,
+    val nameAr: String = id,
+    val hasName: Boolean = true,
+    /** How the child is positioned (staging only, never scoring); [Posture.UNKNOWN] for older catalogues. */
+    val posture: Posture = Posture.UNKNOWN
+)
+
+/** Task posture from the catalogue's `posture` field (owner staging source, Story 6.1). */
+enum class Posture {
+    SEATED,
+    STANDING,
+    STANDING_OR_SEATED,
+    UNKNOWN;
+
+    companion object {
+        fun parse(value: String?): Posture = when (value) {
+            "seated" -> SEATED
+            "standing" -> STANDING
+            "standing_or_seated" -> STANDING_OR_SEATED
+            else -> UNKNOWN
+        }
+    }
+}
 
 /** The whole loaded catalogue. */
 data class Catalog(
@@ -330,7 +355,7 @@ object CatalogDecoder {
                 check(entry.area == task.area, ASSESSMENT) { "task ${task.id} area ${entry.area} but steps say ${task.area}" }
                 if (version.complete) check(!entry.nameAr.isNullOrBlank(), ASSESSMENT) { "complete=true but task ${task.id} has no name" }
                 val name = entry.nameAr?.takeIf { it.isNotBlank() }
-                task.copy(nameAr = name ?: task.id, hasName = name != null)
+                task.copy(nameAr = name ?: task.id, hasName = name != null, posture = Posture.parse(entry.posture))
             }
         check(assessment.areas.map { it.id } == named.map { it.area }.distinct(), ASSESSMENT) {
             "areas ${assessment.areas.map { it.id }} do not match the task areas"

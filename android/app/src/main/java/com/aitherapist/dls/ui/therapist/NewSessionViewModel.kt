@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** On, off or both halves of a put-on/take-off task pair (the jacket). */
-enum class PairChoice { ON, OFF, BOTH }
+/** Take off, put on or both halves of a garment's take-off/put-on pair; entry order is the dialog order. */
+enum class PairChoice { OFF, ON, BOTH }
 
 /**
  * One pickable task. A task `<base>.on` whose sibling `<base>.off` exists becomes one option with [offId] set,
@@ -37,7 +37,7 @@ data class TaskOption(
         return when (choice) {
             PairChoice.ON -> id to null
             PairChoice.OFF -> off to null
-            PairChoice.BOTH -> id to off
+            PairChoice.BOTH -> off to id // owners: take off first, then put on
         }
     }
 
@@ -131,7 +131,8 @@ constructor(private val catalog: CatalogRepository) : ViewModel() {
                         it.id == event.id
                     }
                 ) {
-                    s.copy(selectedId = event.id, choice = PairChoice.ON)
+                    val pair = s.options.first { it.id == event.id }.isPair
+                    s.copy(selectedId = event.id, choice = if (pair) PairChoice.BOTH else PairChoice.ON)
                 } else {
                     s
                 }
