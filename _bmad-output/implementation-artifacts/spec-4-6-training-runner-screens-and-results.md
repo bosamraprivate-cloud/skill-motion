@@ -2,7 +2,8 @@
 title: 'Story 4.6: Training runner, screens and saved results'
 type: 'feature'
 created: '2026-11-14'
-status: 'draft'
+status: 'done'
+baseline_commit: '38a8ef2ab4112d78cb4b2e7719fc314fa1514934'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -49,9 +50,9 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] training_result table + migration 4→5 + instrumented test.
-- [ ] TrainingRunner (+ tests: order, save once, interrupted writes nothing, stars after save).
-- [ ] TrainingScreen counted/guided + ViewModel; flow wiring; strings.
+- [x] training_result table + migration 4→5 + instrumented test.
+- [x] TrainingRunner (+ tests: order, save once, interrupted writes nothing, stars after save).
+- [x] TrainingScreen counted/guided + ViewModel; flow wiring; strings.
 
 **Acceptance Criteria:**
 - Given the gate, when `./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` runs, then it passes.
@@ -59,9 +60,16 @@ context:
 
 ## Implementation Notes
 
+- Stars: criterion met by the camera = `Finish.Done(firstTry = true)` (2); otherwise (guided Done, camera could not count, adult Done before the target) = `Finish.Finished` (1). Guided rows have `criterionMet = false` (not verified) and `count = null`.
+- Hold activities store the best continuous hold in whole seconds in `count`.
+- Flow: `TrainingKey` shows `FramingCheckRoute(activityIds=…)` (skips with no counted activity) and becomes `TrainingRunKey` (pinned, hardware key = Done, Back blocked); exit and the end screen go through the child PIN.
+- An invalid counter at runtime falls back to guided.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+5 findings patched: Done unlock after pause/background, stable runId + deterministic resultIds (no double stars), savedIndex after both writes + error handling, idempotent reward retry, target re-check on sheet dismiss. Migration 4→5 verified against 5.json. Star rule: criterion met by camera = 2, otherwise 1.
 
 ## Verification
 

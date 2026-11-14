@@ -125,3 +125,14 @@ internal interface RewardDao {
     @Query("SELECT COUNT(*) FROM reward WHERE childId = :childId AND sessionId IS NULL")
     suspend fun trainingSets(childId: String): Int
 }
+
+@Dao
+internal interface TrainingResultDao {
+    @Insert suspend fun insert(result: TrainingResultEntity)
+
+    @Query("SELECT * FROM training_result WHERE id = :id")
+    suspend fun byId(id: String): TrainingResultEntity?
+
+    @Query("SELECT * FROM training_result WHERE childId = :childId ORDER BY createdAt DESC, rowid DESC")
+    suspend fun forChild(childId: String): List<TrainingResultEntity>
+}

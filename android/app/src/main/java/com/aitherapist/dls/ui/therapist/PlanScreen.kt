@@ -221,15 +221,3 @@ private fun PlanCard(content: @Composable ColumnScope.() -> Unit) {
         Column(Modifier.padding(Spacing.S4), verticalArrangement = Arrangement.spacedBy(Spacing.S2), content = content)
     }
 }
-
-/** Training hand-off placeholder until Story 4.6. */
-@Composable
-fun TrainingPlaceholderScreen(activityIds: List<String>, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth().padding(Spacing.S4), verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
-        Text(stringResource(R.string.training_placeholder_title), style = MaterialTheme.typography.headlineSmall)
-        EmptyState(
-            icon = Icons.Filled.DateRange,
-            message = stringResource(R.string.training_placeholder_message, westernDigits(activityIds.size))
-        )
-    }
-}

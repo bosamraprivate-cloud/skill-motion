@@ -296,14 +296,12 @@ class StepViewModelTest {
         keys.press()
         runCurrent()
         assertEquals(1, store.rows.size)
-        assertEquals(1, vm.step().stepIndex)
-        audio.finish()
-        runCurrent()
-        assertTrue(vm.step().doneEnabled)
         advanceTimeBy(500)
-        keys.press()
+        keys.press() // a second press within 1 s (during the step-end effect) is ignored
         runCurrent()
         assertEquals(1, store.rows.size)
+        advanceTimeBy(StepEffect.CALM_MS + 1) // the step-end effect plays first
+        runCurrent()
         assertEquals(1, vm.step().stepIndex)
     }
 
@@ -346,6 +344,9 @@ class StepViewModelTest {
         listenThenAttempt(vm)
         val played = audio.played.size
         vm.onEvent(StepEvent.Done)
+        runCurrent()
+        assertFalse("the effect finishes before the end", vm.completed.value)
+        advanceTimeBy(StepEffect.CALM_MS + 1) // the step-end effect plays first
         runCurrent()
         assertEquals(StepUiState.Finished("idle.webp"), vm.uiState.value)
         assertEquals(SessionState.DONE, store.session?.state)
@@ -405,6 +406,8 @@ class StepViewModelTest {
         assertEquals(SessionState.RUNNING, store.session?.state)
         assertEquals(StepUiState.Waiting, vm.uiState.value)
         advanceTimeBy(StepViewModel.RETRY_MS)
+        runCurrent()
+        advanceTimeBy(StepEffect.CALM_MS + 1) // the step-end effect plays first
         runCurrent()
         assertEquals(SessionState.DONE, store.session?.state)
         assertEquals(StepUiState.Finished("idle.webp"), vm.uiState.value)
@@ -630,6 +633,8 @@ class StepViewModelTest {
         listenThenAttempt(first)
         first.onEvent(StepEvent.Done)
         runCurrent()
+        advanceTimeBy(StepEffect.CALM_MS + 1) // the step-end effect plays first
+        runCurrent()
         assertEquals(1, first.step().stepIndex)
         val saved = store.session!!
         // Process death: the row stays running; Continue starts a new ViewModel on the same session.
@@ -671,5 +676,38 @@ class StepViewModelTest {
         runCurrent()
         assertEquals(StepUiState.Finished("idle.webp"), other.uiState.value)
         assertEquals(SessionState.ABANDONED, store.sessions[saved.id]?.state)
+    }
+
+    @Test
+    fun `step end plays the effect first on that step, then the next step audio, never overlapping`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        listenThenAttempt(vm)
+        val played = audio.played.size
+        vm.onEvent(StepEvent.Done)
+        runCurrent()
+        assertEquals(StepEffect.Kind.CELEBRATE, vm.effect.value?.kind)
+        assertEquals("the ended step stays on screen", 0, vm.step().stepIndex)
+        assertFalse(vm.step().doneEnabled)
+        assertEquals("no instruction audio during the effect", played, audio.played.size)
+        advanceTimeBy(StepEffect.CALM_MS + 1)
+        runCurrent()
+        assertNull(vm.effect.value)
+        assertEquals(1, vm.step().stepIndex)
+        assertEquals(listOf("n2.mp3"), audio.played.drop(played))
+    }
+
+    @Test
+    fun `pause cuts the effect and resume never plays it late`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        listenThenAttempt(vm)
+        vm.onEvent(StepEvent.Done)
+        runCurrent()
+        assertNotNull(vm.effect.value)
+        vm.pause()
+        runCurrent()
+        assertNull(vm.effect.value)
+        vm.resume()
+        runCurrent()
+        assertNull(vm.effect.value)
     }
 }

@@ -35,6 +35,23 @@ class AppGateViewModelTest {
     }
 
     @Test
+    fun `training hand-off pins a run that only the pin leaves`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.openTraining("c", listOf("a"))
+        assertEquals(false, vm.childModeActive)
+        vm.handToTraining(TrainingKey("c", listOf("a")), runId = "run")
+        assertEquals(listOf(ShellKey, TrainingRunKey("c", listOf("a"), "run")), vm.backStack.toList())
+        assertEquals(true, vm.childModeActive)
+        assertEquals(true, vm.back())
+        assertEquals(2, vm.backStack.size)
+        vm.openChildPin()
+        assertEquals(ChildPinKey, vm.backStack.last())
+        vm.leaveChildMode()
+        assertEquals(listOf(ShellKey), vm.backStack.toList())
+    }
+
+    @Test
     fun `no pin starts on setup`() {
         val vm = AppGateViewModel(FakeTherapistSettings(), dispatcher)
         assertEquals(GateState.Ready, vm.gateState.value)

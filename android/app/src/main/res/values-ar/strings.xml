@@ -332,6 +332,13 @@
         <item quantity="many">%1$s نشاط متختار</item>
         <item quantity="other">%1$s نشاط متختار</item>
     </plurals>
-    <string name="training_placeholder_title">التدريب</string>
-    <string name="training_placeholder_message">التدريب جاي في تحديث قادم. الأنشطة المختارة: %1$s</string>
+    <string name="child_encourage">هنجربها سوا المرة الجاية</string>
+    <string name="training_progress">نشاط %1$s من %2$s</string>
+    <string name="training_of">%1$s من %2$s</string>
+    <string name="training_counter_label">العدد</string>
+    <string name="training_side_right">يمين</string>
+    <string name="training_side_left">شمال</string>
+    <string name="training_end">برافو! خلصنا التمرين.</string>
+    <string name="training_empty">مفيش أنشطة دلوقتي.</string>
+    <string name="training_back_to_adult">ارجع للكبير</string>
 </resources>

@@ -51,6 +51,9 @@ internal object DataModule {
     fun sessionStars(repository: RewardRepository): SessionStars = repository
 
     @Provides
+    fun trainingResultStore(repository: TrainingResultRepository): TrainingResultStore = repository
+
+    @Provides
     fun replayStore(repository: ReplayRepository): ReplayStore = repository
 
     @Provides

@@ -108,6 +108,14 @@ class AssessmentRunner(
     private val mutableState = MutableStateFlow<RunnerState>(RunnerState.Idle)
     val state: StateFlow<RunnerState> = mutableState.asStateFlow()
 
+    private val mutableStepEnd = MutableStateFlow<StepEnd?>(null)
+
+    /**
+     * Story 4.8: the last finished step of this run (its rows and stars saved); set before the state moves on, so a
+     * reader of the next state always sees it. Drives the step-end effect.
+     */
+    val lastStepEnd: StateFlow<StepEnd?> = mutableStepEnd.asStateFlow()
+
     /** This runner's session id. */
     val id: String get() = sessionId
 
@@ -615,6 +623,7 @@ class AssessmentRunner(
         val level = RulesEngine.stepLevel(rows.map { it.toRule() })
         if (level != null) {
             reward(judge.stepId, rows)
+            if (kind == SessionKind.ASSESSMENT) mutableStepEnd.value = StepEnd.of(judge.stepIndex, rows.map { it.verdict })
             nextStep(judge.stepIndex)
             return
         }

@@ -188,3 +188,23 @@ internal constructor(private val holder: DatabaseHolder) :
 
     override fun observe(sessionId: String): Flow<Int> = flow { emitAll(holder.get().rewardDao().observeStarsForSession(sessionId)) }
 }
+
+/** Training result rows as `training/TrainingRunner` writes them (implemented by [TrainingResultRepository]; faked in tests). */
+interface TrainingResultStore {
+    suspend fun add(result: TrainingResultEntity)
+
+    /** The saved row with [id], if any (a restored run skips it). */
+    suspend fun find(id: String): TrainingResultEntity?
+}
+
+/** `training_result` rows (written only through `training/TrainingRunner`, AD-9). */
+@Singleton
+class TrainingResultRepository
+@Inject
+internal constructor(private val holder: DatabaseHolder) : TrainingResultStore {
+    override suspend fun add(result: TrainingResultEntity) = holder.get().trainingResultDao().insert(result)
+
+    override suspend fun find(id: String): TrainingResultEntity? = holder.get().trainingResultDao().byId(id)
+
+    suspend fun forChild(childId: String): List<TrainingResultEntity> = holder.get().trainingResultDao().forChild(childId)
+}

@@ -29,4 +29,15 @@ class MigrationSqlTest {
         assertTrue(schema.path, schema.exists())
         assertTrue(schema.readText().contains("\"columnName\": \"modelReason\""))
     }
+
+    @Test
+    fun `migration 4 to 5 matches the exported v5 training_result schema`() {
+        val schema = File("schemas/com.aitherapist.dls.data.AppDatabase/5.json").readText()
+        AppDatabase.SQL_4_5.forEach { sql ->
+            val exported = sql.replace("`training_result`", "`\${TABLE_NAME}`")
+            assertTrue(sql, schema.contains(exported))
+        }
+        assertEquals(4, AppDatabase.MIGRATION_4_5.startVersion)
+        assertEquals(5, AppDatabase.MIGRATION_4_5.endVersion)
+    }
 }

@@ -11,8 +11,15 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 /** Encrypted app database (AD-8). Schema changes need an explicit Migration; destructive migration is forbidden. */
 @Database(
-    entities = [ChildEntity::class, SessionEntity::class, AttemptEntity::class, CorrectionEntity::class, RewardEntity::class],
-    version = 4,
+    entities = [
+        ChildEntity::class,
+        SessionEntity::class,
+        AttemptEntity::class,
+        CorrectionEntity::class,
+        RewardEntity::class,
+        TrainingResultEntity::class
+    ],
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -26,6 +33,8 @@ internal abstract class AppDatabase : RoomDatabase() {
     abstract fun correctionDao(): CorrectionDao
 
     abstract fun rewardDao(): RewardDao
+
+    abstract fun trainingResultDao(): TrainingResultDao
 
     companion object {
         const val NAME = "dls.db"
@@ -74,7 +83,23 @@ internal abstract class AppDatabase : RoomDatabase() {
                 "CREATE INDEX IF NOT EXISTS `index_reward_sessionId` ON `reward` (`sessionId`)"
             )
 
-        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        /** v4 -> v5 (Story 4.6): `training_result` table; existing rows are kept. */
+        val MIGRATION_4_5 =
+            object : Migration(4, 5) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    SQL_4_5.forEach(db::execSQL)
+                }
+            }
+
+        val SQL_4_5 =
+            listOf(
+                "CREATE TABLE IF NOT EXISTS `training_result` (`id` TEXT NOT NULL, `childId` TEXT NOT NULL, `activityId` TEXT NOT NULL, " +
+                    "`count` INTEGER, `durationSec` INTEGER NOT NULL, `criterionMet` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, " +
+                    "PRIMARY KEY(`id`), FOREIGN KEY(`childId`) REFERENCES `child`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                "CREATE INDEX IF NOT EXISTS `index_training_result_childId` ON `training_result` (`childId`)"
+            )
+
+        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 
         /** Opens (or creates) the SQLCipher database [name] keyed with [passphrase]. */
         fun build(context: Context, passphrase: ByteArray, name: String = NAME): AppDatabase {

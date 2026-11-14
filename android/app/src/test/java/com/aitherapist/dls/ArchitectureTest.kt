@@ -71,7 +71,7 @@ class ArchitectureTest {
     }
 
     private companion object {
-        val DATA_INTERNALS = setOf("ChildDao", "SessionDao", "AttemptDao", "CorrectionDao", "RewardDao", "AppDatabase")
+        val DATA_INTERNALS = setOf("ChildDao", "SessionDao", "AttemptDao", "CorrectionDao", "RewardDao", "TrainingResultDao", "AppDatabase")
         const val ROOT = "com.aitherapist.dls"
         val CORE_PACKAGES = arrayOf("$ROOT.scoring..", "$ROOT.rewards..", "$ROOT.catalog..")
         val PURE_VISION_FILES =

@@ -308,6 +308,13 @@
         <item quantity="one">%1$s activity selected</item>
         <item quantity="other">%1$s activities selected</item>
     </plurals>
-    <string name="training_placeholder_title">Training</string>
-    <string name="training_placeholder_message">Training arrives in a later update. Selected activities: %1$s</string>
+    <string name="child_encourage">We\'ll try it together next time</string>
+    <string name="training_progress">Activity %1$s of %2$s</string>
+    <string name="training_of">%1$s of %2$s</string>
+    <string name="training_counter_label">Count</string>
+    <string name="training_side_right">Right</string>
+    <string name="training_side_left">Left</string>
+    <string name="training_end">Well done! Training is over.</string>
+    <string name="training_empty">No activities to practise right now.</string>
+    <string name="training_back_to_adult">Back to the adult</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
 import com.aitherapist.dls.data.TherapistSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -77,10 +78,10 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
     }
 
     /** Child mode is on (step screen or its PIN exit on the stack): screen pinning stays active. */
-    val childModeActive: Boolean get() = backStack.any { it is ChildModeKey }
+    val childModeActive: Boolean get() = backStack.any { it is ChildModeKey || it is TrainingRunKey }
 
     /** The child step screen is on top: hardware keys mean Done there. */
-    val childStepOnTop: Boolean get() = backStack.lastOrNull() is ChildModeKey
+    val childStepOnTop: Boolean get() = backStack.lastOrNull().let { it is ChildModeKey || it is TrainingRunKey }
 
     /** Enters locked child mode for [childId] on [taskId] (Story 2.14); [thenTaskId] runs after it (Story 2.16). */
     fun openChildMode(childId: String, taskId: String, thenTaskId: String? = null) {
@@ -122,6 +123,12 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         return true
     }
 
+    /** Story 4.6: after the training framing check (or its skip) the child gets the tablet; pinning starts here. */
+    fun handToTraining(key: TrainingKey, runId: String = UUID.randomUUID().toString()) {
+        if (backStack.lastOrNull() != key) return
+        backStack[backStack.lastIndex] = TrainingRunKey(key.childId, key.activityIds, runId)
+    }
+
     /** Adult pause sheet Exit: the PIN screen above the (paused) step screen. */
     fun openChildPin() {
         if (childStepOnTop) backStack.add(ChildPinKey)
@@ -129,7 +136,7 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
 
     /** Right PIN in child mode: leave child mode back to the therapist screen below it. */
     fun leaveChildMode() {
-        val index = backStack.indexOfFirst { it is ChildModeKey }
+        val index = backStack.indexOfFirst { it is ChildModeKey || it is TrainingRunKey }
         if (index < 0) return
         while (backStack.size > index) backStack.removeAt(backStack.lastIndex)
     }

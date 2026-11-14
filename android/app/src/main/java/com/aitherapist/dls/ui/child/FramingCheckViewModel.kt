@@ -3,8 +3,11 @@ package com.aitherapist.dls.ui.child
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aitherapist.dls.catalog.Catalog
 import com.aitherapist.dls.catalog.CatalogRepository
 import com.aitherapist.dls.catalog.Check
+import com.aitherapist.dls.catalog.Method
+import com.aitherapist.dls.catalog.StepDetector
 import com.aitherapist.dls.data.ZoneStore
 import com.aitherapist.dls.vision.FpsStream
 import com.aitherapist.dls.vision.Framing
@@ -83,9 +86,21 @@ internal constructor(
     private val recentHands = ArrayDeque<LandmarkResult>()
 
     /** Loads [taskId]'s needed landmarks once; starts the 10 s override timer. */
-    fun load(taskId: String) {
-        if (loadedTask == taskId) return
-        loadedTask = taskId
+    fun load(taskId: String) = load(taskId) { catalog -> catalog.tasks.firstOrNull { it.id == taskId }?.steps?.map { it.detector } }
+
+    /**
+     * Training (Story 4.6): the framing check for the picked activities' camera counters (pose checks); with no
+     * camera-counted activity it skips.
+     */
+    fun loadActivities(activityIds: List<String>) = load("training:" + activityIds.joinToString(",")) { catalog ->
+        catalog.activities.filter {
+            it.id in activityIds
+        }.mapNotNull { a -> a.counter?.let { StepDetector(Method.POSE, check = it.check) } }
+    }
+
+    private fun load(key: String, detectorsOf: (Catalog) -> List<StepDetector>?) {
+        if (loadedTask == key) return
+        loadedTask = key
         viewModelScope.launch {
             val loaded =
                 try {
@@ -98,12 +113,11 @@ internal constructor(
                     state.value = FramingUiState.Unavailable(e::class.simpleName ?: "unknown")
                     return@launch
                 }
-            val task = loaded.tasks.firstOrNull { it.id == taskId }
-            if (task == null) {
+            val detectors = detectorsOf(loaded)
+            if (detectors == null) {
                 state.value = FramingUiState.Unavailable("unknown task")
                 return@launch
             }
-            val detectors = task.steps.map { it.detector }
             needed = VisibilityGate.neededLandmarks(detectors)
             if (needed.isEmpty) {
                 state.value = FramingUiState.Skip

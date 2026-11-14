@@ -2,13 +2,17 @@ package com.aitherapist.dls.ui.child
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -43,6 +47,8 @@ fun ChildModeHost(
         onStopOrDispose { viewModel.setActive(false) }
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val effect by viewModel.effect.collectAsStateWithLifecycle()
+    var starTarget by remember { mutableStateOf<Offset?>(null) }
     val scope = rememberCoroutineScope()
     val sheetOpen by viewModel.adultSheet.collectAsStateWithLifecycle()
     val completed by viewModel.completed.collectAsStateWithLifecycle()
@@ -62,8 +68,10 @@ fun ChildModeHost(
             state = state,
             onEvent = viewModel::onEvent,
             onAdultCorner = viewModel::openAdultSheet,
-            onStart = viewModel::beginTask
+            onStart = viewModel::beginTask,
+            onStarBarPositioned = { starTarget = it }
         )
+        RewardEffects(effect, Modifier.fillMaxSize(), starTarget)
         DebugResultStrip()
     }
     if (sheetOpen) {

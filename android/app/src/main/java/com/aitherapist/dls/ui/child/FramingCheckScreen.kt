@@ -99,10 +99,15 @@ private enum class CameraAccess { CHECKING, GRANTED, DENIED }
  * returns to the profile. The camera and landmarkers are released when the screen leaves.
  */
 @Composable
-fun FramingCheckRoute(taskId: String, onHandToChild: () -> Unit, viewModel: FramingCheckViewModel = hiltViewModel()) {
+fun FramingCheckRoute(
+    taskId: String,
+    onHandToChild: () -> Unit,
+    activityIds: List<String>? = null,
+    viewModel: FramingCheckViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val externalHop = LocalExternalHop.current
-    LaunchedEffect(taskId) { viewModel.load(taskId) }
+    LaunchedEffect(taskId, activityIds) { if (activityIds != null) viewModel.loadActivities(activityIds) else viewModel.load(taskId) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val handOver by rememberUpdatedState(onHandToChild)
     LaunchedEffect(state) { if (state == FramingUiState.Skip) handOver() }

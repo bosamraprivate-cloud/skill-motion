@@ -11,6 +11,7 @@ import com.aitherapist.dls.catalog.CharacterVariant
 import com.aitherapist.dls.catalog.Landmarker
 import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.data.ChildProfiles
+import com.aitherapist.dls.data.EffectLevel
 import com.aitherapist.dls.data.ResumableSessions
 import com.aitherapist.dls.data.SessionStars
 import com.aitherapist.dls.session.AssessmentRunner
@@ -20,6 +21,7 @@ import com.aitherapist.dls.session.PoseSample
 import com.aitherapist.dls.session.PromptState
 import com.aitherapist.dls.session.RunnerEvent
 import com.aitherapist.dls.session.RunnerState
+import com.aitherapist.dls.session.StepEnd
 import com.aitherapist.dls.ui.therapist.CharacterIndexSource
 import com.aitherapist.dls.vision.AttemptCapture
 import com.aitherapist.dls.vision.CapturedSample
@@ -97,6 +99,22 @@ constructor(
 
     /** Step index the capture was last configured for: a change drops any frame in flight. */
     private var captureStep: Int? = null
+
+    private val effectFlow = MutableStateFlow<StepEffect?>(null)
+
+    /** Story 4.8: the step-end effect now on screen (after the verdict is saved and no instruction audio plays). */
+    val effect: StateFlow<StepEffect?> = effectFlow.asStateFlow()
+
+    private var effectLevel = EffectLevel.CALM
+
+    /** The step screen the effect plays on (step N), kept while the runner already sits on step N+1 or the end. */
+    private var effectScreen: StepUiState.Step? = null
+
+    /** Last screen rendered per step index, so the effect shows the step that just ended. */
+    private val shownSteps = HashMap<Int, StepUiState.Step>()
+    private var effectSeq = 0
+    private var handledStepEnd = -1
+    private var effectJob: Job? = null
 
     /** The adult pause sheet (Pause / Resume / Exit) is open. */
     val adultSheet: StateFlow<Boolean> = sheet.asStateFlow()
@@ -190,6 +208,7 @@ constructor(
                 val loaded = catalog.load().getOrThrow()
                 val child = requireNotNull(children.get(childId)) { "child missing" }
                 val task = loaded.tasks.firstOrNull { it.id == taskId }
+                effectLevel = child.effectLevel
                 variantId = child.characterVariant.name.lowercase(Locale.ROOT)
                 variant = runCatching { characters.load().variants.firstOrNull { it.id == variantId } }.getOrNull()
                 steps = task?.steps.orEmpty()
@@ -270,6 +289,34 @@ constructor(
                     (state.value as? StepUiState.Step)?.let { state.value = it.copy(stars = n) }
                 }
         }
+    }
+
+    /**
+     * A step's rows and stars are saved: its effect plays right away on that step's screen; the next step's
+     * instruction audio waits until the effect ends (bounded). Held (adult pause, screen gone): no effect, never late.
+     */
+    private fun onStepEnd(end: StepEnd) {
+        if (paused || localPaused || awaitingStart) return
+        if (runner?.state?.value is RunnerState.Paused) return
+        val kind = if (end.outcome == StepEnd.Outcome.NOT_DONE) StepEffect.Kind.ENCOURAGE else StepEffect.Kind.CELEBRATE
+        val next = StepEffect(++effectSeq, kind, effectLevel)
+        effectJob?.cancel()
+        effectScreen = shownSteps[end.stepIndex]
+        effectFlow.value = next
+        effectJob = viewModelScope.launch {
+            delay(next.durationMs)
+            clearEffect()
+        }
+    }
+
+    /** Ends the effect now (bounded duration, or instruction audio starting: effects never overlap it). */
+    private fun clearEffect() {
+        effectJob?.cancel()
+        effectJob = null
+        if (effectFlow.value == null) return
+        effectFlow.value = null
+        effectScreen = null
+        sync()
     }
 
     /** No run: the calm end visual until the adult leaves. */
@@ -375,21 +422,31 @@ constructor(
 
     /** Maps the runner's current state to audio actions and the child UI; safe to call repeatedly. */
     private fun sync() {
-        val current = runner?.state?.value ?: return
+        val target = runner ?: return
+        // Read before the state: the runner sets the step end first, so the effect is known before any next audio.
+        target.lastStepEnd.value?.takeIf { it.stepIndex != handledStepEnd }?.let { end ->
+            handledStepEnd = end.stepIndex
+            onStepEnd(end)
+        }
+        val current = target.state.value
         val held = paused || awaitingStart || localPaused
         when {
             held -> {
                 stopAudio()
                 stopTicking()
             }
-            current is RunnerState.Listen -> if (current !== audioFor) startAudio(current)
+            // Effects never overlap instruction audio: the next step's audio starts when the effect ends.
+            current is RunnerState.Listen -> if (current !== audioFor && effectFlow.value == null) startAudio(current)
             else -> stopAudio()
         }
+        // Adult pause or screen gone cuts the effect; it is never replayed later.
+        if (held || current is RunnerState.Paused) clearEffect()
         if (current == RunnerState.Finished) ensureCompleting()
         if (!held) {
             if (current is RunnerState.Attempt) ensureTicking() else stopTicking()
         }
-        if (current == RunnerState.Completed) finishedFlow.value = true
+        // The last step's effect finishes before the end screen and any chained task.
+        if (current == RunnerState.Completed && effectFlow.value == null) finishedFlow.value = true
         if (current is RunnerState.Error) ensureRetrying() else stopRetrying()
         syncCapture(current)
         state.value = render(current)
@@ -472,7 +529,23 @@ constructor(
         retryJob = null
     }
 
-    private fun render(current: RunnerState): StepUiState = when {
+    private fun render(current: RunnerState): StepUiState {
+        val frozen = effectScreen
+        val effectOn = effectFlow.value
+        if (effectOn != null && frozen != null) {
+            // Step N's screen stays during its effect: the character reacts, no button opens a window, no clip plays.
+            return frozen.copy(
+                visual = frozen.visual?.copy(animate = false),
+                reactionClip = effectReaction() ?: frozen.reactionClip,
+                doneEnabled = false,
+                stars = starCount,
+                paused = false
+            )
+        }
+        return renderPlain(current)
+    }
+
+    private fun renderPlain(current: RunnerState): StepUiState = when {
         awaitingStart && current !is RunnerState.Error && current != RunnerState.Idle ->
             StepUiState.Start(taskName, steps.firstOrNull()?.media(variantId)?.still, reaction(POINT), paused = localPaused)
         current is RunnerState.OnStep -> renderStep(current)
@@ -509,7 +582,12 @@ constructor(
             promptLevel = level,
             stars = starCount,
             paused = paused
-        )
+        ).also { shownSteps[current.stepIndex] = it }
+    }
+
+    /** The character clip of the effect on screen: celebrateSmall or encourage. */
+    private fun effectReaction(): String? = effectFlow.value?.let {
+        reaction(if (it.kind == StepEffect.Kind.ENCOURAGE) ENCOURAGE else CELEBRATE_SMALL)
     }
 
     private fun reaction(name: String): String? = variant?.reactions?.let { list ->
@@ -542,5 +620,9 @@ constructor(
 
         // The start screen character points toward the Start button.
         private const val POINT = "point"
+
+        // Story 4.8 step-end reactions.
+        private const val CELEBRATE_SMALL = "celebrateSmall"
+        private const val ENCOURAGE = "encourage"
     }
 }

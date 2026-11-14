@@ -110,3 +110,25 @@ data class RewardEntity(
     val stickerId: String? = null,
     val createdAt: Long
 )
+
+/**
+ * One finished training activity (Story 4.6, AD-9); written only by `training/TrainingRunner`. [count] is the camera
+ * count (null for a guided activity); [criterionMet] is false whenever the camera could not confirm the criterion
+ * (doubt is never failure: it costs no stars). An interrupted activity writes no row.
+ */
+@Entity(
+    tableName = "training_result",
+    foreignKeys = [
+        ForeignKey(entity = ChildEntity::class, parentColumns = ["id"], childColumns = ["childId"], onDelete = ForeignKey.CASCADE)
+    ],
+    indices = [Index("childId")]
+)
+data class TrainingResultEntity(
+    @PrimaryKey val id: String,
+    val childId: String,
+    val activityId: String,
+    val count: Int?,
+    val durationSec: Int,
+    val criterionMet: Boolean,
+    val createdAt: Long
+)

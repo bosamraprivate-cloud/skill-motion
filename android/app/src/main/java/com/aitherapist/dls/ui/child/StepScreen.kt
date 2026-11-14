@@ -41,9 +41,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -72,10 +75,11 @@ fun StepScreen(
     onEvent: (StepEvent) -> Unit,
     onAdultCorner: () -> Unit,
     modifier: Modifier = Modifier,
-    onStart: () -> Unit = {}
+    onStart: () -> Unit = {},
+    onStarBarPositioned: (Offset) -> Unit = {}
 ) {
     Box(modifier.fillMaxSize()) {
-        StepContent(state, onEvent, onAdultCorner, onStart)
+        StepContent(state, onEvent, onAdultCorner, onStart, onStarBarPositioned)
         // Adult pause: a calm dim over everything, no text. It takes no touches, so the adult corner still works.
         if (state.isPaused) {
             Box(Modifier.fillMaxSize().background(ChildColors.Ink.copy(alpha = PAUSE_DIM_ALPHA)))
@@ -84,9 +88,15 @@ fun StepScreen(
 }
 
 @Composable
-private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdultCorner: () -> Unit, onStart: () -> Unit) {
+private fun StepContent(
+    state: StepUiState,
+    onEvent: (StepEvent) -> Unit,
+    onAdultCorner: () -> Unit,
+    onStart: () -> Unit,
+    onStarBarPositioned: (Offset) -> Unit
+) {
     Column(modifier = Modifier.fillMaxSize().background(ChildColors.Canvas).padding(Spacing.S5)) {
-        TopBand(state, onAdultCorner)
+        TopBand(state, onAdultCorner, onStarBarPositioned)
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (state) {
                 StepUiState.Waiting -> WaitVisual(Modifier.align(Alignment.Center))
@@ -101,11 +111,19 @@ private fun StepContent(state: StepUiState, onEvent: (StepEvent) -> Unit, onAdul
 }
 
 @Composable
-private fun TopBand(state: StepUiState, onAdultCorner: () -> Unit) {
+private fun TopBand(state: StepUiState, onAdultCorner: () -> Unit, onStarBarPositioned: (Offset) -> Unit) {
     Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
         // Equal-width side zones keep the schedule centred: star bar at the start, adult corner at the end.
         Box(Modifier.weight(1f).widthIn(min = ADULT_CORNER_SIZE), contentAlignment = Alignment.CenterStart) {
-            if (state is StepUiState.Step) StarBar(state.stars)
+            if (state is StepUiState.Step) {
+                // Story 4.8: the reward star flies to the measured star bar centre (root coordinates).
+                StarBar(
+                    state.stars,
+                    Modifier.onGloballyPositioned {
+                        onStarBarPositioned(it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f))
+                    }
+                )
+            }
         }
         Box(contentAlignment = Alignment.Center) {
             if (state is StepUiState.Step) StepSchedule(current = state.stepIndex, count = state.stepCount)

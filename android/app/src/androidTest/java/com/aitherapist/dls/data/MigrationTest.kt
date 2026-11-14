@@ -138,4 +138,31 @@ class MigrationTest {
             }
         }
     }
+
+    @Test
+    fun migrate4To5KeepsRowsAndAddsTrainingResult() {
+        helper.createDatabase(DB, 4).use { db ->
+            db.execSQL(
+                "INSERT INTO child (id, name, code, ageYears, effectLevel, characterVariant, isEval, createdAt) " +
+                    "VALUES ('c', 'n', 'C1', 5, 'calm', 'boy', 0, 0)"
+            )
+            db.execSQL("INSERT INTO reward (id, childId, sessionId, stars, stickerId, createdAt) VALUES ('r', 'c', NULL, 2, NULL, 1)")
+        }
+        helper.runMigrationsAndValidate(DB, 5, true, AppDatabase.MIGRATION_4_5).use { db ->
+            db.query("SELECT stars FROM reward WHERE id = 'r'").use { c ->
+                c.moveToFirst()
+                assertEquals(2, c.getInt(0))
+            }
+            db.execSQL(
+                "INSERT INTO training_result (id, childId, activityId, count, durationSec, criterionMet, createdAt) " +
+                    "VALUES ('t', 'c', 'a', NULL, 30, 0, 1)"
+            )
+            db.execSQL("PRAGMA foreign_keys = ON")
+            db.execSQL("DELETE FROM child WHERE id = 'c'")
+            db.query("SELECT COUNT(*) FROM training_result").use { c ->
+                c.moveToFirst()
+                assertEquals("training results cascade with their child", 0, c.getInt(0))
+            }
+        }
+    }
 }
