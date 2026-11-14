@@ -27,3 +27,7 @@ tools/.venv/
 
 # Matted frame caches
 art/animations/**/*.frames/
+
+# Volunteer eval clips and signed consent (never committed)
+eval/clips/
+eval/consent/
