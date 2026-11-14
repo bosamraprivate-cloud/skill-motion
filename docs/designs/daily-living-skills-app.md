@@ -20,7 +20,7 @@ All clinical content comes from the project's documents in [`docs/reference/`](.
 *   **Not scored:** a step the camera cannot judge, or could not judge in this session. It is left out of every average.
 *   **Plan level:** per domain, from the average level (Rule 2): 3 = strength; 2.5 to under 3 = mild; 1.5 to under 2.5 = moderate; under 1.5 = severe.
 *   **Treatment plan:** for a child, the combined set of activities selected across all weak domains. One child can have activities from more than one plan level at once.
-*   **Character:** the boy who demonstrates the steps (source Stage 4). He is an original character designed for this app in a modern, flat illustration style with calm colours. He appears in every step illustration and, as a Rive animation, on the step screen: he talks while the instruction plays, points at the illustration on a prompt, and celebrates when a step is done.
+*   **Character:** the boy who demonstrates the steps (source Stage 4). He is an original character designed for this app in a modern, flat illustration style with calm colours. He appears in every step illustration and, as pre-rendered animated WebP clips, on the step screen: he talks while the instruction plays, points at the illustration on a prompt, and celebrates when a step is done.
 *   **Source stages:** `project-details.md` describes the child's journey in eight stages; this design cites Stage 1 (home screen with Start, Next, Help and Repeat buttons), Stage 2 (child file: name, code, age), Stage 4 (steps shown with picture and audio, then the character performs the task), Stage 5 (three attempts per step, three levels) and Stage 7 (strengths and needs).
 
 ## The Problem
@@ -47,7 +47,7 @@ The source describes a standalone device with a large touch screen and therapist
 6.  **Training:** activities whose measurement criterion is a count or a hold of a body movement are counted by the camera (repetitions or holds). All others run as guided activities with instructions, a timer and a Done button.
 7.  **Dashboard:** for each child, the therapist sees every session, every step level with its evidence frames, the report, the plan, and a comparison between two assessments of the same task.
 8.  **Measured accuracy:** on a labelled clip set recorded by volunteers, the app's verdicts agree with a therapist rating blind in at least 80% of attempts; the quadratic-weighted kappa on levels is at least 0.6; and the app answers "cannot tell" on at most 15% of attempts.
-9.  **Motivating, game-like feedback:** after every step the child gets a reward (stars, a short effect and sound, the character celebrating); after every task a reward screen; across sessions a sticker collection. The therapist sets the effect level per child (full, calm, off).
+9.  **Motivating, game-like feedback:** after every step the child gets a reward (stars, a short effect and sound, the character celebrating); after every task a reward screen; across sessions a sticker collection. The therapist sets the effect level per child (full, calm; off removed 2026-11-12).
 10. **Poor internet does not change levels:** everything except object-step judging runs on the tablet. A network failure makes an attempt "cannot tell"; it is never counted as "not done".
 
 ## Non-Goals
@@ -250,7 +250,7 @@ Effects are built with character animation clips (animated WebP: `celebrateSmall
 | Camera and MediaPipe on Android | `google-ai-edge/mediapipe-samples` (Kotlin) | Apache-2.0 | CameraX setup, landmarker helper classes, model files, overlay drawing |
 | Encrypted database | `sqlcipher/sqlcipher-android` | BSD-style | Encrypted SQLite driver for Room |
 | Dashboard charts | `patrykandpatrick/vico` | Apache-2.0 | Charts in Compose |
-| Animated character | Rive (`rive-app/rive-android` runtime) | MIT | Plays the character's animations and state machine in Compose |
+| Animated character | Animated WebP clips played via Coil 3 (AnimatedImageDrawable) | Apache 2.0 | Plays the character's reaction and demonstration clips in Compose (Rive dropped 2026-11-12) |
 | Reward particle effects | `DanielMartinus/Konfetti` (Compose) | ISC | Star and confetti bursts after steps and tasks |
 | Egyptian Arabic audio | ElevenLabs text-to-speech (newest model available at generation time, an Egyptian-accented voice from its voice library) | Commercial service; a paid plan is used so the generated audio may be shipped in the app | Generates audio files once at build time; each file is reviewed. Not open source: chosen by the author for audio quality |
 | Proxy | `openai` npm SDK (OpenAI-compatible client) on Cloudflare Workers | Apache-2.0 | Chat-completions client pointed at the DeepSeek API |
@@ -339,7 +339,7 @@ android/                      Android app (Gradle, Kotlin)
 proxy/                        Cloudflare Worker (TypeScript)
 tools/catalog-builder/        Python: docs/reference -> catalogue JSON
 tools/audio-gen/              Python: Arabic text -> audio files (ElevenLabs API)
-art/                          character sheet, Rive file, step illustrations, stickers, sound effects (source files)
+art/                          character sheet, character clips (animated WebP), step illustrations, stickers, sound effects (source files)
 docs/reference/               project documents (unchanged)
 docs/designs/                 this design
 eval/                         clip set manifest and evaluation script
@@ -539,10 +539,10 @@ Settings → Export writes `results.csv` to the Downloads folder with columns: `
 *   **Type / Scope**: Python script.
 *   **Proposed Changes**: Generates one MP3 per ID from `strings.ar-eg.json` through the ElevenLabs text-to-speech API with the official `elevenlabs` Python SDK (one fixed voice ID and model ID set in `tools/audio-gen/config.json`; the API key read from the `ELEVENLABS_API_KEY` environment variable, never committed) into `android/app/src/main/assets/audio/ar-eg/`. It skips IDs whose text has not changed since the last run (hash stored in `tools/audio-gen/manifest.json`), and writes `review.csv` to mark each file approved or regenerated. Slow-speed audio for prompt level 3 is a second file per step generated with a lower speaking rate, not slowed playback.
 
-#### 6. `art/character-sheet.png`, `art/character.riv`, `art/steps/<id>.png`, `tools/art/export_illustrations.py` (Create)
+#### 6. `art/character-sheet.png`, character clips (animated WebP), `art/steps/<id>.png`, `tools/art/export_illustrations.py` (Create)
 
 *   **Type / Scope**: art assets and a small export script.
-*   **Proposed Changes**: The character sheet defines the boy (front, side, back, hands close-up) and the colour palette. Each step and activity gets one illustration of the character doing the action, drawn or generated with an image model from the character sheet and then corrected by the team so the action matches the step text exactly. `character.riv` is built in the Rive editor with a state machine: `idle`, `talk`, `point`, `celebrate`, plus `celebrateSmall`, `celebrateBig` and `encourage`, and movement animations for the 41 camera-scored steps where useful. `art/stickers/` holds at least 30 sticker images in the same style, and `art/sfx/` the star chime, the task fanfare and the soft calm-mode sound, generated once with ElevenLabs sound effects. The script resizes the PNGs to 1280 px WebP into `android/app/src/main/assets/illustr/` and copies the Rive file to `android/app/src/main/res/raw/`. The catalogue builder fails if a step has no illustration.
+*   **Proposed Changes**: The character sheet defines the boy (front, side, back, hands close-up) and the colour palette. Each step and activity gets one illustration of the character doing the action, drawn or generated with an image model from the character sheet and then corrected by the team so the action matches the step text exactly. The character's reaction clips are pre-rendered animated WebP (Rive dropped 2026-11-12): `idle`, `talk`, `point`, `celebrate`, plus `celebrateSmall`, `celebrateBig` and `encourage`, and movement animations for the 41 camera-scored steps where useful. `art/stickers/` holds at least 30 sticker images in the same style, and `art/sfx/` the star chime, the task fanfare and the soft calm-mode sound, generated once with ElevenLabs sound effects. The script resizes the PNGs to 1280 px WebP into `android/app/src/main/assets/illustr/` and copies the character clips into the app assets. The catalogue builder fails if a step has no illustration.
 
 #### 7. `android/settings.gradle.kts`, `android/build.gradle.kts`, `android/gradle/libs.versions.toml` (Create)
 
@@ -616,7 +616,7 @@ Settings → Export writes `results.csv` to the Downloads folder with columns: `
 
 #### 21. `ui/child/` (Create): `TaskPickerScreen.kt`, `StepScreen.kt`, `FramingCheckScreen.kt`, `TrainingScreen.kt`, `CharacterView.kt`, `StarBar.kt`, `RewardEffects.kt`, `TaskRewardScreen.kt`, `StickerBookScreen.kt`; `rewards/RewardRules.kt`
 
-*   **Type / Scope**: Compose with the Rive Android runtime.
+*   **Type / Scope**: Compose with animated WebP character clips (Coil 3).
 *   **Proposed Changes**: Calm colours, a large illustration with the animated character beside it, one sentence of text, large Done area, Help and Repeat buttons (Stage 1); framing outline; star bar, particle and sound effects scaled by the child's `effectLevel`, task reward screen and sticker book as in Rewards and effects; `RewardRules` (pure Kotlin, unit-tested) computes stars and sticker unlocks; whole-task walkthrough by the character.
 
 #### 22. `ui/therapist/` (Create): `SetupScreen.kt`, `PinScreen.kt`, `ChildListScreen.kt`, `ChildProfileScreen.kt`, `SessionDetailScreen.kt`, `ReportScreen.kt`, `PlanScreen.kt`, `CompareScreen.kt`, `BlindReviewScreen.kt`, `DiagnosticsScreen.kt`, `SettingsScreen.kt`

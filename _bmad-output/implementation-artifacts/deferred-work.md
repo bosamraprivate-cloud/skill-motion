@@ -16,9 +16,11 @@
 - source_spec: `spec-1-1-android-project-skeleton-with-quality-gates.md`
   summary: Bundle Cairo font, complete the type scale, add RTL/ar previews.
   evidence: Theme uses FontFamily.Default.
+  status: RESOLVED (Cairo bundled in res/font, used in ui/theme/Type.kt).
 - source_spec: `spec-1-1-android-project-skeleton-with-quality-gates.md`
   summary: Add Konsist rules: only data/ uses DAOs; no android.util.Log/println in production code.
   evidence: Required by AGENTS.md; nothing to check yet.
+  status: PARTLY RESOLVED (DAO rule in ArchitectureTest.kt); the no-Log/println rule is still open.
 - source_spec: `spec-1-1-android-project-skeleton-with-quality-gates.md`
   summary: Add app icon, release signing config and keep rules before minify.
   evidence: Lint warning; release not configured.
@@ -34,6 +36,7 @@
 - source_spec: `spec-1-2-camera-feed-and-landmarkers-with-frame-rate-probe.md`
   summary: Move Diagnostics behind the therapist PIN/shell; child mode must never open on it.
   evidence: Diagnostics is currently the start destination.
+  status: RESOLVED (Diagnostics opens from Settings behind the PIN, Story 5.5).
 - source_spec: `spec-1-2-camera-feed-and-landmarkers-with-frame-rate-probe.md`
   summary: Handle first camera denial with re-prompt (rationale) before sending to settings.
   evidence: Currently goes straight to settings.
@@ -55,12 +58,14 @@
 - source_spec: `spec-1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step.md`
   summary: Move proxy URL and shared secret from debug BuildConfig into encrypted settings entered at first-run setup.
   evidence: Secret is compiled into debug APKs for the spike (review 1.5).
+  status: RESOLVED (entered at first-run setup, stored in SecureSettings, Story 2.10).
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-5-cloudverifier-and-first-cloud-verdict-for-a-cup-step.md`
   summary: Tune the proxy system prompt (age-neutral subject, judge only the action) and the mouth-region crop margin on volunteer clips in M3; bump promptVersion when changed.
   evidence: drink.cup.06 with an adult bearded subject returned cannot_tell three times; model cited "person appears adult" and lips obscured.
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-3-character-clips-in-the-app.md`
   summary: Define what effect level CALM changes in CharacterView (currently same as FULL).
   evidence: EffectLevel has FULL/CALM/OFF but only OFF changes rendering; the per-child setting arrives in Story 2.11.
+  status: OFF removed (EffectLevel is FULL/CALM; stored "off" reads as CALM). The CALM rendering difference is described in child-flow.md.
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-3-character-clips-in-the-app.md`
   summary: Accessibility labels for character clips and readable step names in the preview chips.
   evidence: contentDescription is null and chips show raw step IDs.
@@ -85,6 +90,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-16-start-assessment-content-only-tasks-and-character-walkthrough.md`
   summary: Persist the planned second task of a jacket "both" run so Continue (or exiting during the chain delay) still offers jacket-off.
   evidence: thenTaskId lives only on the navigation key; needs a session column and migration.
+  status: RESOLVED (nullable session.nextTaskId with migration v2 -> v3, Story 4.1).
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-16-start-assessment-content-only-tasks-and-character-walkthrough.md`
   summary: Task-name audio on the child task start screen (with the audio generation at the end of the project).
   evidence: start screen shows the task name as text only.
@@ -108,4 +114,5 @@
 - Activity details (tools, how to perform, goal, criterion) are English in the catalogue; only titles have Arabic (`textAr`). Translate them into `strings.ar-eg.json` with line-by-line review at the end of the project (with audio).
 - After a PIN lock the therapist lands on the Children list, not the previous child profile tab (Story 4.3 review). Restore the last shell destination + profile tab.
 - Arabic domain / plan-level / step-level labels and short domain labels were authored (not in docs/reference); owner review needed.
-- Design doc still mentions Rive in several places (character section, library table, art layout); stack is animated WebP clips. Clean up wording.
+- RESOLVED 2026-11-14: design doc Rive wording replaced with animated WebP character clips.
+- Resolved 2026-11-14: attempt-numbering bug (two try=1 rows) fixed in Story 3.6 (cannot-tell repeat is attempt n+1).

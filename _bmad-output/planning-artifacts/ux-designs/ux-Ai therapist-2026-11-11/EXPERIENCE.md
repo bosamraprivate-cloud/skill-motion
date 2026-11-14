@@ -52,12 +52,12 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 | Plan + activity picker | Profile | Activities per weak domain (weakest first), select for training |
 | Compare | Profile | Two assessments of the same task, per-domain averages and difference |
 | Training history | Profile | Activity, count, duration, criterion met |
-| Replay & evaluation | Rail | Import clips, replay sessions, blind review, accuracy metrics |
-| Blind review | Replay & evaluation | Rate attempts with verdict hidden |
-| Diagnostics | Rail | Frame rate, landmark visibility, proxy reachability/latency, cannot-tell rate |
-| Settings | Rail | PIN change, proxy, zones, CSV export |
+| Settings | Rail | PIN change, proxy, zones, CSV export, Diagnostics, Blind review, Advanced tools (debug only) |
+| Diagnostics | Settings | Frame rate, landmark visibility, proxy reachability/latency, cannot-tell rate (release builds too) |
+| Blind review | Settings | Rate attempts with verdict hidden (release builds too) |
+| Replay & evaluation | Settings → Advanced tools (debug only) | Import clips, replay sessions, accuracy metrics CSV |
 
-Navigation rail on the start (right) edge; list–detail panes; modal depth one.
+Navigation rail on the start (right) edge with two entries, Children and Settings; list–detail panes; modal depth one.
 
 ## Voice and Tone
 
@@ -87,7 +87,7 @@ Never: "wrong", "no", "try harder", scores, levels, timers counting down at the 
 - **Side character (decided 2026-11-14, owner):** the child's character (boy or girl) stays on one side of the step screen for the whole task, always visible and animated, and acts as the guide: `talk` while it says the step (instruction audio), `idle` while the child tries, `point` toward the main area when the step was not done (or Help) as the demonstration clip slides/fades in smoothly next to it, `celebrateSmall` on success, `encourage` after not done at attempt 3. The main area shows the step picture and sentence at level 1 and the demonstration clip from level 2. Transitions are smooth (cross-fade/slide, no hard cuts).
 - **Step schedule** — advances one dot per step; never shows outcome.
 - **Star bar** — counts stars per FR-37; stars only ever increase.
-- **Character state machine:** `idle` default; `talk` during instruction audio; `point` at level 2; `celebrateSmall` on step reward; `encourage` after not done at attempt 3; `celebrateBig` on task reward. Effect level off keeps `idle`/`talk`/`point` only.
+- **Character state machine:** `idle` default; `talk` during instruction audio; `point` at level 2; `celebrateSmall` on step reward; `encourage` after not done at attempt 3; `celebrateBig` on task reward.
 - **Correct (therapist)** — opens a sheet with 3 / 2 / 1 / not scored, shows automatic level; saving marks "reviewed" and recalculates all dependent screens without further action.
 - **Activity picker** — checklist grouped by domain then plan level, each activity expandable to tools, how to perform, goal, criterion (verbatim from catalogue).
 
@@ -125,9 +125,8 @@ Never: "wrong", "no", "try harder", scores, levels, timers counting down at the 
 |---|---|---|---|
 | full | Star flies to bar, Konfetti burst around illustration, `celebrateSmall` | `celebrateBig`, Konfetti, sticker progress | Chime |
 | calm (default) | Star fades into bar (slow), `celebrateSmall` | `celebrateBig` slowed, no particles | Soft sound |
-| off | Star counter increments only | Static stars + sticker progress | None |
 
-Rules: never more than 3 flashes per second; no effect or sound while instruction audio speaks (effects wait for audio end); rewards appear only after the verdict is saved and never change levels; sticker unlocks every 3 finished tasks; no negative sound or image in any mode.
+Rules: never more than 3 flashes per second; no effect or sound while instruction audio speaks (effects wait for audio end); rewards appear only after the verdict is saved and never change levels; sticker unlocks every 3 finished tasks (a finished training run counts as a task; decided from code 2026-11-14); a step that ends not scored earns 1 star, like a step finished without done (decided from code 2026-11-14); no negative sound or image in any mode.
 
 ## Accessibility Floor (autistic children)
 
@@ -150,9 +149,9 @@ Youssef, 7, sits at a table; the tablet is 60 cm away; the cup is on the mat. Th
 3. Task start: character waves, cup picture, "يلا نبدأ". Youssef taps Start.
 4. Step 1: illustration, sentence, audio; Done dims until audio ends; Youssef acts and taps Done.
 5. Verdict saved; calm star fades into the bar; character `celebrateSmall`; schedule moves on.
-6. A later step not done on attempt 1: level 2 prompt (character points, picture grows). He does it; star.
+6. A later step not done on attempt 1: level 2 prompt (the demonstration clip plays and the side character points at it). He does it; star.
 7. Wi-Fi drops on an object step: Youssef only sees a neutral retry; therapist data shows cannot tell.
-8. **Climax:** after step 13 the character performs the whole task; the reward screen shows his stars and the second of three sticker slots filling.
+8. **Climax:** after step 13 the reward screen (no end-of-task walkthrough; removed 2026-11-13) shows his stars and the second of three sticker slots filling.
 9. Mona long-presses the corner, enters PIN, back in therapist mode.
 
 ### Flow 2: Mona reviews and corrects (CUJ 4)
@@ -170,7 +169,7 @@ Mona picks activities in the plan picker → Start training → hand-off. Camera
 Welcome → set PIN (twice) → proxy address + secret → draw zones on preview → framing check → diagnostics shows proxy reachable → child list (empty state, "Add child").
 
 ### Flow 6: Accuracy evaluation (CUJ 6)
-Replay & evaluation → import clips → app scores → Blind review (verdict hidden, one attempt at a time, done / not done / cannot tell) → metrics: agreement, weighted kappa, cannot-tell rate, confusion matrix per step.
+Settings → Advanced tools → Replay & evaluation (debug build) → import clips → app scores → Settings → Blind review (verdict hidden, one attempt at a time, done / not done / cannot tell) → metrics: agreement, weighted kappa, cannot-tell rate, confusion matrix per step.
 
 ## Responsive & Platform
 
@@ -178,7 +177,7 @@ Landscape tablets 8–11 inch only; portrait is locked. Layout scales by width c
 
 ## Therapist information architecture (agreed 2026-11-13)
 
-- Rail: **Children** (home: Continue card, child list, quick start) and **Settings** (PIN, proxy, zones, export, and an "Advanced tools" section with Diagnostics, Replay & evaluation — debug builds only).
+- Rail: **Children** (home: Continue card, child list, quick start) and **Settings** (PIN, proxy, zones, export, Diagnostics and Blind review in all builds, and an "Advanced tools" section — debug builds only — with Replay & evaluation, Try step screen and Character preview).
 - Child profile tabs: **Overview** (avatar, name, age, last session, primary "Start" → assessment or training), **Sessions** (history → session detail with per-step levels, evidence, Correct), **Report** (domain averages, strengths/needs), **Plan** (activities, start training), **Progress** (compare, training history). Tabs whose content arrives in a later epic show a calm empty state.
-- After every child-mode session, the PIN returns to a **session summary** (each step and its level, Correct), then to the child's Overview.
+- After every child-mode session, the PIN returns to a read-only **session summary** (each step and its level; corrections are made in Session detail via the Correct sheet), then to the child's Overview.
 - New child: after save, open Overview with "Start first assessment".
