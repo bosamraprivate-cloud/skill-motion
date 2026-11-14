@@ -159,6 +159,37 @@ class CsvExporterTest {
     }
 
     @Test
+    fun `missing child codes are counted, never dropped`() {
+        val sessions =
+            listOf(
+                ExportSession(session("a", 1), "", emptyList(), emptyList(), emptyMap()),
+                ExportSession(session("b", 2), "C-1", emptyList(), emptyList(), emptyMap()),
+                ExportSession(session("c", 3), " ", emptyList(), emptyList(), emptyMap())
+            )
+        assertEquals(2, CsvExporter.brokenSessions(sessions))
+        val e = runCatching { CsvExporter.rows(sessions) { order }.toList() }.exceptionOrNull()
+        assertEquals(2, (e as MissingChildCodeException).count)
+    }
+
+    @Test
+    fun `population is replay of the eval child or a live assessment`() {
+        assertEquals(Population.VOLUNTEER, population(SessionKind.REPLAY, evalChild = true))
+        assertEquals(Population.LIVE, population(SessionKind.ASSESSMENT, evalChild = false))
+        assertEquals(Population.OTHER, population(SessionKind.REPLAY, evalChild = false))
+        assertEquals(Population.OTHER, population(SessionKind.ASSESSMENT, evalChild = true))
+    }
+
+    @Test
+    fun `dashboard rows are the file rows`() {
+        val s = session("s", 1)
+        val saved = listOf(attempt("s", "eat-01", 1, AttemptVerdict.DONE, reason = "a, \"b\""))
+        val export = listOf(ExportSession(s, "C-1", saved, emptyList(), emptyMap()))
+        val text = CsvExporter.format(export) { order }
+        val fromRows = CsvExporter.rows(export) { order }.map { CsvExporter.COLUMNS.zip(it).toMap() }.toList()
+        assertEquals(com.aitherapist.dls.scoring.Metrics.parse(text).map { it.cells }, fromRows)
+    }
+
+    @Test
     fun `steps outside the catalogue come last`() {
         val s = session("s", 1)
         val rows = listOf(attempt("s", "zz", 1, AttemptVerdict.DONE, at = 1), attempt("s", "eat-01", 1, AttemptVerdict.DONE, at = 2))

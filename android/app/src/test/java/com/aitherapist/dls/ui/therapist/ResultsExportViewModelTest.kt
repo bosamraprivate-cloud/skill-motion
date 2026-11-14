@@ -55,4 +55,16 @@ class ResultsExportViewModelTest {
         vm.onPicked("content://doc/1")
         assertEquals(ExportStatus.FAILED, vm.status.value)
     }
+
+    @Test
+    fun `missing child codes name the count`() {
+        val export =
+            object : ResultsExport {
+                override suspend fun exportTo(uri: String) = throw com.aitherapist.dls.data.MissingChildCodeException(2)
+            }
+        val vm = ResultsExportViewModel(export, dispatcher)
+        vm.onPicked("content://x")
+        assertEquals(ExportStatus.MISSING_CODES, vm.status.value)
+        assertEquals(2, vm.brokenSessions)
+    }
 }

@@ -1,0 +1,28 @@
+{
+  "attempts": 7,
+  "app_cannot_tell": 2,
+  "cannot_tell_rate": 0.2857142857142857,
+  "rated": 3,
+  "unrated": 4,
+  "either_cannot_tell": 1,
+  "decided": 2,
+  "agree": 1,
+  "agreement": 0.5,
+  "steps": 5,
+  "kappa_pairs": 1,
+  "kappa": null,
+  "partial_steps": 3,
+  "not_scored_steps": 0,
+  "app_open_steps": 0,
+  "blind_open_steps": 1,
+  "corrected_steps": 3,
+  "corrected_changed": 2,
+  "clip_matched": 0,
+  "clip_decided": 0,
+  "clip_agree": 0,
+  "clip_cannot_tell": 0,
+  "clip_agreement": null,
+  "unmatched": [
+    "eat-01_done_v1.mp4"
+  ]
+}

@@ -2,6 +2,7 @@ package com.aitherapist.dls.ui.therapist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aitherapist.dls.data.MissingChildCodeException
 import com.aitherapist.dls.data.ResultsExport
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,7 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Where the results export is (Story 5.6). */
-enum class ExportStatus { IDLE, WORKING, DONE, FAILED }
+enum class ExportStatus { IDLE, WORKING, DONE, FAILED, MISSING_CODES }
 
 /** Settings -> Evaluation -> Export results: writes `results.csv` to the picked document. A cancelled picker writes nothing. */
 @HiltViewModel
@@ -25,6 +26,10 @@ internal constructor(private val export: ResultsExport, private val io: Coroutin
 
     private val state = MutableStateFlow(ExportStatus.IDLE)
     val status: StateFlow<ExportStatus> = state.asStateFlow()
+
+    /** Sessions without a child code in the last [ExportStatus.MISSING_CODES] failure. */
+    var brokenSessions: Int = 0
+        private set
 
     /** [uri] is the picked document, or null when the picker was cancelled (nothing is written). */
     fun onPicked(uri: String?) {
@@ -37,6 +42,9 @@ internal constructor(private val export: ResultsExport, private val io: Coroutin
                     ExportStatus.DONE
                 } catch (e: CancellationException) {
                     throw e
+                } catch (e: MissingChildCodeException) {
+                    brokenSessions = e.count
+                    ExportStatus.MISSING_CODES
                 } catch (
                     // OutOfMemoryError included: the therapist sees a calm message, never a crash.
                     @Suppress("TooGenericExceptionCaught") e: Throwable

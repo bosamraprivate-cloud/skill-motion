@@ -33,4 +33,4 @@ numbers in `metrics_fixture.expected.json`. The Python script (`test_compute_met
 
 `results_export_sample.csv` is written by the Android unit test `CsvExporterTest` (Story 5.6) from synthetic rows;
 `test_kotlin_export_round_trip` parses it with `compute_metrics.read_results`. Regenerate with `./gradlew :app:testDebugUnitTest --tests "*CsvExporterTest" -DupdateFixtures=true`; never
-hand-edit.
+hand-edit. `results_export_sample.expected.json` is `compute_metrics.compute` on it (regenerate with the script; pytest and the Kotlin `MetricsTest` both check it).

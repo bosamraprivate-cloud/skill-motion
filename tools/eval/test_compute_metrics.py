@@ -261,3 +261,9 @@ def test_formula_guard_is_stripped(tmp_path):
     path = _write(tmp_path, ["s,C-1,t,a,a1,1,1,done,'=1+1,pose,,1,3,,done,'@x.mp4"])
     row = read_results(path)[0]
     assert (row["reason"], row["clipFile"]) == ("=1+1", "@x.mp4")
+
+
+def test_kotlin_export_sample_expected():
+    """`results_export_sample.expected.json` (read by the Kotlin MetricsTest) is what this script computes."""
+    expected = json.loads((FIX / "results_export_sample.expected.json").read_text(encoding="utf-8"))
+    assert compute(read_results(FIX / "results_export_sample.csv"), {}).as_dict() == expected
