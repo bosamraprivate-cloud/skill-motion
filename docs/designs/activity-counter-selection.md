@@ -22,6 +22,10 @@ Result: 5 included, 143 excluded (of 148).
 | `moderate.rom.02` Opening and closing the arms | "Performing 10 repetitions of opening and closing the arms correctly." | reps / 10 / false | Arms together in front of the chest: distance LEFT_WRIST-RIGHT_WRIST in shoulder widths; rep = below 0.5 then above 1.5 (arms open). |
 | `moderate.rom.03` Extending and bending the elbow | "Performing 10 repetitions of bending and extending for each arm correctly." | reps / 10 / true | Elbow flexion: angle SHOULDER-ELBOW-WRIST; rep = below 70 deg then above 140 deg; left and right counted separately. **Sagittal; tune first in replay** (elbow flexion partly moves toward the camera). |
 
+## Tuning notes
+
+- `moderate.rom.02` (opening and closing the arms): with the arms fully open the wrists can leave the frame at the sides. Out-of-frame frames are ignored by the counter, so a rep whose open phase is never seen is not counted (and a gap over 250 ms resets the phase). Check framing and the `high` ratio in replay first.
+
 ## Excluded (guided)
 
 | Activity | Criterion | Reason |
