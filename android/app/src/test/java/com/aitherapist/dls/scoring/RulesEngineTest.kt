@@ -27,16 +27,24 @@ class RulesEngineTest {
         assertEquals(StepLevel.ONE, RulesEngine.stepLevel(listOf(row(1, 1, NOT_DONE), row(2, 2, NOT_DONE), row(3, 3, NOT_DONE))))
 
     @Test
-    fun `two cannot tell on one number is not scored`() =
+    fun `cannot tell and its repeat are not scored`() =
+        assertEquals(StepLevel.NOT_SCORED, RulesEngine.stepLevel(listOf(row(1, 1, CANNOT_TELL), row(2, 1, CANNOT_TELL))))
+
+    @Test
+    fun `old same-number cannot tell rows are still not scored`() =
         assertEquals(StepLevel.NOT_SCORED, RulesEngine.stepLevel(listOf(row(1, 1, CANNOT_TELL), row(1, 1, CANNOT_TELL))))
 
     @Test
-    fun `cannot tell on different numbers is still open`() =
-        assertNull(RulesEngine.stepLevel(listOf(row(1, 1, CANNOT_TELL), row(1, 1, NOT_DONE), row(2, 2, CANNOT_TELL))))
+    fun `non consecutive cannot tell is still open`() =
+        assertNull(RulesEngine.stepLevel(listOf(row(1, 1, CANNOT_TELL), row(2, 1, NOT_DONE), row(3, 2, CANNOT_TELL))))
 
     @Test
-    fun `cannot tell then done keeps the number rule`() =
-        assertEquals(StepLevel.THREE, RulesEngine.stepLevel(listOf(row(1, 1, CANNOT_TELL), row(1, 1, DONE))))
+    fun `cannot tell then done on the repeat is still three`() =
+        assertEquals(StepLevel.THREE, RulesEngine.stepLevel(listOf(row(1, 1, CANNOT_TELL), row(2, 1, DONE))))
+
+    @Test
+    fun `done at level 1 after a not done is two`() =
+        assertEquals(StepLevel.TWO, RulesEngine.stepLevel(listOf(row(1, 1, NOT_DONE), row(2, 1, DONE))))
 
     @Test
     fun `verifier none is not scored`() =

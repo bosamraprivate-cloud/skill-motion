@@ -70,7 +70,8 @@ class CloudVerifierTest {
         respond(200, """{"verdict":"done","reason":"rim at lip","modelId":"m-1","promptVersion":"v1"}""")
         val v = verify()
         assertEquals(Outcome.DONE, v.outcome)
-        assertEquals("rim at lip", v.reason)
+        assertEquals(VerdictReason.MODEL, v.reason)
+        assertEquals("rim at lip", v.modelReason)
         assertEquals("m-1", v.modelId)
         assertEquals("v1", v.promptVersion)
     }
@@ -83,30 +84,33 @@ class CloudVerifierTest {
 
     @Test
     fun `200 cannot_tell passes through`() {
-        respond(200, """{"verdict":"cannot_tell","reason":"invalid_model_output","modelId":"m-1","promptVersion":"v1"}""")
+        respond(200, """{"verdict":"cannot_tell","reason":"cup hidden","modelId":"m-1","promptVersion":"v1"}""")
         val v = verify()
         assertEquals(Outcome.CANNOT_TELL, v.outcome)
-        assertEquals("invalid_model_output", v.reason)
+        assertEquals(VerdictReason.MODEL, v.reason)
+        assertEquals("cup hidden", v.modelReason)
     }
 
     @Test
-    fun `200 garbage is invalid_model_output`() {
+    fun `200 garbage is bad_answer`() {
         listOf("not json", """{"verdict":"maybe","reason":"x"}""", """{"reason":"x"}""").forEach { body ->
             respond(200, body)
             val v = verify()
             assertEquals(body, Outcome.CANNOT_TELL, v.outcome)
-            assertEquals(body, VerdictReason.INVALID_MODEL_OUTPUT, v.reason)
+            assertEquals(body, VerdictReason.BAD_ANSWER, v.reason)
+            assertNull(body, v.modelReason)
         }
     }
 
     @Test
-    fun `non-200 maps to http status`() {
-        listOf(401, 413, 502).forEach { code ->
+    fun `non-200 is refused`() {
+        listOf(401, 413, 500, 502).forEach { code ->
             respond(code, "{}")
             val v = verify()
             assertEquals(Outcome.CANNOT_TELL, v.outcome)
-            assertEquals("http_$code", v.reason)
+            assertEquals(VerdictReason.REFUSED, v.reason)
             assertNull(v.modelId)
+            assertNull(v.modelReason)
         }
     }
 
@@ -119,7 +123,7 @@ class CloudVerifierTest {
     }
 
     @Test
-    fun `200 verdict without provenance is invalid_model_output`() {
+    fun `200 verdict without provenance is bad_answer`() {
         listOf(
             """{"verdict":"done","reason":"ok","promptVersion":"v1"}""",
             """{"verdict":"not_done","reason":"ok","modelId":"m","promptVersion":" "}"""
@@ -127,7 +131,8 @@ class CloudVerifierTest {
             respond(200, body)
             val v = verify()
             assertEquals(body, Outcome.CANNOT_TELL, v.outcome)
-            assertEquals(body, VerdictReason.INVALID_MODEL_OUTPUT, v.reason)
+            assertEquals(body, VerdictReason.BAD_ANSWER, v.reason)
+            assertNull(body, v.modelReason)
         }
     }
 

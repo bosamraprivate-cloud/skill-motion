@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Face
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
@@ -40,10 +42,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.components.PageHeader
@@ -69,10 +76,12 @@ fun TherapistShell(
     modifier: Modifier = Modifier,
     onOpenChildMode: (childId: String, taskId: String) -> Unit = { _, _ -> },
     onContinueSession: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> },
-    onNewSession: (childId: String, taskId: String, thenTaskId: String?) -> Unit = { _, _, _ -> }
+    onNewSession: (childId: String, taskId: String, thenTaskId: String?) -> Unit = { _, _, _ -> },
+    networkViewModel: NetworkBannerViewModel = hiltViewModel()
 ) {
     var selected by rememberSaveable { mutableStateOf(ShellDestination.CHILDREN) }
-    TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier) { destination ->
+    val banner by networkViewModel.banner.collectAsStateWithLifecycle()
+    TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier, banner = banner) { destination ->
         when (destination) {
             ShellDestination.CHILDREN -> ChildrenRoute(onContinue = onContinueSession, onNewSession = onNewSession)
             ShellDestination.REPLAY -> ReplayPlaceholder()
@@ -91,6 +100,7 @@ fun TherapistShellLayout(
     selected: ShellDestination,
     onSelect: (ShellDestination) -> Unit,
     modifier: Modifier = Modifier,
+    banner: NetworkBanner = NetworkBanner.NONE,
     destinationContent: @Composable (ShellDestination) -> Unit
 ) {
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -107,7 +117,10 @@ fun TherapistShellLayout(
                 }
             }
             VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Box(modifier = Modifier.weight(1f).fillMaxHeight()) { destinationContent(selected) }
+            Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                if (banner != NetworkBanner.NONE) NetworkBannerBar(banner)
+                Box(modifier = Modifier.weight(1f).fillMaxWidth()) { destinationContent(selected) }
+            }
         }
     }
 }
@@ -136,6 +149,29 @@ private fun RailItem(destination: ShellDestination, selected: Boolean, onClick: 
             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     )
+}
+
+/** Calm network notice for the therapist (never shown to the child); therapist tokens, not error red. */
+@Composable
+private fun NetworkBannerBar(banner: NetworkBanner) {
+    val text =
+        stringResource(
+            if (banner == NetworkBanner.OFFLINE) R.string.network_banner_offline else R.string.network_banner_proxy_failed
+        )
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = Spacing.S4, vertical = Spacing.S3),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.S3)
+        ) {
+            Icon(Icons.Outlined.Info, contentDescription = null)
+            Text(text, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
 }
 
 /** Skillmotion mark and wordmark at the top of the rail. */
@@ -177,7 +213,7 @@ private val RAIL_WIDTH = 96.dp
 @Composable
 private fun TherapistShellPreview() {
     DlsTheme {
-        TherapistShellLayout(selected = ShellDestination.CHILDREN, onSelect = {}) {
+        TherapistShellLayout(selected = ShellDestination.CHILDREN, onSelect = {}, banner = NetworkBanner.OFFLINE) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 EmptyState(icon = Icons.Filled.Face, message = stringResource(R.string.children_empty))
             }

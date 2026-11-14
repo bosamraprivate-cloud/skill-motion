@@ -26,6 +26,8 @@ plugins {
 
 android {
     namespace = "com.aitherapist.dls"
+    // Exported Room schemas for MigrationTestHelper.
+    sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
     compileSdk = 37
 
     defaultConfig {
@@ -133,6 +135,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.room.testing)
 }
 
 // Core classes with a >= 90% line-coverage rule (AD-12), checked by koverVerifyCore. Geometry landed in 1.3;

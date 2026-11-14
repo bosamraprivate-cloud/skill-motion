@@ -175,4 +175,6 @@
     <string name="framing_move_left">اتحرك شمال.</string>
     <string name="framing_move_right">اتحرك يمين.</string>
     <string name="framing_show_hands">خلّي الإيدين باينين للكاميرا.</string>
+    <string name="network_banner_offline">مفيش إنترنت. خطوات الأدوات بتتسجل \"مش واضح\" وبتتعاد مرة. شغّل الواي فاي تاني علشان تتقيّم.</string>
+    <string name="network_banner_proxy_failed">آخر تقييم سحابي ما ردّش. الخطوة اتسجلت \"مش واضح\". اتأكد من الواي فاي والاتصال في الإعدادات.</string>
 </resources>

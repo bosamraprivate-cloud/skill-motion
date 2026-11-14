@@ -11,6 +11,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -41,6 +44,11 @@ internal object DataModule {
     @Provides
     @Singleton
     fun frameStore(@ApplicationContext context: Context, keys: KeyManager): FrameStore = FrameStore(context.filesDir, keys)
+
+    @Provides
+    @Singleton
+    fun networkStatus(@ApplicationContext context: Context): NetworkStatus =
+        AndroidNetworkStatus(context, CoroutineScope(SupervisorJob() + Dispatchers.Default))
 
     /** The database opens lazily on the IO dispatcher when a repository first awaits it. */
     @Provides

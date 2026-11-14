@@ -25,7 +25,7 @@ import okhttp3.Response
 /**
  * Cloud verifier for object steps (AD-3, AD-7, FR-19/20). Gates on face visibility, picks the start,
  * middle and end visible frames, crops and encodes them, and sends one multipart request to the proxy.
- * Every failure becomes `CANNOT_TELL` with a reason; `NOT_DONE` comes only from a 200 `not_done`. Never
+ * Every failure becomes `CANNOT_TELL` with a fixed reason code (`network`, `timeout`, `refused`, `bad_answer`); `NOT_DONE` comes only from a 200 `not_done`. Never
  * throws (except coroutine cancellation). Logs nothing.
  */
 class CloudVerifier(
@@ -53,7 +53,7 @@ class CloudVerifier(
             } catch (e: OutOfMemoryError) {
                 Result(Outcome.CANNOT_TELL, VerdictReason.NOT_JUDGEABLE)
             }
-        return Verdict(verdict.outcome, verdict.reason, verdict.modelId, verdict.promptVersion, clockMs() - start)
+        return Verdict(verdict.outcome, verdict.reason, verdict.modelId, verdict.promptVersion, clockMs() - start, verdict.modelReason)
     }
 
     private suspend fun judge(step: Step, frames: List<Frame>, landmarks: List<LandmarkFrame>, ctx: VerifyContext): Result {
@@ -117,7 +117,7 @@ class CloudVerifier(
                                 if (it.code !=
                                     HTTP_OK
                                 ) {
-                                    Result(Outcome.CANNOT_TELL, VerdictReason.http(it.code))
+                                    Result(Outcome.CANNOT_TELL, VerdictReason.REFUSED)
                                 } else {
                                     parse(it.body.string())
                                 }
@@ -149,9 +149,9 @@ class CloudVerifier(
             body.modelId.isNullOrBlank() ||
             body.promptVersion.isNullOrBlank()
         ) {
-            return Result(Outcome.CANNOT_TELL, VerdictReason.INVALID_MODEL_OUTPUT, body?.modelId, body?.promptVersion)
+            return Result(Outcome.CANNOT_TELL, VerdictReason.BAD_ANSWER, body?.modelId, body?.promptVersion)
         }
-        return Result(outcome, body.reason, body.modelId, body.promptVersion)
+        return Result(outcome, VerdictReason.MODEL, body.modelId, body.promptVersion, body.reason)
     }
 
     /** Start, middle and end visible frames by timestamp, each with its paired landmarks; null if fewer than 3. */
@@ -171,7 +171,13 @@ class CloudVerifier(
     private fun nearest(landmarks: List<LandmarkFrame>, ts: Long): LandmarkFrame? =
         landmarks.filter { abs(it.timestampMs - ts) <= PAIR_WINDOW_MS }.minByOrNull { abs(it.timestampMs - ts) }
 
-    private data class Result(val outcome: Outcome, val reason: String, val modelId: String? = null, val promptVersion: String? = null)
+    private data class Result(
+        val outcome: Outcome,
+        val reason: String,
+        val modelId: String? = null,
+        val promptVersion: String? = null,
+        val modelReason: String? = null
+    )
 
     @Serializable
     private data class ProxyVerdict(

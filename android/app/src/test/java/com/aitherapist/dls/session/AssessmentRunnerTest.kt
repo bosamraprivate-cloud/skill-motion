@@ -226,24 +226,66 @@ class AssessmentRunnerTest {
     }
 
     @Test
-    fun `cannot tell twice repeats the number then moves on`() = runTest {
+    fun `cannot tell twice repeats as the next attempt then moves on`() = runTest {
+        // Phone bug (drink.cup.02): the repeat was saved as a second try=1 row.
         val r = runner(FakeVerifier(Outcome.CANNOT_TELL, Outcome.CANNOT_TELL))
         r.start()
         r.attemptDone()
-        assertEquals(RunnerState.Listen(0, "s1", PromptState(1, false, 1)), r.state.value)
+        assertEquals(RunnerState.Listen(0, "s1", PromptState(1, false, 2)), r.state.value)
         r.attemptDone()
-        assertEquals(listOf(1, 1), rowsFor("s1").map { it.number })
+        assertEquals(listOf(1, 2), rowsFor("s1").map { it.number })
         assertEquals(1, stepIndex(r))
     }
 
     @Test
-    fun `cannot tell then done keeps the number`() = runTest {
+    fun `cannot tell then done is attempt 2 and still level three`() = runTest {
         val r = runner(FakeVerifier(Outcome.CANNOT_TELL, Outcome.DONE))
         r.start()
         r.attemptDone()
         r.attemptDone()
-        assertEquals(listOf(1 to AttemptVerdict.CANNOT_TELL, 1 to AttemptVerdict.DONE), rowsFor("s1").map { it.number to it.verdict })
+        assertEquals(listOf(1 to AttemptVerdict.CANNOT_TELL, 2 to AttemptVerdict.DONE), rowsFor("s1").map { it.number to it.verdict })
         assertEquals(1, stepIndex(r))
+    }
+
+    @Test
+    fun `reason is always a code and the model text goes to modelReason`() = runTest {
+        val verdicts =
+            ArrayDeque(
+                listOf(
+                    Verdict(Outcome.CANNOT_TELL, VerdictReason.NETWORK, latencyMs = 5),
+                    Verdict(Outcome.DONE, VerdictReason.MODEL, "m", "v1", 5, modelReason = "cup at lip")
+                )
+            )
+        val r =
+            runner(
+                object : Verifier {
+                    override suspend fun verify(step: Step, frames: List<Frame>, landmarks: List<LandmarkFrame>, ctx: VerifyContext) =
+                        verdicts.removeFirst()
+                }
+            )
+        r.start()
+        r.attemptDone()
+        r.attemptDone()
+        assertEquals(listOf(VerdictReason.NETWORK, VerdictReason.MODEL), rowsFor("s1").map { it.reason })
+        assertEquals(listOf(null, "cup at lip"), rowsFor("s1").map { it.modelReason })
+        assertEquals(listOf(1, 2), rowsFor("s1").map { it.number })
+    }
+
+    @Test
+    fun `model reason is capped at 300 chars with newlines collapsed`() = runTest {
+        val long = "line one\n\nline   two " + "x".repeat(400)
+        val r =
+            runner(
+                object : Verifier {
+                    override suspend fun verify(step: Step, frames: List<Frame>, landmarks: List<LandmarkFrame>, ctx: VerifyContext) =
+                        Verdict(Outcome.DONE, VerdictReason.MODEL, "m", "v1", 5, modelReason = long)
+                }
+            )
+        r.start()
+        r.attemptDone()
+        val saved = rowsFor("s1").single().modelReason!!
+        assertEquals(300, saved.length)
+        assertTrue(saved.startsWith("line one line two x"))
     }
 
     @Test
@@ -336,12 +378,12 @@ class AssessmentRunnerTest {
     }
 
     @Test
-    fun `not done then cannot tell repeats attempt 2 at level 2`() = runTest {
+    fun `not done then cannot tell repeats as attempt 3 at level 2`() = runTest {
         val r = runner(FakeVerifier(Outcome.NOT_DONE, Outcome.CANNOT_TELL))
         r.start()
         r.attemptDone()
         r.attemptDone()
-        assertEquals(RunnerState.Listen(0, "s1", PromptState(2, false, 2)), r.state.value)
+        assertEquals(RunnerState.Listen(0, "s1", PromptState(2, false, 3)), r.state.value)
     }
 
     @Test
@@ -638,9 +680,10 @@ class AssessmentRunnerTest {
         judging.join()
         pausing.join()
         assertEquals(1, store.rows.size)
-        assertEquals(RunnerState.Paused(0, "s1", PromptState()), r.state.value)
+        // The timed-out verdict is cannot tell: the repeat is attempt 2 at the same level.
+        assertEquals(RunnerState.Paused(0, "s1", PromptState(attempt = 2)), r.state.value)
         r.resume()
-        assertEquals(RunnerState.Listen(0, "s1", PromptState()), r.state.value)
+        assertEquals(RunnerState.Listen(0, "s1", PromptState(attempt = 2)), r.state.value)
         assertEquals(1, store.rows.size)
     }
 

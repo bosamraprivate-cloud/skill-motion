@@ -2,7 +2,8 @@
 title: 'Story 3.6: Network loss becomes "cannot tell"'
 type: 'feature'
 created: '2026-11-14'
-status: 'in-progress'
+status: 'done'
+baseline_commit: 'af469c66d3385aaa964fa74e756b1e3a02c42823'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -49,10 +50,10 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] CloudVerifier reason codes + tests (MockWebServer or fake client).
-- [ ] Runner numbering fix + test reproducing two `try=1` rows.
-- [ ] Connectivity monitor + therapist banner + strings.
-- [ ] m3-field-tests.md.
+- [x] CloudVerifier reason codes + tests (MockWebServer or fake client).
+- [x] Runner numbering fix + test reproducing two `try=1` rows.
+- [x] Connectivity monitor + therapist banner + strings.
+- [x] m3-field-tests.md.
 
 **Acceptance Criteria:**
 - Given the gate, when `./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` runs, then it passes.
@@ -60,9 +61,18 @@ context:
 
 ## Implementation Notes
 
+- Reason codes live in `VerdictReason` (`network`, `timeout`, `refused`, `bad_answer`, plus `model` for model verdicts; `CLOUD_FAILURES` groups the four). `invalid_model_output` and `http_<status>` are gone from verdicts (`http()` stays for the Settings probe only).
+- `Verdict.modelReason` carries the model's free text. The attempt `reason` column always holds a code (`model` for model verdicts); the text goes to the new nullable `attempt.modelReason` (max 300 chars, whitespace collapsed, never logged). Room v1 -> v2 with `MIGRATION_1_2`, exported `schemas/.../2.json`, JVM `MigrationSqlTest` and on-device `MigrationTest` (room-testing).
+- Numbering: the cannot-tell repeat is attempt n+1 at the same prompt level. Rule 1 changed so this never lowers a level: two consecutive `cannot_tell` rows -> not scored; `done` at prompt level 1 with no earlier `not_done` -> THREE. Old same-number rows still score the same. `RULES_VERSION` bumped to "2".
+- `data/Connectivity.kt`: `NetworkStatus` interface, pure `NetworkStatusState`, `AndroidNetworkStatus` (default-network callback; `ACCESS_NETWORK_STATE` added). `vision/ReportingVerifier` wraps the cloud verifier to report each proxy call. Online = INTERNET + VALIDATED. Reconnecting clears the failed-call flag and bumps a generation; a failure from a call started in an older generation is ignored; the flag expires after 2 min without new failures. Banner in `TherapistShell` uses `secondaryContainer`.
+
 ## Spec Change Log
 
+- Coordinator review: model text moved to its own `modelReason` column (schema v2); banner generation counter, 2-minute expiry, validated network. Left as is: v1 resume numbering, runner timeout bypassing reporting, config errors mapping to `network`.
+
 ## Review Triage Log
+
+RulesEngine verified against the design for all repeat sequences. Patched: model free text moved to new column modelReason (migration 1→2, capped, never logged); banner generation counter + 2 min expiry; online requires VALIDATED. Left as is: v1 resume numbering, runner timeout bypassing banner, config errors map to network. Migration androidTest not yet run on device.
 
 ## Verification
 

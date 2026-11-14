@@ -63,5 +63,7 @@ data class AttemptEntity(
     val latencyMs: Int,
     val framePaths: List<String>,
     val clipFile: String?,
-    val createdAt: Long
+    val createdAt: Long,
+    /** The model's short free text when the verdict came from the model (reason is then `model`); never logged. */
+    val modelReason: String? = null
 )

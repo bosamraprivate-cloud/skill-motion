@@ -356,7 +356,7 @@ class AssessmentRunner(
     private fun baseLevel(rows: List<AttemptEntity>, number: Int): Int {
         val last = rows.lastOrNull() ?: return PromptState.MIN_LEVEL
         return when {
-            last.verdict == AttemptVerdict.CANNOT_TELL && last.number == number -> last.promptLevel
+            last.verdict == AttemptVerdict.CANNOT_TELL && last.number + 1 == number -> last.promptLevel
             else -> (last.promptLevel + 1).coerceAtMost(PromptState.MAX_LEVEL)
         }
     }
@@ -495,7 +495,8 @@ class AssessmentRunner(
             latencyMs = verdict.latencyMs.coerceIn(0L, Int.MAX_VALUE.toLong()).toInt(),
             framePaths = emptyList(),
             clipFile = null,
-            createdAt = wallClock.nowMs()
+            createdAt = wallClock.nowMs(),
+            modelReason = verdict.modelReason?.let(::capModelReason)
         )
     }
 
@@ -527,7 +528,8 @@ class AssessmentRunner(
         val last = rows.last()
         val next =
             when (last.verdict) {
-                AttemptVerdict.CANNOT_TELL -> PromptState(level = last.promptLevel, attempt = last.number)
+                // The cannot-tell repeat is the next attempt number at the same prompt level.
+                AttemptVerdict.CANNOT_TELL -> PromptState(level = last.promptLevel, attempt = last.number + 1)
                 else -> PromptState(level = (last.promptLevel + 1).coerceAtMost(PromptState.MAX_LEVEL), attempt = last.number + 1)
             }
         enterPrompt(judge.stepIndex, next)
@@ -571,6 +573,12 @@ class AssessmentRunner(
     }
 
     private companion object {
+        const val MODEL_REASON_MAX = 300
+        val WHITESPACE = Regex("""\s+""")
+
+        /** Newlines and runs of whitespace collapsed to one space, trimmed, at most [MODEL_REASON_MAX] chars. */
+        fun capModelReason(text: String): String? = text.replace(WHITESPACE, " ").trim().take(MODEL_REASON_MAX).ifEmpty { null }
+
         /** A hanging verifier becomes cannot_tell `timeout` after this (FR-20: never not_done). */
         const val VERIFY_TIMEOUT_MS = 10_000L
         const val MAX_FRAMES = 24

@@ -175,4 +175,6 @@
     <string name="framing_move_left">Move left.</string>
     <string name="framing_move_right">Move right.</string>
     <string name="framing_show_hands">Show the hands to the camera.</string>
+    <string name="network_banner_offline">No internet. Object steps are saved as \"cannot tell\" and repeated once. Turn Wi-Fi back on to judge them.</string>
+    <string name="network_banner_proxy_failed">The last cloud check did not answer. That step was saved as \"cannot tell\". Check Wi-Fi and the connection in Settings.</string>
 </resources>

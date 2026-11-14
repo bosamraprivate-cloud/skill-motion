@@ -16,7 +16,11 @@ enum class Outcome {
     CANNOT_TELL
 }
 
-/** Machine reasons for verdicts (AD-3 Conventions). */
+/**
+ * Machine reason codes for verdicts (AD-3 Conventions), the single place they are defined. Cloud failures use
+ * [NETWORK], [TIMEOUT], [REFUSED] and [BAD_ANSWER]; a verdict the model gave uses [MODEL] and keeps the model's
+ * free text in [Verdict.modelReason].
+ */
 object VerdictReason {
     const val OUT_OF_FRAME = "out_of_frame"
     const val NO_ZONE = "no_zone"
@@ -25,10 +29,22 @@ object VerdictReason {
     const val CHECK_FAILED = "check_failed"
     const val TIMEOUT = "timeout"
     const val NETWORK = "network"
-    const val INVALID_MODEL_OUTPUT = "invalid_model_output"
+
+    /** The model refused or the proxy answered with an HTTP error status. */
+    const val REFUSED = "refused"
+
+    /** A 200 answer that is not a well-formed verdict with provenance. */
+    const val BAD_ANSWER = "bad_answer"
+
+    /** The verdict came from the model; its free-text reason is in [Verdict.modelReason]. */
+    const val MODEL = "model"
     const val VERIFIER_ERROR = "verifier_error"
 
+    /** Proxy probe detail only (Settings); verdicts use [REFUSED]. */
     fun http(status: Int) = "http_$status"
+
+    /** Reason codes a cloud verdict can carry when the network or proxy failed. */
+    val CLOUD_FAILURES = setOf(NETWORK, TIMEOUT, REFUSED, BAD_ANSWER)
 }
 
 @Serializable
@@ -37,7 +53,9 @@ data class Verdict(
     val reason: String,
     val modelId: String? = null,
     val promptVersion: String? = null,
-    val latencyMs: Long
+    val latencyMs: Long,
+    /** The model's short free-text reason, set only when [reason] is [VerdictReason.MODEL]. */
+    val modelReason: String? = null
 )
 
 /**
