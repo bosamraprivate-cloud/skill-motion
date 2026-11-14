@@ -55,3 +55,18 @@ object Radius {
     val Md = 16.dp
     val Lg = 28.dp
 }
+
+/** Setup-zone colours (therapist mode): calm, distinct from the level ramp; every zone is also labelled by name. */
+object ZoneColors {
+    val Mat = Color(0xFF5E9C8A)
+    val Sink = Color(0xFF4F86B5)
+    val Place = Color(0xFF8A73B8)
+    val Other = Color(0xFF7B8794)
+
+    fun of(name: String): Color = when (name) {
+        "mat" -> Mat
+        "sink" -> Sink
+        "place" -> Place
+        else -> Other
+    }
+}

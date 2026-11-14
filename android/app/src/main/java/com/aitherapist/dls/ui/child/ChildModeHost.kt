@@ -1,6 +1,7 @@
 package com.aitherapist.dls.ui.child
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -54,13 +55,15 @@ fun ChildModeHost(
             onNext()
         }
     }
-    StepScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        onAdultCorner = viewModel::openAdultSheet,
-        modifier = modifier,
-        onStart = viewModel::beginTask
-    )
+    Box(modifier) {
+        StepScreen(
+            state = state,
+            onEvent = viewModel::onEvent,
+            onAdultCorner = viewModel::openAdultSheet,
+            onStart = viewModel::beginTask
+        )
+        DebugResultStrip()
+    }
     if (sheetOpen) {
         AdultPauseSheet(
             paused = state.isPaused,

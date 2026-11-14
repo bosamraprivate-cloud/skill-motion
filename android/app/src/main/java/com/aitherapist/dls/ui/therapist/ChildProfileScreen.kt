@@ -21,10 +21,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -34,9 +39,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,6 +54,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,6 +69,7 @@ import com.aitherapist.dls.R
 import com.aitherapist.dls.data.ChildCharacter
 import com.aitherapist.dls.data.EffectLevel
 import com.aitherapist.dls.ui.child.CharacterView
+import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.components.Skeleton
@@ -148,11 +158,19 @@ private fun ChildProfileForm(
         if (showForm) {
             ProfileEditCard(state, onEvent)
         } else {
-            ProfileHeaderCard(form, enabled = !state.busy) {
-                newSessionCount++
-                newSessionOpen = true
+            var tab by rememberSaveable(state.childId) { mutableStateOf(ProfileTab.OVERVIEW) }
+            ProfileTabs(tab) { tab = it }
+            if (tab == ProfileTab.OVERVIEW) {
+                ProfileHeaderCard(form, enabled = !state.busy) {
+                    newSessionCount++
+                    newSessionOpen = true
+                }
+                state.message?.let { MessageText(it) }
+            } else {
+                OutlinedSurfaceCard {
+                    EmptyState(icon = tab.icon, message = stringResource(R.string.profile_tab_later, stringResource(tab.label)))
+                }
             }
-            state.message?.let { MessageText(it) }
         }
     }
     if (newSessionOpen) {
@@ -181,6 +199,35 @@ private fun ChildProfileForm(
                 TextButton(onClick = { onEvent(ChildProfileEvent.CancelDelete) }) { Text(stringResource(R.string.child_delete_cancel)) }
             }
         )
+    }
+}
+
+/** Agreed child-profile tabs (EXPERIENCE.md, therapist IA); only Overview has content until later epics. */
+private enum class ProfileTab(val label: Int, val icon: ImageVector) {
+    OVERVIEW(R.string.profile_tab_overview, Icons.Filled.Face),
+    SESSIONS(R.string.profile_tab_sessions, Icons.AutoMirrored.Filled.List),
+    REPORT(R.string.profile_tab_report, Icons.Filled.Info),
+    PLAN(R.string.profile_tab_plan, Icons.Filled.DateRange),
+    PROGRESS(R.string.profile_tab_progress, Icons.Filled.Star)
+}
+
+@Composable
+private fun ProfileTabs(selected: ProfileTab, onSelect: (ProfileTab) -> Unit) {
+    PrimaryScrollableTabRow(
+        selectedTabIndex = selected.ordinal,
+        edgePadding = 0.dp,
+        containerColor = Color.Transparent,
+        divider = { HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant) }
+    ) {
+        ProfileTab.entries.forEach { tab ->
+            Tab(
+                selected = tab == selected,
+                onClick = { onSelect(tab) },
+                text = { Text(stringResource(tab.label), style = MaterialTheme.typography.labelLarge) },
+                selectedContentColor = MaterialTheme.colorScheme.primary,
+                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

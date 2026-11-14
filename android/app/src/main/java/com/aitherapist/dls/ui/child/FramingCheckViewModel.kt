@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aitherapist.dls.catalog.CatalogRepository
+import com.aitherapist.dls.catalog.Check
+import com.aitherapist.dls.data.ZoneStore
 import com.aitherapist.dls.vision.FpsStream
 import com.aitherapist.dls.vision.Framing
 import com.aitherapist.dls.vision.FramingGuidance
@@ -46,7 +48,9 @@ sealed interface FramingUiState {
         val framed: Boolean = false,
         val guidance: FramingGuidance? = null,
         val canOverride: Boolean = false,
-        val engineError: String? = null
+        val engineError: String? = null,
+        /** `inZone` zones this task needs that are not drawn yet (those checks would become cannot tell); start stays allowed. */
+        val missingZones: List<String> = emptyList()
     ) : FramingUiState
 
     /** The catalogue could not load: message plus Start anyway. */
@@ -58,14 +62,17 @@ class FramingCheckViewModel
 internal constructor(
     private val catalog: CatalogRepository,
     private val engine: LandmarkEngine,
-    private val compute: CoroutineDispatcher
+    private val compute: CoroutineDispatcher,
+    private val zones: ZoneStore
 ) : ViewModel() {
-    @Inject constructor(catalog: CatalogRepository, landmarkers: Landmarkers) : this(catalog, landmarkers, Dispatchers.Default)
+    @Inject constructor(catalog: CatalogRepository, landmarkers: Landmarkers, zones: ZoneStore) :
+        this(catalog, landmarkers, Dispatchers.Default, zones)
 
     private val state = MutableStateFlow<FramingUiState>(FramingUiState.Loading)
     val uiState: StateFlow<FramingUiState> = state.asStateFlow()
 
     private var needed = NeededLandmarks(emptySet(), 0)
+    private var neededZones: List<String> = emptyList()
     private val hold = VisibilityGate.Hold()
     private var loadedTask: String? = null
     private var engineJobs: List<Job> = emptyList()
@@ -102,10 +109,35 @@ internal constructor(
                 state.value = FramingUiState.Skip
                 return@launch
             }
-            state.value = FramingUiState.Check(Framing.of(detectors.firstNotNullOfOrNull { it.framing }))
+            neededZones = detectors.mapNotNull { (it.check as? Check.InZone)?.zone }.distinct()
+            state.value = FramingUiState.Check(Framing.of(detectors.firstNotNullOfOrNull { it.framing }), missingZones = missingZones())
             delay(OVERRIDE_AFTER_MS)
             edit { it.copy(canOverride = true) }
         }
+    }
+
+    /** Re-reads the saved zones (after returning from the zone editor). */
+    fun refreshZones() {
+        viewModelScope.launch {
+            val missing = missingZones()
+            edit { it.copy(missingZones = missing) }
+        }
+    }
+
+    /** Needed zones that are not saved; a store failure counts every needed zone as missing (the notice is advisory). */
+    private suspend fun missingZones(): List<String> {
+        if (neededZones.isEmpty()) return emptyList()
+        val saved =
+            try {
+                withContext(compute) { zones.zones().keys }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (
+                @Suppress("TooGenericExceptionCaught") e: Exception
+            ) {
+                emptySet()
+            }
+        return neededZones.filterNot { it in saved }
     }
 
     /** Starts the landmarkers (lifecycle start with camera permission). */

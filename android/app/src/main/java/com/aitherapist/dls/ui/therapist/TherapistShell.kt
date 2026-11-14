@@ -1,5 +1,10 @@
 package com.aitherapist.dls.ui.therapist
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,10 +20,8 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
@@ -31,8 +34,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,11 +58,14 @@ import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.ui.theme.Spacing
+import kotlinx.coroutines.delay
 
-/** Therapist-mode destinations on the start-side rail (Children, Diagnostics, Settings; replay sits under Settings -> Advanced tools, debug builds only). */
+/**
+ * Therapist-mode destinations on the start-side rail (agreed IA): Children and Settings only. Diagnostics, Replay &
+ * evaluation, Try step screen and Character preview sit under Settings -> Advanced tools (debug builds only).
+ */
 enum class ShellDestination(val label: Int, val icon: ImageVector, val selectedIcon: ImageVector) {
     CHILDREN(R.string.shell_children, Icons.Outlined.Face, Icons.Filled.Face),
-    DIAGNOSTICS(R.string.shell_diagnostics, Icons.Outlined.Build, Icons.Filled.Build),
     SETTINGS(R.string.shell_settings, Icons.Outlined.Settings, Icons.Filled.Settings)
 }
 
@@ -80,12 +88,11 @@ fun TherapistShell(
     TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier, banner = banner) { destination ->
         when (destination) {
             ShellDestination.CHILDREN -> ChildrenRoute(onContinue = onContinueSession, onNewSession = onNewSession)
-            ShellDestination.DIAGNOSTICS -> DiagnosticsRoute(
+            ShellDestination.SETTINGS -> SettingsRoute(
                 onOpenSample = onOpenSample,
                 onOpenCharacterPreview = onOpenCharacterPreview,
                 onOpenChildMode = onOpenChildMode
             )
-            ShellDestination.SETTINGS -> SettingsRoute()
         }
     }
 }
@@ -113,7 +120,7 @@ fun TherapistShellLayout(
             }
             VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                if (banner != NetworkBanner.NONE) NetworkBannerBar(banner)
+                NetworkBannerBar(banner)
                 Box(modifier = Modifier.weight(1f).fillMaxWidth()) { destinationContent(selected) }
             }
         }
@@ -146,28 +153,55 @@ private fun RailItem(destination: ShellDestination, selected: Boolean, onClick: 
     )
 }
 
-/** Calm network notice for the therapist (never shown to the child); therapist tokens, not error red. */
+/**
+ * Calm, slim network notice for the therapist (never shown in child mode; therapist tokens, not error red). No dismiss
+ * button: it slides away by itself when the network is back, and a failed cloud check fades after [PROXY_NOTICE_MS].
+ */
 @Composable
 private fun NetworkBannerBar(banner: NetworkBanner) {
-    val text =
-        stringResource(
-            if (banner == NetworkBanner.OFFLINE) R.string.network_banner_offline else R.string.network_banner_proxy_failed
-        )
-    Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = Spacing.S4, vertical = Spacing.S3),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.S3)
+    var shown by remember { mutableStateOf(banner) }
+    var visible by remember { mutableStateOf(banner != NetworkBanner.NONE) }
+    LaunchedEffect(banner) {
+        if (banner == NetworkBanner.NONE) {
+            visible = false
+            return@LaunchedEffect
+        }
+        shown = banner
+        visible = true
+        if (banner == NetworkBanner.PROXY_FAILED) {
+            delay(PROXY_NOTICE_MS)
+            visible = false
+        }
+    }
+    AnimatedVisibility(visible = visible, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
+        val offline = shown == NetworkBanner.OFFLINE
+        Surface(
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }
         ) {
-            Icon(Icons.Outlined.Info, contentDescription = null)
-            Text(text, style = MaterialTheme.typography.bodyMedium)
+            Row(
+                modifier = Modifier.padding(horizontal = Spacing.S4, vertical = Spacing.S2),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.S2)
+            ) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    stringResource(if (offline) R.string.network_banner_offline else R.string.network_banner_proxy_failed),
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
+
+private const val PROXY_NOTICE_MS = 8_000L
 
 /** Skillmotion mark and wordmark at the top of the rail. */
 @Composable

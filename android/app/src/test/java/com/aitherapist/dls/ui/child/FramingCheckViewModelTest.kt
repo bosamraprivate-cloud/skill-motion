@@ -7,8 +7,12 @@ import com.aitherapist.dls.catalog.CatalogStep
 import com.aitherapist.dls.catalog.CatalogTask
 import com.aitherapist.dls.catalog.CatalogVersion
 import com.aitherapist.dls.catalog.Check
+import com.aitherapist.dls.catalog.LandmarkRef
 import com.aitherapist.dls.catalog.Method
+import com.aitherapist.dls.catalog.Side
 import com.aitherapist.dls.catalog.StepDetector
+import com.aitherapist.dls.data.Zone
+import com.aitherapist.dls.data.ZoneStore
 import com.aitherapist.dls.vision.FpsStream
 import com.aitherapist.dls.vision.Framing
 import com.aitherapist.dls.vision.FramingGuidance
@@ -76,12 +80,39 @@ class FramingCheckViewModelTest {
     }
 
     private fun TestScope.vm(engine: LandmarkEngine, vararg steps: CatalogStep) =
-        FramingCheckViewModel(repo(*steps), engine, dispatcher).also {
+        FramingCheckViewModel(repo(*steps), engine, dispatcher, zoneStore).also {
             it.load("t.x")
             runCurrent()
         }
 
+    private val zoneStore = object : ZoneStore {
+        var saved: Map<String, Zone> = emptyMap()
+
+        override suspend fun zones() = saved
+
+        override suspend fun setZones(zones: Map<String, Zone>) {
+            saved = zones
+        }
+    }
+
     private val cloud = step(1, Method.CLOUD, Check.Question("q"))
+
+    @Test
+    fun `a needed zone that is not drawn shows as missing until it is saved`() = runTest(dispatcher) {
+        val inMat = step(1, Method.POSE, Check.InZone(LandmarkRef.Lm("WRIST"), "mat", 0.3, Side.EITHER))
+        val vm = vm(FakeEngine(), inMat, cloud)
+        runCurrent()
+        assertEquals(listOf("mat"), (vm.uiState.value as FramingUiState.Check).missingZones)
+        zoneStore.setZones(mapOf("mat" to Zone(0.1f, 0.1f, 0.5f, 0.5f)))
+        vm.refreshZones()
+        runCurrent()
+        assertEquals(emptyList<String>(), (vm.uiState.value as FramingUiState.Check).missingZones)
+    }
+
+    @Test
+    fun `a task without zone checks never shows the notice`() = runTest(dispatcher) {
+        assertEquals(emptyList<String>(), (vm(FakeEngine(), cloud).uiState.value as FramingUiState.Check).missingZones)
+    }
     private val visiblePose = List(33) { i -> LandmarkPoint(if (i % 2 == 0) 0.3f else 0.7f, if (i % 4 < 2) 0.3f else 0.7f, 0.9f) }
 
     @Test
@@ -91,14 +122,14 @@ class FramingCheckViewModelTest {
 
     @Test
     fun `unknown task or failed catalogue is unavailable`() = runTest(dispatcher) {
-        val vm = FramingCheckViewModel(repo(cloud), FakeEngine(), dispatcher)
+        val vm = FramingCheckViewModel(repo(cloud), FakeEngine(), dispatcher, zoneStore)
         vm.load("nope")
         runCurrent()
         assertTrue(vm.uiState.value is FramingUiState.Unavailable)
         val failing = object : CatalogRepository {
             override suspend fun load(): Result<Catalog> = Result.failure(IllegalStateException())
         }
-        val bad = FramingCheckViewModel(failing, FakeEngine(), dispatcher)
+        val bad = FramingCheckViewModel(failing, FakeEngine(), dispatcher, zoneStore)
         bad.load("t.x")
         runCurrent()
         assertEquals(FramingUiState.Unavailable("IllegalStateException"), bad.uiState.value)

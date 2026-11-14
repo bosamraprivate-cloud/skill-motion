@@ -6,24 +6,43 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,14 +56,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -57,10 +81,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.camera.CameraController
 import com.aitherapist.dls.ui.LocalExternalHop
-import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.ChildColors
+import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
+import com.aitherapist.dls.ui.therapist.ZoneEditorRoute
+import com.aitherapist.dls.ui.therapist.zoneLabel
 import com.aitherapist.dls.vision.Framing
 import com.aitherapist.dls.vision.FramingGuidance
 
@@ -86,7 +112,13 @@ fun FramingCheckRoute(taskId: String, onHandToChild: () -> Unit, viewModel: Fram
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
             access = if (ok) CameraAccess.GRANTED else CameraAccess.DENIED
         }
-    val needsCamera = state is FramingUiState.Check
+    // Missing-zone shortcut: the zone editor opens in place and returns here; the camera is released meanwhile.
+    var drawingZones by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = drawingZones) {
+        drawingZones = false
+        viewModel.refreshZones()
+    }
+    val needsCamera = state is FramingUiState.Check && !drawingZones
     LaunchedEffect(needsCamera) {
         if (!needsCamera) return@LaunchedEffect
         when {
@@ -104,6 +136,16 @@ fun FramingCheckRoute(taskId: String, onHandToChild: () -> Unit, viewModel: Fram
             onStopOrDispose { viewModel.stop() }
         }
     }
+    if (drawingZones) {
+        ZoneEditorRoute(
+            onDone = {
+                drawingZones = false
+                viewModel.refreshZones()
+            },
+            doneLabel = stringResource(R.string.zones_done)
+        )
+        return
+    }
     FramingCheckScreen(
         state = state,
         cameraGranted = access == CameraAccess.GRANTED,
@@ -114,6 +156,7 @@ fun FramingCheckRoute(taskId: String, onHandToChild: () -> Unit, viewModel: Fram
             context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)))
         },
         onHandToChild = onHandToChild,
+        onDrawZones = { drawingZones = true },
         cameraPreview = { m -> FramingCameraPreview(viewModel::onFrame, viewModel::onCameraError, m) }
     )
 }
@@ -132,7 +175,10 @@ private fun FramingCameraPreview(onFrame: (Bitmap, Long) -> Unit, onError: (Stri
     AndroidView(factory = { previewView }, modifier = modifier)
 }
 
-/** Stateless framing check. */
+/**
+ * Stateless framing check, adult-facing: a large mirrored preview with the outline (grey, easing to sage when framed),
+ * a guidance pill, an optional missing-zone notice, a large "Hand to child" and a quiet "Start anyway".
+ */
 @Composable
 fun FramingCheckScreen(
     state: FramingUiState,
@@ -142,58 +188,185 @@ fun FramingCheckScreen(
     onOpenSettings: () -> Unit,
     onHandToChild: () -> Unit,
     modifier: Modifier = Modifier,
+    onDrawZones: () -> Unit = {},
     cameraPreview: @Composable (Modifier) -> Unit = {}
 ) {
-    Column(
-        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(Spacing.S4),
-        verticalArrangement = Arrangement.spacedBy(Spacing.S3)
-    ) {
-        val check = state as? FramingUiState.Check
-        PageHeader(stringResource(R.string.framing_title)) {
-            val override = check?.canOverride == true || state is FramingUiState.Unavailable || (check != null && !cameraGranted)
-            if (override && check?.framed != true) {
-                TextButton(onClick = onHandToChild) { Text(stringResource(R.string.framing_start_anyway)) }
+    val check = state as? FramingUiState.Check
+    BoxWithConstraints(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(Spacing.S4)) {
+        val wide = maxWidth >= WIDE_LAYOUT
+        val preview: @Composable (
+            Modifier
+        ) -> Unit = { m -> PreviewPane(state, cameraGranted, cameraDenied, onRequestPermission, onOpenSettings, cameraPreview, m) }
+        val panel: @Composable (Modifier) -> Unit = { m -> SidePanel(state, check, cameraGranted, onHandToChild, onDrawZones, m) }
+        if (wide) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4), modifier = Modifier.fillMaxSize()) {
+                preview(Modifier.weight(1f).fillMaxHeight())
+                panel(Modifier.width(PANEL_WIDTH).fillMaxHeight())
             }
-            Button(
-                onClick = onHandToChild,
-                enabled = check?.framed == true,
-                colors = ButtonDefaults.buttonColors(containerColor = ChildColors.FramingOk)
-            ) { Text(stringResource(R.string.framing_hand_to_child)) }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.S3), modifier = Modifier.fillMaxSize()) {
+                preview(Modifier.weight(1f).fillMaxWidth())
+                panel(Modifier.fillMaxWidth())
+            }
         }
+    }
+}
+
+@Composable
+private fun PreviewPane(
+    state: FramingUiState,
+    cameraGranted: Boolean,
+    cameraDenied: Boolean,
+    onRequestPermission: () -> Unit,
+    onOpenSettings: () -> Unit,
+    cameraPreview: @Composable (Modifier) -> Unit,
+    modifier: Modifier
+) {
+    Box(modifier, contentAlignment = Alignment.Center) {
         when (state) {
             FramingUiState.Loading, FramingUiState.Skip -> Skeleton(rows = 3)
-            is FramingUiState.Unavailable ->
-                Text(
-                    stringResource(R.string.framing_unavailable, state.reason),
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+            is FramingUiState.Unavailable -> NoticeText(stringResource(R.string.framing_unavailable, state.reason))
             is FramingUiState.Check ->
                 when {
                     !cameraGranted -> PermissionPanel(cameraDenied, onRequestPermission, onOpenSettings)
-                    state.engineError != null ->
-                        Text(
-                            stringResource(R.string.framing_engine_error, state.engineError),
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                    state.engineError != null -> NoticeText(stringResource(R.string.framing_engine_error, state.engineError))
                     else -> {
-                        Text(
-                            stringResource(guidanceText(state.guidance, state.framed)),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onBackground
+                        val outline by animateColorAsState(
+                            if (state.framed) ChildColors.FramingOk else ChildColors.FramingWait,
+                            animationSpec = tween(OUTLINE_FADE_MS),
+                            label = "framing-outline"
                         )
-                        Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                            Box(Modifier.aspectRatio(PREVIEW_ASPECT)) {
-                                cameraPreview(Modifier.fillMaxSize())
-                                val color = if (state.framed) ChildColors.FramingOk else ChildColors.FramingWait
-                                Canvas(Modifier.fillMaxSize()) { drawSilhouette(state.framing, color) }
-                            }
+                        Box(
+                            Modifier
+                                .aspectRatio(PREVIEW_ASPECT)
+                                .clip(RoundedCornerShape(Radius.Lg))
+                                .background(Color.Black)
+                                .border(BorderStroke(4.dp, outline), RoundedCornerShape(Radius.Lg))
+                        ) {
+                            cameraPreview(Modifier.fillMaxSize())
+                            Canvas(Modifier.fillMaxSize()) { drawSilhouette(state.framing, outline) }
                         }
                     }
                 }
         }
     }
+}
+
+@Composable
+private fun SidePanel(
+    state: FramingUiState,
+    check: FramingUiState.Check?,
+    cameraGranted: Boolean,
+    onHandToChild: () -> Unit,
+    onDrawZones: () -> Unit,
+    modifier: Modifier
+) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
+        Text(
+            stringResource(R.string.framing_title),
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            stringResource(R.string.framing_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (check != null && cameraGranted && check.engineError == null) GuidancePill(check)
+        if (check != null && check.missingZones.isNotEmpty()) MissingZonesNotice(check.missingZones, onDrawZones)
+        Spacer(Modifier.weight(1f))
+        val framed = check?.framed == true
+        Button(
+            onClick = onHandToChild,
+            enabled = framed,
+            shape = RoundedCornerShape(Radius.Md),
+            colors = ButtonDefaults.buttonColors(containerColor = ChildColors.FramingOk, contentColor = Color.White),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)
+        ) {
+            Icon(Icons.Filled.PlayArrow, contentDescription = null)
+            Text(
+                stringResource(R.string.framing_hand_to_child),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(start = Spacing.S2)
+            )
+        }
+        val override = check?.canOverride == true || state is FramingUiState.Unavailable || (check != null && !cameraGranted)
+        if (override && !framed) {
+            TextButton(onClick = onHandToChild, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(stringResource(R.string.framing_start_anyway), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
+/** The one guidance line, in a pill with an icon; sage tint once framed. */
+@Composable
+private fun GuidancePill(check: FramingUiState.Check) {
+    val tint by animateColorAsState(
+        if (check.framed) ChildColors.FramingOk.copy(alpha = 0.16f) else MaterialTheme.colorScheme.secondaryContainer,
+        animationSpec = tween(OUTLINE_FADE_MS),
+        label = "guidance-pill"
+    )
+    Surface(shape = RoundedCornerShape(percent = 50), color = tint, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) {
+        Row(
+            modifier = Modifier.padding(horizontal = Spacing.S3, vertical = Spacing.S2),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.S2)
+        ) {
+            Icon(
+                if (check.framed) Icons.Filled.CheckCircle else Icons.Outlined.Info,
+                contentDescription = null,
+                tint = if (check.framed) ChildColors.FramingOk else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                stringResource(guidanceText(check.guidance, check.framed)),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+/** Advisory: a zone this task checks is not drawn, so those checks would end as cannot tell. The task can still start. */
+@Composable
+private fun MissingZonesNotice(missing: List<String>, onDrawZones: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(Radius.Md),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(Modifier.padding(Spacing.S3), verticalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+                Icon(
+                    Icons.Filled.LocationOn,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(stringResource(R.string.framing_zone_missing_title), style = MaterialTheme.typography.titleSmall)
+            }
+            Text(
+                stringResource(R.string.framing_zone_missing_body, missing.map { zoneLabel(it) }.joinToString()),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            OutlinedButton(onClick = onDrawZones, shape = RoundedCornerShape(Radius.Sm)) {
+                Text(stringResource(R.string.settings_zones_open))
+            }
+        }
+    }
+}
+
+@Composable
+private fun NoticeText(text: String) {
+    Text(
+        text,
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.widthIn(max = 480.dp)
+    )
 }
 
 @Composable
@@ -225,7 +398,7 @@ private fun guidanceText(guidance: FramingGuidance?, framed: Boolean): Int = whe
 private fun DrawScope.drawSilhouette(framing: Framing, color: Color) {
     val w = size.width
     val h = size.height
-    val stroke = Stroke(width = 6.dp.toPx())
+    val stroke = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
     fun rect(l: Float, t: Float, r: Float, b: Float, radius: Float = 0.04f) = drawRoundRect(
         color,
         Offset(l * w, t * h),
@@ -257,3 +430,6 @@ private fun DrawScope.drawSilhouette(framing: Framing, color: Color) {
 }
 
 private const val PREVIEW_ASPECT = 4f / 3f
+private const val OUTLINE_FADE_MS = 600
+private val PANEL_WIDTH = 360.dp
+private val WIDE_LAYOUT = 840.dp
