@@ -4,21 +4,27 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -63,6 +69,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -118,6 +128,10 @@ fun SettingsRoute(
     val banner by networkViewModel.banner.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf(SettingsPage.MAIN) }
     var showTryStep by rememberSaveable { mutableStateOf(false) }
+    // Hoisted here (not inside SettingsScreen) so returning from a sub-page lands on the same section and scroll.
+    var section by rememberSaveable { mutableStateOf(SettingsSection.SECURITY) }
+    val listScroll = rememberScrollState()
+    val contentScroll = rememberScrollState()
     BackHandler(enabled = page != SettingsPage.MAIN) { page = SettingsPage.MAIN }
     // DONE/FAILED clears when the therapist opens another page or leaves Settings.
     LaunchedEffect(page) { if (page != SettingsPage.MAIN) exportViewModel.reset() }
@@ -141,11 +155,17 @@ fun SettingsRoute(
         // Diagnostics is a therapist page in release too (Story 5.5); its developer tools stay debug-only inside it.
         page == SettingsPage.DIAGNOSTICS ->
             SubPage(onBack = { page = SettingsPage.MAIN }) {
-                DiagnosticsRoute(onOpenSample = onOpenSample, onOpenSettings = { page = SettingsPage.MAIN })
+                DiagnosticsRoute(
+                    onOpenSample = onOpenSample,
+                    onOpenSettings = { page = SettingsPage.MAIN },
+                    onDrawZones = { page = SettingsPage.ZONES }
+                )
             }
         // Blind review is for the evaluating therapist in release too (Story 5.7), behind the PIN like all of Settings.
         page == SettingsPage.BLIND_REVIEW -> SubPage(onBack = { page = SettingsPage.MAIN }) { BlindReviewRoute() }
-        page == SettingsPage.METRICS -> SubPage(onBack = { page = SettingsPage.MAIN }) { MetricsRoute() }
+        page == SettingsPage.METRICS -> SubPage(onBack = { page = SettingsPage.MAIN }) {
+            MetricsRoute(onOpenBlindReview = { page = SettingsPage.BLIND_REVIEW })
+        }
         // About is visible in release too (Story 5.10).
         page == SettingsPage.ABOUT -> SubPage(onBack = { page = SettingsPage.MAIN }) { AboutRoute() }
         else ->
@@ -162,6 +182,10 @@ fun SettingsRoute(
                 onAbout = { page = SettingsPage.ABOUT },
                 exportStatus = exportStatus,
                 onExport = { exportLauncher.launch(RESULTS_FILE_NAME) },
+                selectedSection = section,
+                onSelectSection = { section = it },
+                listScroll = listScroll,
+                contentScroll = contentScroll,
                 advanced =
                 if (debug) {
                     AdvancedTools(
@@ -206,62 +230,188 @@ fun SettingsScreen(
     exportStatus: ExportStatus = ExportStatus.IDLE,
     onExport: () -> Unit = {},
     advanced: AdvancedTools? = null,
-    onAbout: () -> Unit = {}
+    onAbout: () -> Unit = {},
+    selectedSection: SettingsSection? = null,
+    onSelectSection: ((SettingsSection) -> Unit)? = null,
+    listScroll: ScrollState? = null,
+    contentScroll: ScrollState? = null
 ) {
-    Column(
-        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Spacing.S4),
-        verticalArrangement = Arrangement.spacedBy(Spacing.S4)
-    ) {
-        PageHeader(stringResource(R.string.shell_settings))
-        when (state) {
-            SettingsUiState.Loading -> Skeleton(rows = 4)
-            is SettingsUiState.Error ->
-                ErrorState(stringResource(R.string.settings_error, state.reason), onRetry = { onEvent(SettingsEvent.Retry) })
-            is SettingsUiState.Content -> {
-                GroupTitle(stringResource(R.string.settings_group_security))
-                PinSection(state, onEvent)
-                GroupTitle(stringResource(R.string.settings_group_connection))
-                ProxySection(state, onEvent, connectionStatus(state.proxyUrlValid && state.secretSet, banner))
-                GroupTitle(stringResource(R.string.settings_group_zones))
-                ZonesSection(zones, onOpenZones)
-                GroupTitle(stringResource(R.string.diagnostics_title))
-                SectionCard(stringResource(R.string.diagnostics_title), CARD_WIDTH, icon = Icons.Filled.Settings) {
-                    ToolRow(Icons.Filled.Settings, R.string.diag_health_title, R.string.settings_tool_diagnostics_hint, onDiagnostics)
+    // Callers that do not hoist the selection (previews, tests) get a local saveable one.
+    var localSection by rememberSaveable { mutableStateOf(SettingsSection.SECURITY) }
+    val sections = SettingsSection.entries.filter { it != SettingsSection.ADVANCED || advanced != null }
+    val requested = selectedSection ?: localSection
+    val current = if (requested in sections) requested else SettingsSection.SECURITY
+    val select: (SettingsSection) -> Unit = onSelectSection ?: { localSection = it }
+    val listState = listScroll ?: rememberScrollState()
+    val contentState = contentScroll ?: rememberScrollState()
+
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val expanded = maxWidth >= EXPANDED_WIDTH
+        if (state !is SettingsUiState.Content) {
+            Column(Modifier.fillMaxSize().padding(Spacing.S4), verticalArrangement = Arrangement.spacedBy(Spacing.S4)) {
+                PageHeader(stringResource(R.string.shell_settings))
+                when (state) {
+                    is SettingsUiState.Error ->
+                        ErrorState(stringResource(R.string.settings_error, state.reason), onRetry = { onEvent(SettingsEvent.Retry) })
+                    else -> Skeleton(rows = 4)
                 }
-                GroupTitle(stringResource(R.string.settings_group_evaluation))
-                SectionCard(stringResource(R.string.settings_group_evaluation), CARD_WIDTH, icon = Icons.Filled.Search) {
-                    ToolRow(Icons.Filled.Search, R.string.blind_title, R.string.settings_tool_blind_hint, onBlindReview)
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    ToolRow(Icons.Filled.Check, R.string.settings_tool_metrics_title, R.string.settings_tool_metrics_hint, onMetrics)
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    ToolRow(Icons.Filled.DateRange, R.string.export_title, R.string.export_hint) {
-                        if (exportStatus != ExportStatus.WORKING) onExport()
-                    }
-                    if (exportStatus == ExportStatus.MISSING_CODES) {
+            }
+            return@BoxWithConstraints
+        }
+        val body: @Composable (SettingsSection) -> Unit = { s ->
+            SectionBody(
+                s, state, onEvent, zones, banner, onOpenZones, onDiagnostics, onBlindReview, onMetrics,
+                exportBroken, exportStatus, onExport, advanced, onAbout
+            )
+        }
+        if (expanded) {
+            Row(Modifier.fillMaxSize().padding(Spacing.S5), horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
+                Column(
+                    Modifier.width(SECTION_LIST_WIDTH).fillMaxHeight().verticalScroll(listState),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.S1)
+                ) {
+                    PageHeader(stringResource(R.string.shell_settings))
+                    Column(
+                        Modifier.padding(top = Spacing.S3).selectableGroup(),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.S1)
+                    ) {
+                        val listLabel = stringResource(R.string.settings_sections_label)
                         Text(
-                            pluralStringResource(R.plurals.export_missing_codes, exportBroken, exportBroken.toString()),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
+                            listLabel,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = Spacing.S3, bottom = Spacing.S2).semantics { heading() }
                         )
-                    }
-                    exportMessage(exportStatus)?.let { (text, error) ->
-                        Text(
-                            stringResource(text),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        sections.forEach { s -> SectionListItem(s, s == current) { select(s) } }
                     }
                 }
-                advanced?.let {
-                    GroupTitle(stringResource(R.string.settings_advanced_section))
-                    AdvancedSection(it)
+                Column(
+                    Modifier.weight(1f).fillMaxHeight().verticalScroll(contentState),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.S4)
+                ) {
+                    Box(Modifier.widthIn(max = CONTENT_MAX_WIDTH)) { body(current) }
                 }
-                GroupTitle(stringResource(R.string.about_title))
-                SectionCard(stringResource(R.string.about_title), CARD_WIDTH, icon = Icons.Filled.Info) {
-                    ToolRow(Icons.Filled.Info, R.string.about_app_name, R.string.about_row_hint, onAbout)
+            }
+        } else {
+            Column(
+                Modifier.fillMaxSize().verticalScroll(contentState).padding(Spacing.S4),
+                verticalArrangement = Arrangement.spacedBy(Spacing.S4)
+            ) {
+                PageHeader(stringResource(R.string.shell_settings))
+                sections.forEach { s ->
+                    Column(verticalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+                        GroupTitle(stringResource(s.label))
+                        body(s)
+                    }
                 }
             }
         }
+    }
+}
+
+/** The Settings sections, in list order; [ADVANCED] appears only in debug builds (when advanced tools are passed). */
+enum class SettingsSection(val label: Int, val icon: ImageVector) {
+    SECURITY(R.string.settings_group_security, Icons.Filled.Lock),
+    CONNECTION(R.string.settings_group_connection, Icons.Filled.Share),
+    ZONES(R.string.settings_group_zones, Icons.Filled.LocationOn),
+    DIAGNOSTICS(R.string.diagnostics_title, Icons.Filled.Settings),
+    EVALUATION(R.string.settings_group_evaluation, Icons.Filled.Search),
+    ADVANCED(R.string.settings_advanced_section, Icons.Filled.Build),
+    ABOUT(R.string.about_title, Icons.Filled.Info)
+}
+
+/** One row of the section list: selection shown by container colour, a start bar, bold text and a check (not colour alone). */
+@Composable
+private fun SectionListItem(section: SettingsSection, selected: Boolean, onClick: () -> Unit) {
+    val label = stringResource(section.label)
+    val fg = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .clip(RoundedCornerShape(Radius.Sm))
+            .background(if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+            .selectable(selected = selected, role = Role.Tab, onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.S3)
+    ) {
+        Box(
+            Modifier.width(4.dp).height(32.dp).clip(RoundedCornerShape(2.dp))
+                .background(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent)
+        )
+        Icon(section.icon, contentDescription = null, tint = if (selected) MaterialTheme.colorScheme.primary else fg)
+        Text(
+            label,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = fg,
+            modifier = Modifier.weight(1f)
+        )
+        if (selected) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(end = Spacing.S2)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SectionBody(
+    section: SettingsSection,
+    state: SettingsUiState.Content,
+    onEvent: (SettingsEvent) -> Unit,
+    zones: Map<String, Zone>?,
+    banner: NetworkBanner,
+    onOpenZones: () -> Unit,
+    onDiagnostics: () -> Unit,
+    onBlindReview: () -> Unit,
+    onMetrics: () -> Unit,
+    exportBroken: Int,
+    exportStatus: ExportStatus,
+    onExport: () -> Unit,
+    advanced: AdvancedTools?,
+    onAbout: () -> Unit
+) {
+    when (section) {
+        SettingsSection.SECURITY -> PinSection(state, onEvent)
+        SettingsSection.CONNECTION -> ProxySection(state, onEvent, connectionStatus(state.proxyUrlValid && state.secretSet, banner))
+        SettingsSection.ZONES -> ZonesSection(zones, onOpenZones)
+        SettingsSection.DIAGNOSTICS ->
+            SectionCard(stringResource(R.string.diagnostics_title), CARD_WIDTH, icon = Icons.Filled.Settings) {
+                ToolRow(Icons.Filled.Settings, R.string.diag_health_title, R.string.settings_tool_diagnostics_hint, onDiagnostics)
+            }
+        SettingsSection.ADVANCED -> advanced?.let { AdvancedSection(it) }
+        SettingsSection.ABOUT ->
+            SectionCard(stringResource(R.string.about_title), CARD_WIDTH, icon = Icons.Filled.Info) {
+                ToolRow(Icons.Filled.Info, R.string.about_app_name, R.string.about_row_hint, onAbout)
+            }
+        SettingsSection.EVALUATION ->
+            SectionCard(stringResource(R.string.settings_group_evaluation), CARD_WIDTH, icon = Icons.Filled.Search) {
+                ToolRow(Icons.Filled.Search, R.string.blind_title, R.string.settings_tool_blind_hint, onBlindReview)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                ToolRow(Icons.Filled.Check, R.string.settings_tool_metrics_title, R.string.settings_tool_metrics_hint, onMetrics)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                ToolRow(Icons.Filled.DateRange, R.string.export_title, R.string.export_hint) {
+                    if (exportStatus != ExportStatus.WORKING) onExport()
+                }
+                if (exportStatus == ExportStatus.MISSING_CODES) {
+                    Text(
+                        pluralStringResource(R.plurals.export_missing_codes, exportBroken, exportBroken.toString()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                exportMessage(exportStatus)?.let { (text, error) ->
+                    Text(
+                        stringResource(text),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
     }
 }
 
@@ -277,7 +427,11 @@ private fun exportMessage(status: ExportStatus): Pair<Int, Boolean>? = when (sta
     ExportStatus.MISSING_CODES -> null
 }
 
-private val CARD_WIDTH = Modifier.widthIn(max = 760.dp).fillMaxWidth()
+private val CARD_WIDTH = Modifier.fillMaxWidth()
+private val EXPANDED_WIDTH = 840.dp
+private val SECTION_LIST_WIDTH = 300.dp
+private val CONTENT_MAX_WIDTH = 760.dp
+private val HINT_MAX_WIDTH = 640.dp
 private val FIELD_WIDTH = Modifier.widthIn(min = 280.dp, max = 440.dp)
 
 @Composable
@@ -514,7 +668,12 @@ private fun ToolRow(icon: ImageVector, title: Int, hint: Int, onClick: () -> Uni
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Column(Modifier.weight(1f)) {
             Text(stringResource(title), style = MaterialTheme.typography.titleMedium)
-            Text(stringResource(hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                stringResource(hint),
+                modifier = Modifier.widthIn(max = HINT_MAX_WIDTH),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
         Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }

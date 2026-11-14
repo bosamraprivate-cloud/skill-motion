@@ -91,6 +91,7 @@ fun ChildProfileRoute(
     onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> },
     onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false },
     tabRequest: ProfileTabRequest? = null,
+    onContinue: (taskId: String, sessionId: String) -> Unit = { _, _ -> },
     viewModel: ChildProfileViewModel = hiltViewModel(
         key =
         childId ?: NEW_CHILD_KEY
@@ -111,7 +112,8 @@ fun ChildProfileRoute(
         onEvent = viewModel::onEvent,
         onNewSession = onNewSession,
         onStartTraining = onStartTraining,
-        tabRequest = tabRequest
+        tabRequest = tabRequest,
+        onContinue = onContinue
     )
 }
 
@@ -124,7 +126,8 @@ fun ChildProfileScreen(
     modifier: Modifier = Modifier,
     onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> },
     onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false },
-    tabRequest: ProfileTabRequest? = null
+    tabRequest: ProfileTabRequest? = null,
+    onContinue: (taskId: String, sessionId: String) -> Unit = { _, _ -> }
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         when (state) {
@@ -136,7 +139,7 @@ fun ChildProfileScreen(
                     Modifier.align(Alignment.Center)
                 )
             ChildProfileUiState.Deleted -> Unit
-            is ChildProfileUiState.Content -> ChildProfileForm(state, onEvent, onNewSession, onStartTraining, tabRequest)
+            is ChildProfileUiState.Content -> ChildProfileForm(state, onEvent, onNewSession, onStartTraining, tabRequest, onContinue)
         }
     }
 }
@@ -147,7 +150,8 @@ private fun ChildProfileForm(
     onEvent: (ChildProfileEvent) -> Unit,
     onNewSession: (taskId: String, thenTaskId: String?) -> Unit,
     onStartTraining: (childId: String, activityIds: List<String>) -> Boolean,
-    tabRequest: ProfileTabRequest?
+    tabRequest: ProfileTabRequest?,
+    onContinue: (taskId: String, sessionId: String) -> Unit
 ) {
     val form = state.form
     var newSessionOpen by rememberSaveable { mutableStateOf(false) }
@@ -206,7 +210,12 @@ private fun ChildProfileForm(
                                 ProfileTab.OVERVIEW -> {
                                     ProfileHeaderCard(form, enabled = !state.busy, onStartSession = startSession)
                                     state.message?.let { MessageText(it) }
-                                    OverviewStatsSection(childId, onStickerBook = { stickerBookOpen = true })
+                                    OverviewStatsSection(
+                                        childId,
+                                        onStickerBook = { stickerBookOpen = true },
+                                        onOpenSession = { summarySession = it },
+                                        onStartSession = startSession
+                                    )
                                 }
                                 ProfileTab.SESSIONS -> {
                                     val vm: SessionsViewModel = hiltViewModel(key = "sessions-$childId")
@@ -237,7 +246,20 @@ private fun ChildProfileForm(
     val detailChild = state.childId
     summarySession?.let { sessionId ->
         if (detailChild != null) {
-            SessionDetailDialog(childId = detailChild, sessionId = sessionId, onDismiss = { summarySession = null })
+            SessionDetailDialog(
+                childId = detailChild,
+                sessionId = sessionId,
+                onDismiss = { summarySession = null },
+                onOpenReport = {
+                    summarySession = null
+                    editing = false
+                    tab = ProfileTab.REPORT
+                },
+                onContinue = { taskId, id ->
+                    summarySession = null
+                    onContinue(taskId, id)
+                }
+            )
         }
     }
     val bookChild = state.childId
@@ -277,17 +299,34 @@ private fun ChildProfileForm(
 
 /** Overview quick stats (last assessment, tasks finished, stickers) and the sticker book entry. */
 @Composable
-private fun OverviewStatsSection(childId: String, onStickerBook: () -> Unit) {
+private fun OverviewStatsSection(
+    childId: String,
+    onStickerBook: () -> Unit,
+    onOpenSession: (sessionId: String) -> Unit,
+    onStartSession: () -> Unit
+) {
     val vm: SessionsViewModel = hiltViewModel(key = "sessions-$childId")
     LaunchedEffect(childId) { vm.load(childId) }
     val state by vm.uiState.collectAsStateWithLifecycle()
-    val stats = (state as? SessionsUiState.Content)?.stats
+    val content = state as? SessionsUiState.Content
+    val stats = content?.stats
+    // Newest finished assessment: the "last assessment" tile opens its session detail (UX pass C).
+    val lastSession = content?.items?.firstOrNull { it.kind == HistoryKind.ASSESSMENT && it.state == HistoryState.DONE }
+    val noSessions = content != null && content.items.isEmpty()
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.S3)) {
         StatTile(
             Icons.Filled.DateRange,
             stringResource(R.string.overview_last_assessment),
             stats?.let { s -> s.lastAssessmentAt?.let { formatDate(it) } ?: stringResource(R.string.overview_none_yet) },
-            Modifier.weight(1f)
+            Modifier.weight(1f),
+            action = when {
+                lastSession != null -> stringResource(R.string.uxc_open_session)
+                noSessions -> stringResource(R.string.new_session)
+                else -> null
+            },
+            onAction = {
+                if (lastSession != null) onOpenSession(lastSession.id) else onStartSession()
+            }
         )
         StatTile(
             Icons.Filled.CheckCircle,

@@ -7,15 +7,18 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -44,13 +47,14 @@ import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.components.SectionCard
 import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.DlsTheme
+import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 import java.util.Locale
 
 @Composable
-fun MetricsRoute(viewModel: MetricsViewModel = hiltViewModel()) {
+fun MetricsRoute(onOpenBlindReview: (() -> Unit)? = null, viewModel: MetricsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    MetricsScreen(state, onSelect = viewModel::select, onRetry = viewModel::retry)
+    MetricsScreen(state, onSelect = viewModel::select, onRetry = viewModel::retry, onOpenBlindReview = onOpenBlindReview)
 }
 
 /** Western digits regardless of locale. */
@@ -60,7 +64,13 @@ private fun decimal(value: Double): String = String.format(Locale.ROOT, "%.3f", 
 
 /** Accuracy dashboard (Story 5.8): Goal 8 cards, excluded counts and per-step confusion. Read-only. */
 @Composable
-fun MetricsScreen(state: MetricsUiState, onSelect: (Boolean) -> Unit, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+fun MetricsScreen(
+    state: MetricsUiState,
+    onSelect: (Boolean) -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+    onOpenBlindReview: (() -> Unit)? = null
+) {
     Column(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(Spacing.S4),
         verticalArrangement = Arrangement.spacedBy(Spacing.S4)
@@ -77,20 +87,31 @@ fun MetricsScreen(state: MetricsUiState, onSelect: (Boolean) -> Unit, onRetry: (
         }
         when (state) {
             is MetricsUiState.Loading -> Skeleton(rows = 3)
-            is MetricsUiState.Empty -> EmptyState(Icons.Filled.Info, stringResource(R.string.metrics_empty))
+            is MetricsUiState.Empty ->
+                EmptyState(
+                    Icons.Filled.Info,
+                    stringResource(R.string.metrics_empty),
+                    primaryActionLabel = onOpenBlindReview?.let { stringResource(R.string.uxc_open_blind_review) },
+                    onPrimaryAction = { onOpenBlindReview?.invoke() }
+                )
             is MetricsUiState.Error -> ErrorState(stringResource(R.string.metrics_error, state.reason), onRetry)
             is MetricsUiState.MissingCodes ->
                 ErrorState(pluralStringResource(R.plurals.metrics_missing_codes, state.count, state.count.toString()), onRetry)
-            is MetricsUiState.Content -> MetricsContent(state.metrics, state.excluded)
+            is MetricsUiState.Content -> MetricsContent(state.metrics, state.excluded, onOpenBlindReview)
         }
     }
 }
 
 @Composable
-private fun MetricsContent(m: Metrics.Result, excluded: Int) {
+private fun MetricsContent(m: Metrics.Result, excluded: Int, onOpenBlindReview: (() -> Unit)?) {
     val width = Modifier.widthIn(max = 760.dp).fillMaxWidth()
     if (m.rated == 0) {
         Text(stringResource(R.string.metrics_no_blind_hint), style = MaterialTheme.typography.bodyMedium, modifier = width)
+        if (onOpenBlindReview != null) {
+            Button(onClick = onOpenBlindReview, shape = RoundedCornerShape(Radius.Sm), modifier = Modifier.height(48.dp)) {
+                Text(stringResource(R.string.uxc_open_blind_review))
+            }
+        }
     }
     FlowRow(width, horizontalArrangement = Arrangement.spacedBy(Spacing.S3), verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
         MetricCard(

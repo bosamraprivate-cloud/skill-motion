@@ -558,4 +558,16 @@
         <item quantity="one">Not saved: %1$s session has no child code.</item>
         <item quantity="other">Not saved: %1$s sessions have no child code.</item>
     </plurals>
+    <!-- UX pass A -->
+    <string name="new_session_task_selected">%1$s, selected</string>
+    <!-- UX pass B -->
+    <string name="settings_sections_label">Settings sections</string>
+    <!-- UX pass C -->
+    <string name="uxc_open_session">Open session</string>
+    <string name="uxc_continue_session">Continue</string>
+    <string name="uxc_open_report">Open report</string>
+    <string name="uxc_open_blind_review">Open blind review</string>
+    <string name="uxc_zones_title">Setup zones</string>
+    <string name="uxc_zones_missing">No zones drawn yet</string>
+    <string name="uxc_draw_zones">Draw zones</string>
 </resources>

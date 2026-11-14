@@ -41,7 +41,9 @@ data class SessionDetail(
     val taskName: String,
     val startedAt: Long,
     val state: HistoryState,
-    val steps: List<StepDetail>
+    val steps: List<StepDetail>,
+    /** Catalogue task id, used to continue an open session (UX pass C). */
+    val taskId: String = ""
 )
 
 sealed interface SessionDetailUiState {
@@ -99,6 +101,7 @@ fun buildSessionDetail(
         taskName = task?.nameAr ?: session.taskId,
         startedAt = session.startedAt,
         state = historyState(session.state),
-        steps = catalogSteps.map { detail(it.id, it.number, it.textAr) } + extra.map { detail(it, null, it) }
+        steps = catalogSteps.map { detail(it.id, it.number, it.textAr) } + extra.map { detail(it, null, it) },
+        taskId = session.taskId
     )
 }

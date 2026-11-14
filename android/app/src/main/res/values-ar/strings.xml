@@ -630,4 +630,16 @@
         <item quantity="many">مااتحفظش: %1$s جلسة من غير كود طفل.</item>
         <item quantity="other">مااتحفظش: %1$s جلسة من غير كود طفل.</item>
     </plurals>
+    <!-- UX pass A -->
+    <string name="new_session_task_selected">%1$s، متختارة</string>
+    <!-- UX pass B -->
+    <string name="settings_sections_label">أقسام الإعدادات</string>
+    <!-- UX pass C -->
+    <string name="uxc_open_session">افتح الجلسة</string>
+    <string name="uxc_continue_session">كمّل</string>
+    <string name="uxc_open_report">افتح التقرير</string>
+    <string name="uxc_open_blind_review">افتح المراجعة العمياء</string>
+    <string name="uxc_zones_title">مناطق الإعداد</string>
+    <string name="uxc_zones_missing">لسه مفيش مناطق مرسومة</string>
+    <string name="uxc_draw_zones">ارسم المناطق</string>
 </resources>

@@ -71,7 +71,9 @@ fun ChildrenRoute(
                     else ->
                         ChildProfileRoute(childId = key.takeUnless { it == NEW_CHILD }, onNewSession = { task, then ->
                             if (key != NEW_CHILD) onNewSession(key, task, then)
-                        }, onStartTraining = onStartTraining, tabRequest = tabRequest, onResult = { result ->
+                        }, onStartTraining = onStartTraining, tabRequest = tabRequest, onContinue = { task, session ->
+                            if (key != NEW_CHILD) onContinue(key, task, session)
+                        }, onResult = { result ->
                             when (result) {
                                 // First save of a new child: replace the "new" entry so Back never reopens the blank form.
                                 is ProfileResult.Saved -> if (key != result.childId) {

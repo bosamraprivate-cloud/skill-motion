@@ -2,6 +2,7 @@ package com.aitherapist.dls.ui.therapist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -17,10 +18,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,6 +66,8 @@ fun SessionDetailDialog(
     childId: String,
     sessionId: String,
     onDismiss: () -> Unit,
+    onOpenReport: (() -> Unit)? = null,
+    onContinue: ((taskId: String, sessionId: String) -> Unit)? = null,
     viewModel: SessionDetailViewModel = hiltViewModel(key = "detail-$childId-$sessionId")
 ) {
     LaunchedEffect(childId, sessionId) { viewModel.load(childId, sessionId) }
@@ -74,7 +80,9 @@ fun SessionDetailDialog(
                 onRetry = viewModel::retry,
                 onCorrect = viewModel::correct,
                 onRemoveCorrection = viewModel::removeCorrection,
-                loadFrame = viewModel::image
+                loadFrame = viewModel::image,
+                onOpenReport = onOpenReport,
+                onContinue = onContinue
             )
         }
     }
@@ -88,69 +96,106 @@ fun SessionDetailScreen(
     onCorrect: (stepId: String, level: StepLevel) -> Unit,
     onRemoveCorrection: (stepId: String) -> Unit,
     loadFrame: FrameLoader,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenReport: (() -> Unit)? = null,
+    onContinue: ((taskId: String, sessionId: String) -> Unit)? = null
 ) {
     var correcting by rememberSaveable { mutableStateOf<String?>(null) }
-    Column(modifier.fillMaxSize().padding(horizontal = Spacing.S4).widthIn(max = 960.dp)) {
-        Row(
-            Modifier.fillMaxWidth().padding(vertical = Spacing.S3),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.S2)
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.detail_back))
+    // Content capped and centred on a wide tablet so step cards stay readable (UX pass C; 8dp grid, 24dp gutters).
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        Column(Modifier.fillMaxSize().widthIn(max = 1100.dp).padding(horizontal = Spacing.S4)) {
+            Row(
+                Modifier.fillMaxWidth().padding(vertical = Spacing.S3),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.S2)
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.detail_back))
+                }
+                Text(
+                    stringResource(R.string.detail_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.weight(1f).semantics { heading() }
+                )
+                val content = state as? SessionDetailUiState.Content
+                if (content != null &&
+                    onContinue != null &&
+                    content.detail.state == HistoryState.PAUSED &&
+                    content.detail.taskId.isNotBlank()
+                ) {
+                    Button(
+                        onClick = { onContinue(content.detail.taskId, content.detail.sessionId) },
+                        shape = RoundedCornerShape(Radius.Sm),
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(stringResource(R.string.uxc_continue_session), modifier = Modifier.padding(start = Spacing.S2))
+                    }
+                }
+                if (content != null && onOpenReport != null) {
+                    OutlinedButton(
+                        onClick = onOpenReport,
+                        shape = RoundedCornerShape(Radius.Sm),
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.List, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(stringResource(R.string.uxc_open_report), modifier = Modifier.padding(start = Spacing.S2))
+                    }
+                }
             }
-            Text(
-                stringResource(R.string.detail_title),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f).semantics { heading() }
-            )
-        }
-        when (state) {
-            SessionDetailUiState.Loading -> Skeleton(rows = 5)
-            SessionDetailUiState.Empty -> TCard { EmptyState(icon = Icons.Filled.Info, message = stringResource(R.string.detail_empty)) }
-            is SessionDetailUiState.Error -> ErrorState(stringResource(R.string.detail_error), onRetry, Modifier.fillMaxWidth())
-            is SessionDetailUiState.Content -> {
-                val detail = state.detail
-                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
-                    item(key = "header") {
-                        TCard {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S3)) {
-                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    Text(detail.taskName, style = MaterialTheme.typography.titleLarge)
-                                    MutedText(stringResource(R.string.sessions_kind_assessment) + " · " + formatDateTime(detail.startedAt))
+            when (state) {
+                SessionDetailUiState.Loading -> Skeleton(rows = 5)
+                SessionDetailUiState.Empty -> TCard {
+                    EmptyState(icon = Icons.Filled.Info, message = stringResource(R.string.detail_empty))
+                }
+                is SessionDetailUiState.Error -> ErrorState(stringResource(R.string.detail_error), onRetry, Modifier.fillMaxWidth())
+                is SessionDetailUiState.Content -> {
+                    val detail = state.detail
+                    LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
+                        item(key = "header") {
+                            TCard {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(Spacing.S3)
+                                ) {
+                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                        Text(detail.taskName, style = MaterialTheme.typography.titleLarge)
+                                        MutedText(
+                                            stringResource(R.string.sessions_kind_assessment) + " · " + formatDateTime(detail.startedAt)
+                                        )
+                                    }
+                                    HistoryStateChip(detail.state)
                                 }
-                                HistoryStateChip(detail.state)
-                            }
-                            if (detail.state != HistoryState.DONE) MutedText(stringResource(R.string.detail_paused_note))
-                            if (state.writeFailed) {
-                                Text(
-                                    stringResource(R.string.detail_write_failed),
-                                    color = ErrorColor,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                                if (detail.state != HistoryState.DONE) MutedText(stringResource(R.string.detail_paused_note))
+                                if (state.writeFailed) {
+                                    Text(
+                                        stringResource(R.string.detail_write_failed),
+                                        color = ErrorColor,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
                             }
                         }
+                        items(detail.steps, key = { it.stepId }) { step ->
+                            StepCard(step, saving = state.saving, onCorrect = { correcting = step.stepId }, loadFrame = loadFrame)
+                        }
+                        item(key = "end") { Row(Modifier.height(Spacing.S4)) {} }
                     }
-                    items(detail.steps, key = { it.stepId }) { step ->
-                        StepCard(step, saving = state.saving, onCorrect = { correcting = step.stepId }, loadFrame = loadFrame)
+                    val step = detail.steps.firstOrNull { it.stepId == correcting }
+                    if (step != null) {
+                        CorrectSheet(
+                            step,
+                            onSave = { level ->
+                                onCorrect(step.stepId, level)
+                                correcting = null
+                            },
+                            onRemove = {
+                                onRemoveCorrection(step.stepId)
+                                correcting = null
+                            },
+                            onDismiss = { correcting = null }
+                        )
                     }
-                    item(key = "end") { Row(Modifier.height(Spacing.S4)) {} }
-                }
-                val step = detail.steps.firstOrNull { it.stepId == correcting }
-                if (step != null) {
-                    CorrectSheet(
-                        step,
-                        onSave = { level ->
-                            onCorrect(step.stepId, level)
-                            correcting = null
-                        },
-                        onRemove = {
-                            onRemoveCorrection(step.stepId)
-                            correcting = null
-                        },
-                        onDismiss = { correcting = null }
-                    )
                 }
             }
         }
