@@ -1,5 +1,7 @@
 package com.aitherapist.dls.scoring
 
+import com.aitherapist.dls.catalog.Activity
+
 /** Rule 1 step level (design "Rules engine"). Levels are computed, never stored. */
 enum class StepLevel { THREE, TWO, ONE, NOT_SCORED }
 
@@ -33,6 +35,9 @@ data class Need(val stepId: String, val level: StepLevel, val domains: Set<Strin
  * their domains, [notScored] steps that ended not scored (listed apart, no blame). Open steps appear nowhere.
  */
 data class StrengthsAndNeeds(val strengths: List<String>, val needs: List<Need>, val notScored: List<String>)
+
+/** One plan section: a weak scale [domain] at [planLevel] with all matching catalogue [activities] in catalogue order. */
+data class PlanSection(val domain: String, val planLevel: PlanLevel, val activities: List<Activity>)
 
 /** Pure scoring rules (no Android, Room or coroutines). Bump [RULES_VERSION] on any rule change. */
 object RulesEngine {
@@ -143,6 +148,49 @@ object RulesEngine {
         average >= MILD_FROM -> PlanLevel.MILD
         average >= MODERATE_FROM -> PlanLevel.MODERATE
         else -> PlanLevel.SEVERE
+    }
+
+    /** `treatment-plans.md` section names (scale "Functional domain" tags) -> activity `domain` codes (AD-2). */
+    private val ACTIVITY_DOMAINS =
+        mapOf(
+            "Range of motion" to "rom",
+            MOTOR_COORDINATION to "coord",
+            "Hand skills" to "hand",
+            "Midline crossing" to "midline",
+            "Motor planning" to "planning"
+        )
+
+    /** Activity `plan` code of a weak [level]; null for a strength (no plan). */
+    fun planCode(level: PlanLevel): String? = when (level) {
+        PlanLevel.STRENGTH -> null
+        PlanLevel.MILD -> "mild"
+        PlanLevel.MODERATE -> "moderate"
+        PlanLevel.SEVERE -> "severe"
+    }
+
+    /** The activity `domain` code of a scale domain tag (Visual-motor folds into Motor coordination); null if unknown. */
+    fun activityDomain(tag: String): String? = ACTIVITY_DOMAINS[if (tag == VISUAL_MOTOR_COORDINATION) MOTOR_COORDINATION else tag]
+
+    /**
+     * The plan (design "Rules engine", epic 4): for every domain of [domainPlanLevels] at mild/moderate/severe, all
+     * [activities] of that plan level and domain section in catalogue order; nothing for a strength or a domain without
+     * a treatment-plan section. Weakest first (severe > moderate > mild); ties follow the domain order of that plan
+     * level in the catalogue (first appearance of the domain among that plan's [activities]), then the input order.
+     */
+    fun activitiesFor(domainPlanLevels: Map<String, PlanLevel>, activities: List<Activity>): List<PlanSection> {
+        val domainOrder = activities.map { it.plan to it.domain }.distinct().withIndex().associate { (i, key) -> key to i }
+        return domainPlanLevels.entries
+            .mapNotNull { (domain, level) ->
+                val plan = planCode(level) ?: return@mapNotNull null
+                val code = activityDomain(domain) ?: return@mapNotNull null
+                PlanSection(domain, level, activities.filter { it.plan == plan && it.domain == code })
+            }
+            .sortedWith(
+                compareByDescending<PlanSection> { it.planLevel.ordinal }.thenBy {
+                    domainOrder[planCode(it.planLevel) to activityDomain(it.domain)]
+                        ?: Int.MAX_VALUE
+                }
+            )
     }
 
     /**

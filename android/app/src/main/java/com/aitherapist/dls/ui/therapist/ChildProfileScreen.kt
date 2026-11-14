@@ -83,6 +83,7 @@ fun ChildProfileRoute(
     childId: String?,
     onResult: (ProfileResult) -> Unit,
     onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> },
+    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false },
     viewModel: ChildProfileViewModel = hiltViewModel(
         key =
         childId ?: NEW_CHILD_KEY
@@ -98,7 +99,7 @@ fun ChildProfileRoute(
         }
     }
     LaunchedEffect(state) { if (state == ChildProfileUiState.Deleted) onResult(ProfileResult.Deleted) }
-    ChildProfileScreen(state = state, onEvent = viewModel::onEvent, onNewSession = onNewSession)
+    ChildProfileScreen(state = state, onEvent = viewModel::onEvent, onNewSession = onNewSession, onStartTraining = onStartTraining)
 }
 
 private const val NEW_CHILD_KEY = "child-profile-new"
@@ -108,7 +109,8 @@ fun ChildProfileScreen(
     state: ChildProfileUiState,
     onEvent: (ChildProfileEvent) -> Unit,
     modifier: Modifier = Modifier,
-    onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> }
+    onNewSession: (taskId: String, thenTaskId: String?) -> Unit = { _, _ -> },
+    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false }
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         when (state) {
@@ -120,7 +122,7 @@ fun ChildProfileScreen(
                     Modifier.align(Alignment.Center)
                 )
             ChildProfileUiState.Deleted -> Unit
-            is ChildProfileUiState.Content -> ChildProfileForm(state, onEvent, onNewSession)
+            is ChildProfileUiState.Content -> ChildProfileForm(state, onEvent, onNewSession, onStartTraining)
         }
     }
 }
@@ -129,7 +131,8 @@ fun ChildProfileScreen(
 private fun ChildProfileForm(
     state: ChildProfileUiState.Content,
     onEvent: (ChildProfileEvent) -> Unit,
-    onNewSession: (taskId: String, thenTaskId: String?) -> Unit
+    onNewSession: (taskId: String, thenTaskId: String?) -> Unit,
+    onStartTraining: (childId: String, activityIds: List<String>) -> Boolean
 ) {
     val form = state.form
     var newSessionOpen by rememberSaveable { mutableStateOf(false) }
@@ -168,6 +171,8 @@ private fun ChildProfileForm(
                 state.message?.let { MessageText(it) }
             } else if (tab == ProfileTab.REPORT && state.childId != null) {
                 ReportRoute(state.childId)
+            } else if (tab == ProfileTab.PLAN && state.childId != null) {
+                PlanRoute(state.childId, onStartTraining)
             } else {
                 OutlinedSurfaceCard {
                     EmptyState(icon = tab.icon, message = stringResource(R.string.profile_tab_later, stringResource(tab.label)))

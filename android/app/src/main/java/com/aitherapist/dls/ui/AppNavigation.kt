@@ -32,6 +32,7 @@ import com.aitherapist.dls.ui.therapist.CharacterPreviewRoute
 import com.aitherapist.dls.ui.therapist.PinRoute
 import com.aitherapist.dls.ui.therapist.SetupRoute
 import com.aitherapist.dls.ui.therapist.TherapistShell
+import com.aitherapist.dls.ui.therapist.TrainingPlaceholderScreen
 import kotlinx.serialization.Serializable
 
 /** First-run setup (no PIN stored yet). */
@@ -74,6 +75,10 @@ val LocalExternalHop = staticCompositionLocalOf<() -> Unit> { {} }
 /** Adult framing check before child mode (Story 3.4); "Hand to child" replaces it with the matching [ChildModeKey]. */
 @Serializable
 data class FramingCheckKey(val childId: String, val taskId: String, val sessionId: String? = null, val thenTaskId: String? = null) : NavKey
+
+/** Training hand-off (Story 4.3): the selected activity ids; a placeholder screen until Story 4.6. */
+@Serializable
+data class TrainingKey(val childId: String, val activityIds: List<String>) : NavKey
 
 /** PIN screen above the step screen; a right PIN leaves child mode. */
 @Serializable
@@ -126,7 +131,8 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                     onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
                     onOpenChildMode = { child, task -> gate.openFramingCheck(child, task) },
                     onNewSession = { child, task, then -> gate.openFramingCheck(child, task, thenTaskId = then) },
-                    onContinueSession = { child, task, session -> gate.openFramingCheck(child, task, sessionId = session) }
+                    onContinueSession = { child, task, session -> gate.openFramingCheck(child, task, sessionId = session) },
+                    onStartTraining = gate::openTraining
                 )
             }
             entry<SampleKey> { SampleRoute() }
@@ -147,6 +153,7 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                 }
             }
             entry<FramingCheckKey> { key -> FramingCheckRoute(taskId = key.taskId, onHandToChild = { gate.handToChild(key) }) }
+            entry<TrainingKey> { key -> TrainingPlaceholderScreen(key.activityIds) }
             entry<ChildPinKey> { PinRoute(onUnlocked = gate::leaveChildMode) }
         }
     )

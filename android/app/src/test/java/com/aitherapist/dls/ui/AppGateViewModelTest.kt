@@ -24,6 +24,17 @@ class AppGateViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     @Test
+    fun `openTraining pushes one training key with the selected ids`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.openTraining("c", emptyList())
+        assertEquals(listOf(ShellKey), vm.backStack.toList())
+        vm.openTraining("c", listOf("a", "b", "c"))
+        vm.openTraining("c", listOf("a"))
+        assertEquals(listOf(ShellKey, TrainingKey("c", listOf("a", "b", "c"))), vm.backStack.toList())
+    }
+
+    @Test
     fun `no pin starts on setup`() {
         val vm = AppGateViewModel(FakeTherapistSettings(), dispatcher)
         assertEquals(GateState.Ready, vm.gateState.value)

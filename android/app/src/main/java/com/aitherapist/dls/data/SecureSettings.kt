@@ -11,9 +11,18 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
+
+/** Draft plan selection per child (Story 4.3): activity ids only, non-secret; cleared when training starts. */
+interface PlanDraftStore {
+    suspend fun draft(childId: String): List<String>
+
+    /** An empty list clears the child's draft. */
+    suspend fun setDraft(childId: String, activityIds: List<String>)
+}
 
 /** A setup zone as a normalised, un-mirrored rectangle (0..1). */
 @Serializable
@@ -28,7 +37,8 @@ class PinHash(val hash: ByteArray, val salt: ByteArray, val iterations: Int = Pi
  */
 class SecureSettings internal constructor(private val store: DataStore<Preferences>, private val keys: KeyManager) :
     TherapistSettings,
-    ZoneStore {
+    ZoneStore,
+    PlanDraftStore {
     private val passphraseLock = Mutex()
 
     /** The 32-byte SQLCipher passphrase; generated, encrypted and stored on first call. */
@@ -93,7 +103,22 @@ class SecureSettings internal constructor(private val store: DataStore<Preferenc
     override suspend fun zones(): Map<String, Zone> =
         store.data.first()[ZONES]?.let { Json.decodeFromString(ZONES_SERIALIZER, it) } ?: emptyMap()
 
+    override suspend fun draft(childId: String): List<String> = drafts()[childId].orEmpty()
+
+    override suspend fun setDraft(childId: String, activityIds: List<String>) {
+        store.edit { prefs ->
+            val all = prefs[PLAN_DRAFTS]?.let { Json.decodeFromString(DRAFTS_SERIALIZER, it) }.orEmpty().toMutableMap()
+            if (activityIds.isEmpty()) all.remove(childId) else all[childId] = activityIds
+            prefs[PLAN_DRAFTS] = Json.encodeToString(DRAFTS_SERIALIZER, all)
+        }
+    }
+
+    private suspend fun drafts(): Map<String, List<String>> =
+        store.data.first()[PLAN_DRAFTS]?.let { Json.decodeFromString(DRAFTS_SERIALIZER, it) } ?: emptyMap()
+
     internal companion object {
+        val PLAN_DRAFTS = stringPreferencesKey("plan_drafts")
+        private val DRAFTS_SERIALIZER = MapSerializer(String.serializer(), ListSerializer(String.serializer()))
         const val PASSPHRASE_BYTES = 32
         val PASSPHRASE = stringPreferencesKey("db_passphrase_enc")
         val PIN_HASH = stringPreferencesKey("pin_hash")

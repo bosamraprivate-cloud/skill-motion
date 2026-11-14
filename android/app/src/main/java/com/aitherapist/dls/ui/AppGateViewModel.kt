@@ -115,6 +115,13 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         backStack[backStack.lastIndex] = ChildModeKey(key.childId, key.taskId, key.sessionId, key.thenTaskId)
     }
 
+    /** Training hand-off from the plan (Story 4.3); refused (false) with no activity or while a training screen is on top. */
+    fun openTraining(childId: String, activityIds: List<String>): Boolean {
+        if (activityIds.isEmpty() || childModeActive || backStack.lastOrNull() is TrainingKey) return false
+        backStack.add(TrainingKey(childId, activityIds))
+        return true
+    }
+
     /** Adult pause sheet Exit: the PIN screen above the (paused) step screen. */
     fun openChildPin() {
         if (childStepOnTop) backStack.add(ChildPinKey)

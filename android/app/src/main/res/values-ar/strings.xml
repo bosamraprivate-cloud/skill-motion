@@ -310,4 +310,28 @@
     <string name="domain_short_range_of_motion">مدى</string>
     <string name="domain_short_hand_skills">اليد</string>
     <string name="domain_short_midline_crossing">المنتصف</string>
+    <string name="plan_empty">لسه مفيش تقييم مكتمل. ابدأ جلسة من نظرة عامة علشان تظهر الخطة.</string>
+    <string name="plan_all_strengths">كل المجالات نقاط قوة. مفيش خطة محتاجينها دلوقتي.</string>
+    <string name="plan_error">الخطة ماتحمّلتش.</string>
+    <string name="plan_source">%1$s: المتوسط %2$s</string>
+    <string name="plan_start_refused">التدريب ماقدرش يبدأ. اقفل الشاشة المفتوحة وجرّب تاني.</string>
+    <string name="plan_no_activities">مفيش أنشطة في خطة العلاج للمجال ده.</string>
+    <string name="plan_camera_counted">بتعدّه الكاميرا</string>
+    <string name="plan_tools">الأدوات</string>
+    <string name="plan_how">طريقة التنفيذ</string>
+    <string name="plan_goal">الهدف</string>
+    <string name="plan_criterion">معيار القياس</string>
+    <string name="plan_start_training">ابدأ التدريب</string>
+    <string name="plan_expand">اعرض التفاصيل</string>
+    <string name="plan_collapse">اخفي التفاصيل</string>
+    <plurals name="plan_selected_count">
+        <item quantity="zero">%1$s نشاط متختار</item>
+        <item quantity="one">نشاط واحد متختار</item>
+        <item quantity="two">نشاطين متختارين</item>
+        <item quantity="few">%1$s أنشطة متختارة</item>
+        <item quantity="many">%1$s نشاط متختار</item>
+        <item quantity="other">%1$s نشاط متختار</item>
+    </plurals>
+    <string name="training_placeholder_title">التدريب</string>
+    <string name="training_placeholder_message">التدريب جاي في تحديث قادم. الأنشطة المختارة: %1$s</string>
 </resources>

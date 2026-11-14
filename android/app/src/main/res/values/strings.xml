@@ -290,4 +290,24 @@
     <string name="domain_short_range_of_motion">Motion</string>
     <string name="domain_short_hand_skills">Hand</string>
     <string name="domain_short_midline_crossing">Midline</string>
+    <string name="plan_empty">No finished assessment yet. Start a session from Overview to see the plan.</string>
+    <string name="plan_all_strengths">All domains are strengths. No plan is needed right now.</string>
+    <string name="plan_error">The plan could not be loaded.</string>
+    <string name="plan_source">%1$s: average %2$s</string>
+    <string name="plan_start_refused">Training could not start. Close the open screen and try again.</string>
+    <string name="plan_no_activities">No activities in the treatment plan for this domain.</string>
+    <string name="plan_camera_counted">Camera-counted</string>
+    <string name="plan_tools">Tools</string>
+    <string name="plan_how">How to perform</string>
+    <string name="plan_goal">Goal</string>
+    <string name="plan_criterion">Measurement criterion</string>
+    <string name="plan_start_training">Start training</string>
+    <string name="plan_expand">Show details</string>
+    <string name="plan_collapse">Hide details</string>
+    <plurals name="plan_selected_count">
+        <item quantity="one">%1$s activity selected</item>
+        <item quantity="other">%1$s activities selected</item>
+    </plurals>
+    <string name="training_placeholder_title">Training</string>
+    <string name="training_placeholder_message">Training arrives in a later update. Selected activities: %1$s</string>
 </resources>

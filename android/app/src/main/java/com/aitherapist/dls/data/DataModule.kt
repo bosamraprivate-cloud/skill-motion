@@ -33,6 +33,9 @@ internal object DataModule {
     fun therapistSettings(settings: SecureSettings): TherapistSettings = settings
 
     @Provides
+    fun planDraftStore(settings: SecureSettings): PlanDraftStore = settings
+
+    @Provides
     fun zoneStore(settings: SecureSettings): ZoneStore = settings
 
     @Provides
