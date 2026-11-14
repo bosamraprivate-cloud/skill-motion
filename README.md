@@ -84,7 +84,26 @@ cd android
 ```
 
 The debug APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`.
-**[PENDING]** There is no release signing configuration yet, so release builds are not documented.
+### Release build
+
+Release builds use R8 (minify + resource shrinking, rules in `android/app/proguard-rules.pro`) and strip debug-only tools (Replay, Try step, Character preview, the Developer section, the debug result strip and `DlsVerdict` logs).
+
+Create the upload key once, outside the repo, and keep it backed up (losing it means you cannot update the app):
+
+```
+keytool -genkeypair -v -keystore skillmotion-release.jks -alias skillmotion -keyalg RSA -keysize 4096 -validity 10000
+```
+
+Then create the git-ignored `android/keystore.properties` (paths are relative to `android/`):
+
+```
+storeFile=../../keys/skillmotion-release.jks
+storePassword=...
+keyAlias=skillmotion
+keyPassword=...
+```
+
+or set `DLS_KEYSTORE_FILE`, `DLS_KEYSTORE_PASSWORD`, `DLS_KEY_ALIAS` and `DLS_KEY_PASSWORD`. Build with `./gradlew :app:assembleRelease` (output in `android/app/build/outputs/apk/release/`). Without a keystore, Gradle prints a warning and signs the release with the debug key, which is only for local testing. `keystore.properties`, `*.jks` and `*.keystore` are git-ignored; never commit them.
 
 ## Deploy the proxy
 
@@ -204,4 +223,4 @@ Content and services: instruction audio is generated with ElevenLabs (voice "Fat
 **Permissions:** `docs/permissions/` **[PENDING: the folder does not exist yet]**. No code has been copied from a
 repository that needs an owner's written permission. Any such permission goes there before the code is used.
 
-**[PENDING]** The in-app About screen with the same credits (`ui/therapist/AboutScreen.kt`, Story 5.10) is not built yet.
+The same credits are shown in the app under Settings > About (`ui/therapist/AboutScreen.kt`).

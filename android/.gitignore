@@ -10,3 +10,7 @@ captures/
 .cxx/
 # MediaPipe models are downloaded at build time (downloadModels task)
 app/src/main/assets/*.task
+# Release signing (never commit)
+keystore.properties
+*.jks
+*.keystore

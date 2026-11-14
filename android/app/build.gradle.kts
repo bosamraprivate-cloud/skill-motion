@@ -12,6 +12,19 @@ val localProps =
         if (file.isFile) file.inputStream().use { load(it) }
     }
 
+// Release signing from git-ignored keystore.properties (storeFile, storePassword, keyAlias, keyPassword) or the
+// env vars DLS_KEYSTORE_FILE, DLS_KEYSTORE_PASSWORD, DLS_KEY_ALIAS, DLS_KEY_PASSWORD. See README "Release build".
+val keystoreProps =
+    Properties().apply {
+        val file = rootProject.file("keystore.properties")
+        if (file.isFile) file.inputStream().use { load(it) }
+    }
+
+fun signingValue(prop: String, env: String): String? = keystoreProps.getProperty(prop) ?: System.getenv(env)
+
+val releaseStoreFile = signingValue("storeFile", "DLS_KEYSTORE_FILE")?.let { rootProject.file(it) }
+val hasReleaseKey = releaseStoreFile?.isFile == true
+
 fun buildConfigString(value: String): String = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 plugins {
@@ -41,13 +54,35 @@ android {
         buildConfigField("String", "SHARED_SECRET", "\"\"")
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = releaseStoreFile
+                storePassword = signingValue("storePassword", "DLS_KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "DLS_KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "DLS_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             buildConfigField("String", "PROXY_URL", buildConfigString(localProps.getProperty("dls.proxyUrl", "")))
             buildConfigField("String", "SHARED_SECRET", buildConfigString(localProps.getProperty("dls.sharedSecret", "")))
         }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig =
+                if (hasReleaseKey) {
+                    signingConfigs.getByName("release")
+                } else {
+                    logger.warn(
+                        "WARNING: no release keystore (android/keystore.properties or DLS_KEYSTORE_* env vars); " +
+                            "release is signed with the DEBUG key, for local testing only."
+                    )
+                    signingConfigs.getByName("debug")
+                }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -168,6 +203,7 @@ kover {
                         "com.aitherapist.dls.vision.VisibilityGate*",
                         "com.aitherapist.dls.vision.FrameCropper*",
                         "com.aitherapist.dls.scoring.RulesEngine*",
+                        "com.aitherapist.dls.scoring.Metrics*",
                         "com.aitherapist.dls.rewards.RewardRules*",
                         "com.aitherapist.dls.rewards.Finish*",
                         "com.aitherapist.dls.training.RepCounter*",

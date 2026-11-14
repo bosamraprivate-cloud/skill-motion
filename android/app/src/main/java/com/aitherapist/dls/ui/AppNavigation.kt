@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -23,9 +24,11 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.aitherapist.dls.BuildConfig
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.child.ChildModeHost
 import com.aitherapist.dls.ui.child.FramingCheckRoute
+import com.aitherapist.dls.ui.child.PinningNotice
 import com.aitherapist.dls.ui.child.TrainingRoute
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.sample.SampleRoute
@@ -94,7 +97,14 @@ fun AppNavigation(modifier: Modifier = Modifier, gate: AppGateViewModel = hiltVi
     val gateState by gate.gateState.collectAsStateWithLifecycle()
     DisposableEffect(gate) {
         // Process-wide stop (not activity stop) so only real backgrounding re-locks therapist mode.
-        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) gate.onAppBackgrounded() }
+        val observer =
+            LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_STOP -> gate.onAppBackgrounded()
+                    Lifecycle.Event.ON_START -> gate.onAppForegrounded()
+                    else -> Unit
+                }
+            }
         val lifecycle = ProcessLifecycleOwner.get().lifecycle
         lifecycle.addObserver(observer)
         onDispose { lifecycle.removeObserver(observer) }
@@ -143,7 +153,8 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                 )
             }
             entry<SampleKey> { SampleRoute() }
-            entry<CharacterPreviewKey> { CharacterPreviewRoute() }
+            // Character preview is a debug-only tool; release builds register no entry for it.
+            if (BuildConfig.DEBUG) entry<CharacterPreviewKey> { CharacterPreviewRoute() }
             entry<ChildModeKey> { key ->
                 var framingDone by rememberSaveable(key) { mutableStateOf(!key.framingFirst) }
                 if (!framingDone) {
@@ -160,12 +171,31 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                     )
                 }
             }
-            entry<FramingCheckKey> { key -> FramingCheckRoute(taskId = key.taskId, onHandToChild = { gate.handToChild(key) }) }
+            entry<FramingCheckKey> { key ->
+                HandOffFrame(gate, key) { FramingCheckRoute(taskId = key.taskId, onHandToChild = { gate.requestHandOff(key) }) }
+            }
             entry<TrainingKey> { key ->
-                FramingCheckRoute(taskId = "", activityIds = key.activityIds, onHandToChild = { gate.handToTraining(key) })
+                HandOffFrame(gate, key) {
+                    FramingCheckRoute(taskId = "", activityIds = key.activityIds, onHandToChild = { gate.requestHandOff(key) })
+                }
             }
             entry<TrainingRunKey> { key -> TrainingRoute(key.childId, key.activityIds, key.runId, onExit = gate::openChildPin) }
             entry<ChildPinKey> { PinRoute(onUnlocked = gate::leaveChildMode) }
         }
     )
+}
+
+/** The adult hand-off screen [content] with the "screen is not locked" notice on top when pinning failed for [key]. */
+@Composable
+private fun HandOffFrame(gate: AppGateViewModel, key: NavKey, content: @Composable () -> Unit) {
+    Box(Modifier.fillMaxSize()) {
+        content()
+        if (gate.pinning == PinningState.Failed && gate.pendingHandOff == key) {
+            PinningNotice(
+                onRetry = { gate.requestHandOff(key) },
+                onStartAnyway = gate::handOffUnpinned,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+        }
+    }
 }
