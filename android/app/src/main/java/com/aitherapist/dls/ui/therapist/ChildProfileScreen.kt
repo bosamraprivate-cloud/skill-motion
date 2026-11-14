@@ -220,6 +220,7 @@ private fun ChildProfileForm(
                                     )
                                 }
                                 ProfileTab.REPORT -> ReportRoute(childId, onStartSession = startSession)
+                                ProfileTab.PROGRESS -> ProgressRoute(childId, onStartSession = startSession)
                                 else ->
                                     TCard {
                                         EmptyState(

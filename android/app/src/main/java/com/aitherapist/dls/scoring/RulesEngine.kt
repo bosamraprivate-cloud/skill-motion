@@ -39,6 +39,12 @@ data class StrengthsAndNeeds(val strengths: List<String>, val needs: List<Need>,
 /** One plan section: a weak scale [domain] at [planLevel] with all matching catalogue [activities] in catalogue order. */
 data class PlanSection(val domain: String, val planLevel: PlanLevel, val activities: List<Activity>)
 
+/** One domain of a [Comparison]: averages of the common scored steps in session A and B, and B minus A. */
+data class DomainComparison(val domain: String, val averageA: Double, val averageB: Double, val difference: Double, val steps: Int)
+
+/** Result of [RulesEngine.compare]: [domains] with at least one common scored step; [commonSteps] scored in both. */
+data class Comparison(val domains: List<DomainComparison>, val commonSteps: Int)
+
 /** Pure scoring rules (no Android, Room or coroutines). Bump [RULES_VERSION] on any rule change. */
 object RulesEngine {
     const val RULES_VERSION = "3"
@@ -218,5 +224,23 @@ object RulesEngine {
             previous = row
         }
         return null
+    }
+
+    /**
+     * Compare (design "Rules engine"): two sessions of the same task; only steps with a scored level in both [a] and
+     * [b] count (open and not scored excluded); per-domain averages of those steps for each and B - A. Levels must be
+     * the effective ones (corrections applied). Domains follow [tags] order (Visual-motor folds into Motor coordination).
+     */
+    fun compare(a: Map<String, StepLevel?>, b: Map<String, StepLevel?>, tags: Map<String, List<String>>): Comparison {
+        val common = a.keys.filter { id -> a[id]?.let(::score) != null && b[id]?.let(::score) != null }.toSet()
+        val avgA = domainAverages(a.filterKeys { it in common }, tags)
+        val avgB = domainAverages(b.filterKeys { it in common }, tags)
+        val domains =
+            avgA.averages.mapNotNull { (domain, valueA) ->
+                val valueB = avgB.averages[domain]
+                if (valueA == null || valueB == null) return@mapNotNull null
+                DomainComparison(domain, valueA, valueB, valueB - valueA, avgA.scoredCounts[domain] ?: 0)
+            }
+        return Comparison(domains, common.size)
     }
 }
