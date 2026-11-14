@@ -539,8 +539,8 @@
     <string name="metrics_verdict_cannot_tell">cannot tell</string>
     <string name="metrics_cell_description">blind %1$s, app %2$s: %3$s</string>
     <plurals name="pin_locked_wait">
-        <item quantity="one">Too many wrong tries. Please wait %1$d second.</item>
-        <item quantity="other">Too many wrong tries. Please wait %1$d seconds.</item>
+        <item quantity="one">Too many wrong tries. Please wait %1$s second.</item>
+        <item quantity="other">Too many wrong tries. Please wait %1$s seconds.</item>
     </plurals>
     <string name="pinning_failed_notice">Screen is not locked — the child could leave the app.</string>
     <string name="pinning_retry">Try again</string>

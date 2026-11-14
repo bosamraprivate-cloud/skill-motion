@@ -556,19 +556,19 @@
     <string name="about_credits_title">مكتبات مفتوحة المصدر</string>
     <string name="about_row_hint">النسخة والكتالوج وتراخيص المكتبات المفتوحة المصدر</string>
     <plurals name="pin_locked_wait">
-        <item quantity="zero">محاولات غلط كتير. استنى %1$d ثانية.</item>
+        <item quantity="zero">محاولات غلط كتير. استنى %1$s ثانية.</item>
         <item quantity="one">محاولات غلط كتير. استنى ثانية واحدة.</item>
         <item quantity="two">محاولات غلط كتير. استنى ثانيتين.</item>
-        <item quantity="few">محاولات غلط كتير. استنى %1$d ثواني.</item>
-        <item quantity="many">محاولات غلط كتير. استنى %1$d ثانية.</item>
-        <item quantity="other">محاولات غلط كتير. استنى %1$d ثانية.</item>
+        <item quantity="few">محاولات غلط كتير. استنى %1$s ثواني.</item>
+        <item quantity="many">محاولات غلط كتير. استنى %1$s ثانية.</item>
+        <item quantity="other">محاولات غلط كتير. استنى %1$s ثانية.</item>
     </plurals>
     <string name="pinning_failed_notice">الشاشة مش مقفولة — الطفل ممكن يخرج من التطبيق.</string>
     <string name="pinning_retry">جرّب تاني</string>
     <string name="pinning_start_unlocked">ابدأ من غير قفل</string>
     <!-- Story 5.8 metrics dashboard -->
     <string name="settings_tool_metrics_title">الدقة</string>
-    <string name="settings_tool_metrics_hint">قد إيه التطبيق بيتفق مع المراجعة العمياء (الهدف ٨)</string>
+    <string name="settings_tool_metrics_hint">قد إيه التطبيق بيتفق مع المراجعة العمياء (الهدف 8)</string>
     <string name="metrics_title_volunteer">دقة المتطوعين</string>
     <string name="metrics_title_live">الدقة (جلسات حقيقية)</string>
     <string name="metrics_subtitle">نتايج التطبيق مقارنة بالمراجعة العمياء. "مش واضح" عمره ما يتحسب اختلاف. ده مش تحقق إكلينيكي.</string>

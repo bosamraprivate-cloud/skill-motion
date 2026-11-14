@@ -33,8 +33,10 @@ class MainActivity : ComponentActivity() {
     // Same instance AppNavigation gets from hiltViewModel() (the activity is the root ViewModelStoreOwner).
     private val gate: AppGateViewModel by viewModels()
 
-    // The app is Egyptian Arabic (RTL) whatever the device language is.
+    // The app is Egyptian Arabic (RTL) whatever the device language is; therapist numbers use Western digits
+    // (child mode formats its own Arabic-Indic digits with CHILD_DIGITS_LOCALE).
     override fun attachBaseContext(newBase: Context) {
+        Locale.setDefault(APP_LOCALE)
         val config = Configuration(newBase.resources.configuration).apply { setLocale(APP_LOCALE) }
         super.attachBaseContext(newBase.createConfigurationContext(config))
     }
@@ -99,6 +101,6 @@ class MainActivity : ComponentActivity() {
         /** Volume and power keep their system meaning; every other key is Done. */
         val PASS_THROUGH_KEYS =
             setOf(KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_MUTE, KeyEvent.KEYCODE_POWER)
-        val APP_LOCALE: Locale = Locale.forLanguageTag("ar-EG")
+        val APP_LOCALE: Locale = Locale.forLanguageTag("ar-EG-u-nu-latn")
     }
 }

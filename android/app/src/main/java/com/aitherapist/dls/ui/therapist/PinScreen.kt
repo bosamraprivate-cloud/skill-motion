@@ -52,7 +52,7 @@ fun PinScreen(state: PinUiState, onEvent: (PinEvent) -> Unit, modifier: Modifier
                         if (state.locked) {
                             // Calm, not alarming: neutral colour, a plain countdown (owner decision 2026-11-14).
                             Text(
-                                pluralStringResource(R.plurals.pin_locked_wait, state.lockedSeconds, state.lockedSeconds),
+                                pluralStringResource(R.plurals.pin_locked_wait, state.lockedSeconds, westernDigits(state.lockedSeconds)),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
                             )
