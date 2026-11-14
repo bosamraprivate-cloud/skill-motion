@@ -76,6 +76,10 @@ internal interface SessionDao {
     @Query("SELECT * FROM session WHERE kind = 'replay' ORDER BY CASE WHEN state = 'done' THEN 0 ELSE 1 END, startedAt DESC")
     suspend fun replaySessions(): List<SessionEntity>
 
+    /** Assessment and replay sessions for the results export (Story 5.6), eval child included, oldest first. */
+    @Query("SELECT * FROM session WHERE kind IN ('assessment', 'replay') ORDER BY startedAt, rowid")
+    suspend fun exportable(): List<SessionEntity>
+
     @Query("SELECT id FROM session WHERE childId = :childId")
     suspend fun idsForChild(childId: String): List<String>
 
@@ -187,6 +191,10 @@ internal interface BlindRatingDao {
 
     @Query("SELECT * FROM blind_rating WHERE attemptId = :attemptId")
     suspend fun forAttempt(attemptId: String): BlindRatingEntity?
+
+    /** Blind ratings of the attempts of [sessionId] (results export, Story 5.6). */
+    @Query("SELECT b.* FROM blind_rating b JOIN attempt a ON a.id = b.attemptId WHERE a.sessionId = :sessionId")
+    suspend fun forSession(sessionId: String): List<BlindRatingEntity>
 
     @Query("SELECT EXISTS(SELECT 1 FROM attempt WHERE id = :attemptId)")
     suspend fun attemptExists(attemptId: String): Boolean

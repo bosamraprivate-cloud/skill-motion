@@ -490,4 +490,9 @@
     <string name="blind_error">Could not load the attempts (%1$s).</string>
     <string name="blind_write_failed">The rating was not saved. Try again.</string>
     <string name="blind_clip">Attempt video</string>
+    <string name="export_title">Export results</string>
+    <string name="export_hint">Save results.csv for the accuracy check. Child codes only, never names.</string>
+    <string name="export_working">Saving results…</string>
+    <string name="export_done">Results saved.</string>
+    <string name="export_failed">The file could not be saved. Please try again or pick another place.</string>
 </resources>

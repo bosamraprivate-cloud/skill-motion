@@ -67,6 +67,14 @@ android {
         noCompress += "task"
     }
 
+    testOptions {
+        unitTests.all { test ->
+            // Story 5.6: the results export sample shared with tools/eval (regenerate with -DupdateFixtures=true).
+            test.systemProperty("evalFixturesDir", rootProject.file("../tools/eval/fixtures").absolutePath)
+            test.systemProperty("updateFixtures", System.getProperty("updateFixtures") ?: "false")
+        }
+    }
+
     lint {
         warningsAsErrors = false
         abortOnError = true

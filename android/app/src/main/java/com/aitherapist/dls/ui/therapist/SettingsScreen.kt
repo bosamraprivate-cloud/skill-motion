@@ -1,6 +1,8 @@
 package com.aitherapist.dls.ui.therapist
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
@@ -42,6 +45,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -96,14 +101,23 @@ fun SettingsRoute(
     onOpenChildMode: (childId: String, taskId: String) -> Unit = { _, _ -> },
     viewModel: SettingsViewModel = hiltViewModel(),
     zonesViewModel: ZoneEditorViewModel = hiltViewModel(),
-    networkViewModel: NetworkBannerViewModel = hiltViewModel()
+    networkViewModel: NetworkBannerViewModel = hiltViewModel(),
+    exportViewModel: ResultsExportViewModel = hiltViewModel()
 ) {
+    val exportStatus by exportViewModel.status.collectAsStateWithLifecycle()
+    val exportLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+            exportViewModel.onPicked(uri?.toString())
+        }
+    DisposableEffect(exportViewModel) { onDispose { exportViewModel.reset() } }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val zonesState by zonesViewModel.uiState.collectAsStateWithLifecycle()
     val banner by networkViewModel.banner.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf(SettingsPage.MAIN) }
     var showTryStep by rememberSaveable { mutableStateOf(false) }
     BackHandler(enabled = page != SettingsPage.MAIN) { page = SettingsPage.MAIN }
+    // DONE/FAILED clears when the therapist opens another page or leaves Settings.
+    LaunchedEffect(page) { if (page != SettingsPage.MAIN) exportViewModel.reset() }
     val debug = BuildConfig.DEBUG
     if (showTryStep && debug) {
         TryStepScreenDialog(
@@ -137,6 +151,8 @@ fun SettingsRoute(
                 onOpenZones = { page = SettingsPage.ZONES },
                 onDiagnostics = { page = SettingsPage.DIAGNOSTICS },
                 onBlindReview = { page = SettingsPage.BLIND_REVIEW },
+                exportStatus = exportStatus,
+                onExport = { exportLauncher.launch(RESULTS_FILE_NAME) },
                 advanced =
                 if (debug) {
                     AdvancedTools(
@@ -176,6 +192,8 @@ fun SettingsScreen(
     onOpenZones: () -> Unit = {},
     onDiagnostics: () -> Unit = {},
     onBlindReview: () -> Unit = {},
+    exportStatus: ExportStatus = ExportStatus.IDLE,
+    onExport: () -> Unit = {},
     advanced: AdvancedTools? = null
 ) {
     Column(
@@ -201,6 +219,17 @@ fun SettingsScreen(
                 GroupTitle(stringResource(R.string.settings_group_evaluation))
                 SectionCard(stringResource(R.string.settings_group_evaluation), CARD_WIDTH, icon = Icons.Filled.Search) {
                     ToolRow(Icons.Filled.Search, R.string.blind_title, R.string.settings_tool_blind_hint, onBlindReview)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    ToolRow(Icons.Filled.DateRange, R.string.export_title, R.string.export_hint) {
+                        if (exportStatus != ExportStatus.WORKING) onExport()
+                    }
+                    exportMessage(exportStatus)?.let { (text, error) ->
+                        Text(
+                            stringResource(text),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 advanced?.let {
                     GroupTitle(stringResource(R.string.settings_advanced_section))
@@ -209,6 +238,17 @@ fun SettingsScreen(
             }
         }
     }
+}
+
+/** Default name offered by the system file picker for the results export (Story 5.6). */
+const val RESULTS_FILE_NAME = "results.csv"
+
+/** The calm line under "Export results", with whether it is an error. */
+private fun exportMessage(status: ExportStatus): Pair<Int, Boolean>? = when (status) {
+    ExportStatus.IDLE -> null
+    ExportStatus.WORKING -> R.string.export_working to false
+    ExportStatus.DONE -> R.string.export_done to false
+    ExportStatus.FAILED -> R.string.export_failed to true
 }
 
 private val CARD_WIDTH = Modifier.widthIn(max = 760.dp).fillMaxWidth()

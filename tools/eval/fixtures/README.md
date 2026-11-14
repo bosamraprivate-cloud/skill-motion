@@ -28,3 +28,9 @@ numbers in `metrics_fixture.expected.json`. The Python script (`test_compute_met
   = 0.1 + 0.6 + 0.3 + 0.2 = 1.2. Kappa = 1 - 0.5/1.2 = 7/12 = 0.58333 (below 0.6, flagged).
 - Corrections: step h only (3 vs automatic 2): 1 step, 1 differs; not used for accuracy.
 - Clips: a1, b1, b2 match; c1 `missing.mp4` unmatched. Scripted done vs app done, not_done, done -> 2/3.
+
+## Kotlin export sample
+
+`results_export_sample.csv` is written by the Android unit test `CsvExporterTest` (Story 5.6) from synthetic rows;
+`test_kotlin_export_round_trip` parses it with `compute_metrics.read_results`. Regenerate with `./gradlew :app:testDebugUnitTest --tests "*CsvExporterTest" -DupdateFixtures=true`; never
+hand-edit.

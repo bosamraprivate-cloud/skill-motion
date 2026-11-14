@@ -542,4 +542,9 @@
     <string name="blind_error">مقدرناش نحمّل المحاولات (%1$s).</string>
     <string name="blind_write_failed">التقييم ما اتحفظش. جرّب تاني.</string>
     <string name="blind_clip">فيديو المحاولة</string>
+    <string name="export_title">تصدير النتايج</string>
+    <string name="export_hint">احفظ results.csv علشان فحص الدقة. أكواد الأطفال بس، من غير أسامي.</string>
+    <string name="export_working">بنحفظ النتايج…</string>
+    <string name="export_done">النتايج اتحفظت.</string>
+    <string name="export_failed">الملف ما اتحفظش. جرّب تاني أو اختار مكان تاني.</string>
 </resources>

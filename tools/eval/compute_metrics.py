@@ -14,6 +14,10 @@ Primary baseline is the blind therapist rating (`blindVerdict`); the scripted ou
 - `correctedLevel` never feeds app accuracy; corrections are reported separately. It is 1/2/3, the text
   `not_scored` for a not-scored correction, or empty for no correction.
 - `attemptNumber` must never decrease within a step (saved order is what Rule 1 reads).
+- Correction-only rows: a corrected step with no attempts is one row with empty attemptId, attemptNumber,
+  promptLevel, verdict, reason, verifier, modelId, latencyMs, level, blindVerdict and clipFile; only
+  `correctedLevel` is set. It counts for the corrections line and is skipped for agreement and kappa.
+- Formula guard: the app prefixes `'` to any cell starting with = + - @; a leading `'` is stripped on read.
 
 Only the part of the output file between the report markers is replaced. Exits 1 on a missing file, a bad
 header or no rows.
@@ -130,11 +134,16 @@ def read_results(path: Path) -> list[dict[str, str]]:
         missing = [c for c in COLUMNS if c not in reader.fieldnames]
         if missing:
             raise ValueError(f"{path}: missing columns {', '.join(missing)}")
-        rows = list(reader)
+        rows = [{k: unguard(v or "") for k, v in row.items()} for row in reader]
     if not rows:
         raise ValueError(f"{path}: no rows")
     last_number: dict[tuple[str, str], int] = {}
     for i, row in enumerate(rows, start=2):
+        if is_correction_only(row):
+            if row["level"].strip() or not row["correctedLevel"].strip():
+                raise ValueError(f"{path}:{i}: correction-only row needs correctedLevel and no level")
+            parse_level(row["correctedLevel"])
+            continue
         if row["verdict"] not in VERDICTS:
             raise ValueError(f"{path}:{i}: bad verdict {row['verdict']!r}")
         if row["blindVerdict"] not in (*VERDICTS, ""):
@@ -157,6 +166,16 @@ def read_results(path: Path) -> list[dict[str, str]]:
             )
         last_number[key] = number
     return rows
+
+
+def unguard(value: str) -> str:
+    """Undo the app's formula guard (a leading `'` before = + - @)."""
+    return value[1:] if value[:1] == "'" and value[1:2] in ("=", "+", "-", "@") else value
+
+
+def is_correction_only(row: dict[str, str]) -> bool:
+    """A corrected step without attempts (empty attemptId)."""
+    return not row["attemptId"].strip()
 
 
 def read_clips(path: Path | None, required: bool = False) -> dict[str, str]:
@@ -264,7 +283,11 @@ class Metrics:
 def compute(rows: list[dict[str, str]], clips: dict[str, str]) -> Metrics:
     m = Metrics()
     groups: dict[tuple[str, str], list[dict[str, str]]] = {}
+    corrected_only: dict[tuple[str, str], str] = {}
     for row in rows:
+        if is_correction_only(row):
+            corrected_only[(row["sessionId"], row["stepId"])] = row["correctedLevel"]
+            continue
         groups.setdefault((row["sessionId"], row["stepId"]), []).append(row)
         app, blind = row["verdict"], row["blindVerdict"]
         m.attempts += 1
@@ -293,6 +316,10 @@ def compute(rows: list[dict[str, str]], clips: dict[str, str]) -> Metrics:
             elif clip not in m.unmatched:
                 m.unmatched.append(clip)
 
+    for key in corrected_only:
+        if key not in groups:
+            m.corrected_steps += 1
+            m.corrected_changed += 1  # an open step (no automatic level) given a level
     for step_rows in groups.values():  # saved (file) order within a step, as Rule 1 reads it
         m.steps += 1
         app_level = next((parse_level(r["level"]) for r in step_rows if r["level"].strip()), None)

@@ -1,0 +1,10 @@
+sessionId,childCode,taskId,stepId,attemptId,attemptNumber,promptLevel,verdict,reason,verifier,modelId,latencyMs,level,correctedLevel,blindVerdict,clipFile
+s2,C-1001,task-eat,eat-01,s2-eat-01-1,1,1,done,pose_ok,pose,,120,3,,not_done,eat-01_done_v1.mp4
+s1,C-1001,task-eat,eat-01,s1-eat-01-1,1,1,done,pose_ok,pose,,120,3,,done,
+s1,C-1001,task-eat,eat-02,s1-eat-02-1,1,1,not_done,"hand_far, wrist low",pose,,120,2,3,cannot_tell,
+s1,C-1001,task-eat,eat-02,s1-eat-02-2,2,2,done,model,cloud,deepseek-flash,120,2,3,,
+s1,C-1001,task-eat,eat-03,s1-eat-03-1,1,1,cannot_tell,pose_ok,pose,,120,not_scored,not_scored,,
+s1,C-1001,task-eat,eat-03,s1-eat-03-2,2,1,cannot_tell,"'-say ""hi""
+then -1",pose,,120,not_scored,not_scored,,
+s1,C-1001,task-eat,eat-04,,,,,,,,,,2,,
+s3,C-1001,task-eat,eat-01,s3-eat-01-1,1,1,not_done,pose_ok,pose,,120,,,,

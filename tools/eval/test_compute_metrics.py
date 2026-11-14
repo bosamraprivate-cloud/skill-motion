@@ -208,3 +208,56 @@ def test_report_uses_lf_newlines(tmp_path):
         == 0
     )
     assert b"\r\n" not in out.read_bytes()
+
+
+def test_kotlin_export_round_trip():
+    """The Kotlin `CsvExporterTest` sample (Story 5.6) passes column validation with the exact header."""
+    path = FIX / "results_export_sample.csv"
+    raw = path.read_bytes()
+    text = raw.decode("utf-8")
+    assert not raw.startswith(b"\xef\xbb\xbf") and b"\r" not in raw
+    assert text.splitlines()[0] == ",".join(COLUMNS)
+    assert "Youssef" not in text
+    rows = read_results(path)
+    assert len(rows) == 8
+    assert rows[2]["reason"] == "hand_far, wrist low"
+    # Quote, newline and formula guard survive the round trip (leading ' stripped).
+    assert rows[5]["reason"] == '-say "hi"\nthen -1'
+    assert [r["level"] for r in rows if r["sessionId"] == "s3"] == [""]
+    only = [r for r in rows if not r["attemptId"]]
+    assert [(r["stepId"], r["correctedLevel"], r["level"]) for r in only] == [("eat-04", "2", "")]
+    m = compute(rows, {})
+    assert m.attempts == 7
+    assert m.corrected_steps == 3  # eat-02, eat-03 and the attempt-less eat-04
+    assert m.rated == 3
+
+
+def _write(tmp_path, lines):
+    path = tmp_path / "r.csv"
+    path.write_text(",".join(COLUMNS) + "\n" + "\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def test_correction_only_row_counts_only_for_corrections(tmp_path):
+    path = _write(
+        tmp_path,
+        [
+            "s,C-1,t,a,a1,1,1,done,ok,pose,,1,3,,done,",
+            "s,C-1,t,b,,,,,,,,,,2,,",
+        ],
+    )
+    m = compute(read_results(path), {})
+    assert (m.attempts, m.decided, m.agree, len(m.kappa_pairs)) == (1, 1, 1, 1)
+    assert (m.corrected_steps, m.corrected_changed, m.steps) == (1, 1, 1)
+
+
+def test_correction_only_row_needs_corrected_level(tmp_path):
+    path = _write(tmp_path, ["s,C-1,t,b,,,,,,,,,,,,"])
+    with pytest.raises(ValueError, match="correction-only"):
+        read_results(path)
+
+
+def test_formula_guard_is_stripped(tmp_path):
+    path = _write(tmp_path, ["s,C-1,t,a,a1,1,1,done,'=1+1,pose,,1,3,,done,'@x.mp4"])
+    row = read_results(path)[0]
+    assert (row["reason"], row["clipFile"]) == ("=1+1", "@x.mp4")
