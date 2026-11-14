@@ -11,6 +11,7 @@ import com.aitherapist.dls.camera.FrameBuffer
 import com.aitherapist.dls.catalog.CatalogJson
 import com.aitherapist.dls.catalog.Method
 import com.aitherapist.dls.catalog.Step
+import com.aitherapist.dls.data.AttemptStats
 import com.aitherapist.dls.data.TherapistSettings
 import com.aitherapist.dls.vision.BitmapImage
 import com.aitherapist.dls.vision.BitmapJpegEncoder
@@ -18,12 +19,15 @@ import com.aitherapist.dls.vision.CloudVerifier
 import com.aitherapist.dls.vision.FpsMeter
 import com.aitherapist.dls.vision.FpsStream
 import com.aitherapist.dls.vision.Frame
+import com.aitherapist.dls.vision.GroupVisibility
+import com.aitherapist.dls.vision.HealthResult
 import com.aitherapist.dls.vision.InferenceDelegate
 import com.aitherapist.dls.vision.LandmarkFrame
 import com.aitherapist.dls.vision.LandmarkPoint
 import com.aitherapist.dls.vision.LandmarkResult
 import com.aitherapist.dls.vision.Landmarkers
 import com.aitherapist.dls.vision.PoseVerifier
+import com.aitherapist.dls.vision.ProxyHealth
 import com.aitherapist.dls.vision.ProxyProbe
 import com.aitherapist.dls.vision.VerifyContext
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,11 +58,13 @@ class DiagnosticsViewModel
 constructor(
     private val landmarkers: Landmarkers,
     @ApplicationContext private val context: Context,
-    private val settings: TherapistSettings
+    private val settings: TherapistSettings,
+    private val stats: AttemptStats
 ) : ViewModel() {
     private val clock: () -> Long = SystemClock::uptimeMillis
     private val fpsMeter = FpsMeter(clock)
     private val frameBuffer = FrameBuffer<Long, LandmarkResult>(clock)
+    private val groupVisibility = GroupVisibility()
     private val debuggable = BuildConfig.DEBUG
 
     // Debug-only spike attempt (Story 1.3): a longer buffer holds the whole attempt window.
@@ -88,11 +94,14 @@ constructor(
         return CloudVerifier(url, secret, BitmapJpegEncoder, httpClient, clock)
     }
 
-    private suspend fun proxyProbe(): ProxyProbe = ProxyProbe(proxySettings().first, httpClient, clock)
     private var spikeSteps: List<Step> = emptyList()
     private var spikeStep: Step? = null
     private val spikeIds = MutableStateFlow<List<String>>(emptyList())
-    private val probe = MutableStateFlow<ProbeState?>(null)
+    private val _health = MutableStateFlow(HealthState())
+
+    /** Proxy ping and cannot-tell rate; independent of the camera. */
+    val health: StateFlow<HealthState> = _health
+    private var healthJob: Job? = null
 
     // Attempt frames and hand results for cloud steps: memory only, cleared after the verdict.
     private val attemptImages = ConcurrentHashMap<Long, Bitmap>()
@@ -125,7 +134,7 @@ constructor(
         }
 
     val uiState: StateFlow<DiagnosticsUiState> =
-        combine(combine(permission, engine, spikeIds, probe, ::Spike), landmarks, run, attempt, ticker) { spike, latest, runState, att, _ ->
+        combine(combine(permission, engine, spikeIds, ::Spike), landmarks, run, attempt, ticker) { spike, latest, runState, att, _ ->
             val granted = spike.granted
             val eng = spike.engine
             when {
@@ -133,7 +142,7 @@ constructor(
                 !granted -> DiagnosticsUiState.PermissionDenied
                 eng is Engine.Failed -> DiagnosticsUiState.Error(eng.reason)
                 eng !is Engine.Ready -> DiagnosticsUiState.Loading
-                else -> content(eng.delegate, latest, runState).copy(attempt = att, spikeSteps = spike.ids, probe = spike.probe)
+                else -> content(eng.delegate, latest, runState).copy(attempt = att, spikeSteps = spike.ids)
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), DiagnosticsUiState.Loading)
 
@@ -143,13 +152,43 @@ constructor(
             DiagnosticsEvent.StartRun -> startRun()
             DiagnosticsEvent.TryStep -> tryStep()
             is DiagnosticsEvent.SelectStep -> selectStep(event.stepId)
-            DiagnosticsEvent.Probe -> runProbe()
+            DiagnosticsEvent.CheckAgain -> checkHealth()
             DiagnosticsEvent.Retry -> {
                 stop()
                 start()
             }
         }
     }
+
+    init {
+        checkHealth()
+    }
+
+    /** Proxy health ping and cannot-tell rate: on open and on "Check again" only, never polled. */
+    private fun checkHealth() {
+        if (healthJob?.isActive == true) return
+        _health.value = HealthState()
+        healthJob =
+            viewModelScope.launch {
+                // Query and ping run in parallel; cancelling the job cancels the HTTP call too.
+                launch {
+                    val rate =
+                        try {
+                            RateState.Ready(withContext(Dispatchers.IO) { stats.cannotTellCounts() })
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (
+                            @Suppress("TooGenericExceptionCaught") e: Exception
+                        ) {
+                            RateState.Unavailable
+                        }
+                    _health.update { it.copy(rate = rate) }
+                }
+                launch { _health.update { it.copy(proxy = ping()) } }
+            }
+    }
+
+    private suspend fun ping(): ProxyCheck.Done = proxyCheck(settings) { url, secret -> ProxyProbe(url, httpClient, clock).health(secret) }
 
     /** Starts the landmarkers (call on lifecycle start with permission granted). */
     fun start() {
@@ -194,6 +233,7 @@ constructor(
                 withContext(Dispatchers.Default) { landmarkers.close() }
             }
         frameBuffer.clear()
+        groupVisibility.clear()
         fpsMeter.clearPending()
     }
 
@@ -248,10 +288,12 @@ constructor(
                     frameBuffer.addResult(result.timestampMs, result)
                     if (recordingAttempt) attemptBuffer.addResult(result.timestampMs, result)
                 }
+                groupVisibility.onPose(result.sets.firstOrNull())
                 landmarks.update { it.copy(pose = result.sets.firstOrNull().orEmpty()) }
             }
             FpsStream.HAND -> {
                 if (recordingAttempt) attemptHands[result.timestampMs] = result.sets
+                groupVisibility.onHands(result.sets)
                 landmarks.update { it.copy(hands = result.sets) }
             }
             FpsStream.COMBINED -> Unit
@@ -306,17 +348,6 @@ constructor(
         val step = spikeSteps.firstOrNull { it.id == stepId } ?: return
         spikeStep = step
         attempt.value = AttemptState.Idle(step.id)
-    }
-
-    /** Proxy reachability (FR-1): GET /verify must answer 405; shows the round-trip ms. */
-    private fun runProbe() {
-        if (!debuggable || probe.value is ProbeState.Running) return
-        probe.value = ProbeState.Running
-        viewModelScope.launch {
-            val result = proxyProbe().probe()
-            probe.value = ProbeState.Done(result.reachable, result.roundTripMs, result.detail)
-            Log.d(VERDICT_TAG, "probe ${result.detail} ${result.roundTripMs}") // status and ms only
-        }
     }
 
     private fun cancelAttempt() {
@@ -419,6 +450,7 @@ constructor(
             handFps = fpsMeter.fps(FpsStream.HAND),
             combinedFps = fpsMeter.fps(FpsStream.COMBINED),
             visiblePercent = visible,
+            groups = groupVisibility.percents(),
             frameAspect = frameAspect,
             posePoints = latest.pose,
             handPoints = latest.hands,
@@ -426,7 +458,7 @@ constructor(
         )
     }
 
-    private data class Spike(val granted: Boolean?, val engine: Engine, val ids: List<String>, val probe: ProbeState?)
+    private data class Spike(val granted: Boolean?, val engine: Engine, val ids: List<String>)
 
     private data class Latest(val pose: List<LandmarkPoint> = emptyList(), val hands: List<List<LandmarkPoint>> = emptyList())
 
@@ -454,4 +486,20 @@ constructor(
         const val ATTEMPT_RETENTION_MS = 7_000L
         const val DEFAULT_FRAME_ASPECT = 4f / 3f
     }
+}
+
+/** Reads proxy settings and pings; settings that cannot be read are reported as such, not as "not set up". */
+internal suspend fun proxyCheck(settings: TherapistSettings, ping: suspend (url: String, secret: String) -> HealthResult): ProxyCheck.Done {
+    val (url, secret) =
+        try {
+            withContext(Dispatchers.IO) { settings.proxyUrl().orEmpty() to settings.sharedSecret().orEmpty() }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception
+        ) {
+            return ProxyCheck.Done(ProxyHealth.SETTINGS_UNREADABLE, 0)
+        }
+    val result = ping(url, secret)
+    return ProxyCheck.Done(result.health, result.roundTripMs)
 }

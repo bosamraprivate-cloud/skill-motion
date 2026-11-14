@@ -90,9 +90,9 @@ development_status:
   epic-5: in-progress
   5-1-session-list-and-session-detail-with-evidence: review
   5-2-correct-a-step-level: review
-  5-3-compare-two-assessments: backlog
-  5-4-training-history: backlog
-  5-5-diagnostics-screen: backlog
+  5-3-compare-two-assessments: review
+  5-4-training-history: review
+  5-5-diagnostics-screen: review
   5-6-anonymised-csv-export: backlog
   5-7-blind-review: backlog
   5-8-accuracy-metrics-script-and-dashboard: backlog

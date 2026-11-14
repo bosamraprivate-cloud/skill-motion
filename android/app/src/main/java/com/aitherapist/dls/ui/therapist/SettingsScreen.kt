@@ -120,8 +120,11 @@ fun SettingsRoute(
             }, doneLabel = stringResource(R.string.zones_done), viewModel = zonesViewModel)
         // Advanced tools are debug-only; release builds have no entry.
         page == SettingsPage.REPLAY && debug -> SubPage(onBack = { page = SettingsPage.MAIN }) { ReplayRoute() }
-        page == SettingsPage.DIAGNOSTICS && debug ->
-            SubPage(onBack = { page = SettingsPage.MAIN }) { DiagnosticsRoute(onOpenSample = onOpenSample) }
+        // Diagnostics is a therapist page in release too (Story 5.5); its developer tools stay debug-only inside it.
+        page == SettingsPage.DIAGNOSTICS ->
+            SubPage(onBack = { page = SettingsPage.MAIN }) {
+                DiagnosticsRoute(onOpenSample = onOpenSample, onOpenSettings = { page = SettingsPage.MAIN })
+            }
         else ->
             SettingsScreen(
                 state = state,
@@ -129,10 +132,10 @@ fun SettingsRoute(
                 zones = (zonesState as? ZoneEditorUiState.Content)?.zones,
                 banner = banner,
                 onOpenZones = { page = SettingsPage.ZONES },
+                onDiagnostics = { page = SettingsPage.DIAGNOSTICS },
                 advanced =
                 if (debug) {
                     AdvancedTools(
-                        onDiagnostics = { page = SettingsPage.DIAGNOSTICS },
                         onReplay = { page = SettingsPage.REPLAY },
                         onTryStepScreen = { showTryStep = true },
                         onCharacterPreview = onOpenCharacterPreview
@@ -145,12 +148,7 @@ fun SettingsRoute(
 }
 
 /** Entries of the debug-only "Advanced tools" card. */
-class AdvancedTools(
-    val onDiagnostics: () -> Unit,
-    val onReplay: () -> Unit,
-    val onTryStepScreen: () -> Unit,
-    val onCharacterPreview: () -> Unit
-)
+class AdvancedTools(val onReplay: () -> Unit, val onTryStepScreen: () -> Unit, val onCharacterPreview: () -> Unit)
 
 /** An advanced tool page with a quiet "back to Settings" row above it. */
 @Composable
@@ -172,6 +170,7 @@ fun SettingsScreen(
     zones: Map<String, Zone>? = null,
     banner: NetworkBanner = NetworkBanner.NONE,
     onOpenZones: () -> Unit = {},
+    onDiagnostics: () -> Unit = {},
     advanced: AdvancedTools? = null
 ) {
     Column(
@@ -190,6 +189,10 @@ fun SettingsScreen(
                 ProxySection(state, onEvent, connectionStatus(state.proxyUrlValid && state.secretSet, banner))
                 GroupTitle(stringResource(R.string.settings_group_zones))
                 ZonesSection(zones, onOpenZones)
+                GroupTitle(stringResource(R.string.diagnostics_title))
+                SectionCard(stringResource(R.string.diagnostics_title), CARD_WIDTH, icon = Icons.Filled.Settings) {
+                    ToolRow(Icons.Filled.Settings, R.string.diag_health_title, R.string.settings_tool_diagnostics_hint, onDiagnostics)
+                }
                 advanced?.let {
                     GroupTitle(stringResource(R.string.settings_advanced_section))
                     AdvancedSection(it)
@@ -407,8 +410,6 @@ private fun AdvancedSection(tools: AdvancedTools) {
         subtitle = stringResource(R.string.settings_advanced_subtitle)
     ) {
         Column {
-            ToolRow(Icons.Filled.Settings, R.string.diagnostics_title, R.string.settings_tool_diagnostics_hint, tools.onDiagnostics)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             ToolRow(Icons.Filled.Refresh, R.string.settings_open_replay, R.string.settings_tool_replay_hint, tools.onReplay)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             ToolRow(
@@ -458,7 +459,7 @@ private fun SettingsPreview() {
             ),
             {},
             zones = mapOf("mat" to Zone(0.2f, 0.6f, 0.7f, 0.9f)),
-            advanced = AdvancedTools({}, {}, {}, {})
+            advanced = AdvancedTools({}, {}, {})
         )
     }
 }

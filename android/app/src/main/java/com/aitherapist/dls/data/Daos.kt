@@ -95,6 +95,19 @@ internal interface AttemptDao {
 
     @Query("DELETE FROM attempt WHERE id = :id")
     suspend fun delete(id: String)
+
+    /** Diagnostics (Story 5.5): attempts of finished assessments of non-eval children, verifier `none` excluded. */
+    @Query(
+        """
+        SELECT COUNT(*) AS total,
+            COALESCE(SUM(CASE WHEN a.verdict = 'cannot_tell' THEN 1 ELSE 0 END), 0) AS cannotTell
+        FROM attempt a
+        JOIN session s ON s.id = a.sessionId
+        JOIN child c ON c.id = s.childId
+        WHERE a.verifier != 'none' AND s.kind = 'assessment' AND s.state = 'done' AND c.isEval = 0
+        """
+    )
+    suspend fun cannotTellCounts(): CannotTellCounts
 }
 
 @Dao
