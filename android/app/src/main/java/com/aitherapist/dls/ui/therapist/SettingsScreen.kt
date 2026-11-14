@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.aitherapist.dls.BuildConfig
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.components.PageHeader
@@ -45,16 +46,33 @@ import com.aitherapist.dls.ui.theme.Spacing
 fun SettingsRoute(viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var showZones by rememberSaveable { mutableStateOf(false) }
-    BackHandler(enabled = showZones) { showZones = false }
-    if (showZones) {
-        ZoneEditorRoute(onDone = { showZones = false }, doneLabel = stringResource(R.string.zones_done))
-    } else {
-        SettingsScreen(state = state, onEvent = viewModel::onEvent, onOpenZones = { showZones = true })
+    var showReplay by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = showZones || showReplay) {
+        showZones = false
+        showReplay = false
+    }
+    when {
+        showZones -> ZoneEditorRoute(onDone = { showZones = false }, doneLabel = stringResource(R.string.zones_done))
+        // Story 3.7: replay is a debug-only tool; release builds have no entry.
+        showReplay && BuildConfig.DEBUG -> ReplayRoute()
+        else ->
+            SettingsScreen(
+                state = state,
+                onEvent = viewModel::onEvent,
+                onOpenZones = { showZones = true },
+                onOpenReplay = if (BuildConfig.DEBUG) ({ showReplay = true }) else null
+            )
     }
 }
 
 @Composable
-fun SettingsScreen(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit, modifier: Modifier = Modifier, onOpenZones: () -> Unit = {}) {
+fun SettingsScreen(
+    state: SettingsUiState,
+    onEvent: (SettingsEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    onOpenZones: () -> Unit = {},
+    onOpenReplay: (() -> Unit)? = null
+) {
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -70,6 +88,11 @@ fun SettingsScreen(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit, mod
                 Section(stringResource(R.string.settings_zones_section)) {
                     Text(stringResource(R.string.settings_zones_body), style = MaterialTheme.typography.bodyLarge)
                     Button(onClick = onOpenZones) { Text(stringResource(R.string.settings_zones_open)) }
+                }
+                onOpenReplay?.let { open ->
+                    Section(stringResource(R.string.settings_advanced_section)) {
+                        Button(onClick = open) { Text(stringResource(R.string.settings_open_replay)) }
+                    }
                 }
             }
         }

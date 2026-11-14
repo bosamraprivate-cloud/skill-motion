@@ -198,4 +198,38 @@ class DatabaseTest {
         assertEquals(expectedAll, db.sessionDao().observeResumable().first())
         db.close()
     }
+
+    @Test
+    fun evalChildAndReplaySessionsAreHiddenFromChildrenResumableAndReports() = runBlocking {
+        val db = AppDatabase.build(context, ByteArray(32) { 7 }, dbName)
+        val holder = DatabaseHolder { db }
+        val replay = ReplayRepository(holder)
+        val evalId = replay.evalChildId()
+        assertEquals(evalId, replay.evalChildId()) // created once
+        val visible = child()
+        db.childDao().insert(visible)
+        val evalSession = session(evalId).copy(kind = SessionKind.REPLAY)
+        val strayReplay = session(visible.id).copy(kind = SessionKind.REPLAY)
+        val evalAssessment = session(evalId)
+        val live = session(visible.id)
+        listOf(evalSession, strayReplay, evalAssessment, live).forEach { db.sessionDao().insert(it) }
+        assertEquals(
+            listOf(visible.id),
+            ChildRepository(holder, FrameStore(context.cacheDir, keys)).observeChildren().first().map {
+                it.id
+            }
+        )
+        assertEquals(listOf(live), db.sessionDao().observeResumable().first())
+        assertEquals(listOf(live), db.sessionDao().resumableForChild(visible.id))
+        assertEquals(listOf(live), db.sessionDao().forChild(visible.id))
+        assertTrue(db.sessionDao().forChild(evalId).all { it.kind == SessionKind.ASSESSMENT })
+        assertEquals(setOf(evalSession.id, strayReplay.id), db.sessionDao().replaySessions().map { it.id }.toSet())
+        // latestReplaySession prefers a finished session over a newer running one.
+        val done = session(evalId).copy(kind = SessionKind.REPLAY, state = SessionState.DONE, startedAt = 5L)
+        val newerRunning = session(evalId).copy(kind = SessionKind.REPLAY, startedAt = 9L)
+        db.sessionDao().insert(done)
+        db.sessionDao().insert(newerRunning)
+        assertEquals(done.id, replay.latestReplaySession()?.id)
+        db.close()
+    }
 }

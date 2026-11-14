@@ -121,20 +121,24 @@ class AssessmentRunnerTest {
             }
         }
 
-    private fun TestScope.runner(verifier: Verifier, steps: List<Step> = listOf(Step("s1", Method.POSE), Step("s2", Method.POSE))) =
-        AssessmentRunner(
-            evidence = evidence,
-            sessionId = "sess",
-            childId = "child",
-            taskId = "task",
-            catalogVersion = "cat-1",
-            steps = steps,
-            store = store,
-            verifier = verifier,
-            clock = clock,
-            dispatcher = StandardTestDispatcher(testScheduler),
-            newId = { "a${ids++}" }
-        )
+    private fun TestScope.runner(
+        verifier: Verifier,
+        steps: List<Step> = listOf(Step("s1", Method.POSE), Step("s2", Method.POSE)),
+        kind: SessionKind = SessionKind.ASSESSMENT
+    ) = AssessmentRunner(
+        kind = kind,
+        evidence = evidence,
+        sessionId = "sess",
+        childId = "child",
+        taskId = "task",
+        catalogVersion = "cat-1",
+        steps = steps,
+        store = store,
+        verifier = verifier,
+        clock = clock,
+        dispatcher = StandardTestDispatcher(testScheduler),
+        newId = { "a${ids++}" }
+    )
 
     /** Audio ends, then the child presses Done one second later. */
     private suspend fun AssessmentRunner.attemptDone() {
@@ -845,5 +849,79 @@ class AssessmentRunnerTest {
         r.pause()
         assertTrue(store.rows.isEmpty())
         assertEquals(written.flatMap { (id, ts) -> ts.indices.map { "frames/sess/$id-$it.bin" } }, discarded)
+    }
+
+    /* ---- Story 3.7 replay mode ---- */
+
+    @Test
+    fun `replay saves a replay session and one row per clip with clipFile, number and level from the name`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE, Outcome.NOT_DONE), kind = SessionKind.REPLAY)
+        r.startReplay()
+        r.startReplay() // second call is ignored
+        assertEquals(SessionKind.REPLAY, store.session?.kind)
+        assertEquals(RunnerState.Idle, r.state.value)
+        val first =
+            r.scoreClip(0, 1, 1, "s1__1__done__v.mp4") { sink ->
+                (0L..4L).forEach { t -> sink(Frame(t * 100, FakeImage()), LandmarkFrame(t * 100, null)) }
+                sink(null, null)
+                true
+            }
+        val second = r.scoreClip(1, 3, 3, "s2__3__not_done__v.mp4") { true }
+        assertEquals(AttemptVerdict.DONE, first.verdict)
+        assertEquals("s1__1__done__v.mp4", first.clipFile)
+        assertEquals(3, first.framePaths.size)
+        assertEquals(AttemptVerdict.NOT_DONE, second.verdict)
+        assertEquals(3, second.number)
+        assertEquals(3, second.promptLevel)
+        assertTrue(second.framePaths.isEmpty())
+        assertEquals(2, store.rows.size)
+        assertEquals("sess", r.id)
+        r.finishReplay()
+        assertEquals(SessionState.DONE, store.session?.state)
+    }
+
+    @Test
+    fun `replay of an undecodable clip is cannot tell not_judgeable`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE), kind = SessionKind.REPLAY)
+        r.startReplay()
+        val failed = r.scoreClip(0, 1, 1, "a.mp4") { false }
+        val threw = r.scoreClip(0, 2, 2, "b.mp4") { error("decode") }
+        listOf(failed, threw).forEach {
+            assertEquals(AttemptVerdict.CANNOT_TELL, it.verdict)
+            assertEquals(VerdictReason.NOT_JUDGEABLE, it.reason)
+        }
+    }
+
+    @Test
+    fun `replay save failure discards the frames and throws`() = runTest {
+        val r = runner(FakeVerifier(Outcome.DONE), kind = SessionKind.REPLAY)
+        r.startReplay()
+        store.failRow = true
+        val result =
+            runCatching {
+                r.scoreClip(0, 1, 1, "a.mp4") { sink ->
+                    sink(Frame(0, FakeImage()), null)
+                    true
+                }
+            }
+        assertTrue(result.isFailure)
+        assertTrue(store.rows.isEmpty())
+        assertEquals(1, discarded.size)
+    }
+
+    @Test
+    fun `finishReplay before startReplay does nothing`() = runTest {
+        val r = runner(FakeVerifier(), kind = SessionKind.REPLAY)
+        r.finishReplay()
+        assertEquals(null, store.session)
+        assertTrue(runCatching { r.scoreClip(0, 1, 1, "a.mp4") { true } }.isFailure)
+    }
+
+    @Test
+    fun `replay calls on an assessment runner are refused`() = runTest {
+        val r = runner(FakeVerifier())
+        assertTrue(runCatching { r.startReplay() }.isFailure)
+        assertTrue(runCatching { r.scoreClip(0, 1, 1, "a.mp4") { true } }.isFailure)
+        assertEquals(null, store.session)
     }
 }

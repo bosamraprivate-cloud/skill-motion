@@ -70,8 +70,8 @@ development_status:
   3-4-framing-check-screen: review
   3-5-live-verifiers-in-the-runner-with-evidence-frames: review
   3-6-network-loss-becomes-cannot-tell: review
-  3-7-replay-mode-through-the-same-runner: backlog
-  3-8-volunteer-clip-recording-and-manifest: backlog
+  3-7-replay-mode-through-the-same-runner: review
+  3-8-volunteer-clip-recording-and-manifest: review
   3-9-threshold-tuning-and-first-deepseek-flash-measurement: backlog
   epic-3-retrospective: optional
 

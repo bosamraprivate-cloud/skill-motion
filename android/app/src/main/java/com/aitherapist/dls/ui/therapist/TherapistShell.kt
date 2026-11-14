@@ -17,12 +17,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,14 +51,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.components.EmptyState
-import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.ui.theme.Spacing
 
-/** Therapist-mode destinations on the start-side rail (UX: Children, Replay & evaluation, Diagnostics, Settings). */
+/** Therapist-mode destinations on the start-side rail (Children, Diagnostics, Settings; replay sits under Settings -> Advanced tools, debug builds only). */
 enum class ShellDestination(val label: Int, val icon: ImageVector, val selectedIcon: ImageVector) {
     CHILDREN(R.string.shell_children, Icons.Outlined.Face, Icons.Filled.Face),
-    REPLAY(R.string.shell_replay, Icons.Outlined.PlayArrow, Icons.Filled.PlayArrow),
     DIAGNOSTICS(R.string.shell_diagnostics, Icons.Outlined.Build, Icons.Filled.Build),
     SETTINGS(R.string.shell_settings, Icons.Outlined.Settings, Icons.Filled.Settings)
 }
@@ -84,7 +80,6 @@ fun TherapistShell(
     TherapistShellLayout(selected = selected, onSelect = { selected = it }, modifier = modifier, banner = banner) { destination ->
         when (destination) {
             ShellDestination.CHILDREN -> ChildrenRoute(onContinue = onContinueSession, onNewSession = onNewSession)
-            ShellDestination.REPLAY -> ReplayPlaceholder()
             ShellDestination.DIAGNOSTICS -> DiagnosticsRoute(
                 onOpenSample = onOpenSample,
                 onOpenCharacterPreview = onOpenCharacterPreview,
@@ -193,17 +188,6 @@ private fun RailBrand() {
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1
         )
-    }
-}
-
-/** Evaluation destination until replay ships (Epic 3): page title plus the empty state. */
-@Composable
-private fun ReplayPlaceholder() {
-    Column(Modifier.fillMaxSize().padding(Spacing.S4)) {
-        PageHeader(stringResource(R.string.shell_replay))
-        Box(Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
-            EmptyState(icon = Icons.Outlined.PlayArrow, message = stringResource(R.string.replay_empty))
-        }
     }
 }
 

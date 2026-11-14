@@ -95,10 +95,15 @@ class AssessmentRunner(
     private val wallClock: Clock = clock,
     private val evidence: EvidenceWriter = EvidenceWriter.NONE,
     /** Debug-build trace of saved verdicts (step id, verdict, reason only; never child data). */
-    private val debugLog: (String) -> Unit = {}
+    private val debugLog: (String) -> Unit = {},
+    /** [SessionKind.REPLAY] for replay mode ([startReplay] / [scoreClip]). */
+    private val kind: SessionKind = SessionKind.ASSESSMENT
 ) {
     private val mutableState = MutableStateFlow<RunnerState>(RunnerState.Idle)
     val state: StateFlow<RunnerState> = mutableState.asStateFlow()
+
+    /** This runner's session id. */
+    val id: String get() = sessionId
 
     private val mutex = Mutex()
     private var session: SessionEntity? = null
@@ -128,7 +133,7 @@ class AssessmentRunner(
                 id = sessionId,
                 childId = childId,
                 taskId = taskId,
-                kind = SessionKind.ASSESSMENT,
+                kind = kind,
                 state = SessionState.RUNNING,
                 startedAt = now,
                 endedAt = null,
@@ -197,6 +202,86 @@ class AssessmentRunner(
             enterPrompt(index, prompt)
         }
         true
+    }
+
+    /**
+     * Replay mode (Story 3.7): saves the new `replay` session. Unlike [start] it shows no step and leaves the child's
+     * other sessions alone. A store failure is thrown to the caller.
+     */
+    suspend fun startReplay() = serialized {
+        check(kind == SessionKind.REPLAY) { "not a replay runner" }
+        if (session != null) return@serialized
+        val first =
+            SessionEntity(
+                id = sessionId,
+                childId = childId,
+                taskId = taskId,
+                kind = SessionKind.REPLAY,
+                state = SessionState.RUNNING,
+                startedAt = wallClock.nowMs(),
+                endedAt = null,
+                catalogVersion = catalogVersion,
+                rulesVersion = RulesEngine.RULES_VERSION,
+                stepIndex = 0,
+                attemptNumber = 1,
+                promptLevel = PromptState.MIN_LEVEL
+            )
+        store.add(first)
+        session = first
+    }
+
+    /**
+     * Replay mode: one clip is one attempt of step [stepIndex] at [number] / [level]. The window is the whole clip and
+     * Done is implied. [feed] pushes the clip's frames and landmarks into the same window buffers, router and evidence
+     * path as live, and returns false when the clip could not be decoded (cannot tell `not_judgeable`). The saved row
+     * carries [clipFile]; the runner does not advance. A store failure is thrown to the caller after its frames are removed.
+     */
+    suspend fun scoreClip(
+        stepIndex: Int,
+        number: Int,
+        level: Int,
+        clipFile: String,
+        feed: suspend (sink: suspend (Frame?, LandmarkFrame?) -> Unit) -> Boolean
+    ): AttemptEntity = serialized {
+        check(kind == SessionKind.REPLAY) { "not a replay runner" }
+        requireNotNull(session) { "startReplay first" }
+        val step = steps[stepIndex]
+        resetWindow()
+        try {
+            val decoded =
+                try {
+                    feed { frame, lm ->
+                        frame?.let(::keepFrame)
+                        lm?.let { landmarks.addCapped(it, MAX_LANDMARKS) }
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    false
+                }
+            val verdict = if (decoded) judge(step) else Verdict(Outcome.CANNOT_TELL, VerdictReason.NOT_JUDGEABLE, latencyMs = 0)
+            val closed = RunnerState.Judge(stepIndex, step.id, PromptState(level = level, attempt = number))
+            val row = withEvidence(attemptRow(closed, verdict)).copy(clipFile = clipFile)
+            try {
+                store.addAttempt(row)
+            } catch (e: Exception) {
+                discardUnsaved()
+                throw e
+            }
+            unsaved = emptyList()
+            debugLog("replay step=${row.stepId} try=${row.number} level=${row.promptLevel} verdict=${row.verdict} reason=${row.reason}")
+            row
+        } finally {
+            resetWindow()
+        }
+    }
+
+    /** Replay mode: the session is saved `done`. A store failure is thrown to the caller. */
+    suspend fun finishReplay() = serialized {
+        val current = session ?: return@serialized
+        val done = current.copy(state = SessionState.DONE, endedAt = wallClock.nowMs())
+        store.update(done)
+        session = done
     }
 
     /** True when any attempt row is saved for this session (Continue shows the start screen when none). */

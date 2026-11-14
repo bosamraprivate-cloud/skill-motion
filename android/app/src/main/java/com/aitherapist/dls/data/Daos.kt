@@ -18,6 +18,10 @@ internal interface ChildDao {
     @Query("SELECT * FROM child WHERE isEval = 0 ORDER BY name")
     fun observeVisible(): Flow<List<ChildEntity>>
 
+    /** The hidden eval child that owns replay sessions (Story 3.7), if created. */
+    @Query("SELECT * FROM child WHERE isEval = 1 ORDER BY createdAt LIMIT 1")
+    suspend fun evalChild(): ChildEntity?
+
     @Query("SELECT code FROM child WHERE code LIKE 'C-%'")
     suspend fun generatedCodes(): List<String>
 
@@ -34,15 +38,25 @@ internal interface SessionDao {
     @Query("SELECT * FROM session WHERE id = :id")
     suspend fun byId(id: String): SessionEntity?
 
-    @Query("SELECT * FROM session WHERE childId = :childId ORDER BY startedAt DESC")
+    /** The child's assessment sessions (replay sessions never feed reports). */
+    @Query("SELECT * FROM session WHERE childId = :childId AND kind = 'assessment' ORDER BY startedAt DESC")
     suspend fun forChild(childId: String): List<SessionEntity>
 
-    /** Running or paused sessions (resumable), newest first. */
-    @Query("SELECT * FROM session WHERE state IN ('running', 'paused') ORDER BY startedAt DESC")
+    /** Running or paused assessment sessions of visible children (resumable), newest first; replay and the eval child never show. */
+    @Query(
+        "SELECT * FROM session WHERE state IN ('running', 'paused') AND kind = 'assessment' " +
+            "AND childId NOT IN (SELECT id FROM child WHERE isEval = 1) ORDER BY startedAt DESC"
+    )
     fun observeResumable(): Flow<List<SessionEntity>>
 
-    @Query("SELECT * FROM session WHERE childId = :childId AND state IN ('running', 'paused') ORDER BY startedAt DESC")
+    @Query(
+        "SELECT * FROM session WHERE childId = :childId AND state IN ('running', 'paused') AND kind = 'assessment' ORDER BY startedAt DESC"
+    )
     suspend fun resumableForChild(childId: String): List<SessionEntity>
+
+    /** Replay sessions (Story 3.7): finished (`done`) ones first, then newest first. */
+    @Query("SELECT * FROM session WHERE kind = 'replay' ORDER BY CASE WHEN state = 'done' THEN 0 ELSE 1 END, startedAt DESC")
+    suspend fun replaySessions(): List<SessionEntity>
 
     @Query("SELECT id FROM session WHERE childId = :childId")
     suspend fun idsForChild(childId: String): List<String>

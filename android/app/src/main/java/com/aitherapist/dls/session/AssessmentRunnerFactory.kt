@@ -2,6 +2,7 @@ package com.aitherapist.dls.session
 
 import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.data.SessionEntity
+import com.aitherapist.dls.data.SessionKind
 import com.aitherapist.dls.data.SessionStore
 import com.aitherapist.dls.vision.Verifier
 import java.util.UUID
@@ -32,6 +33,24 @@ class AssessmentRunnerFactory(
         wallClock = wallClock,
         evidence = evidence,
         debugLog = debugLog
+    )
+
+    /** A replay-mode runner (Story 3.7) for the hidden eval child: same router, gate, verifiers and evidence as live. */
+    fun createReplay(childId: String, taskId: String, catalogVersion: String, steps: List<Step>): AssessmentRunner = AssessmentRunner(
+        sessionId = newId(),
+        childId = childId,
+        taskId = taskId,
+        catalogVersion = catalogVersion,
+        steps = steps,
+        store = store,
+        verifier = verifier,
+        clock = clock,
+        dispatcher = dispatcher,
+        newId = newId,
+        wallClock = wallClock,
+        evidence = evidence,
+        debugLog = debugLog,
+        kind = SessionKind.REPLAY
     )
 
     /**

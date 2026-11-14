@@ -42,6 +42,12 @@ internal object DataModule {
     fun resumableSessions(repository: SessionRepository): ResumableSessions = repository
 
     @Provides
+    fun replayStore(repository: ReplayRepository): ReplayStore = repository
+
+    @Provides
+    fun clipFiles(store: ClipStore): ClipFiles = store
+
+    @Provides
     @Singleton
     fun frameStore(@ApplicationContext context: Context, keys: KeyManager): FrameStore = FrameStore(context.filesDir, keys)
 
