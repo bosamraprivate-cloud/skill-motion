@@ -33,6 +33,9 @@ sealed interface ReplayEvent {
     data object Rescore : ReplayEvent
 
     data class SetMirrored(val mirrored: Boolean) : ReplayEvent
+
+    /** Writes the latest replay session's CSV to the stream [open] gives (null: nothing written). */
+    data class Export(val open: () -> java.io.OutputStream?) : ReplayEvent
 }
 
 /** Replay & evaluation (Story 3.7, debug builds only). Errors are shown by exception type name only. */
@@ -59,6 +62,26 @@ internal constructor(private val service: ReplayService, private val io: Corouti
             is ReplayEvent.Import -> if (event.inputs.isNotEmpty()) run { service.import(event.inputs, mirrored) }
             ReplayEvent.Rescore -> run { service.rescore(mirrored) }
             is ReplayEvent.SetMirrored -> Unit
+            is ReplayEvent.Export -> export(event.open)
+        }
+    }
+
+    private fun export(open: () -> java.io.OutputStream?) {
+        state.update { it.copy(busy = true, error = null) }
+        viewModelScope.launch {
+            try {
+                withContext(io) {
+                    val csv = service.exportCsv() ?: return@withContext
+                    open()?.use { it.write(csv.toByteArray(Charsets.UTF_8)) }
+                }
+                state.update { it.copy(busy = false) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (
+                @Suppress("TooGenericExceptionCaught") e: Exception
+            ) {
+                state.update { it.copy(busy = false, error = e::class.simpleName ?: "error") }
+            }
         }
     }
 

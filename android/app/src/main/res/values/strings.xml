@@ -181,6 +181,7 @@
     <string name="replay_body">Import volunteer clips named stepId__attempt__done|not_done__volunteer.mp4. Each import is scored as a new replay session for the hidden eval child.</string>
     <string name="replay_import">Import clips</string>
     <string name="replay_rescore">Re-score</string>
+    <string name="replay_export">Export results</string>
     <string name="replay_busy">Scoring clips…</string>
     <string name="replay_no_session">No replay session yet.</string>
     <string name="replay_error">Replay failed (%1$s)</string>

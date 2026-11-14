@@ -72,7 +72,7 @@ development_status:
   3-6-network-loss-becomes-cannot-tell: review
   3-7-replay-mode-through-the-same-runner: review
   3-8-volunteer-clip-recording-and-manifest: review
-  3-9-threshold-tuning-and-first-deepseek-flash-measurement: backlog
+  3-9-threshold-tuning-and-first-deepseek-flash-measurement: review
   epic-3-retrospective: optional
 
   epic-4: backlog

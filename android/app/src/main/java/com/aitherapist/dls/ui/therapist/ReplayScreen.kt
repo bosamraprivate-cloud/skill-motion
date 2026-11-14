@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.aitherapist.dls.BuildConfig
 import com.aitherapist.dls.R
 import com.aitherapist.dls.data.AttemptVerdict
 import com.aitherapist.dls.replay.Agreement
@@ -55,13 +56,21 @@ fun ReplayRoute(viewModel: ReplayViewModel = hiltViewModel()) {
         rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
             viewModel.onEvent(ReplayEvent.Import(uris.map { resolver.clipInput(it) }))
         }
+    val exporter =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+            // SAF cancel gives null: nothing is written.
+            if (uri != null) viewModel.onEvent(ReplayEvent.Export { resolver.openOutputStream(uri, "wt") })
+        }
     ReplayScreen(
         state,
+        onExport = { exporter.launch(EXPORT_FILE_NAME) },
         onImport = { picker.launch(arrayOf("video/*")) },
         onRescore = { viewModel.onEvent(ReplayEvent.Rescore) },
         onMirrored = { viewModel.onEvent(ReplayEvent.SetMirrored(it)) }
     )
 }
+
+private const val EXPORT_FILE_NAME = "replay-results.csv"
 
 private fun ContentResolver.clipInput(uri: Uri): ClipInput {
     val name =
@@ -79,7 +88,8 @@ fun ReplayScreen(
     onImport: () -> Unit,
     onRescore: () -> Unit,
     modifier: Modifier = Modifier,
-    onMirrored: (Boolean) -> Unit = {}
+    onMirrored: (Boolean) -> Unit = {},
+    onExport: () -> Unit = {}
 ) {
     Column(modifier = modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         PageHeader(stringResource(R.string.replay_title))
@@ -94,6 +104,11 @@ fun ReplayScreen(
             Button(onClick = onImport, enabled = idle) { Text(stringResource(R.string.replay_import)) }
             OutlinedButton(onClick = onRescore, enabled = idle && state.run?.sessionId != null) {
                 Text(stringResource(R.string.replay_rescore))
+            }
+            if (BuildConfig.DEBUG) {
+                OutlinedButton(onClick = onExport, enabled = idle && state.run?.sessionId != null) {
+                    Text(stringResource(R.string.replay_export))
+                }
             }
             if (state.busy) {
                 CircularProgressIndicator()

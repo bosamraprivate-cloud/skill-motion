@@ -181,6 +181,7 @@
     <string name="replay_body">استورد مقاطع المتطوعين باسم stepId__attempt__done|not_done__volunteer.mp4. كل استيراد بيتقيّم كجلسة إعادة جديدة لطفل التقييم المخفي.</string>
     <string name="replay_import">استيراد المقاطع</string>
     <string name="replay_rescore">إعادة التقييم</string>
+    <string name="replay_export">تصدير النتائج</string>
     <string name="replay_busy">جاري تقييم المقاطع…</string>
     <string name="replay_no_session">لسه مفيش جلسة إعادة.</string>
     <string name="replay_error">الإعادة فشلت (%1$s)</string>

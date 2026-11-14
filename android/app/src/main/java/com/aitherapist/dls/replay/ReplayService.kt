@@ -104,6 +104,12 @@ class ReplayService(
         return ReplayRun(session.id, session.catalogVersion, store.attempts(session.id).mapNotNull(::result), emptyList())
     }
 
+    /** The latest replay session as export CSV ([ReplayExport]); null when there is none. */
+    suspend fun exportCsv(): String? {
+        val session = store.latestReplaySession() ?: return null
+        return ReplayExport.csv(session, store.attempts(session.id))
+    }
+
     private fun tooLong(name: String): Boolean = (source.durationMs(clips.file(name)) ?: 0L) > ReplaySource.MAX_DURATION_MS
 
     private suspend fun catalogSteps(): Pair<String, Map<String, CatalogStep>> {
