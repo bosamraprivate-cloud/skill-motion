@@ -257,6 +257,146 @@
               "still": "character/boy/steps/eat.fork.15.still.webp"
             }
           ]
+        },
+        {
+          "id": "drink.cup",
+          "steps": [
+            {
+              "id": "drink.cup.01",
+              "clip": "character/boy/steps/drink.cup.01.webp",
+              "still": "character/boy/steps/drink.cup.01.still.webp"
+            },
+            {
+              "id": "drink.cup.02",
+              "clip": "character/boy/steps/drink.cup.02.webp",
+              "still": "character/boy/steps/drink.cup.02.still.webp"
+            },
+            {
+              "id": "drink.cup.03",
+              "clip": "character/boy/steps/drink.cup.03.webp",
+              "still": "character/boy/steps/drink.cup.03.still.webp"
+            },
+            {
+              "id": "drink.cup.04",
+              "clip": "character/boy/steps/drink.cup.04.webp",
+              "still": "character/boy/steps/drink.cup.04.still.webp"
+            },
+            {
+              "id": "drink.cup.05",
+              "clip": "character/boy/steps/drink.cup.05.webp",
+              "still": "character/boy/steps/drink.cup.05.still.webp"
+            },
+            {
+              "id": "drink.cup.06",
+              "clip": "character/boy/steps/drink.cup.06.webp",
+              "still": "character/boy/steps/drink.cup.06.still.webp"
+            },
+            {
+              "id": "drink.cup.07",
+              "clip": "character/boy/steps/drink.cup.07.webp",
+              "still": "character/boy/steps/drink.cup.07.still.webp"
+            },
+            {
+              "id": "drink.cup.08",
+              "clip": "character/boy/steps/drink.cup.08.webp",
+              "still": "character/boy/steps/drink.cup.08.still.webp"
+            },
+            {
+              "id": "drink.cup.09",
+              "clip": "character/boy/steps/drink.cup.09.webp",
+              "still": "character/boy/steps/drink.cup.09.still.webp"
+            },
+            {
+              "id": "drink.cup.10",
+              "clip": "character/boy/steps/drink.cup.10.webp",
+              "still": "character/boy/steps/drink.cup.10.still.webp"
+            },
+            {
+              "id": "drink.cup.11",
+              "clip": "character/boy/steps/drink.cup.11.webp",
+              "still": "character/boy/steps/drink.cup.11.still.webp"
+            },
+            {
+              "id": "drink.cup.12",
+              "clip": "character/boy/steps/drink.cup.12.webp",
+              "still": "character/boy/steps/drink.cup.12.still.webp"
+            },
+            {
+              "id": "drink.cup.13",
+              "clip": "character/boy/steps/drink.cup.13.webp",
+              "still": "character/boy/steps/drink.cup.13.still.webp"
+            }
+          ]
+        },
+        {
+          "id": "drink.bottle",
+          "steps": [
+            {
+              "id": "drink.bottle.01",
+              "clip": "character/boy/steps/drink.bottle.01.webp",
+              "still": "character/boy/steps/drink.bottle.01.still.webp"
+            },
+            {
+              "id": "drink.bottle.02",
+              "clip": "character/boy/steps/drink.bottle.02.webp",
+              "still": "character/boy/steps/drink.bottle.02.still.webp"
+            },
+            {
+              "id": "drink.bottle.03",
+              "clip": "character/boy/steps/drink.bottle.03.webp",
+              "still": "character/boy/steps/drink.bottle.03.still.webp"
+            },
+            {
+              "id": "drink.bottle.04",
+              "clip": "character/boy/steps/drink.bottle.04.webp",
+              "still": "character/boy/steps/drink.bottle.04.still.webp"
+            },
+            {
+              "id": "drink.bottle.05",
+              "clip": "character/boy/steps/drink.bottle.05.webp",
+              "still": "character/boy/steps/drink.bottle.05.still.webp"
+            },
+            {
+              "id": "drink.bottle.06",
+              "clip": "character/boy/steps/drink.bottle.06.webp",
+              "still": "character/boy/steps/drink.bottle.06.still.webp"
+            },
+            {
+              "id": "drink.bottle.07",
+              "clip": "character/boy/steps/drink.bottle.07.webp",
+              "still": "character/boy/steps/drink.bottle.07.still.webp"
+            },
+            {
+              "id": "drink.bottle.08",
+              "clip": "character/boy/steps/drink.bottle.08.webp",
+              "still": "character/boy/steps/drink.bottle.08.still.webp"
+            },
+            {
+              "id": "drink.bottle.09",
+              "clip": "character/boy/steps/drink.bottle.09.webp",
+              "still": "character/boy/steps/drink.bottle.09.still.webp"
+            },
+            {
+              "id": "drink.bottle.10",
+              "clip": "character/boy/steps/drink.bottle.10.webp",
+              "still": "character/boy/steps/drink.bottle.10.still.webp"
+            },
+            {
+              "id": "drink.bottle.11",
+              "clip": "character/boy/steps/drink.bottle.11.webp",
+              "still": "character/boy/steps/drink.bottle.11.still.webp"
+            },
+            {
+              "id": "drink.bottle.12",
+              "clip": "character/boy/steps/drink.bottle.12.webp",
+              "still": "character/boy/steps/drink.bottle.12.still.webp"
+            },
+            {
+              "id": "drink.bottle.13",
+              "clip": "character/boy/steps/drink.bottle.13.webp",
+              "still": "character/boy/steps/drink.bottle.13.still.webp"
+            }
+          ]
         }
       ]
     },

@@ -1,230 +1,378 @@
 {
-  "_doc": "Presentation only: maps each step to a demonstration clip segment or a still frame (AD-11). Clips live in art/animations/<variant>/steps/raw/<clip>.mp4. Seconds are null until the clip exists and is reviewed.",
-  "eat.sandwich": {
-    "clips": {
-      "look": "eat.sandwich.look",
-      "sit": "eat.sandwich.sit",
-      "plate": "eat.sandwich.plate",
-      "reach-hold": "eat.sandwich.reach-hold",
-      "bite": "eat.sandwich.bite",
-      "finish": "eat.sandwich.finish"
-    },
-    "steps": {
-      "eat.sandwich.01": {
-        "clip": "look"
-      },
-      "eat.sandwich.02": {
-        "still": "sit",
-        "atSec": 0
-      },
-      "eat.sandwich.03": {
-        "clip": "sit"
-      },
-      "eat.sandwich.04": {
-        "clip": "plate"
-      },
-      "eat.sandwich.05": {
-        "clip": "reach-hold",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.sandwich.06": {
-        "clip": "reach-hold",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.sandwich.07": {
-        "clip": "bite",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.sandwich.08": {
-        "clip": "bite",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.sandwich.09": {
-        "clip": "bite",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.sandwich.10": {
-        "clip": "bite",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.sandwich.11": {
-        "clip": "bite",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.sandwich.12": {
-        "clip": "finish"
-      }
-    }
+ "_doc": "Presentation only: maps each step to a demonstration clip segment or a still frame (AD-11). Clips live in art/animations/<variant>/steps/raw/<clip>.mp4. Seconds are null until the clip exists and is reviewed.",
+ "eat.sandwich": {
+  "clips": {
+   "look": "eat.sandwich.look",
+   "sit": "eat.sandwich.sit",
+   "plate": "eat.sandwich.plate",
+   "reach-hold": "eat.sandwich.reach-hold",
+   "bite": "eat.sandwich.bite",
+   "finish": "eat.sandwich.finish"
   },
-  "eat.spoon": {
-    "clips": {
-      "look": "eat.spoon.look",
-      "sit-plate": "eat.spoon.sit-plate",
-      "hold-scoop": "eat.spoon.hold-scoop",
-      "to-mouth": "eat.spoon.to-mouth",
-      "chew-swallow": "eat.spoon.chew-swallow",
-      "finish": "eat.spoon.finish"
-    },
-    "steps": {
-      "eat.spoon.01": {
-        "clip": "look"
-      },
-      "eat.spoon.02": {
-        "still": "sit-plate",
-        "atSec": 0
-      },
-      "eat.spoon.03": {
-        "clip": "sit-plate",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.04": {
-        "clip": "sit-plate",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.05": {
-        "clip": "hold-scoop",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.06": {
-        "clip": "hold-scoop",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.07": {
-        "clip": "hold-scoop",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.08": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.09": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.10": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.11": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.12": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.13": {
-        "clip": "chew-swallow",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.14": {
-        "clip": "chew-swallow",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.spoon.15": {
-        "clip": "finish"
-      }
-    }
-  },
-  "eat.fork": {
-    "clips": {
-      "look": "eat.fork.look",
-      "sit-plate": "eat.fork.sit-plate",
-      "hold-pierce": "eat.fork.hold-pierce",
-      "to-mouth": "eat.fork.to-mouth",
-      "chew-swallow": "eat.fork.chew-swallow",
-      "finish": "eat.fork.finish"
-    },
-    "steps": {
-      "eat.fork.01": {
-        "clip": "look"
-      },
-      "eat.fork.02": {
-        "still": "sit-plate",
-        "atSec": 0
-      },
-      "eat.fork.03": {
-        "clip": "sit-plate",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.04": {
-        "clip": "sit-plate",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.05": {
-        "clip": "hold-pierce",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.06": {
-        "clip": "hold-pierce",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.07": {
-        "clip": "hold-pierce",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.08": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.09": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.10": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.11": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.12": {
-        "clip": "to-mouth",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.13": {
-        "clip": "chew-swallow",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.14": {
-        "clip": "chew-swallow",
-        "startSec": null,
-        "endSec": null
-      },
-      "eat.fork.15": {
-        "clip": "finish"
-      }
-    }
+  "steps": {
+   "eat.sandwich.01": {
+    "clip": "look"
+   },
+   "eat.sandwich.02": {
+    "still": "sit",
+    "atSec": 0
+   },
+   "eat.sandwich.03": {
+    "clip": "sit"
+   },
+   "eat.sandwich.04": {
+    "clip": "plate"
+   },
+   "eat.sandwich.05": {
+    "clip": "reach-hold",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.sandwich.06": {
+    "clip": "reach-hold",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.sandwich.07": {
+    "clip": "bite",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.sandwich.08": {
+    "clip": "bite",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.sandwich.09": {
+    "clip": "bite",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.sandwich.10": {
+    "clip": "bite",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.sandwich.11": {
+    "clip": "bite",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.sandwich.12": {
+    "clip": "finish"
+   }
   }
+ },
+ "eat.spoon": {
+  "clips": {
+   "look": "eat.spoon.look",
+   "sit-plate": "eat.spoon.sit-plate",
+   "hold-scoop": "eat.spoon.hold-scoop",
+   "to-mouth": "eat.spoon.to-mouth",
+   "chew-swallow": "eat.spoon.chew-swallow",
+   "finish": "eat.spoon.finish"
+  },
+  "steps": {
+   "eat.spoon.01": {
+    "clip": "look"
+   },
+   "eat.spoon.02": {
+    "still": "sit-plate",
+    "atSec": 0
+   },
+   "eat.spoon.03": {
+    "clip": "sit-plate",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.04": {
+    "clip": "sit-plate",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.05": {
+    "clip": "hold-scoop",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.06": {
+    "clip": "hold-scoop",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.07": {
+    "clip": "hold-scoop",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.08": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.09": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.10": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.11": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.12": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.13": {
+    "clip": "chew-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.14": {
+    "clip": "chew-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.spoon.15": {
+    "clip": "finish"
+   }
+  }
+ },
+ "eat.fork": {
+  "clips": {
+   "look": "eat.fork.look",
+   "sit-plate": "eat.fork.sit-plate",
+   "hold-pierce": "eat.fork.hold-pierce",
+   "to-mouth": "eat.fork.to-mouth",
+   "chew-swallow": "eat.fork.chew-swallow",
+   "finish": "eat.fork.finish"
+  },
+  "steps": {
+   "eat.fork.01": {
+    "clip": "look"
+   },
+   "eat.fork.02": {
+    "still": "sit-plate",
+    "atSec": 0
+   },
+   "eat.fork.03": {
+    "clip": "sit-plate",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.04": {
+    "clip": "sit-plate",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.05": {
+    "clip": "hold-pierce",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.06": {
+    "clip": "hold-pierce",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.07": {
+    "clip": "hold-pierce",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.08": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.09": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.10": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.11": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.12": {
+    "clip": "to-mouth",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.13": {
+    "clip": "chew-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.14": {
+    "clip": "chew-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "eat.fork.15": {
+    "clip": "finish"
+   }
+  }
+ },
+ "drink.cup": {
+  "clips": {
+   "look": "drink.cup.look",
+   "reach-hold": "drink.cup.reach-hold",
+   "lift-lips": "drink.cup.lift-lips",
+   "tilt-drink-swallow": "drink.cup.tilt-drink-swallow",
+   "return-lower-release": "drink.cup.return-lower-release"
+  },
+  "steps": {
+   "drink.cup.01": {
+    "clip": "look"
+   },
+   "drink.cup.02": {
+    "clip": "reach-hold",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.03": {
+    "clip": "reach-hold",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.04": {
+    "clip": "lift-lips",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.05": {
+    "clip": "lift-lips",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.06": {
+    "clip": "lift-lips",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.07": {
+    "clip": "tilt-drink-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.08": {
+    "clip": "tilt-drink-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.09": {
+    "clip": "tilt-drink-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.10": {
+    "clip": "return-lower-release",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.11": {
+    "clip": "return-lower-release",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.12": {
+    "clip": "return-lower-release",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.cup.13": {
+    "clip": "return-lower-release",
+    "startSec": null,
+    "endSec": null
+   }
+  }
+ },
+ "drink.bottle": {
+  "clips": {
+   "look": "drink.bottle.look",
+   "reach-hold": "drink.bottle.reach-hold",
+   "lift-lips": "drink.bottle.lift-lips",
+   "tilt-drink-swallow": "drink.bottle.tilt-drink-swallow",
+   "return-lower-release": "drink.bottle.return-lower-release"
+  },
+  "steps": {
+   "drink.bottle.01": {
+    "clip": "look"
+   },
+   "drink.bottle.02": {
+    "clip": "reach-hold",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.03": {
+    "clip": "reach-hold",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.04": {
+    "clip": "lift-lips",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.05": {
+    "clip": "lift-lips",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.06": {
+    "clip": "lift-lips",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.07": {
+    "clip": "tilt-drink-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.08": {
+    "clip": "tilt-drink-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.09": {
+    "clip": "tilt-drink-swallow",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.10": {
+    "clip": "return-lower-release",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.11": {
+    "clip": "return-lower-release",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.12": {
+    "clip": "return-lower-release",
+    "startSec": null,
+    "endSec": null
+   },
+   "drink.bottle.13": {
+    "clip": "return-lower-release",
+    "startSec": null,
+    "endSec": null
+   }
+  }
+ }
 }
