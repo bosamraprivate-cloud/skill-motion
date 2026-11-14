@@ -1,6 +1,6 @@
 # Remaining work to 100%
 
-Updated 2026-11-14. Ordered: each group mostly depends on the one before. Tick items as they finish.
+Updated 2026-11-15. Ordered: each group mostly depends on the one before. Tick items as they finish.
 
 ## 1. Owner feedback (now)
 
@@ -9,6 +9,8 @@ Updated 2026-11-14. Ordered: each group mostly depends on the one before. Tick i
 - [ ] Owners review `docs/reference/undressing-steps-team-draft.md` (31 take-off steps, team draft).
 - [ ] Owners review `docs/reference/step-timing-draft.md` (step seconds + 3 open questions).
 - [ ] Device check of the time ring (Story 6.2): look, RTL, pause, FULL/CALM, time up, switch off.
+- [ ] Device check of the sticker cabinet on the child profile and the new-sticker moment (finish 3 tasks; FULL and CALM).
+- [ ] Release v0.1.2 for the owners after the device checks (time ring, stickers, sticker moment).
 
 ## 2. Assets (largest item)
 
@@ -21,7 +23,15 @@ Updated 2026-11-14. Ordered: each group mostly depends on the one before. Tick i
 - [ ] **Girl step clips and reactions:** same list as the boy.
 - [ ] Compress all clips so the APK stays small.
 - [x] **Stickers:** 30 sticker images in the character style (`art/stickers/`, prompts `tools/art/sticker_prompts.json`, exported by `tools/art/export_stickers.py`).
-- [ ] **Sound effects** (`art/sfx/`): star chime, task fanfare, soft calm-mode sound (ElevenLabs sound effects).
+- [x] **New-sticker moment** on the task reward (pop, glow, calm variant) — `ui/child/StickerUnlock.kt`.
+- [ ] **Sound effects** (`art/sfx/`, ElevenLabs Sound Effects, needs balance), then wire each into the app:
+  - [ ] Star chime after each finished step (FULL) and a softer version (CALM).
+  - [ ] Task fanfare on the task reward screen (FULL) and a soft calm-mode sound.
+  - [ ] New-sticker sound for the sticker moment (sparkle "pop"), FULL and CALM.
+  - [ ] Time-ring sounds (Story 6.2): a gentle "done early" sparkle sound; time up stays silent or a soft neutral tone (never negative, never ticking).
+  - [ ] Button tap sound (optional, very soft) for Done / Help / Repeat.
+  - [ ] Respect the child's effect level and the system volume; no sound when the session is paused.
+- [ ] **Character voice lines for rewards** (part of the ElevenLabs voice batch): "Well done! You got a new sticker", task-finished praise, time-up encouragement ("Let's try together"), so the side character speaks during the sticker moment and time-up encourage.
 - [ ] **Arabic review** of UI text and activity details by the owner or project owners.
 
 ## 3. AI zone suggestions
@@ -53,4 +63,4 @@ Updated 2026-11-14. Ordered: each group mostly depends on the one before. Tick i
 - [ ] Epic retrospective and final project summary.
 - [ ] Reset the test phone's screen size (`adb shell wm size reset`, `wm density reset`).
 
-**Only the owner can unblock:** volunteer videos, ElevenLabs balance, a credited Flow account. Item 5 can start any time.
+**Only the owner can unblock:** volunteer videos, ElevenLabs balance (voice + sound effects), a credited Flow account. Item 5 can start any time.
