@@ -5,6 +5,9 @@ Evaluation tools for the camera-scored tasks.
 - `generate_clips.py`, `validate_clips.py`, `clip_manifest.py`: the volunteer clip manifest `eval/clips.csv`
   (protocol: `eval/recording-protocol.md`).
 - `accuracy_report.py`: turns the Replay screen's "Export results" CSV into `docs/designs/m3-accuracy.md`.
+- `compute_metrics.py`: Goal 8 metrics (blind agreement, weighted kappa, cannot-tell rate, per-step confusion) from
+  the therapist `results.csv` export into `docs/designs/evaluation-metrics.md`; fixture in `fixtures/`.
+  `correctedLevel` is 1/2/3, `not_scored` for a not-scored correction, or empty for no correction.
 
 ## Tuning procedure
 

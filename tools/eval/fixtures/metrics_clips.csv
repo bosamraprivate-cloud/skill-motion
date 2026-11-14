@@ -1,0 +1,4 @@
+file,task,step,attempt,outcome,volunteer,framing,method,scenario
+fa__1__done.mp4,fixture.task,fixture.a,1,done,v01,standing,hand,done_attempt_1
+fb__1__done.mp4,fixture.task,fixture.b,1,done,v01,standing,hand,done_attempt_1
+fb__2__done.mp4,fixture.task,fixture.b,2,done,v01,standing,hand,done_later
