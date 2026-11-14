@@ -46,6 +46,9 @@ jobs:
           DLS_KEYSTORE_PASSWORD: ${{ secrets.DLS_KEYSTORE_PASSWORD }}
           DLS_KEY_ALIAS: ${{ secrets.DLS_KEY_ALIAS }}
           DLS_KEY_PASSWORD: ${{ secrets.DLS_KEY_PASSWORD }}
+          # Built-in connection (setup skips the connection step when both are set).
+          DLS_PROXY_URL: ${{ secrets.DLS_PROXY_URL }}
+          DLS_SHARED_SECRET: ${{ secrets.DLS_SHARED_SECRET }}
         run: >
           ./gradlew assembleRelease --no-daemon
           -Pdls.arm64Only=true

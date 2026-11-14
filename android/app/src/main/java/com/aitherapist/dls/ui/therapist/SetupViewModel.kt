@@ -24,9 +24,12 @@ internal constructor(
     prefillUrl: String,
     prefillSecret: String
 ) : ViewModel() {
-    // Debug builds prefill from local.properties; release BuildConfig values are empty.
+    // Debug builds read local.properties; release builds read DLS_PROXY_URL / DLS_SHARED_SECRET at build time (CI secrets).
     @Inject constructor(settings: TherapistSettings) :
         this(settings, Dispatchers.IO, BuildConfig.PROXY_URL, BuildConfig.SHARED_SECRET)
+
+    /** Built-in connection (owner decision): when the build carries both values the connection step is skipped. */
+    private val builtInConnection = prefillUrl.isNotBlank() && prefillSecret.isNotBlank()
 
     private var last = SetupUiState.Content(proxyUrl = prefillUrl, secret = prefillSecret)
     private val state = MutableStateFlow<SetupUiState>(last)
@@ -74,7 +77,8 @@ internal constructor(
             state.value = SetupUiState.Done
             return
         }
-        if (current.step == SetupStep.PROXY) {
+        val skipProxy = current.step == SetupStep.CONFIRM_PIN && builtInConnection && current.confirmPin == current.pin
+        if (current.step == SetupStep.PROXY || skipProxy) {
             // Mark saving before launching: the save may finish (Done/Error) before launch returns.
             state.value = current.copy(saving = true)
             save(current)

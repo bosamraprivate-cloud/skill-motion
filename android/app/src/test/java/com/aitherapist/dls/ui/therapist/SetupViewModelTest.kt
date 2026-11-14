@@ -78,6 +78,19 @@ class SetupViewModelTest {
     }
 
     @Test
+    fun `built-in connection skips the connection step and saves it with the pin`() {
+        val settings = FakeTherapistSettings()
+        val vm = vm(settings, url = "https://proxy.example.dev", secret = "built-in-secret")
+        vm.onEvent(SetupEvent.Continue)
+        vm.enterPin("1234")
+        vm.enterPin("1234")
+        assertEquals(SetupStep.ZONES, vm.content.step)
+        assertEquals("https://proxy.example.dev", settings.url)
+        assertEquals("built-in-secret", settings.secret)
+        assertTrue(settings.pinHash != null)
+    }
+
+    @Test
     fun `invalid url keeps finish disabled`() {
         val vm = vm(FakeTherapistSettings())
         vm.onEvent(SetupEvent.Continue)

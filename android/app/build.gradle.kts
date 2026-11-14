@@ -76,6 +76,9 @@ android {
             buildConfigField("String", "SHARED_SECRET", buildConfigString(localProps.getProperty("dls.sharedSecret", "")))
         }
         release {
+            // Built-in connection for tester builds: values come from env (CI secrets), never from the repo.
+            buildConfigField("String", "PROXY_URL", buildConfigString(System.getenv("DLS_PROXY_URL") ?: ""))
+            buildConfigField("String", "SHARED_SECRET", buildConfigString(System.getenv("DLS_SHARED_SECRET") ?: ""))
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig =
