@@ -22,6 +22,8 @@ import com.aitherapist.dls.session.PromptState
 import com.aitherapist.dls.session.RunnerEvent
 import com.aitherapist.dls.session.RunnerState
 import com.aitherapist.dls.session.StepEnd
+import com.aitherapist.dls.session.WindowClose
+import com.aitherapist.dls.session.WindowRules
 import com.aitherapist.dls.ui.therapist.CharacterIndexSource
 import com.aitherapist.dls.vision.AttemptCapture
 import com.aitherapist.dls.vision.CapturedSample
@@ -110,6 +112,15 @@ constructor(
     val effect: StateFlow<StepEffect?> = effectFlow.asStateFlow()
 
     private var effectLevel = EffectLevel.CALM
+
+    /** Story 6.2: the child's time ring switch, the ring model, and the ring end shown on the step-end effect. */
+    private var showTimeRing = true
+    private val ringTracker = TimeRingTracker()
+    private var ringEnd: TimeRing? = null
+
+    /** Story 6.2: the step time ran out; the side character encourages for [TIME_UP_MS] (never a failure). */
+    private var timeUp = false
+    private var timeUpJob: Job? = null
 
     /** The step screen the effect plays on (step N), kept while the runner already sits on step N+1 or the end. */
     private var effectScreen: StepUiState.Step? = null
@@ -217,6 +228,7 @@ constructor(
                 val child = requireNotNull(children.get(childId)) { "child missing" }
                 val task = loaded.tasks.firstOrNull { it.id == taskId }
                 effectLevel = child.effectLevel
+                showTimeRing = child.showTimeRing
                 variantId = child.characterVariant.name.lowercase(Locale.ROOT)
                 variant = runCatching { characters.load().variants.firstOrNull { it.id == variantId } }.getOrNull()
                 steps = task?.steps.orEmpty()
@@ -314,6 +326,20 @@ constructor(
         effectJob = viewModelScope.launch {
             delay(next.durationMs)
             clearEffect()
+        }
+    }
+
+    /** Story 6.2: the attempt window closed; keeps the ring end once per window and encourages on time up. */
+    private fun onWindowClosed(close: WindowClose) {
+        val end = ringTracker.closed(close.openedAtMs, close.reason, clock.nowMs(), effectLevel) ?: return
+        ringEnd = end
+        if (end.ending != TimeRing.Ending.TIME_UP || paused || localPaused) return
+        timeUp = true
+        timeUpJob?.cancel()
+        timeUpJob = viewModelScope.launch {
+            delay(TIME_UP_MS)
+            timeUp = false
+            runner?.let { state.value = render(it.state.value) }
         }
     }
 
@@ -436,6 +462,7 @@ constructor(
             handledStepEnd = end.stepIndex
             onStepEnd(end)
         }
+        target.lastWindowClose.value?.let(::onWindowClosed)
         val current = target.state.value
         val held = paused || awaitingStart || localPaused
         when {
@@ -545,6 +572,7 @@ constructor(
             return frozen.copy(
                 visual = frozen.visual?.copy(animate = false),
                 reactionClip = effectReaction() ?: frozen.reactionClip,
+                ring = frozen.ring?.let { ringEnd?.takeIf { end -> end.key == it.key } ?: it.copy(running = false) },
                 doneEnabled = false,
                 stars = starCount,
                 paused = false
@@ -584,11 +612,14 @@ constructor(
         val listening = current is RunnerState.Listen && audioPlaying
         val paused = current is RunnerState.Paused
         trackPoint(current.stepIndex, level)
+        val timeRing = ring(current, WindowRules.stepTimeoutMs(step.timeSec))
         // The side character guides every step (EXPERIENCE "Side character"): talk while the instruction plays (any
         // level), point toward the demonstration for a moment when the level rises to 2+, idle while the child tries.
         val reactionState =
             when {
                 paused -> IDLE
+                // Story 6.2: time up is never a failure: a short encourage, then the help path continues.
+                timeUp -> ENCOURAGE
                 listening -> TALK
                 pointing -> POINT
                 else -> IDLE
@@ -603,8 +634,19 @@ constructor(
             doneEnabled = current is RunnerState.Attempt,
             promptLevel = level,
             stars = starCount,
-            paused = paused
+            paused = paused,
+            ring = timeRing
         ).also { shownSteps[current.stepIndex] = it }
+    }
+
+    /** Story 6.2: the ring for [current]; time passes only in an open, unheld window. Null when hidden or untimed. */
+    private fun ring(current: RunnerState.OnStep, totalMs: Long?): TimeRing? {
+        if (!showTimeRing || totalMs == null) return null
+        return when (current) {
+            is RunnerState.Attempt -> ringTracker.attempt(current.openedAtMs, totalMs, clock.nowMs(), paused || localPaused, effectLevel)
+            is RunnerState.Paused -> ringTracker.paused(effectLevel)
+            else -> ringTracker.waiting(totalMs, effectLevel)
+        }
     }
 
     /**
@@ -660,6 +702,9 @@ constructor(
         const val POINT_MS = 2_000L
 
         const val TICK_MS = 1_000L
+
+        /** Story 6.2: how long the side character encourages after the step time ran out. */
+        const val TIME_UP_MS = 2_000L
         const val RETRY_MS = 2_000L
         private const val STAR_RETRY_MS = 500L
         private const val STAR_RETRY_MAX_STEPS = 10L

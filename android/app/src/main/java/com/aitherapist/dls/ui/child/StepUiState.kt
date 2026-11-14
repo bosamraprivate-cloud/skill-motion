@@ -25,7 +25,9 @@ sealed interface StepUiState {
         /** Adult pause: the screen dims and the character idles; Done/Help/Repeat do nothing. */
         val paused: Boolean = false,
         /** Portrait layout clip: the character stands above the main area, so `point` (sideways) becomes `idle`. */
-        val portraitClip: String? = reactionClip
+        val portraitClip: String? = reactionClip,
+        /** Story 6.2: the calm time ring; null when the child's ring is off or the step has no time (older catalogue). */
+        val ring: TimeRing? = null
     ) : StepUiState
 
     /** New session (Story 2.16): task name, task picture and a big Start; the first step waits for the tap. */

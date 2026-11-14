@@ -65,4 +65,14 @@ class MigrationSqlTest {
         assertEquals(6, AppDatabase.MIGRATION_6_7.startVersion)
         assertEquals(7, AppDatabase.MIGRATION_6_7.endVersion)
     }
+
+    @Test
+    fun `migration 7 to 8 adds the exported v8 showTimeRing column`() {
+        val schema = File("schemas/com.aitherapist.dls.data.AppDatabase/8.json").readText()
+        assertTrue(schema.contains("`showTimeRing` INTEGER NOT NULL DEFAULT 1"))
+        assertEquals(listOf("ALTER TABLE `child` ADD COLUMN `showTimeRing` INTEGER NOT NULL DEFAULT 1"), AppDatabase.SQL_7_8)
+        assertEquals(7, AppDatabase.MIGRATION_7_8.startVersion)
+        assertEquals(8, AppDatabase.MIGRATION_7_8.endVersion)
+        assertTrue(AppDatabase.MIGRATIONS.contains(AppDatabase.MIGRATION_7_8))
+    }
 }

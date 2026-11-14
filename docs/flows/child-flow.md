@@ -11,7 +11,7 @@ flowchart TD
     A[Therapist: Hand to child] --> B[Task start: character points, task picture, Start]
     B --> C[Step: character talks, picture + sentence, audio]
     C -->|audio ends| D[Attempt window open: Done active]
-    D -->|Done / Bluetooth key / still 20 s / 45 s cap| E[Judging: local or cloud]
+    D -->|Done / Bluetooth key / step time up| E[Judging: local or cloud]
     E -->|done| F[Star + celebrateSmall]
     E -->|not done, attempt 1-2| G[Next attempt: demonstration clip, character points]
     G --> C
@@ -83,17 +83,28 @@ Edge cases:
 
 ## 5. Attempt window [BUILT]
 
+### Time ring (Story 6.2) [BUILT, device check pending]
+
+- A calm sage ring runs along the edge of the step card. It starts at the top centre and fills clockwise (in RTL it grows from the right, counter-clockwise) over the step's time. No digits, no ticking, no countdown sound, no warning colour; a faint track shows the shape so colour is not the only signal.
+- The ring waits empty while the instruction audio plays and fills only while the attempt window is open. Adult pause or the screen going inactive freezes it; on resume the attempt restarts with a fresh window, so the ring starts again.
+- Last 3 s: a gentle pulse only when the child's effect level is **full** (calm: static).
+- Done before the end: a small sparkle at the ring tip (full) or a soft glow along the ring (calm), then the normal star effect. No speed bonus stars.
+- Time up: no negative sound or colour; the side character plays `encourage` for 2 s and the help path continues.
+- The therapist can hide the ring per child ("Show time ring" in the child form); the step time still closes the window.
+- System "remove animations": no pulse, sparkle or glow (the ring still fills).
+
 What happens:
 - Opens when the instruction ends. Closes on the first of:
   - Done tapped anywhere in the Done area, or any Bluetooth/hardware key (except volume and power);
-  - after 20 s, when the child has not moved for 2 s;
-  - a hard cap of 45 s.
+  - the step's time runs out (`timeSec` from the catalogue, 5 to 60 s; draft values in `docs/reference/step-timing-draft.md`, pending owner review). There is no stillness rule for timed steps: the time ring is the single clock.
+  - Older catalogues without `timeSec`: after 20 s when the child has not moved for 2 s, or a hard cap of 45 s (window rules version 3).
 - Camera-scored steps run the front camera in the background (no preview); frames are kept only for this window.
 
 Edge cases:
 - Double tap on Done: debounced (1 s); only one close counts.
 - Done while the window is not open (audio playing): ignored.
-- Window closed by stillness and the check is not met: saved as **cannot tell** (`not_judgeable`), never "not done".
+- Time up is never a failure: the verdict comes from the evidence; no evidence is **cannot tell**, then the next prompt level with the demonstration.
+- Window closed by stillness (older catalogue) and the check is not met: saved as **cannot tell** (`not_judgeable`), never "not done".
 - Camera fails to start: no frames arrive; camera steps end as cannot tell `out_of_frame`. Only the adult sees a notice, in the pause sheet.
 - Back button: does nothing on the step screen.
 - Rotation: landscape only; flipping sides keeps the run (ViewModel survives).

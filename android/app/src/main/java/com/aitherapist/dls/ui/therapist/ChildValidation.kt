@@ -11,10 +11,12 @@ data class ChildForm(
     val name: String = "",
     val age: String = "",
     val character: ChildCharacter? = null,
-    val effectLevel: EffectLevel = EffectLevel.CALM
+    val effectLevel: EffectLevel = EffectLevel.CALM,
+    /** Story 6.2: the per-step time ring in child mode (default on). */
+    val showTimeRing: Boolean = true
 ) {
     // The name identifies a child; never print them.
-    override fun toString(): String = "ChildForm(character=$character, effectLevel=$effectLevel)"
+    override fun toString(): String = "ChildForm(character=$character, effectLevel=$effectLevel, showTimeRing=$showTimeRing)"
 }
 
 data class ChildFormErrors(val name: ChildFieldError? = null, val age: ChildFieldError? = null, val character: ChildFieldError? = null) {

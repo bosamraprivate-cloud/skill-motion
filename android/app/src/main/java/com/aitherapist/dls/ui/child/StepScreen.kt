@@ -229,19 +229,23 @@ private fun MainArea(state: StepUiState.Step, modifier: Modifier) {
             val shownVisual = shown.visual
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 if (shownVisual != null) {
-                    CharacterView(
-                        clip = shownVisual.clip,
-                        loop = false,
-                        still = shownVisual.still,
-                        stillMode = !shownVisual.animate,
-                        // The card takes the clip's portrait aspect, so the clip fills it edge to edge (no band).
-                        modifier = Modifier
-                            .fillMaxHeight(fraction)
-                            .aspectRatio(CLIP_ASPECT, matchHeightConstraintsFirst = true)
-                            .shadow(CARD_ELEVATION, RoundedCornerShape(Radius.Lg))
-                            .clip(RoundedCornerShape(Radius.Lg))
-                            .background(ChildColors.Surface)
-                    )
+                    // The card takes the clip's portrait aspect, so the clip fills it edge to edge (no band).
+                    Box(Modifier.fillMaxHeight(fraction).aspectRatio(CLIP_ASPECT, matchHeightConstraintsFirst = true)) {
+                        CharacterView(
+                            clip = shownVisual.clip,
+                            loop = false,
+                            still = shownVisual.still,
+                            stillMode = !shownVisual.animate,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .shadow(CARD_ELEVATION, RoundedCornerShape(Radius.Lg))
+                                .clip(RoundedCornerShape(Radius.Lg))
+                                .background(ChildColors.Surface)
+                        )
+                        // Story 6.2: the calm time ring along the card edge (current step only).
+                        val ring = if (shown.stepIndex == state.stepIndex) state.ring else null
+                        if (ring != null) TimeRingOverlay(ring, Modifier.matchParentSize())
+                    }
                 } else {
                     Sentence(shown.sentence)
                 }

@@ -75,6 +75,10 @@
     <string name="child_character_boy">ولد</string>
     <string name="child_character_girl">بنت</string>
     <string name="child_effect">مستوى المؤثرات</string>
+    <string name="child_time_ring">إظهار دايرة الوقت</string>
+    <string name="child_time_ring_hint">دايرة هادية بتتملي والطفل بيحاول كل خطوة. لو قفلتها الدايرة بتختفي، ووقت الخطوة بيفضل شغال.</string>
+    <string name="child_time_ring_on">الدايرة ظاهرة</string>
+    <string name="child_time_ring_off">الدايرة مخفية</string>
     <string name="child_effect_full">كامل</string>
     <string name="child_effect_calm">هادي</string>
     <string name="child_save">حفظ</string>

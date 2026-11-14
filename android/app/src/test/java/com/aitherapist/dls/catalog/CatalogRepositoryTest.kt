@@ -45,6 +45,16 @@ class CatalogRepositoryTest {
     }
 
     @Test
+    fun `every real step carries a step time that reaches the runtime step`() {
+        val c = real()
+        c.steps.forEach { s ->
+            val sec = requireNotNull(s.timeSec) { s.id }
+            assertTrue(s.id, sec in 5..60)
+            assertEquals(sec, s.toStep().timeSec)
+        }
+    }
+
+    @Test
     fun `tasks and steps keep file order`() {
         val text = File(assets, CatalogDecoder.ASSESSMENT).readText()
         val root = kotlinx.serialization.json.Json.parseToJsonElement(text).jsonObject

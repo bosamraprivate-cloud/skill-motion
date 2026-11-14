@@ -45,6 +45,8 @@ sealed interface ChildProfileEvent {
 
     data class EffectChanged(val value: EffectLevel) : ChildProfileEvent
 
+    data class TimeRingChanged(val value: Boolean) : ChildProfileEvent
+
     data object Save : ChildProfileEvent
 
     data object RequestDelete : ChildProfileEvent

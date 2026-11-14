@@ -176,7 +176,14 @@ enum class Landmarker {
 data class Detector(val landmarkers: List<Landmarker>)
 
 @Serializable
-data class Step(val id: String, val method: Method, val check: Check? = null, val detector: Detector? = null)
+data class Step(
+    val id: String,
+    val method: Method,
+    val check: Check? = null,
+    val detector: Detector? = null,
+    /** Story 6.2: seconds the attempt window stays open (the time ring); null in catalogues built before it. */
+    val timeSec: Int? = null
+)
 
 /* ---- Generated catalogue shape (Story 2.7 builder output, Story 2.8 loader) ---- */
 
@@ -236,7 +243,9 @@ data class CatalogStep(
     val detector: StepDetector,
     val audio: StepAudio? = null,
     /** Keyed by character variant id; a null value means that variant's media is missing (dev catalogue). */
-    val media: Map<String, StepMedia?>
+    val media: Map<String, StepMedia?>,
+    /** Story 6.2: attempt time in seconds from step_timing.json; null in catalogues built before it. */
+    val timeSec: Int? = null
 ) {
     fun media(variant: String): StepMedia? = media[variant]
 
@@ -245,7 +254,8 @@ data class CatalogStep(
         id = id,
         method = detector.method,
         check = detector.check,
-        detector = Detector(detector.landmarkers)
+        detector = Detector(detector.landmarkers),
+        timeSec = timeSec
     )
 }
 

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aitherapist.local/schema/step-timing.schema.json",
+  "title": "Per-step attempt time (Story 6.2)",
+  "description": "step_timing.json: seconds the attempt window stays open for each step (the child's time ring). 'defaults' gives every task id a value; 'overrides' sets single step ids. Whole seconds 5..60. Staging values only (docs/reference/step-timing-draft.md); a timeout is never a failure.",
+  "type": "object",
+  "properties": {
+    "_source": {"type": "string"},
+    "defaults": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[a-z]+([.][a-z]+)+$"},
+      "additionalProperties": {"type": "integer", "minimum": 5, "maximum": 60}
+    },
+    "overrides": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[a-z]+([.][a-z]+)+[.][0-9]{2}$"},
+      "additionalProperties": {"type": "integer", "minimum": 5, "maximum": 60}
+    }
+  },
+  "required": ["defaults"],
+  "additionalProperties": false
+}

@@ -117,6 +117,16 @@ class ChildProfileViewModelTest {
     }
 
     @Test
+    fun `time ring switch loads on and persists off`() = runTest {
+        val repo = FakeChildProfiles(child("1", "Mariam", "A1", character = ChildCharacter.GIRL))
+        val vm = vm(repo, "1")
+        assertTrue(vm.content.form.showTimeRing)
+        vm.onEvent(ChildProfileEvent.TimeRingChanged(false))
+        vm.onEvent(ChildProfileEvent.Save)
+        assertFalse(repo.rows.value.single().showTimeRing)
+    }
+
+    @Test
     fun `edit never changes the code`() = runTest {
         val repo = FakeChildProfiles(child("1", "Mariam", "C-004"))
         val vm = vm(repo, "1")

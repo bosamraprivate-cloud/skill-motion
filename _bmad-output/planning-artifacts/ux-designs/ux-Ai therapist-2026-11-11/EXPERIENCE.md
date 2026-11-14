@@ -73,7 +73,7 @@ Navigation rail on the start (right) edge with two entries, Children and Setting
 | Not done after attempt 3 | "هنجربها سوا المرة الجاية" | From design: "we'll try it together next time" |
 | Cannot tell | "يلا نجرب تاني" (same as a neutral retry) | Never implies failure |
 
-Never: "wrong", "no", "try harder", scores, levels, timers counting down at the child.
+Never: "wrong", "no", "try harder", scores, levels, timers counting down at the child. The per-step time ring (Story 6.2) is allowed because it has no digits, no sound and no failure meaning: it fills calmly and running out only brings `encourage`.
 
 **Therapist:** English-free Egyptian/Modern Standard Arabic professional labels, neutral and precise. Reports state a weak step "may be related to" its domains; never diagnostic language. Errors say what happened and what to do ("Proxy not reachable. Object steps will be saved as cannot tell. Check Wi-Fi.").
 
@@ -127,6 +127,8 @@ Never: "wrong", "no", "try harder", scores, levels, timers counting down at the 
 | calm (default) | Star fades into bar (slow), `celebrateSmall` | `celebrateBig` slowed, no particles | Soft sound |
 
 Rules: never more than 3 flashes per second; no effect or sound while instruction audio speaks (effects wait for audio end); rewards appear only after the verdict is saved and never change levels; sticker unlocks every 3 finished tasks (a finished training run counts as a task; decided from code 2026-11-14); a step that ends not scored earns 1 star, like a step finished without done (decided from code 2026-11-14); no negative sound or image in any mode.
+
+**Time ring (Story 6.2, owner approved 2026-11-14):** a sage ring along the step card fills clockwise (RTL-aware) over the step's catalogue time (`timeSec`); it waits during instruction audio and freezes on adult pause or an inactive screen. Full: gentle pulse in the last 3 s and a small sparkle when Done comes first. Calm: static, soft glow instead of the sparkle. Time up: `encourage`, no negative sound or colour, the help path continues. Per-child switch "Show time ring" (default on); hidden ring still keeps the step time.
 
 ## Accessibility Floor (autistic children)
 

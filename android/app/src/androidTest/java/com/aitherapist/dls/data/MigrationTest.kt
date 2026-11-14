@@ -237,4 +237,23 @@ class MigrationTest {
             }
         }
     }
+
+    @Test
+    fun migrate7To8KeepsChildrenAndShowsTheRing() {
+        helper.createDatabase(DB, 7).use { db ->
+            db.execSQL(
+                "INSERT INTO child (id, name, code, ageYears, effectLevel, characterVariant, isEval, createdAt) " +
+                    "VALUES ('c', 'n', 'C1', 5, 'full', 'girl', 0, 3)"
+            )
+        }
+        helper.runMigrationsAndValidate(DB, 8, true, AppDatabase.MIGRATION_7_8).use { db ->
+            db.query("SELECT effectLevel, characterVariant, createdAt, showTimeRing FROM child WHERE id = 'c'").use { c ->
+                c.moveToFirst()
+                assertEquals("full", c.getString(0))
+                assertEquals("girl", c.getString(1))
+                assertEquals(3L, c.getLong(2))
+                assertEquals("ring on by default", 1, c.getInt(3))
+            }
+        }
+    }
 }

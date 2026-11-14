@@ -10,9 +10,10 @@ enum class CloseReason(val storageName: String) { DONE("done"), STILL("still"), 
 
 /**
  * One attempt window, opened when instruction audio ends ([openedAtMs], passed by the caller).
- * Closes on Done; or elapsed >= 20 s with no movement in the last 2 s; or elapsed >= 45 s.
+ * With a step time ([stepTimeoutMs], Story 6.2): closes on Done or at that elapsed time only.
+ * Without one (older catalogue): Done; or elapsed >= 20 s with no movement in the last 2 s; or elapsed >= 45 s.
  */
-class AttemptWindow(val openedAtMs: Long) {
+class AttemptWindow(val openedAtMs: Long, val stepTimeoutMs: Long? = null) {
     private val samples = ArrayDeque<PoseSample>()
     private var lastMovementMs: Long = openedAtMs
     private var doneAtMs: Long? = null
@@ -41,6 +42,7 @@ class AttemptWindow(val openedAtMs: Long) {
         val reason =
             when {
                 doneAtMs?.let { nowMs >= it } == true -> CloseReason.DONE
+                stepTimeoutMs != null -> if (elapsed >= stepTimeoutMs) CloseReason.TIMEOUT else null
                 elapsed >= WindowRules.TIMEOUT_MS -> CloseReason.TIMEOUT
                 elapsed >= WindowRules.STILL_AFTER_MS && nowMs - lastMovementMs >= WindowRules.STILL_FOR_MS -> CloseReason.STILL
                 else -> null

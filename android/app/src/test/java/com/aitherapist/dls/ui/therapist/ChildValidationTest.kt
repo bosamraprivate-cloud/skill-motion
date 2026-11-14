@@ -15,6 +15,7 @@ class ChildValidationTest {
     fun `valid form has no errors and default effect is calm`() {
         assertTrue(ChildValidation.validate(valid).isEmpty)
         assertEquals(EffectLevel.CALM, ChildForm().effectLevel)
+        assertTrue(ChildForm().showTimeRing)
     }
 
     @Test

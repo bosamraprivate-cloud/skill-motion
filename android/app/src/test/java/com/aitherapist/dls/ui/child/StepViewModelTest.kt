@@ -15,6 +15,7 @@ import com.aitherapist.dls.catalog.StepAudio
 import com.aitherapist.dls.catalog.StepDetector
 import com.aitherapist.dls.catalog.StepMedia
 import com.aitherapist.dls.data.AttemptEntity
+import com.aitherapist.dls.data.AttemptVerdict
 import com.aitherapist.dls.data.ChildCharacter
 import com.aitherapist.dls.data.ResumableSessions
 import com.aitherapist.dls.data.SessionEntity
@@ -185,6 +186,45 @@ class StepViewModelTest {
         runCurrent()
         assertTrue(vm.step().doneEnabled)
         assertEquals("idle.webp", vm.step().reactionClip)
+    }
+
+    @Test
+    fun `timed step shows an empty ring while audio plays, then fills during the attempt`() = scope.runTest {
+        val vm = vm(step(1).copy(timeSec = 10), step(2))
+        runCurrent()
+        val waiting = requireNotNull(vm.step().ring)
+        assertEquals(0f, waiting.startFraction)
+        assertFalse(waiting.running)
+        listenThenAttempt(vm)
+        val running = vm.step().ring!!
+        assertTrue(running.running)
+        assertEquals(10_000L, running.totalMs)
+    }
+
+    @Test
+    fun `untimed step or a child with the ring off shows no ring`() = scope.runTest {
+        val vm = vm(step(1), step(2))
+        listenThenAttempt(vm)
+        assertNull(vm.step().ring)
+        children.rows.value = listOf(children.rows.value.single().copy(showTimeRing = false))
+        val off = vm(step(1).copy(timeSec = 10))
+        listenThenAttempt(off)
+        assertNull(off.step().ring)
+    }
+
+    @Test
+    fun `time up closes the window at the step time and the character encourages, never a failure`() = scope.runTest {
+        val vm = vm(step(1).copy(timeSec = 10), step(2))
+        listenThenAttempt(vm)
+        advanceTimeBy(10_001)
+        runCurrent()
+        assertEquals("cannot tell, never not done", listOf(AttemptVerdict.CANNOT_TELL), store.rows.map { it.verdict })
+        assertEquals("cannot tell repeats at the same level (rules engine)", 1, vm.step().promptLevel)
+        // ENCOURAGE (falls back to idle in this test variant) wins over talk for a moment, then talk resumes.
+        assertEquals("idle.webp", vm.step().reactionClip)
+        advanceTimeBy(StepViewModel.TIME_UP_MS + 1)
+        runCurrent()
+        assertEquals("talk.webp", vm.step().reactionClip)
     }
 
     @Test

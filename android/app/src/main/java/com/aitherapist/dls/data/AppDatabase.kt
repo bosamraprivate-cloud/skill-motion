@@ -20,7 +20,7 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         TrainingResultEntity::class,
         BlindRatingEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -139,7 +139,18 @@ internal abstract class AppDatabase : RoomDatabase() {
                 "CREATE UNIQUE INDEX IF NOT EXISTS `index_blind_rating_attemptId` ON `blind_rating` (`attemptId`)"
             )
 
-        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+        /** v7 -> v8 (Story 6.2): `child.showTimeRing` (default on); existing children keep every value. */
+        val MIGRATION_7_8 =
+            object : Migration(7, 8) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    SQL_7_8.forEach(db::execSQL)
+                }
+            }
+
+        val SQL_7_8 = listOf("ALTER TABLE `child` ADD COLUMN `showTimeRing` INTEGER NOT NULL DEFAULT 1")
+
+        val MIGRATIONS =
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
 
         /** Opens (or creates) the SQLCipher database [name] keyed with [passphrase]. */
         fun build(context: Context, passphrase: ByteArray, name: String = NAME): AppDatabase {

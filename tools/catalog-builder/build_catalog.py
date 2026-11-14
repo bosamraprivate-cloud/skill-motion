@@ -507,6 +507,7 @@ class Paths:
     detectors: Path = TOOL_DIR / "detectors.json"
     activity_counters: Path = TOOL_DIR / "activity_counters.json"
     task_posture: Path = TOOL_DIR / "task_posture.json"
+    step_timing: Path = TOOL_DIR / "step_timing.json"
     check_schema: Path = TOOL_DIR / "schema" / "check.schema.json"
     criterion_schema: Path = TOOL_DIR / "schema" / "criterion.schema.json"
     assets_dir: Path = ASSETS_DIR  # holds audio/ar-eg/ and character/index.json + files
@@ -560,6 +561,40 @@ def _validate_posture(data: Any, task_ids: list[str]) -> dict[str, str]:
             f"task_posture.json: unknown posture for: {', '.join(bad)} (allowed: {', '.join(POSTURES)})"
         )
     return data
+
+
+TIME_MIN_SEC, TIME_MAX_SEC = 5, 60
+
+
+def _validate_timing(data: Any, task_ids: list[str], steps: list[Step]) -> dict[str, int]:
+    """Story 6.2: per-task default seconds plus per-step overrides -> {step id: seconds}."""
+    name = "step_timing.json"
+    if not isinstance(data, dict) or not isinstance(data.get("defaults"), dict):
+        raise CatalogError(f"{name}: top level must be an object with 'defaults' (task id -> seconds)")
+    defaults = data["defaults"]
+    overrides = data.get("overrides", {})
+    if not isinstance(overrides, dict):
+        raise CatalogError(f"{name}: 'overrides' must be an object of step id -> seconds")
+    unknown = sorted(set(defaults) - set(task_ids))
+    if unknown:
+        raise CatalogError(f"{name}: unknown task id(s): {', '.join(unknown)}")
+    missing = [t for t in task_ids if t not in defaults]
+    if missing:
+        raise CatalogError(f"{name}: missing default for task id(s): {', '.join(missing)}")
+    step_ids = {s.id for s in steps}
+    unknown_steps = sorted(set(overrides) - step_ids)
+    if unknown_steps:
+        raise CatalogError(f"{name}: unknown step id(s): {', '.join(unknown_steps)}")
+    bad = sorted(
+        k
+        for k, v in {**defaults, **overrides}.items()
+        if isinstance(v, bool) or not isinstance(v, int) or not TIME_MIN_SEC <= v <= TIME_MAX_SEC
+    )
+    if bad:
+        raise CatalogError(
+            f"{name}: seconds must be whole numbers {TIME_MIN_SEC}-{TIME_MAX_SEC} for: {', '.join(bad)}"
+        )
+    return {s.id: overrides.get(s.id, defaults[s.task]) for s in steps}
 
 
 def _validate_detectors(detectors: Any, step_ids: list[str], schema_path: Path) -> dict[str, dict]:
@@ -735,6 +770,7 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
     steps = sorted(steps, key=lambda s: rank[s.task])  # stable: step order inside a task kept
     area_order = list(dict.fromkeys(s.area for s in steps))
     posture = _validate_posture(_load_json(paths.task_posture), [t.task for t in task_order])
+    timing = _validate_timing(_load_json(paths.step_timing), [t.task for t in task_order], steps)
     for section, table, known in (
         ("steps", step_text, set(step_ids)),
         ("activities", activity_text, {a.id for a in activities}),
@@ -827,6 +863,7 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
                 "subSkills": s.subSkills,
                 "source": s.source,
                 "detector": detectors[s.id],
+                "timeSec": timing[s.id],
                 "audio": step_audio,
                 "media": step_media,
             }

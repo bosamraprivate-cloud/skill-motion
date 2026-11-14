@@ -116,6 +116,11 @@ class AssessmentRunner(
      */
     val lastStepEnd: StateFlow<StepEnd?> = mutableStepEnd.asStateFlow()
 
+    private val mutableWindowClose = MutableStateFlow<WindowClose?>(null)
+
+    /** Story 6.2: how the last attempt window closed (set before the state leaves ATTEMPT); drives the time ring end. */
+    val lastWindowClose: StateFlow<WindowClose?> = mutableWindowClose.asStateFlow()
+
     /** This runner's session id. */
     val id: String get() = sessionId
 
@@ -477,7 +482,7 @@ class AssessmentRunner(
             val opened = clock.nowMs()
             save(listen.stepIndex, listen.prompt)
             resetWindow()
-            window = AttemptWindow(opened)
+            window = AttemptWindow(opened, WindowRules.stepTimeoutMs(steps[listen.stepIndex].timeSec))
             mutableState.value = RunnerState.Attempt(listen.stepIndex, listen.stepId, listen.prompt, opened)
         }
     }
@@ -500,6 +505,9 @@ class AssessmentRunner(
 
     private suspend fun checkWindow(current: RunnerState.Attempt) {
         val closedBy = window?.check(clock) ?: return
+        window?.let { open ->
+            if (mutableWindowClose.value?.openedAtMs != open.openedAtMs) mutableWindowClose.value = WindowClose(open.openedAtMs, closedBy)
+        }
         val judge = RunnerState.Judge(current.stepIndex, current.stepId, current.prompt)
         val step = steps[current.stepIndex]
         // One retryable action: save, judge, record. Verdict and row are kept so a retry never re-judges or duplicates.

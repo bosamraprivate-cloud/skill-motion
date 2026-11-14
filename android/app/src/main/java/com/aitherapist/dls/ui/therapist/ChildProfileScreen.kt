@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +44,7 @@ import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -417,6 +419,10 @@ private fun ProfileHeaderCard(form: ChildForm, enabled: Boolean, onStartSession:
                 Row(Modifier.padding(top = Spacing.S2), horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
                     form.character?.let { InfoChip(stringResource(R.string.child_character), stringResource(characterLabel(it))) }
                     InfoChip(stringResource(R.string.child_effect), stringResource(effectLabel(form.effectLevel)))
+                    InfoChip(
+                        stringResource(R.string.child_time_ring),
+                        stringResource(if (form.showTimeRing) R.string.child_time_ring_on else R.string.child_time_ring_off)
+                    )
                 }
             }
         }
@@ -479,6 +485,30 @@ private fun ProfileEditCard(state: ChildProfileUiState.Content, onEvent: (ChildP
                     shape = SegmentedButtonDefaults.itemShape(index, EffectLevel.entries.size)
                 ) { Text(stringResource(effectLabel(level))) }
             }
+        }
+
+        // Story 6.2: per-child time ring switch (the whole row toggles; the step time still closes the window when off).
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .toggleable(
+                    value = form.showTimeRing,
+                    role = Role.Switch,
+                    enabled = !state.busy,
+                    onValueChange = { onEvent(ChildProfileEvent.TimeRingChanged(it)) }
+                ).padding(vertical = Spacing.S2),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.S3)
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.child_time_ring), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.child_time_ring_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(checked = form.showTimeRing, onCheckedChange = null, enabled = !state.busy)
         }
 
         HorizontalDivider(Modifier.padding(vertical = Spacing.S2), color = MaterialTheme.colorScheme.outlineVariant)

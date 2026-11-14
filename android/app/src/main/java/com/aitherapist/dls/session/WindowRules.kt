@@ -5,7 +5,13 @@ package com.aitherapist.dls.session
  * both read these so they time windows identically. Bump [RULES_VERSION] on any change.
  */
 object WindowRules {
-    const val RULES_VERSION = 2
+    const val RULES_VERSION = 3
+
+    /**
+     * Story 6.2: a step with a catalogue time closes only on Done or at that time (the time ring is the single clock;
+     * no still rule). [STILL_AFTER_MS] / [TIMEOUT_MS] remain the fallback for catalogues without `timeSec`.
+     */
+    fun stepTimeoutMs(timeSec: Int?): Long? = timeSec?.takeIf { it > 0 }?.let { it * 1_000L }
 
     /** After this much elapsed time, a still child closes the window. */
     const val STILL_AFTER_MS = 20_000L

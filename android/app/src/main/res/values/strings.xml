@@ -75,6 +75,10 @@
     <string name="child_character_boy">Boy</string>
     <string name="child_character_girl">Girl</string>
     <string name="child_effect">Effect level</string>
+    <string name="child_time_ring">Show time ring</string>
+    <string name="child_time_ring_hint">A calm ring fills while the child tries each step. Turning it off hides the ring; the step time still applies.</string>
+    <string name="child_time_ring_on">Ring on</string>
+    <string name="child_time_ring_off">Ring off</string>
     <string name="child_effect_full">Full</string>
     <string name="child_effect_calm">Calm</string>
     <string name="child_save">Save</string>

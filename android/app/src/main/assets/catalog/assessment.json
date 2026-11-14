@@ -42,7 +42,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نبص على الساندوتش.",
-      "textEn": "Look at the sandwich"
+      "textEn": "Look at the sandwich",
+      "timeSec": 10
     },
     {
       "area": "eat",
@@ -69,7 +70,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نروح مكان الأكل.",
-      "textEn": "Go to the eating place"
+      "textEn": "Go to the eating place",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -96,7 +98,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نقعد على الكرسي قعدة مظبوطة.",
-      "textEn": "Sit on the chair in a suitable position"
+      "textEn": "Sit on the chair in a suitable position",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -123,7 +126,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نحط الساندوتش قدامنا.",
-      "textEn": "Put the sandwich in front of you"
+      "textEn": "Put the sandwich in front of you",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -150,7 +154,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نمد إيدنا ناحية الساندوتش.",
-      "textEn": "Reach your hand toward the sandwich"
+      "textEn": "Reach your hand toward the sandwich",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -176,7 +181,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نمسك الساندوتش بالطريقة اللي تريحنا.",
-      "textEn": "Hold the sandwich in a way that suits your motor abilities"
+      "textEn": "Hold the sandwich in a way that suits your motor abilities",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -203,7 +209,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نقرب الساندوتش من بقنا.",
-      "textEn": "Bring the sandwich close to your mouth"
+      "textEn": "Bring the sandwich close to your mouth",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -229,7 +236,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نفتح بقنا.",
-      "textEn": "Open your mouth"
+      "textEn": "Open your mouth",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -255,7 +263,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا ناخد قطمة صغيرة من الساندوتش.",
-      "textEn": "Take a small bite of the sandwich"
+      "textEn": "Take a small bite of the sandwich",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -281,7 +290,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نمضغ الأكل كويس.",
-      "textEn": "Chew the food well"
+      "textEn": "Chew the food well",
+      "timeSec": 20
     },
     {
       "area": "eat",
@@ -308,7 +318,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نبلع الأكل قبل ما ناخد قطمة تانية.",
-      "textEn": "Swallow the food before taking another bite"
+      "textEn": "Swallow the food before taking another bite",
+      "timeSec": 20
     },
     {
       "area": "eat",
@@ -335,7 +346,8 @@
       ],
       "task": "eat.sandwich",
       "textAr": "يلا نكرر الخطوات لحد ما نخلص الساندوتش.",
-      "textEn": "Repeat the steps until you finish eating the sandwich"
+      "textEn": "Repeat the steps until you finish eating the sandwich",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -361,7 +373,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نبص على الطبق والمعلقة.",
-      "textEn": "Look at the plate and the spoon"
+      "textEn": "Look at the plate and the spoon",
+      "timeSec": 10
     },
     {
       "area": "eat",
@@ -388,7 +401,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نروح مكان الأكل.",
-      "textEn": "Go to the eating place"
+      "textEn": "Go to the eating place",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -415,7 +429,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نقعد على الكرسي قعدة مظبوطة.",
-      "textEn": "Sit on the chair in a suitable position"
+      "textEn": "Sit on the chair in a suitable position",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -442,7 +457,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نحط الطبق قدامنا على حاجة ثابتة.",
-      "textEn": "Put the plate in front of you on a stable surface"
+      "textEn": "Put the plate in front of you on a stable surface",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -468,7 +484,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نمسك المعلقة مسكة مظبوطة.",
-      "textEn": "Hold the spoon in a suitable way"
+      "textEn": "Hold the spoon in a suitable way",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -495,7 +512,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نوجه المعلقة ناحية الطبق.",
-      "textEn": "Direct the spoon toward the plate"
+      "textEn": "Direct the spoon toward the plate",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -522,7 +540,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نغرف شوية أكل مناسبين.",
-      "textEn": "Scoop a suitable amount of food"
+      "textEn": "Scoop a suitable amount of food",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -549,7 +568,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نرفع المعلقة بالراحة.",
-      "textEn": "Lift the spoon slowly"
+      "textEn": "Lift the spoon slowly",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -576,7 +596,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نقرب المعلقة من بقنا.",
-      "textEn": "Bring the spoon close to your mouth"
+      "textEn": "Bring the spoon close to your mouth",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -602,7 +623,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نفتح بقنا.",
-      "textEn": "Open your mouth"
+      "textEn": "Open your mouth",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -629,7 +651,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا ندخل الأكل بقنا بحرص.",
-      "textEn": "Put the food into your mouth carefully"
+      "textEn": "Put the food into your mouth carefully",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -656,7 +679,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نطلع المعلقة من بقنا بالراحة.",
-      "textEn": "Take the spoon out of your mouth gently"
+      "textEn": "Take the spoon out of your mouth gently",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -682,7 +706,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نمضغ الأكل كويس.",
-      "textEn": "Chew the food well"
+      "textEn": "Chew the food well",
+      "timeSec": 20
     },
     {
       "area": "eat",
@@ -709,7 +734,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نبلع الأكل قبل ما ناخد معلقة تانية.",
-      "textEn": "Swallow the food before taking another spoonful"
+      "textEn": "Swallow the food before taking another spoonful",
+      "timeSec": 20
     },
     {
       "area": "eat",
@@ -736,7 +762,8 @@
       ],
       "task": "eat.spoon",
       "textAr": "يلا نكرر الخطوات لحد ما نخلص الأكل.",
-      "textEn": "Repeat the steps until you finish eating the food"
+      "textEn": "Repeat the steps until you finish eating the food",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -762,7 +789,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نبص على الطبق والشوكة.",
-      "textEn": "Look at the plate and the fork"
+      "textEn": "Look at the plate and the fork",
+      "timeSec": 10
     },
     {
       "area": "eat",
@@ -789,7 +817,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نروح مكان الأكل.",
-      "textEn": "Go to the eating place"
+      "textEn": "Go to the eating place",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -816,7 +845,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نقعد على الكرسي قعدة مظبوطة.",
-      "textEn": "Sit on the chair in a suitable position"
+      "textEn": "Sit on the chair in a suitable position",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -843,7 +873,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نحط الطبق قدامنا على حاجة ثابتة.",
-      "textEn": "Put the plate in front of you on a stable surface"
+      "textEn": "Put the plate in front of you on a stable surface",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -869,7 +900,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نمسك الشوكة مسكة مظبوطة.",
-      "textEn": "Hold the fork in a suitable way"
+      "textEn": "Hold the fork in a suitable way",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -896,7 +928,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نوجه الشوكة ناحية الأكل.",
-      "textEn": "Direct the fork toward the food"
+      "textEn": "Direct the fork toward the food",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -923,7 +956,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نشبك الشوكة في حتة أكل مناسبة.",
-      "textEn": "Stick the fork into a suitable piece of food"
+      "textEn": "Stick the fork into a suitable piece of food",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -950,7 +984,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نرفع الشوكة بالراحة.",
-      "textEn": "Lift the fork slowly"
+      "textEn": "Lift the fork slowly",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -977,7 +1012,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نقرب الشوكة من بقنا.",
-      "textEn": "Bring the fork close to your mouth"
+      "textEn": "Bring the fork close to your mouth",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -1003,7 +1039,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نفتح بقنا.",
-      "textEn": "Open your mouth"
+      "textEn": "Open your mouth",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -1030,7 +1067,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا ندخل الأكل بقنا بحرص.",
-      "textEn": "Put the food into your mouth carefully"
+      "textEn": "Put the food into your mouth carefully",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -1057,7 +1095,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نطلع الشوكة من بقنا بالراحة.",
-      "textEn": "Take the fork out of your mouth gently"
+      "textEn": "Take the fork out of your mouth gently",
+      "timeSec": 15
     },
     {
       "area": "eat",
@@ -1083,7 +1122,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نمضغ الأكل كويس.",
-      "textEn": "Chew the food well"
+      "textEn": "Chew the food well",
+      "timeSec": 20
     },
     {
       "area": "eat",
@@ -1110,7 +1150,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نبلع الأكل قبل ما ناخد حتة تانية.",
-      "textEn": "Swallow the food before taking another piece"
+      "textEn": "Swallow the food before taking another piece",
+      "timeSec": 20
     },
     {
       "area": "eat",
@@ -1137,7 +1178,8 @@
       ],
       "task": "eat.fork",
       "textAr": "يلا نكرر الخطوات لحد ما نخلص الأكل.",
-      "textEn": "Repeat the steps until you finish eating the food"
+      "textEn": "Repeat the steps until you finish eating the food",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1163,7 +1205,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نبص على الكوباية.",
-      "textEn": "Look at the cup"
+      "textEn": "Look at the cup",
+      "timeSec": 10
     },
     {
       "area": "drink",
@@ -1198,7 +1241,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نمد إيدنا للكوباية.",
-      "textEn": "Reach your hand to the cup"
+      "textEn": "Reach your hand to the cup",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1227,7 +1271,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نمسك الكوباية.",
-      "textEn": "Hold the cup"
+      "textEn": "Hold the cup",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1257,7 +1302,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نرفع الكوباية.",
-      "textEn": "Lift the cup"
+      "textEn": "Lift the cup",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1298,7 +1344,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نقرب الكوباية من بقنا.",
-      "textEn": "Bring the cup close to your mouth"
+      "textEn": "Bring the cup close to your mouth",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1328,7 +1375,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نحط الكوباية على شفايفنا.",
-      "textEn": "Place the cup on your lips"
+      "textEn": "Place the cup on your lips",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1358,7 +1406,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نميل الكوباية بالراحة.",
-      "textEn": "Tilt the cup slowly"
+      "textEn": "Tilt the cup slowly",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1384,7 +1433,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نشرب شوية مية.",
-      "textEn": "Drink a little water"
+      "textEn": "Drink a little water",
+      "timeSec": 20
     },
     {
       "area": "drink",
@@ -1410,7 +1460,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نبلع المية.",
-      "textEn": "Swallow the water"
+      "textEn": "Swallow the water",
+      "timeSec": 20
     },
     {
       "area": "drink",
@@ -1440,7 +1491,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نرجع الكوباية زي ما كانت.",
-      "textEn": "Return the cup to its normal position"
+      "textEn": "Return the cup to its normal position",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1481,7 +1533,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نبعد الكوباية عن بقنا.",
-      "textEn": "Move the cup away from your mouth"
+      "textEn": "Move the cup away from your mouth",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1511,7 +1564,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا ننزل الكوباية على الترابيزة.",
-      "textEn": "Lower the cup onto the table"
+      "textEn": "Lower the cup onto the table",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1540,7 +1594,8 @@
       ],
       "task": "drink.cup",
       "textAr": "يلا نسيب الكوباية.",
-      "textEn": "Let go of the cup"
+      "textEn": "Let go of the cup",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1566,7 +1621,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نبص على الإزازة.",
-      "textEn": "Look at the bottle"
+      "textEn": "Look at the bottle",
+      "timeSec": 10
     },
     {
       "area": "drink",
@@ -1593,7 +1649,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نمد إيدنا للإزازة.",
-      "textEn": "Reach your hand to the bottle"
+      "textEn": "Reach your hand to the bottle",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1619,7 +1676,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نمسك الإزازة.",
-      "textEn": "Hold the bottle"
+      "textEn": "Hold the bottle",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1646,7 +1704,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نرفع الإزازة.",
-      "textEn": "Lift the bottle"
+      "textEn": "Lift the bottle",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1673,7 +1732,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نقرب الإزازة من بقنا.",
-      "textEn": "Bring the bottle close to your mouth"
+      "textEn": "Bring the bottle close to your mouth",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1700,7 +1760,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نحط بق الإزازة على شفايفنا.",
-      "textEn": "Place the opening of the bottle on your lips"
+      "textEn": "Place the opening of the bottle on your lips",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1727,7 +1788,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نميل الإزازة بالراحة.",
-      "textEn": "Tilt the bottle slowly"
+      "textEn": "Tilt the bottle slowly",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1753,7 +1815,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نشرب شوية مية.",
-      "textEn": "Drink a little water"
+      "textEn": "Drink a little water",
+      "timeSec": 20
     },
     {
       "area": "drink",
@@ -1779,7 +1842,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نبلع المية.",
-      "textEn": "Swallow the water"
+      "textEn": "Swallow the water",
+      "timeSec": 20
     },
     {
       "area": "drink",
@@ -1806,7 +1870,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نرجع الإزازة زي ما كانت.",
-      "textEn": "Return the bottle to its normal position"
+      "textEn": "Return the bottle to its normal position",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1833,7 +1898,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نبعد الإزازة عن بقنا.",
-      "textEn": "Move the bottle away from your mouth"
+      "textEn": "Move the bottle away from your mouth",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1860,7 +1926,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا ننزل الإزازة على الترابيزة.",
-      "textEn": "Lower the bottle onto the table"
+      "textEn": "Lower the bottle onto the table",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1886,7 +1953,8 @@
       ],
       "task": "drink.bottle",
       "textAr": "يلا نسيب الإزازة.",
-      "textEn": "Let go of the bottle"
+      "textEn": "Let go of the bottle",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1909,7 +1977,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نبص على الكوباية أو علبة العصير.",
-      "textEn": "Look at the cup or juice box"
+      "textEn": "Look at the cup or juice box",
+      "timeSec": 10
     },
     {
       "area": "drink",
@@ -1933,7 +2002,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نمد إيدنا للكوباية أو علبة العصير.",
-      "textEn": "Reach your hand to the cup or juice box"
+      "textEn": "Reach your hand to the cup or juice box",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1956,7 +2026,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نمسك الكوباية أو علبة العصير.",
-      "textEn": "Hold the cup or juice box"
+      "textEn": "Hold the cup or juice box",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -1980,7 +2051,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نقرب الشفاطة من بقنا.",
-      "textEn": "Bring the straw close to your mouth"
+      "textEn": "Bring the straw close to your mouth",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -2004,7 +2076,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نحط الشفاطة بين شفايفنا.",
-      "textEn": "Place the straw between your lips"
+      "textEn": "Place the straw between your lips",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -2027,7 +2100,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نقفل شفايفنا عليها.",
-      "textEn": "Close your lips around it"
+      "textEn": "Close your lips around it",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -2050,7 +2124,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نشفط المية أو العصير بالشفاطة.",
-      "textEn": "Suck the water or juice through the straw"
+      "textEn": "Suck the water or juice through the straw",
+      "timeSec": 20
     },
     {
       "area": "drink",
@@ -2073,7 +2148,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نبلع المية أو العصير.",
-      "textEn": "Swallow the water or juice"
+      "textEn": "Swallow the water or juice",
+      "timeSec": 20
     },
     {
       "area": "drink",
@@ -2097,7 +2173,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نطلع الشفاطة من بقنا.",
-      "textEn": "Take the straw out of your mouth"
+      "textEn": "Take the straw out of your mouth",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -2121,7 +2198,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نبعد بقنا عن الشفاطة.",
-      "textEn": "Move your mouth away from the straw"
+      "textEn": "Move your mouth away from the straw",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -2145,7 +2223,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا ننزل الكوباية أو علبة العصير على الترابيزة.",
-      "textEn": "Lower the cup or juice box onto the table"
+      "textEn": "Lower the cup or juice box onto the table",
+      "timeSec": 15
     },
     {
       "area": "drink",
@@ -2168,7 +2247,8 @@
       ],
       "task": "drink.straw",
       "textAr": "يلا نسيب الكوباية أو علبة العصير.",
-      "textEn": "Let go of the cup or juice box"
+      "textEn": "Let go of the cup or juice box",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2191,7 +2271,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نبص على الحوض.",
-      "textEn": "Look at the sink"
+      "textEn": "Look at the sink",
+      "timeSec": 10
     },
     {
       "area": "hygiene",
@@ -2225,7 +2306,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نروح عند الحوض.",
-      "textEn": "Go to the sink"
+      "textEn": "Go to the sink",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2252,7 +2334,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نفتح الحنفية.",
-      "textEn": "Turn on the tap"
+      "textEn": "Turn on the tap",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2279,7 +2362,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نبل إيدينا بالمية.",
-      "textEn": "Wet your hands with water"
+      "textEn": "Wet your hands with water",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2306,7 +2390,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نجيب الصابونة.",
-      "textEn": "Get the soap"
+      "textEn": "Get the soap",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2333,7 +2418,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نحط صابون على إيدينا.",
-      "textEn": "Put soap on your hands"
+      "textEn": "Put soap on your hands",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2362,7 +2448,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نفرك كفوفنا في بعض.",
-      "textEn": "Rub your palms together"
+      "textEn": "Rub your palms together",
+      "timeSec": 20
     },
     {
       "area": "hygiene",
@@ -2389,7 +2476,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نفرك بين صوابعنا.",
-      "textEn": "Rub between your fingers"
+      "textEn": "Rub between your fingers",
+      "timeSec": 20
     },
     {
       "area": "hygiene",
@@ -2416,7 +2504,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نفرك ضهر إيدينا وحوالين ضوافرنا.",
-      "textEn": "Rub the backs of your hands and around your nails"
+      "textEn": "Rub the backs of your hands and around your nails",
+      "timeSec": 20
     },
     {
       "area": "hygiene",
@@ -2443,7 +2532,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نشطف إيدينا بالمية.",
-      "textEn": "Rinse your hands with water"
+      "textEn": "Rinse your hands with water",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2470,7 +2560,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نقفل الحنفية.",
-      "textEn": "Turn off the tap"
+      "textEn": "Turn off the tap",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2497,7 +2588,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا نجيب الفوطة.",
-      "textEn": "Get the towel"
+      "textEn": "Get the towel",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2524,7 +2616,8 @@
       ],
       "task": "hygiene.handwash",
       "textAr": "يلا ننشف إيدينا كويس.",
-      "textEn": "Dry your hands well"
+      "textEn": "Dry your hands well",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2547,7 +2640,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نبص على فرشة السنان والمعجون.",
-      "textEn": "Look at the toothbrush and the toothpaste"
+      "textEn": "Look at the toothbrush and the toothpaste",
+      "timeSec": 10
     },
     {
       "area": "hygiene",
@@ -2571,7 +2665,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نجيب فرشة السنان والمعجون.",
-      "textEn": "Get the toothbrush and the toothpaste"
+      "textEn": "Get the toothbrush and the toothpaste",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2595,7 +2690,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نفتح غطا المعجون.",
-      "textEn": "Open the toothpaste cap"
+      "textEn": "Open the toothpaste cap",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2619,7 +2715,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نحط نقطة معجون صغيرة على الفرشة.",
-      "textEn": "Put a small dot of toothpaste on the brush"
+      "textEn": "Put a small dot of toothpaste on the brush",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2642,7 +2739,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نمسك الفرشة كويس.",
-      "textEn": "Hold the brush well"
+      "textEn": "Hold the brush well",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2666,7 +2764,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نغسل سناننا اللي قدام.",
-      "textEn": "Brush the front teeth"
+      "textEn": "Brush the front teeth",
+      "timeSec": 25
     },
     {
       "area": "hygiene",
@@ -2691,7 +2790,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نغسل سناننا اللي ورا.",
-      "textEn": "Brush the back teeth"
+      "textEn": "Brush the back teeth",
+      "timeSec": 25
     },
     {
       "area": "hygiene",
@@ -2715,7 +2815,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نغسل سناننا من جوه.",
-      "textEn": "Brush your teeth from the inside"
+      "textEn": "Brush your teeth from the inside",
+      "timeSec": 25
     },
     {
       "area": "hygiene",
@@ -2739,7 +2840,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نغسل الحتة اللي بنمضغ عليها الأكل.",
-      "textEn": "Brush the surface you chew food on"
+      "textEn": "Brush the surface you chew food on",
+      "timeSec": 25
     },
     {
       "area": "hygiene",
@@ -2763,7 +2865,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نخلص غسيل سناننا بالراحة.",
-      "textEn": "Finish brushing your teeth gently"
+      "textEn": "Finish brushing your teeth gently",
+      "timeSec": 25
     },
     {
       "area": "hygiene",
@@ -2787,7 +2890,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نتف المعجون في الحوض.",
-      "textEn": "Spit the toothpaste into the sink"
+      "textEn": "Spit the toothpaste into the sink",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2810,7 +2914,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نمضمض بقنا ونتف المية لو نقدر نعمل كده بأمان.",
-      "textEn": "Rinse your mouth and spit out the water if you can do so safely"
+      "textEn": "Rinse your mouth and spit out the water if you can do so safely",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2834,7 +2939,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نشطف الفرشة بالمية.",
-      "textEn": "Rinse the brush with water"
+      "textEn": "Rinse the brush with water",
+      "timeSec": 15
     },
     {
       "area": "hygiene",
@@ -2859,7 +2965,8 @@
       ],
       "task": "hygiene.teeth",
       "textAr": "يلا نرجع الفرشة والمعجون مكانهم.",
-      "textEn": "Return the brush and the toothpaste to their place"
+      "textEn": "Return the brush and the toothpaste to their place",
+      "timeSec": 15
     },
     {
       "area": "dress",
@@ -2880,7 +2987,8 @@
       "tags": [],
       "task": "dress.jacket.off",
       "textAr": "يلا ندور على السوستة أو الزراير.",
-      "textEn": "Locate the zipper or the buttons"
+      "textEn": "Locate the zipper or the buttons",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -2915,7 +3023,8 @@
       "tags": [],
       "task": "dress.jacket.off",
       "textAr": "يلا نوصل للسوستة.",
-      "textEn": "Reach the zipper"
+      "textEn": "Reach the zipper",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -2944,7 +3053,8 @@
       ],
       "task": "dress.jacket.off",
       "textAr": "يلا نمسك السوستة.",
-      "textEn": "Grasp the zipper"
+      "textEn": "Grasp the zipper",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -2972,7 +3082,8 @@
       ],
       "task": "dress.jacket.off",
       "textAr": "يلا نفتح السوستة.",
-      "textEn": "Open the zipper"
+      "textEn": "Open the zipper",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -2996,7 +3107,8 @@
       "tags": [],
       "task": "dress.jacket.off",
       "textAr": "يلا نمسك جنبين الجاكيت.",
-      "textEn": "Grasp both sides of the jacket"
+      "textEn": "Grasp both sides of the jacket",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3020,7 +3132,8 @@
       "tags": [],
       "task": "dress.jacket.off",
       "textAr": "يلا نبعد الجاكيت عن جسمنا.",
-      "textEn": "Move the jacket away from the body"
+      "textEn": "Move the jacket away from the body",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3044,7 +3157,8 @@
       "tags": [],
       "task": "dress.jacket.off",
       "textAr": "يلا نطلع دراعنا الأولاني من الكم.",
-      "textEn": "Take the first arm out of the sleeve"
+      "textEn": "Take the first arm out of the sleeve",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3068,7 +3182,8 @@
       "tags": [],
       "task": "dress.jacket.off",
       "textAr": "يلا نطلع دراعنا التاني من الكم.",
-      "textEn": "Take the second arm out of the sleeve"
+      "textEn": "Take the second arm out of the sleeve",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3092,7 +3207,8 @@
       "tags": [],
       "task": "dress.jacket.off",
       "textAr": "يلا نقلع الجاكيت خالص.",
-      "textEn": "Take the jacket off completely"
+      "textEn": "Take the jacket off completely",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3116,7 +3232,8 @@
       "tags": [],
       "task": "dress.jacket.off",
       "textAr": "يلا نحط الجاكيت في مكانه.",
-      "textEn": "Put the jacket in the designated place"
+      "textEn": "Put the jacket in the designated place",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3142,7 +3259,8 @@
       ],
       "task": "dress.jacket.on",
       "textAr": "يلا نعرف قدام الجاكيت وورا الجاكيت.",
-      "textEn": "Identifies the front and the back of the jacket"
+      "textEn": "Identifies the front and the back of the jacket",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -3170,7 +3288,8 @@
       ],
       "task": "dress.jacket.on",
       "textAr": "يلا نفتح الجاكيت ونجهزه علشان نلبسه.",
-      "textEn": "Opens the jacket and prepares it for putting on"
+      "textEn": "Opens the jacket and prepares it for putting on",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3199,7 +3318,8 @@
       ],
       "task": "dress.jacket.on",
       "textAr": "يلا ندخل دراعنا الأولاني في الكم وبعدين الدراع التاني.",
-      "textEn": "Inserts the first arm into the sleeve and then the second arm"
+      "textEn": "Inserts the first arm into the sleeve and then the second arm",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -3229,7 +3349,8 @@
       ],
       "task": "dress.jacket.on",
       "textAr": "يلا نسحب الجاكيت على كتافنا ونظبطه.",
-      "textEn": "Pulls the jacket onto the shoulders and adjusts it"
+      "textEn": "Pulls the jacket onto the shoulders and adjusts it",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3255,7 +3376,8 @@
       ],
       "task": "dress.jacket.on",
       "textAr": "يلا نقفل الجاكيت من تحت لفوق بالترتيب.",
-      "textEn": "Fastens the jacket from bottom to top in order"
+      "textEn": "Fastens the jacket from bottom to top in order",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -3276,7 +3398,8 @@
       "tags": [],
       "task": "dress.tshirt.off",
       "textAr": "يلا نمسك طرف التيشيرت من تحت بإيدينا الاتنين.",
-      "textEn": "Grasp the bottom edge of the T-shirt with both hands"
+      "textEn": "Grasp the bottom edge of the T-shirt with both hands",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3297,7 +3420,8 @@
       "tags": [],
       "task": "dress.tshirt.off",
       "textAr": "يلا نرفع التيشيرت لحد صدرنا.",
-      "textEn": "Pull the T-shirt up to the chest"
+      "textEn": "Pull the T-shirt up to the chest",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3318,7 +3442,8 @@
       "tags": [],
       "task": "dress.tshirt.off",
       "textAr": "يلا نطلع دراعنا الأولاني من الكم.",
-      "textEn": "Take the first arm out of the sleeve"
+      "textEn": "Take the first arm out of the sleeve",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3339,7 +3464,8 @@
       "tags": [],
       "task": "dress.tshirt.off",
       "textAr": "يلا نطلع دراعنا التاني من الكم.",
-      "textEn": "Take the second arm out of the sleeve"
+      "textEn": "Take the second arm out of the sleeve",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3360,7 +3486,8 @@
       "tags": [],
       "task": "dress.tshirt.off",
       "textAr": "يلا نطلع التيشيرت من فوق راسنا.",
-      "textEn": "Pull the T-shirt over the head"
+      "textEn": "Pull the T-shirt over the head",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3381,7 +3508,8 @@
       "tags": [],
       "task": "dress.tshirt.off",
       "textAr": "يلا نقلع التيشيرت خالص.",
-      "textEn": "Take the T-shirt off completely"
+      "textEn": "Take the T-shirt off completely",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3402,7 +3530,8 @@
       "tags": [],
       "task": "dress.tshirt.off",
       "textAr": "يلا نحط التيشيرت في مكانه.",
-      "textEn": "Put the T-shirt in the designated place"
+      "textEn": "Put the T-shirt in the designated place",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3427,7 +3556,8 @@
       ],
       "task": "dress.tshirt.on",
       "textAr": "يلا نعرف اتجاه التيشيرت ونمسكه من المكان المناسب.",
-      "textEn": "Identifies the orientation of the T-shirt and holds it at the appropriate place"
+      "textEn": "Identifies the orientation of the T-shirt and holds it at the appropriate place",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -3450,7 +3580,8 @@
       ],
       "task": "dress.tshirt.on",
       "textAr": "يلا نعرف فتحة الراس والأكمام قبل ما نبدأ نلبس.",
-      "textEn": "Identifies the head opening and the sleeves before starting to dress"
+      "textEn": "Identifies the head opening and the sleeves before starting to dress",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -3477,7 +3608,8 @@
       ],
       "task": "dress.tshirt.on",
       "textAr": "يلا ندخل راسنا في الفتحة بتاعتها، وبعدين ندخل دراعاتنا في الأكمام.",
-      "textEn": "Inserts the head through the opening intended for it, then inserts the arms into the sleeves"
+      "textEn": "Inserts the head through the opening intended for it, then inserts the arms into the sleeves",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -3502,7 +3634,8 @@
       ],
       "task": "dress.tshirt.on",
       "textAr": "يلا نسحب التيشيرت لتحت حركة ورا حركة بنظام.",
-      "textEn": "Pulls the T-shirt downward in a sequential, organised movement"
+      "textEn": "Pulls the T-shirt downward in a sequential, organised movement",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3527,7 +3660,8 @@
       ],
       "task": "dress.tshirt.on",
       "textAr": "يلا نظبط التيشيرت لحد ما يقعد على جسمنا.",
-      "textEn": "Adjusts the position of the T-shirt until it settles on the body"
+      "textEn": "Adjusts the position of the T-shirt until it settles on the body",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3548,7 +3682,8 @@
       "tags": [],
       "task": "dress.shirt.off",
       "textAr": "يلا ندور على الزراير.",
-      "textEn": "Locate the buttons"
+      "textEn": "Locate the buttons",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -3569,7 +3704,8 @@
       "tags": [],
       "task": "dress.shirt.off",
       "textAr": "يلا نفك الزراير واحد ورا التاني من فوق لتحت.",
-      "textEn": "Unfasten the buttons one after another from top to bottom"
+      "textEn": "Unfasten the buttons one after another from top to bottom",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3590,7 +3726,8 @@
       "tags": [],
       "task": "dress.shirt.off",
       "textAr": "يلا نفتح جنبين القميص.",
-      "textEn": "Open the two sides of the shirt"
+      "textEn": "Open the two sides of the shirt",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3611,7 +3748,8 @@
       "tags": [],
       "task": "dress.shirt.off",
       "textAr": "يلا ننزل القميص من على كتافنا.",
-      "textEn": "Move the shirt off the shoulders"
+      "textEn": "Move the shirt off the shoulders",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3632,7 +3770,8 @@
       "tags": [],
       "task": "dress.shirt.off",
       "textAr": "يلا نطلع دراعنا الأولاني من الكم.",
-      "textEn": "Take the first arm out of the sleeve"
+      "textEn": "Take the first arm out of the sleeve",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3653,7 +3792,8 @@
       "tags": [],
       "task": "dress.shirt.off",
       "textAr": "يلا نطلع دراعنا التاني من الكم.",
-      "textEn": "Take the second arm out of the sleeve"
+      "textEn": "Take the second arm out of the sleeve",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3674,7 +3814,8 @@
       "tags": [],
       "task": "dress.shirt.off",
       "textAr": "يلا نقلع القميص خالص.",
-      "textEn": "Take the shirt off completely"
+      "textEn": "Take the shirt off completely",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3695,7 +3836,8 @@
       "tags": [],
       "task": "dress.shirt.off",
       "textAr": "يلا نحط القميص في مكانه.",
-      "textEn": "Put the shirt in the designated place"
+      "textEn": "Put the shirt in the designated place",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3720,7 +3862,8 @@
       ],
       "task": "dress.shirt.on",
       "textAr": "يلا نعرف اتجاه القميص وقدامه ووراه.",
-      "textEn": "Identifies the orientation of the shirt and its front and back"
+      "textEn": "Identifies the orientation of the shirt and its front and back",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -3746,7 +3889,8 @@
       ],
       "task": "dress.shirt.on",
       "textAr": "يلا ندخل دراعاتنا في الأكمام بالترتيب.",
-      "textEn": "Inserts the arms into the sleeves in order"
+      "textEn": "Inserts the arms into the sleeves in order",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -3770,7 +3914,8 @@
       ],
       "task": "dress.shirt.on",
       "textAr": "يلا نظبط القميص على جسمنا.",
-      "textEn": "Adjusts the shirt on the body"
+      "textEn": "Adjusts the shirt on the body",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3796,7 +3941,8 @@
       ],
       "task": "dress.shirt.on",
       "textAr": "يلا نبدأ نقفل الزراير من فوق لتحت.",
-      "textEn": "Begins fastening the buttons from top to bottom"
+      "textEn": "Begins fastening the buttons from top to bottom",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -3821,7 +3967,8 @@
       ],
       "task": "dress.shirt.on",
       "textAr": "يلا نقفل الزراير واحد ورا التاني بنفس السرعة.",
-      "textEn": "Fastens the buttons one after another at a regular rhythm"
+      "textEn": "Fastens the buttons one after another at a regular rhythm",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -3842,7 +3989,8 @@
       "tags": [],
       "task": "dress.trousers.off",
       "textAr": "يلا نفتح زرار أو سوستة البنطلون لو موجودة.",
-      "textEn": "Open the button or the zipper of the trousers, if there is one"
+      "textEn": "Open the button or the zipper of the trousers, if there is one",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3863,7 +4011,8 @@
       "tags": [],
       "task": "dress.trousers.off",
       "textAr": "يلا نمسك وسط البنطلون بإيدينا الاتنين.",
-      "textEn": "Grasp the waistband with both hands"
+      "textEn": "Grasp the waistband with both hands",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3884,7 +4033,8 @@
       "tags": [],
       "task": "dress.trousers.off",
       "textAr": "يلا ننزل البنطلون بالراحة لحد ركبنا.",
-      "textEn": "Push the trousers down gradually to the knees"
+      "textEn": "Push the trousers down gradually to the knees",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3905,7 +4055,8 @@
       "tags": [],
       "task": "dress.trousers.off",
       "textAr": "يلا نطلع رجلنا الأولانية من البنطلون.",
-      "textEn": "Take the first foot out of the trouser leg"
+      "textEn": "Take the first foot out of the trouser leg",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3926,7 +4077,8 @@
       "tags": [],
       "task": "dress.trousers.off",
       "textAr": "يلا نطلع رجلنا التانية من البنطلون.",
-      "textEn": "Take the second foot out of the trouser leg"
+      "textEn": "Take the second foot out of the trouser leg",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3947,7 +4099,8 @@
       "tags": [],
       "task": "dress.trousers.off",
       "textAr": "يلا نحط البنطلون في مكانه.",
-      "textEn": "Put the trousers in the designated place"
+      "textEn": "Put the trousers in the designated place",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -3970,7 +4123,8 @@
       ],
       "task": "dress.trousers.on",
       "textAr": "يلا نعرف اتجاه البنطلون وفتحات الرجلين.",
-      "textEn": "Identifies the orientation of the trousers and the leg openings"
+      "textEn": "Identifies the orientation of the trousers and the leg openings",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -3995,7 +4149,8 @@
       ],
       "task": "dress.trousers.on",
       "textAr": "يلا نمسك البنطلون ونجهزه علشان نلبسه.",
-      "textEn": "Holds the trousers and prepares them for putting on"
+      "textEn": "Holds the trousers and prepares them for putting on",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4020,7 +4175,8 @@
       ],
       "task": "dress.trousers.on",
       "textAr": "يلا ندخل رجلنا الأولانية وبعدين رجلنا التانية في الفتحات بتاعتها.",
-      "textEn": "Inserts the first foot and then the second foot into the appropriate openings"
+      "textEn": "Inserts the first foot and then the second foot into the appropriate openings",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -4046,7 +4202,8 @@
       ],
       "task": "dress.trousers.on",
       "textAr": "يلا نسحب البنطلون لفوق شوية شوية لحد وسطنا.",
-      "textEn": "Pulls the trousers upward gradually until they reach the waist"
+      "textEn": "Pulls the trousers upward gradually until they reach the waist",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4071,7 +4228,8 @@
       ],
       "task": "dress.trousers.on",
       "textAr": "يلا نظبط البنطلون حوالين وسطنا.",
-      "textEn": "Adjusts the position of the trousers around the waist"
+      "textEn": "Adjusts the position of the trousers around the waist",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4092,7 +4250,8 @@
       "tags": [],
       "task": "dress.socks.off",
       "textAr": "يلا نوصل لطرف الشراب من فوق.",
-      "textEn": "Reach the top edge of the sock"
+      "textEn": "Reach the top edge of the sock",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4113,7 +4272,8 @@
       "tags": [],
       "task": "dress.socks.off",
       "textAr": "يلا ندخل صوابعنا جوه طرف الشراب.",
-      "textEn": "Hook the fingers inside the edge of the sock"
+      "textEn": "Hook the fingers inside the edge of the sock",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4134,7 +4294,8 @@
       "tags": [],
       "task": "dress.socks.off",
       "textAr": "يلا ننزل الشراب من على الكعب.",
-      "textEn": "Push the sock down over the heel"
+      "textEn": "Push the sock down over the heel",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4155,7 +4316,8 @@
       "tags": [],
       "task": "dress.socks.off",
       "textAr": "يلا نسحب الشراب من على صوابع رجلنا.",
-      "textEn": "Pull the sock off the toes"
+      "textEn": "Pull the sock off the toes",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4176,7 +4338,8 @@
       "tags": [],
       "task": "dress.socks.off",
       "textAr": "يلا نحط الشراب في مكانه.",
-      "textEn": "Put the sock in the designated place"
+      "textEn": "Put the sock in the designated place",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4201,7 +4364,8 @@
       ],
       "task": "dress.socks.on",
       "textAr": "يلا نعرف فتحة الشراب واتجاهه الصح.",
-      "textEn": "Identifies the opening of the sock and its correct orientation"
+      "textEn": "Identifies the opening of the sock and its correct orientation",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -4227,7 +4391,8 @@
       ],
       "task": "dress.socks.on",
       "textAr": "يلا نفتح الشراب ونجهزه علشان ندخل رجلنا.",
-      "textEn": "Opens the sock and prepares it for inserting the foot"
+      "textEn": "Opens the sock and prepares it for inserting the foot",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4252,7 +4417,8 @@
       ],
       "task": "dress.socks.on",
       "textAr": "يلا ندخل صوابع رجلنا الأول وبعدين نسحب الشراب على كعبنا.",
-      "textEn": "Inserts the toes first and then pulls the sock over the heel"
+      "textEn": "Inserts the toes first and then pulls the sock over the heel",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -4276,7 +4442,8 @@
       ],
       "task": "dress.socks.on",
       "textAr": "يلا نسحب الشراب شوية شوية لحد مكانه الصح.",
-      "textEn": "Pulls the sock gradually until it reaches its correct position"
+      "textEn": "Pulls the sock gradually until it reaches its correct position",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4301,7 +4468,8 @@
       ],
       "task": "dress.socks.on",
       "textAr": "يلا نظبط الشراب حوالين رجلنا.",
-      "textEn": "Adjusts the position of the sock around the foot"
+      "textEn": "Adjusts the position of the sock around the foot",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4322,7 +4490,8 @@
       "tags": [],
       "task": "dress.shoes.off",
       "textAr": "يلا نفتح اللزق أو نفك الرباط.",
-      "textEn": "Open the hook-and-loop strap or untie the laces"
+      "textEn": "Open the hook-and-loop strap or untie the laces",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4343,7 +4512,8 @@
       "tags": [],
       "task": "dress.shoes.off",
       "textAr": "يلا نوسع فتحة الجزمة.",
-      "textEn": "Loosen the opening of the shoe"
+      "textEn": "Loosen the opening of the shoe",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4364,7 +4534,8 @@
       "tags": [],
       "task": "dress.shoes.off",
       "textAr": "يلا نمسك الجزمة من ورا.",
-      "textEn": "Hold the back of the shoe"
+      "textEn": "Hold the back of the shoe",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4385,7 +4556,8 @@
       "tags": [],
       "task": "dress.shoes.off",
       "textAr": "يلا نطلع الكعب وبعدين رجلنا من الجزمة.",
-      "textEn": "Pull the heel and then the foot out of the shoe"
+      "textEn": "Pull the heel and then the foot out of the shoe",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4406,7 +4578,8 @@
       "tags": [],
       "task": "dress.shoes.off",
       "textAr": "يلا نحط الجزمة في مكانها.",
-      "textEn": "Put the shoes in the designated place"
+      "textEn": "Put the shoes in the designated place",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4431,7 +4604,8 @@
       ],
       "task": "dress.shoes.on",
       "textAr": "يلا نعرف الجزمة المناسبة لكل رجل.",
-      "textEn": "Identifies the appropriate shoe for each foot"
+      "textEn": "Identifies the appropriate shoe for each foot",
+      "timeSec": 10
     },
     {
       "area": "dress",
@@ -4457,7 +4631,8 @@
       ],
       "task": "dress.shoes.on",
       "textAr": "يلا نفتح الجزمة ونجهزها علشان ندخل رجلنا.",
-      "textEn": "Opens the shoe and prepares it for inserting the foot"
+      "textEn": "Opens the shoe and prepares it for inserting the foot",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4482,7 +4657,8 @@
       ],
       "task": "dress.shoes.on",
       "textAr": "يلا ندخل رجلنا في الجزمة صح.",
-      "textEn": "Inserts the foot into the shoe in the correct way"
+      "textEn": "Inserts the foot into the shoe in the correct way",
+      "timeSec": 30
     },
     {
       "area": "dress",
@@ -4506,7 +4682,8 @@
       ],
       "task": "dress.shoes.on",
       "textAr": "يلا نظبط كعبنا جوه الجزمة.",
-      "textEn": "Adjusts the heel inside the shoe"
+      "textEn": "Adjusts the heel inside the shoe",
+      "timeSec": 20
     },
     {
       "area": "dress",
@@ -4532,7 +4709,8 @@
       ],
       "task": "dress.shoes.on",
       "textAr": "يلا نقفل الجزمة بالاسكوتش أو بالرباط.",
-      "textEn": "Fastens the shoe using the hook-and-loop strap or the laces"
+      "textEn": "Fastens the shoe using the hook-and-loop strap or the laces",
+      "timeSec": 30
     }
   ],
   "tasks": [

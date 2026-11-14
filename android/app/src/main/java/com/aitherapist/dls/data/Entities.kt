@@ -16,7 +16,9 @@ data class ChildEntity(
     @ColumnInfo(defaultValue = "calm") val effectLevel: EffectLevel = EffectLevel.CALM,
     val characterVariant: ChildCharacter,
     @ColumnInfo(defaultValue = "0") val isEval: Boolean = false,
-    val createdAt: Long
+    val createdAt: Long,
+    /** Story 6.2: show the per-step time ring in child mode; when false the step time still closes the window. */
+    @ColumnInfo(defaultValue = "1") val showTimeRing: Boolean = true
 )
 
 @Entity(

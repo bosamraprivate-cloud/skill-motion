@@ -70,6 +70,7 @@ internal constructor(
             is ChildProfileEvent.AgeChanged -> editForm(current) { it.copy(age = event.value) }
             is ChildProfileEvent.CharacterChanged -> editForm(current) { it.copy(character = event.value) }
             is ChildProfileEvent.EffectChanged -> editForm(current) { it.copy(effectLevel = event.value) }
+            is ChildProfileEvent.TimeRingChanged -> editForm(current) { it.copy(showTimeRing = event.value) }
             ChildProfileEvent.Save -> save(current)
             ChildProfileEvent.RequestDelete -> if (!current.isNew) state.value = current.copy(confirmDelete = true)
             ChildProfileEvent.CancelDelete -> state.value = current.copy(confirmDelete = false)
@@ -100,7 +101,7 @@ internal constructor(
             state.value =
                 ChildProfileUiState.Content(
                     childId = id,
-                    form = ChildForm(child.name, child.ageYears.toString(), child.characterVariant, child.effectLevel)
+                    form = ChildForm(child.name, child.ageYears.toString(), child.characterVariant, child.effectLevel, child.showTimeRing)
                 )
         }
     }
@@ -139,11 +140,19 @@ internal constructor(
                 ageYears = age,
                 effectLevel = form.effectLevel,
                 characterVariant = character,
-                createdAt = clock()
+                createdAt = clock(),
+                showTimeRing = form.showTimeRing
             )
             return withContext(io) { children.addWithGeneratedCode(draft) }
         }
-        val edited = existing.copy(name = form.name.trim(), ageYears = age, effectLevel = form.effectLevel, characterVariant = character)
+        val edited =
+            existing.copy(
+                name = form.name.trim(),
+                ageYears = age,
+                effectLevel = form.effectLevel,
+                characterVariant = character,
+                showTimeRing = form.showTimeRing
+            )
         withContext(io) { children.update(edited) }
         return edited
     }

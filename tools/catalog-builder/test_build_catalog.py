@@ -875,3 +875,46 @@ def test_posture_validation(full, tmp_path, mutate, needle):
     p.write_text(json.dumps(src), encoding="utf-8")
     with pytest.raises(bc.CatalogError, match=re.escape(needle)):
         bc.build(replace(full, task_posture=p))
+
+
+# --- Story 6.2: per-step time (time ring) --------------------------------------
+
+
+def test_steps_carry_time_sec(full):
+    files, _ = bc.build(full)
+    steps = {s["id"]: s for s in json.loads(files["assessment.json"])["steps"]}
+    assert all(5 <= s["timeSec"] <= 60 for s in steps.values())
+    assert steps["eat.sandwich.01"]["timeSec"] == 10  # "Look ..."
+    assert steps["eat.sandwich.10"]["timeSec"] == 20  # chew
+    assert steps["eat.sandwich.05"]["timeSec"] == 15  # eating default
+    assert steps["hygiene.teeth.06"]["timeSec"] == 25  # brushing
+    assert steps["dress.socks.on.03"]["timeSec"] == 30  # inserting
+
+
+def test_step_timing_matches_schema():
+    import jsonschema
+
+    schema = json.loads((bc.TOOL_DIR / "schema" / "step-timing.schema.json").read_text(encoding="utf-8"))
+    data = json.loads(bc.Paths().step_timing.read_text(encoding="utf-8"))
+    jsonschema.Draft202012Validator(schema).validate(data)
+
+
+@pytest.mark.parametrize(
+    "mutate, needle",
+    [
+        (lambda d: d["defaults"].pop("eat.fork"), "missing default for task id(s): eat.fork"),
+        (lambda d: d["defaults"].update({"dress.hat.on": 20}), "unknown task id(s): dress.hat.on"),
+        (lambda d: d["overrides"].update({"eat.fork.99": 20}), "unknown step id(s): eat.fork.99"),
+        (lambda d: d["overrides"].update({"eat.fork.01": 4}), "5-60 for: eat.fork.01"),
+        (lambda d: d["defaults"].update({"eat.fork": 61}), "5-60 for: eat.fork"),
+        (lambda d: d["defaults"].update({"eat.fork": 12.5}), "5-60 for: eat.fork"),
+        (lambda d: d.pop("defaults"), "must be an object with 'defaults'"),
+    ],
+)
+def test_timing_validation(full, tmp_path, mutate, needle):
+    src = json.loads(bc.Paths().step_timing.read_text(encoding="utf-8"))
+    mutate(src)
+    p = tmp_path / "timing.json"
+    p.write_text(json.dumps(src), encoding="utf-8")
+    with pytest.raises(bc.CatalogError, match=re.escape(needle)):
+        bc.build(replace(full, step_timing=p))

@@ -129,7 +129,7 @@ class AttemptWindowTest {
 
     @Test
     fun `rules version is set`() {
-        assertEquals(2, WindowRules.RULES_VERSION)
+        assertEquals(3, WindowRules.RULES_VERSION)
     }
 
     @Test
@@ -142,5 +142,38 @@ class AttemptWindowTest {
         }
         assertEquals(null, w.check(t))
         assertEquals(CloseReason.TIMEOUT, w.check(45_000))
+    }
+
+    @Test
+    fun `a step time closes the window at that time and never on stillness`() {
+        val w = AttemptWindow(0, WindowRules.stepTimeoutMs(25))
+        var t = 0L
+        while (t < 24_900) {
+            t += 100
+            w.onSample(pose(t, 0.5f)) // completely still for 24.9 s
+            assertNull("open at $t", w.check(t))
+        }
+        assertEquals(CloseReason.TIMEOUT, w.check(25_000))
+    }
+
+    @Test
+    fun `a step time longer than the old cap is respected`() {
+        val w = AttemptWindow(0, WindowRules.stepTimeoutMs(60))
+        assertNull(w.check(45_000))
+        assertEquals(CloseReason.TIMEOUT, w.check(60_000))
+    }
+
+    @Test
+    fun `done before the step time closes as done`() {
+        val w = AttemptWindow(0, 10_000)
+        w.onDone(4_000)
+        assertEquals(CloseReason.DONE, w.check(4_000))
+    }
+
+    @Test
+    fun `step timeout maps seconds and keeps old rules for untimed steps`() {
+        assertEquals(15_000L, WindowRules.stepTimeoutMs(15))
+        assertNull(WindowRules.stepTimeoutMs(null))
+        assertNull(WindowRules.stepTimeoutMs(0))
     }
 }

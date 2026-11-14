@@ -83,7 +83,7 @@ Edge cases:
 ## 4. Add child / edit child [BUILT]
 
 What happens:
-- Form: name (max 40 chars), age (whole years 1 to 18), character (boy or girl), effect level (**calm** default, or **full**).
+- Form: name (max 40 chars), age (whole years 1 to 18), character (boy or girl), effect level (**calm** default, or **full**), "Show time ring" switch (on by default; off hides the child's per-step time ring, the step time still applies; Story 6.2).
 - The child code is generated automatically and hidden; the therapist never types it.
 - After save, the profile opens on Overview.
 - Edit mode from the profile; Delete with confirmation. Delete removes the child and all sessions, attempts, corrections, rewards, training results and evidence frames (cascade).
