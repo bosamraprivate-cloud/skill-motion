@@ -497,12 +497,8 @@
     <string name="export_failed">The file could not be saved. Please try again or pick another place.</string>
     <string name="about_title">About</string>
     <string name="about_app_name">Skillmotion</string>
-    <string name="about_purpose">Assesses and trains daily living skills (dressing, eating and drinking, hygiene) for children, on this tablet.</string>
-    <string name="about_version">App version: %1$s</string>
-    <string name="about_catalog_version">Catalogue version: %1$s</string>
-    <string name="about_rules_version">Rules version: %1$s</string>
-    <string name="about_credits_title">Open-source credits</string>
-    <string name="about_row_hint">Version, catalogue and open-source licences</string>
+    <string name="about_purpose">An app for assessing and training daily living skills in children: dressing, eating and drinking, and personal hygiene. The child learns each skill step by step with a helper character, and the therapist follows levels, plan and progress.</string>
+    <string name="about_row_hint">About the app</string>
     <!-- Story 5.8 metrics dashboard -->
     <string name="settings_tool_metrics_title">Accuracy</string>
     <string name="settings_tool_metrics_hint">How often the app agrees with blind review (Goal 8)</string>

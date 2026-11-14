@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -142,14 +143,18 @@ private fun AnswerButton(label: Int, enabled: Boolean, modifier: Modifier, onCli
 private fun BlindFrames(paths: List<String>, loadFrame: FrameLoader) {
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S3)) {
         paths.forEachIndexed { i, path ->
-            val image by produceState<ImageBitmap?>(null, path) { value = loadFrame(path, BLIND_FRAME_PX) }
-            val bmp = image ?: return@forEachIndexed
-            Image(
-                bmp,
-                contentDescription = stringResource(R.string.detail_frame, westernDigits(i + 1)),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.width(240.dp).aspectRatio(4f / 3f).clip(RoundedCornerShape(Radius.Sm))
-            )
+            // key + no early return: an early return after produceState breaks the slot table (crash on recompose).
+            key(path) {
+                val image by produceState<ImageBitmap?>(null, path) { value = loadFrame(path, BLIND_FRAME_PX) }
+                image?.let { bmp ->
+                    Image(
+                        bmp,
+                        contentDescription = stringResource(R.string.detail_frame, westernDigits(i + 1)),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.width(240.dp).aspectRatio(4f / 3f).clip(RoundedCornerShape(Radius.Sm))
+                    )
+                }
+            }
         }
     }
 }

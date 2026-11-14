@@ -549,12 +549,8 @@
     <string name="export_failed">الملف ما اتحفظش. جرّب تاني أو اختار مكان تاني.</string>
     <string name="about_title">عن التطبيق</string>
     <string name="about_app_name">Skillmotion</string>
-    <string name="about_purpose">بيقيّم ويدرّب مهارات الحياة اليومية (اللبس، الأكل والشرب، النظافة) للأطفال، على التابلت ده.</string>
-    <string name="about_version">نسخة التطبيق: %1$s</string>
-    <string name="about_catalog_version">نسخة الكتالوج: %1$s</string>
-    <string name="about_rules_version">نسخة القواعد: %1$s</string>
-    <string name="about_credits_title">مكتبات مفتوحة المصدر</string>
-    <string name="about_row_hint">النسخة والكتالوج وتراخيص المكتبات المفتوحة المصدر</string>
+    <string name="about_purpose">تطبيق مخصص لتقييم وتدريب مهارات الحياة اليومية عند الأطفال: اللبس، والأكل والشرب، والنظافة الشخصية. الطفل بيتعلم كل مهارة خطوة بخطوة مع شخصية بتساعده، والأخصائي بيتابع المستوى والخطة والتقدم.</string>
+    <string name="about_row_hint">وصف التطبيق</string>
     <plurals name="pin_locked_wait">
         <item quantity="zero">محاولات غلط كتير. استنى %1$s ثانية.</item>
         <item quantity="one">محاولات غلط كتير. استنى ثانية واحدة.</item>
