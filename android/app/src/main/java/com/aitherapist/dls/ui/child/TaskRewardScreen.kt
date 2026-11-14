@@ -275,6 +275,11 @@ fun TaskRewardScreen(
                 }
             KonfettiView(modifier = Modifier.fillMaxSize(), parties = parties)
         }
+        // A new sticker gets its own moment first (once per reward screen), then the reward stays as before.
+        var unlockShown by rememberSaveable(state.newSticker) { mutableStateOf(false) }
+        state.newSticker?.takeIf { !unlockShown }?.let { sticker ->
+            StickerUnlockOverlay(sticker, full = full, onDone = { unlockShown = true })
+        }
         // The adult corner (2 s press) stays reachable on the reward screen.
         Box(Modifier.align(Alignment.TopEnd).padding(Spacing.S3)) { TrainingAdultCorner(onAdultCorner) }
     }
