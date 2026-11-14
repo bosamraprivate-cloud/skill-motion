@@ -47,8 +47,13 @@ android {
         applicationId = "com.aitherapist.dls"
         minSdk = 30
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        // CI passes -Pdls.versionCode / -Pdls.versionName so each tester build installs over the previous one.
+        versionCode = (findProperty("dls.versionCode") as String?)?.toInt() ?: 1
+        versionName = (findProperty("dls.versionName") as String?) ?: "0.1.0"
+        // -Pdls.arm64Only=true (CI tester builds): real tablets are arm64; drops ~45 MB of emulator-only libs.
+        if ((findProperty("dls.arm64Only") as String?) == "true") {
+            ndk { abiFilters += "arm64-v8a" }
+        }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "PROXY_URL", "\"\"")
         buildConfigField("String", "SHARED_SECRET", "\"\"")
