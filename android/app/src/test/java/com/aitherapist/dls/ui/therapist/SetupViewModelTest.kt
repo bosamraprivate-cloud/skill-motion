@@ -183,11 +183,11 @@ class SetupViewModelTest {
         val vm = vm(settings, url = "https://proxy.example.dev", secret = "s")
         vm.onEvent(SetupEvent.Continue)
         vm.enterPin("1234")
+        // Built-in connection: confirming the PIN saves directly (no connection step).
         vm.enterPin("1234")
-        vm.onEvent(SetupEvent.Continue)
         assertEquals(SetupUiState.Error("IOException"), vm.uiState.value)
         vm.onEvent(SetupEvent.Retry)
-        assertEquals(SetupStep.PROXY, vm.content.step)
+        assertEquals(SetupStep.CONFIRM_PIN, vm.content.step)
         assertFalse(vm.content.saving)
     }
 
