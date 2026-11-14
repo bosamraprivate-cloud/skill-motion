@@ -5,6 +5,7 @@
 | [reference/](reference/) | Clinical sources: assessment scales, correct-performance guide, treatment plans, scoring rules. The only source of clinical content. |
 | [brainstorm/](brainstorm/) | EGM brainstorm brief (`concepts_brief.md`). |
 | [designs/](designs/) | Final design `daily-living-skills-app.md`; M2 content check checklist [`m2-content-check.md`](designs/m2-content-check.md); M3 field tests (Wi-Fi off) [`m3-field-tests.md`](designs/m3-field-tests.md); M3 accuracy and threshold freeze [`m3-accuracy.md`](designs/m3-accuracy.md); M5 Goal 8 volunteer accuracy [`evaluation-metrics.md`](designs/evaluation-metrics.md); M4 camera-counted activity selection [`activity-counter-selection.md`](designs/activity-counter-selection.md); EGM review reports in [designs/review/](designs/review/) (start with `consolidated_review_report.md`). |
+| [flows/](flows/) | End-to-end user flows with build status: [therapist-flow.md](flows/therapist-flow.md) and [child-flow.md](flows/child-flow.md). |
 | [wireframes/](wireframes/) | Clickable 11-inch tablet wireframes (`index.html`, open in a browser). Demo of one assessment (Handwashing) and one plan section (Mild → Hand skills). |
 | [permissions/](permissions/) | Written permissions from owners of reused repositories. |
 | [../eval/](../eval/) | Volunteer clip recording protocol [`recording-protocol.md`](../eval/recording-protocol.md) and shot list `clips.csv` (validate with `tools/eval/validate_clips.py`). |
