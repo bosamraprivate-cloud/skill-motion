@@ -166,6 +166,8 @@ private fun ChildProfileForm(
                     newSessionOpen = true
                 }
                 state.message?.let { MessageText(it) }
+            } else if (tab == ProfileTab.REPORT && state.childId != null) {
+                ReportRoute(state.childId)
             } else {
                 OutlinedSurfaceCard {
                     EmptyState(icon = tab.icon, message = stringResource(R.string.profile_tab_later, stringResource(tab.label)))

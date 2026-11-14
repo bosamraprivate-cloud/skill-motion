@@ -236,4 +236,58 @@
     <string name="profile_tab_plan">Plan</string>
     <string name="profile_tab_progress">Progress</string>
     <string name="profile_tab_later">%1$s comes in a later update.</string>
+    <string name="report_title">Functional report</string>
+    <string name="report_list_separator">", "</string>
+    <string name="report_empty">No finished assessment yet. Start a session from Overview to see the report.</string>
+    <string name="report_error">The report could not be loaded.</string>
+    <string name="report_strengths">Strengths</string>
+    <string name="report_needs">Needs</string>
+    <string name="report_no_strengths">No independent steps in this assessment.</string>
+    <string name="report_no_needs">No steps needed help in this assessment.</string>
+    <string name="report_may_relate">May be related to: %1$s</string>
+    <string name="report_no_domain">No domain tag in the scale</string>
+    <string name="report_domains">Functional domains</string>
+    <string name="report_no_scored_steps">No scored steps</string>
+    <string name="report_step_number">Step %1$s</string>
+    <string name="report_chart_description">Domain averages chart</string>
+    <string name="plan_strength">Strength</string>
+    <string name="plan_mild">Mild weakness</string>
+    <string name="plan_moderate">Moderate weakness</string>
+    <string name="plan_severe">Severe weakness</string>
+    <string name="level_three">Independent</string>
+    <string name="level_two">Partial assistance</string>
+    <string name="level_one">Full assistance</string>
+    <string name="domain_motor_coordination">Motor coordination</string>
+    <string name="domain_motor_planning">Motor planning</string>
+    <string name="domain_range_of_motion">Range of motion</string>
+    <string name="domain_hand_skills">Hand skills</string>
+    <string name="domain_midline_crossing">Midline crossing</string>
+    <plurals name="report_not_scored">
+        <item quantity="one">Not scored: %1$s step</item>
+        <item quantity="other">Not scored: %1$s steps</item>
+    </plurals>
+    <plurals name="report_untagged_note">
+        <item quantity="one">%1$s scored step has no domain tag and feeds no domain.</item>
+        <item quantity="other">%1$s scored steps have no domain tag and feed no domain.</item>
+    </plurals>
+    <plurals name="report_unknown_note">
+        <item quantity="one">%1$s scored step is not in the current catalogue and feeds no domain.</item>
+        <item quantity="other">%1$s scored steps are not in the current catalogue and feed no domain.</item>
+    </plurals>
+    <plurals name="report_scored_steps">
+        <item quantity="one">%1$s scored step</item>
+        <item quantity="other">%1$s scored steps</item>
+    </plurals>
+    <plurals name="report_domain_description">
+        <item quantity="one">%2$s: average %3$s, %4$s, %1$s scored step</item>
+        <item quantity="other">%2$s: average %3$s, %4$s, %1$s scored steps</item>
+    </plurals>
+    <string name="report_not_covered">Not covered by this task</string>
+    <string name="report_domain_no_scored">%1$s: no scored steps</string>
+    <string name="report_domain_not_covered">%1$s: not covered by this task</string>
+    <string name="domain_short_motor_coordination">Coordination</string>
+    <string name="domain_short_motor_planning">Planning</string>
+    <string name="domain_short_range_of_motion">Motion</string>
+    <string name="domain_short_hand_skills">Hand</string>
+    <string name="domain_short_midline_crossing">Midline</string>
 </resources>

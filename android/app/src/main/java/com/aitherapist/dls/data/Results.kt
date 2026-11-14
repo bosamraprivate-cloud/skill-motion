@@ -5,6 +5,10 @@ import com.aitherapist.dls.scoring.RuleAttempt
 import com.aitherapist.dls.scoring.RuleOutcome
 import com.aitherapist.dls.scoring.RulesEngine
 import com.aitherapist.dls.scoring.StepLevel
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -108,4 +112,11 @@ internal constructor(private val holder: DatabaseHolder) :
             )
         }
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+internal abstract class ResultsModule {
+    @Binds
+    abstract fun assessmentResults(impl: ResultsRepository): AssessmentResults
 }

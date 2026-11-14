@@ -25,6 +25,15 @@ data class DomainAverages(
     val unknownSteps: Set<String> = emptySet()
 )
 
+/** A need: a level-2/1 step and the domains it "may be related to" (empty for an untagged or unknown step). */
+data class Need(val stepId: String, val level: StepLevel, val domains: Set<String>)
+
+/**
+ * Stage 7 strengths and needs of one assessment: [strengths] are level-3 step ids, [needs] level-2/1 steps with
+ * their domains, [notScored] steps that ended not scored (listed apart, no blame). Open steps appear nowhere.
+ */
+data class StrengthsAndNeeds(val strengths: List<String>, val needs: List<Need>, val notScored: List<String>)
+
 /** Pure scoring rules (no Android, Room or coroutines). Bump [RULES_VERSION] on any rule change. */
 object RulesEngine {
     const val RULES_VERSION = "3"
@@ -107,6 +116,25 @@ object RulesEngine {
         }
         val averages = sums.mapValues { (domain, sum) -> counts.getValue(domain).takeIf { it > 0 }?.let { sum.toDouble() / it } }
         return DomainAverages(averages, counts, untagged, unknown)
+    }
+
+    /**
+     * `project-details.md` Stage 7: level-3 steps are strengths, level-2/1 steps are needs, each with its Rule 2
+     * domains ([domainsOf]; an id missing from [tags] has none). Order follows [stepLevels]; open (null) steps are skipped.
+     */
+    fun strengthsAndNeeds(stepLevels: Map<String, StepLevel?>, tags: Map<String, List<String>>): StrengthsAndNeeds {
+        val strengths = mutableListOf<String>()
+        val needs = mutableListOf<Need>()
+        val notScored = mutableListOf<String>()
+        for ((stepId, level) in stepLevels) {
+            when (level) {
+                null -> Unit
+                StepLevel.THREE -> strengths += stepId
+                StepLevel.TWO, StepLevel.ONE -> needs += Need(stepId, level, domainsOf(tags[stepId].orEmpty()))
+                StepLevel.NOT_SCORED -> notScored += stepId
+            }
+        }
+        return StrengthsAndNeeds(strengths, needs, notScored)
     }
 
     /** Rule 2: 3 = strength; 2.5 to <3 = mild; 1.5 to <2.5 = moderate; <1.5 = severe. */

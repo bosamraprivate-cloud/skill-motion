@@ -158,4 +158,41 @@ class RulesEngineTest {
         assertEquals(1, RulesEngine.score(StepLevel.ONE))
         assertNull(RulesEngine.score(StepLevel.NOT_SCORED))
     }
+
+    @Test
+    fun `strengths and needs split levels and keep domains`() {
+        val tags =
+            mapOf(
+                "a" to listOf("Hand skills"),
+                "b" to listOf("Motor coordination", "Visual-motor coordination", "Range of motion"),
+                "c" to emptyList(),
+                "d" to listOf("Hand skills"),
+                "e" to listOf("Hand skills")
+            )
+        val levels =
+            linkedMapOf(
+                "a" to StepLevel.THREE,
+                "b" to StepLevel.TWO,
+                "c" to StepLevel.ONE,
+                "d" to StepLevel.NOT_SCORED,
+                "e" to null,
+                "x" to StepLevel.ONE
+            )
+        val result = RulesEngine.strengthsAndNeeds(levels, tags)
+        assertEquals(listOf("a"), result.strengths)
+        assertEquals(
+            listOf(
+                Need("b", StepLevel.TWO, setOf("Motor coordination", "Range of motion")),
+                Need("c", StepLevel.ONE, emptySet()),
+                Need("x", StepLevel.ONE, emptySet())
+            ),
+            result.needs
+        )
+        assertEquals(listOf("d"), result.notScored)
+    }
+
+    @Test
+    fun `strengths and needs of nothing is empty`() {
+        assertEquals(StrengthsAndNeeds(emptyList(), emptyList(), emptyList()), RulesEngine.strengthsAndNeeds(emptyMap(), emptyMap()))
+    }
 }
