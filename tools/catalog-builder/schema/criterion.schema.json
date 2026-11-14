@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aitherapist.local/schema/criterion.schema.json",
+  "title": "Activity counter entry (AD-4 Criterion)",
+  "description": "One entry of activity_counters.json. The check is one of the four counting check types from check.schema.json. low < high are the counter's movement thresholds in the check's unit (degrees for angles, shoulder-width ratios for pointAbove margin and distanceBelow ratio) and override the check's deg/ratio/margin while counting. angleAbove/pointAbove: a rep starts when the value rises above high and ends when it falls below low. angleBelow/distanceBelow: a rep starts when the value falls below low and ends when it rises above high. kind hold: time accumulates while the value is past the start threshold. target, kind and perSide come verbatim from the source criterion (docs/designs/activity-counter-selection.md). perSide true: left and right are counted separately and each side must reach target; the check must then have side 'either'. The check's deg/ratio/margin must equal the start threshold (high for angleAbove/pointAbove, low for angleBelow/distanceBelow). Angle thresholds are 0..180, distance ratios >= 0, reps targets are whole numbers.",
+  "type": "object",
+  "properties": {
+    "activityId": {
+      "type": "string",
+      "pattern": "^(mild|moderate|severe)[.](rom|coord|hand|midline|planning)[.][0-9]{2}$"
+    },
+    "kind": {
+      "enum": [
+        "reps",
+        "hold"
+      ]
+    },
+    "check": {
+      "allOf": [
+        {
+          "$ref": "check.schema.json#/$defs/check"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "angleAbove",
+                "angleBelow",
+                "pointAbove",
+                "distanceBelow"
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "target": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "perSide": {
+      "type": "boolean"
+    },
+    "low": {
+      "type": "number"
+    },
+    "high": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "activityId",
+    "kind",
+    "check",
+    "target",
+    "perSide",
+    "low",
+    "high"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "reps"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "target": {
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "perSide": {
+            "const": true
+          }
+        },
+        "required": [
+          "perSide"
+        ]
+      },
+      "then": {
+        "properties": {
+          "check": {
+            "required": [
+              "side"
+            ],
+            "properties": {
+              "side": {
+                "const": "either"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

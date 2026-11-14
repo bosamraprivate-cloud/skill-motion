@@ -1,1 +1,7 @@
-[]
+[
+  {"activityId": "mild.rom.01", "kind": "reps", "target": 10, "perSide": false, "check": {"type": "angleAbove", "a": {"lm": "ELBOW"}, "vertex": {"lm": "SHOULDER"}, "b": {"lm": "HIP"}, "deg": 120, "holdSec": 0, "side": "either"}, "low": 60, "high": 120},
+  {"activityId": "mild.rom.02", "kind": "reps", "target": 10, "perSide": true, "check": {"type": "angleBelow", "a": {"lm": "SHOULDER"}, "vertex": {"lm": "ELBOW"}, "b": {"lm": "WRIST"}, "deg": 70, "holdSec": 0, "side": "either"}, "low": 70, "high": 140},
+  {"activityId": "moderate.rom.01", "kind": "reps", "target": 10, "perSide": false, "check": {"type": "angleAbove", "a": {"lm": "ELBOW"}, "vertex": {"lm": "SHOULDER"}, "b": {"lm": "HIP"}, "deg": 120, "holdSec": 0, "side": "either"}, "low": 60, "high": 120},
+  {"activityId": "moderate.rom.02", "kind": "reps", "target": 10, "perSide": false, "check": {"type": "distanceBelow", "a": {"lm": "LEFT_WRIST"}, "b": {"lm": "RIGHT_WRIST"}, "ratio": 0.5, "holdSec": 0}, "low": 0.5, "high": 1.5},
+  {"activityId": "moderate.rom.03", "kind": "reps", "target": 10, "perSide": true, "check": {"type": "angleBelow", "a": {"lm": "SHOULDER"}, "vertex": {"lm": "ELBOW"}, "b": {"lm": "WRIST"}, "deg": 70, "holdSec": 0, "side": "either"}, "low": 70, "high": 140}
+]

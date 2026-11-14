@@ -501,6 +501,7 @@ class Paths:
     detectors: Path = TOOL_DIR / "detectors.json"
     activity_counters: Path = TOOL_DIR / "activity_counters.json"
     check_schema: Path = TOOL_DIR / "schema" / "check.schema.json"
+    criterion_schema: Path = TOOL_DIR / "schema" / "criterion.schema.json"
     assets_dir: Path = ASSETS_DIR  # holds audio/ar-eg/ and character/index.json + files
     out_dir: Path = ASSETS_DIR / "catalog"
 
@@ -558,6 +559,78 @@ def _validate_detectors(detectors: Any, step_ids: list[str], schema_path: Path) 
     if bad:
         raise CatalogError("detectors.json: bad detector(s): " + "; ".join(bad))
     return out
+
+
+COUNTER_CHECK_TYPES = ("angleAbove", "angleBelow", "pointAbove", "distanceBelow")
+
+
+def _validate_counters(
+    entries: Any, activity_ids: set[str], check_schema: Path, criterion_schema: Path
+) -> dict[str, dict]:
+    """activity_counters.json -> {activityId: counter}; fails naming every bad entry."""
+    try:
+        import jsonschema
+        from referencing import Registry, Resource
+    except ImportError as exc:
+        raise CatalogError("jsonschema is not installed: install tools/requirements.txt") from exc
+
+    if not isinstance(entries, list):
+        raise CatalogError("activity_counters.json: top level must be a list")
+    check = _load_json(check_schema)
+    criterion = _load_json(criterion_schema)
+    resource = Resource.from_contents(check)
+    registry = Registry().with_resources([(check["$id"], resource), ("check.schema.json", resource)])
+    validator = jsonschema.Draft202012Validator(criterion, registry=registry)
+    counters: dict[str, dict] = {}
+    bad: list[str] = []
+    for n, entry in enumerate(entries):
+        aid = entry.get("activityId") if isinstance(entry, dict) else None
+        if not isinstance(aid, str) or aid not in activity_ids:
+            bad.append(f"entry {n} (unknown or missing activityId {aid!r})")
+            continue
+        if aid in counters:
+            bad.append(f"{aid} (duplicate activityId)")
+            continue
+        check_obj = entry.get("check")
+        ctype = check_obj.get("type") if isinstance(check_obj, dict) else None
+        if ctype not in COUNTER_CHECK_TYPES:
+            bad.append(f"{aid} (check type {ctype!r} not in {', '.join(COUNTER_CHECK_TYPES)})")
+            continue
+        errors = sorted(validator.iter_errors(entry), key=lambda e: [str(x) for x in e.path])
+        if errors:
+            where = "/".join(str(x) for x in errors[0].path) or "entry"
+            bad.append(f"{aid} (fails schema at {where}: {errors[0].message})")
+            continue
+        if not entry["low"] < entry["high"]:
+            bad.append(f"{aid} (low must be below high)")
+            continue
+        problem = _counter_range_problem(entry)
+        if problem:
+            bad.append(f"{aid} ({problem})")
+            continue
+        counters[aid] = {k: v for k, v in entry.items() if k != "activityId"}
+    if bad:
+        raise CatalogError("activity_counters.json: bad entry(ies): " + "; ".join(bad))
+    return counters
+
+
+_START_KEY = {"angleAbove": ("deg", "high"), "angleBelow": ("deg", "low"),
+              "pointAbove": ("margin", "high"), "distanceBelow": ("ratio", "low")}
+
+
+def _counter_range_problem(entry: dict) -> str | None:
+    """Ranges and the start-threshold rule that the schema cannot express."""
+    check = entry["check"]
+    ctype = check["type"]
+    low, high = entry["low"], entry["high"]
+    if ctype in ("angleAbove", "angleBelow") and not (low >= 0 and high <= 180):
+        return "angle thresholds must be within 0..180"
+    if ctype == "distanceBelow" and low < 0:
+        return "distance ratios must be >= 0"
+    key, start = _START_KEY[ctype]
+    if check[key] != entry[start]:
+        return f"check {key} must equal the start threshold {start} ({entry[start]})"
+    return None
 
 
 def _media_index(assets_dir: Path, step_ids: set[str]) -> dict[str, dict[str, dict]]:
@@ -628,18 +701,12 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
             raise CatalogError(f"strings: unknown {section} id(s): {', '.join(unknown)}")
     detectors = _validate_detectors(_load_json(paths.detectors), step_ids, paths.check_schema)
 
-    counters_raw = _load_json(paths.activity_counters)
-    if not isinstance(counters_raw, list):
-        raise CatalogError("activity_counters.json: top level must be a list")
-    activity_ids = {a.id for a in activities}
-    counters: dict[str, Any] = {}
-    for entry in counters_raw:
-        aid = entry.get("activityId") if isinstance(entry, dict) else None
-        if not isinstance(aid, str) or aid not in activity_ids:
-            raise CatalogError(f"activity_counters.json: unknown or missing activityId {aid!r}")
-        if aid in counters:
-            raise CatalogError(f"activity_counters.json: duplicate activityId {aid}")
-        counters[aid] = {k: v for k, v in entry.items() if k != "activityId"}
+    counters = _validate_counters(
+        _load_json(paths.activity_counters),
+        {a.id for a in activities},
+        paths.check_schema,
+        paths.criterion_schema,
+    )
 
     missing_text = [sid for sid in step_ids if not str(step_text.get(sid, "")).strip()]
     missing_text += [a.id for a in activities if not str(activity_text.get(a.id, "")).strip()]

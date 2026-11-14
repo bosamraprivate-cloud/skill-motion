@@ -521,7 +521,7 @@ def test_version_changes_on_detector_activity_and_tag(full, tmp_path):
     detector = {"method": "x", "framing": None, "check": None}
     edit_json(full.detectors, lambda d: d.update({"eat.fork.02": detector}))
     v_detector = version_of(full)
-    edit_json(full.activity_counters, lambda d: d.append({"activityId": ACTIVITY_IDS[0], "kind": "reps"}))
+    edit_json(full.activity_counters, lambda d: d.append(dict(GOOD_COUNTER)))
     v_activity = version_of(full)
     ref = tmp_path / "ref"
     ref.mkdir()
@@ -594,6 +594,121 @@ def test_detector_rejections(full, detector):
     edit_json(full.detectors, lambda d: d.update({"eat.fork.02": detector}))
     with pytest.raises(bc.CatalogError, match="eat.fork.02"):
         bc.build(full)
+
+
+GOOD_COUNTER = {
+    "activityId": "mild.rom.01",
+    "kind": "reps",
+    "target": 10,
+    "perSide": False,
+    "check": {
+        "type": "angleAbove",
+        "a": {"lm": "ELBOW"},
+        "vertex": {"lm": "SHOULDER"},
+        "b": {"lm": "HIP"},
+        "deg": 120,
+        "holdSec": 0,
+        "side": "either",
+    },
+    "low": 60,
+    "high": 120,
+}
+
+
+def _counter(**changes):
+    entry = json.loads(json.dumps(GOOD_COUNTER))
+    for k, v in changes.items():
+        if v is None:
+            entry.pop(k)
+        else:
+            entry[k] = v
+    return entry
+
+
+def test_valid_counter_emitted_in_activities(full):
+    full.activity_counters.write_text(json.dumps([GOOD_COUNTER]), encoding="utf-8")
+    files, _ = bc.build(full)
+    acts = json.loads(files["activities.json"])
+    acts = acts["activities"] if isinstance(acts, dict) else acts
+    by_id = {a["id"]: a for a in acts}
+    counter = by_id["mild.rom.01"]["counter"]
+    assert counter["kind"] == "reps" and counter["target"] == 10 and counter["check"]["type"] == "angleAbove"
+    assert "activityId" not in counter
+    assert by_id["mild.rom.02"]["counter"] is None
+
+
+def test_hold_and_per_side_counter_pass(full):
+    entry = _counter(kind="hold", target=5, perSide=True)
+    full.activity_counters.write_text(json.dumps([entry]), encoding="utf-8")
+    bc.build(full)
+
+
+@pytest.mark.parametrize(
+    ("entry", "needle"),
+    [
+        (_counter(activityId="mild.rom.99"), "mild.rom.99"),
+        (_counter(check={"type": "question", "text": "x"}), "check type 'question'"),
+        (
+            _counter(check={"type": "distanceAbove", "a": {"lm": "WRIST"}, "b": {"lm": "HIP"}, "ratio": 1, "holdSec": 0}),  # noqa: E501
+            "check type 'distanceAbove'",
+        ),
+        (_counter(target=None), "mild.rom.01 (fails schema"),
+        (_counter(perSide=None), "mild.rom.01 (fails schema"),
+        (_counter(kind="sets"), "mild.rom.01 (fails schema"),
+        (_counter(low=130), "low must be below high"),
+        (_counter(low=None), "mild.rom.01 (fails schema"),
+        (_counter(target=0), "mild.rom.01 (fails schema"),
+        (_counter(target=2.5), "mild.rom.01 (fails schema"),
+        (_counter(extra=1), "mild.rom.01 (fails schema"),
+        (_counter(perSide=True, check={**GOOD_COUNTER["check"], "side": "left"}), "mild.rom.01 (fails schema"),  # noqa: E501
+        (_counter(high=190, check={**GOOD_COUNTER["check"], "deg": 190}), "mild.rom.01 (fails schema"),
+        (_counter(low=-10), "within 0..180"),
+        (_counter(check={**GOOD_COUNTER["check"], "deg": 100}), "start threshold high"),
+        (
+            _counter(
+                low=-0.5,
+                high=1.0,
+                check={"type": "distanceBelow", "a": {"lm": "WRIST"}, "b": {"lm": "HIP"}, "ratio": -0.5, "holdSec": 0},  # noqa: E501
+            ),
+            "mild.rom.01",
+        ),
+        (_counter(check={"type": "angleAbove", "a": {"lm": "ELBOW"}}), "mild.rom.01 (fails schema"),
+    ],
+)
+def test_bad_counter_names_entry(full, entry, needle):
+    full.activity_counters.write_text(json.dumps([entry]), encoding="utf-8")
+    with pytest.raises(bc.CatalogError, match="activity_counters") as exc:
+        bc.build(full)
+    assert needle in str(exc.value)
+
+
+def test_non_dict_counter_entry_fails(full):
+    full.activity_counters.write_text(json.dumps(["mild.rom.01"]), encoding="utf-8")
+    with pytest.raises(bc.CatalogError, match="entry 0"):
+        bc.build(full)
+
+
+def test_hold_target_may_be_fractional_and_per_side_either_passes(full):
+    entry = _counter(kind="hold", target=2.5, perSide=True)
+    full.activity_counters.write_text(json.dumps([entry]), encoding="utf-8")
+    bc.build(full)
+
+
+def test_real_counters_validate():
+    acts = bc.parse_activities()
+    data = json.loads((bc.TOOL_DIR / "activity_counters.json").read_text(encoding="utf-8"))
+    counters = bc._validate_counters(
+        data, {a.id for a in acts}, bc.Paths().check_schema, bc.Paths().criterion_schema
+    )
+    assert len(counters) == len(data) > 0
+    doc = (bc.TOOL_DIR.parent.parent / "docs" / "designs" / "activity-counter-selection.md").read_text(
+        encoding="utf-8"
+    )
+    criteria = {a.id: a.criterion for a in acts}
+    for aid in counters:
+        assert criteria[aid] in doc, aid
+    for a in acts:
+        assert f"`{a.id}`" in doc, a.id
 
 
 @pytest.mark.parametrize(

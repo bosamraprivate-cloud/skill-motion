@@ -102,3 +102,9 @@
 - Debug-only result strip in the corner of the child screen (verdict, reason, verifier) for testing; never in release. Do in the Epic 3 UI/UX pass or earlier if testing needs it.
 - Steps needing a zone (e.g. `drink.cup.02` mat) give `no_zone` until zones are drawn: framing check / session start should warn the adult when a needed zone is missing.
 - Debug log tag `DlsVerdict` (debug builds only; step id, verdict, reason; no child data).
+
+## Epic 4 notes (2026-11-14)
+
+- Activity details (tools, how to perform, goal, criterion) are English in the catalogue; only titles have Arabic (`textAr`). Translate them into `strings.ar-eg.json` with line-by-line review at the end of the project (with audio).
+- After a PIN lock the therapist lands on the Children list, not the previous child profile tab (Story 4.3 review). Restore the last shell destination + profile tab.
+- Arabic domain / plan-level / step-level labels and short domain labels were authored (not in docs/reference); owner review needed.

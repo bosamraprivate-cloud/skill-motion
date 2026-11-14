@@ -214,7 +214,7 @@ All verifiers implement one interface: `verify(step, frames, landmarks) -> Verdi
 
 ### Training runner
 
-*   **Camera-counted activities:** `RepCounter` follows one joint angle from MediaPipe Pose, smooths it, and counts a repetition when the value passes the activity's high threshold and then its low threshold (hysteresis), ignoring repetitions shorter than 0.4 s. Holds use a timer that runs while the condition is true.
+*   **Camera-counted activities:** `RepCounter` follows the activity's check value from MediaPipe Pose (a joint angle or a shoulder-width distance), smooths it, and counts a repetition with hysteresis between the activity's two thresholds (`low` < `high`): for `angleAbove`/`pointAbove` the value rises above `high` and then falls below `low`; for `angleBelow`/`distanceBelow` it falls below `low` and then rises above `high`. Repetitions shorter than 0.4 s are ignored. With `perSide`, left and right are counted separately and each side must reach the target. Holds use a timer that runs while the condition is true.
 *   **Guided activities:** instructions, the activity's illustration, a timer and a Done button.
 *   Each result (count, duration, criterion met or not) is saved for the dashboard.
 
