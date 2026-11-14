@@ -26,8 +26,8 @@ Tablet app that assesses and trains daily living skills (dressing, eating/drinki
 
 ## Running and verifying
 
-- TODO (no code yet; verify on first refresh): build order is `tools/audio-gen`, then `tools/art/export_illustrations.py`, then `python tools/catalog-builder/build_catalog.py` from the root.
-- TODO: a change is done only when every command in the spine's "Build and verification" table passes (gradle `test lint ktlintCheck koverVerify`, `pytest tools/`, `ruff check tools eval`, proxy `npm test` and `npx tsc --noEmit`).
+- Build order (root, venv `tools/.venv`): `python tools/audio-gen/generate_audio.py` (needs `ELEVENLABS_API_KEY`; resumable), then `python tools/art/export_clips.py`, then `python tools/catalog-builder/build_catalog.py` (exits 0). Full setup in `README.md`.
+- A change is done only when every command in the spine's "Build and verification" table passes: in `android/` `./gradlew assembleDebug test lint ktlintCheck koverVerify` and `./gradlew connectedAndroidTest` (device attached); at root `pytest tools/` and `ruff check tools eval`; in `proxy/` `npm test`, `npm run build` and `npx tsc --noEmit`.
 
 ## Conventions that differ from defaults
 
