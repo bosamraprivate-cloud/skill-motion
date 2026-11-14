@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
@@ -76,7 +77,7 @@ import com.aitherapist.dls.ui.theme.Warning
 import com.aitherapist.dls.ui.theme.ZoneColors
 
 /** Pages reached from Settings; everything except [MAIN] and [ZONES] is a debug-only advanced tool. */
-private enum class SettingsPage { MAIN, ZONES, DIAGNOSTICS, REPLAY }
+private enum class SettingsPage { MAIN, ZONES, DIAGNOSTICS, REPLAY, BLIND_REVIEW }
 
 /** What the Connection card says about reaching the cloud check. */
 enum class ConnectionStatus { NOT_SET_UP, READY, OFFLINE, LAST_CHECK_FAILED }
@@ -125,6 +126,8 @@ fun SettingsRoute(
             SubPage(onBack = { page = SettingsPage.MAIN }) {
                 DiagnosticsRoute(onOpenSample = onOpenSample, onOpenSettings = { page = SettingsPage.MAIN })
             }
+        // Blind review is for the evaluating therapist in release too (Story 5.7), behind the PIN like all of Settings.
+        page == SettingsPage.BLIND_REVIEW -> SubPage(onBack = { page = SettingsPage.MAIN }) { BlindReviewRoute() }
         else ->
             SettingsScreen(
                 state = state,
@@ -133,6 +136,7 @@ fun SettingsRoute(
                 banner = banner,
                 onOpenZones = { page = SettingsPage.ZONES },
                 onDiagnostics = { page = SettingsPage.DIAGNOSTICS },
+                onBlindReview = { page = SettingsPage.BLIND_REVIEW },
                 advanced =
                 if (debug) {
                     AdvancedTools(
@@ -171,6 +175,7 @@ fun SettingsScreen(
     banner: NetworkBanner = NetworkBanner.NONE,
     onOpenZones: () -> Unit = {},
     onDiagnostics: () -> Unit = {},
+    onBlindReview: () -> Unit = {},
     advanced: AdvancedTools? = null
 ) {
     Column(
@@ -192,6 +197,10 @@ fun SettingsScreen(
                 GroupTitle(stringResource(R.string.diagnostics_title))
                 SectionCard(stringResource(R.string.diagnostics_title), CARD_WIDTH, icon = Icons.Filled.Settings) {
                     ToolRow(Icons.Filled.Settings, R.string.diag_health_title, R.string.settings_tool_diagnostics_hint, onDiagnostics)
+                }
+                GroupTitle(stringResource(R.string.settings_group_evaluation))
+                SectionCard(stringResource(R.string.settings_group_evaluation), CARD_WIDTH, icon = Icons.Filled.Search) {
+                    ToolRow(Icons.Filled.Search, R.string.blind_title, R.string.settings_tool_blind_hint, onBlindReview)
                 }
                 advanced?.let {
                     GroupTitle(stringResource(R.string.settings_advanced_section))

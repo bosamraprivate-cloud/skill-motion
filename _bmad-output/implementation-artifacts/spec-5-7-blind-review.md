@@ -2,7 +2,8 @@
 title: 'Story 5.7: Blind review'
 type: 'feature'
 created: '2026-11-14'
-status: 'draft'
+status: 'done'
+baseline_commit: 'fe1f083f39ff10970005188f047ec88906361b60'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -48,18 +49,25 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] blind_rating + migration 6→7 + tests.
-- [ ] BlindReview VM/screen (no leak) + Settings entry + strings.
-- [ ] Results-unchanged test; architecture rule.
+- [x] blind_rating + migration 6→7 + tests.
+- [x] BlindReview VM/screen (no leak) + Settings entry + strings.
+- [x] Results-unchanged test; architecture rule.
 
 **Acceptance Criteria:**
 - Given the coordinator's gate, when `./gradlew test lint ktlintCheck koverVerifyCore assembleDebug` runs, then it passes.
 
 ## Implementation Notes
 
+- Every attempt is rated, retries included (coordinator decision): kappa on levels needs Rule 1 on the blind verdicts of all attempts of a step. The existence of a retry (a second attempt of the same step) is an unavoidable cue that the first may not have been done; it is mitigated by shuffling attempts across all sessions and steps, so attempts of one step and session are rarely seen together.
+- Order: pure seeded shuffle per review run, then adjacent same-step attempts are swapped with the nearest later attempt of another step; attempts-per-step never decides the order.
+- Only frames that exist on disk are shown (no placeholder slots); an attempt with no existing frame and no replay clip is skipped. Replay clips play looping and muted from app-private storage; no file name or path is ever shown or announced.
+- A failed write re-checks the attempt; if it was deleted it leaves the queue and the counts refresh.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+No direct verdict leak in UI/TalkBack/state. 8 findings patched: pure seeded shuffle with duplicate spacing (small residual bias when one step dominates), only existing frames shown, case-insensitive Konsist rule over all production files, replay clips played without names, sessionId dropped, failed write on deleted attempt handled. Retry existence remains an unavoidable cue (documented). Migration 6→7 androidTest pending a device run.
 
 ## Verification
 

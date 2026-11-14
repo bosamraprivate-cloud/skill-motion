@@ -172,3 +172,30 @@ internal interface TrainingResultDao {
     @Query("SELECT * FROM training_result WHERE childId = :childId ORDER BY createdAt DESC, rowid DESC")
     suspend fun forChild(childId: String): List<TrainingResultEntity>
 }
+
+/** Blind-review candidate (Story 5.7): only what the screen may show; never verdict, reason, level or child data. */
+data class BlindCandidateRow(val attemptId: String, val stepId: String, val framePaths: List<String>, val clipFile: String?)
+
+@Dao
+internal interface BlindRatingDao {
+    /** One row per attempt: REPLACE drops an earlier rating through the unique attemptId index. */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(rating: BlindRatingEntity)
+
+    @Query("SELECT attemptId FROM blind_rating")
+    suspend fun ratedAttemptIds(): List<String>
+
+    @Query("SELECT * FROM blind_rating WHERE attemptId = :attemptId")
+    suspend fun forAttempt(attemptId: String): BlindRatingEntity?
+
+    @Query("SELECT EXISTS(SELECT 1 FROM attempt WHERE id = :attemptId)")
+    suspend fun attemptExists(attemptId: String): Boolean
+
+    /** Attempts of assessment and replay sessions with saved frames or a replay clip (eval child included). */
+    @Query(
+        "SELECT a.id AS attemptId, a.stepId AS stepId, a.framePaths AS framePaths, a.clipFile AS clipFile FROM attempt a " +
+            "JOIN session s ON s.id = a.sessionId WHERE s.kind IN ('assessment', 'replay') " +
+            "AND (a.framePaths != '[]' OR a.clipFile IS NOT NULL) ORDER BY a.createdAt, a.id"
+    )
+    suspend fun candidates(): List<BlindCandidateRow>
+}

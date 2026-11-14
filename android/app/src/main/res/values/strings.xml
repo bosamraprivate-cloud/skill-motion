@@ -475,4 +475,19 @@
         <item quantity="one">%1$s: %2$s %3$s, %4$s %5$s, %6$s, %7$s step in both</item>
         <item quantity="other">%1$s: %2$s %3$s, %4$s %5$s, %6$s, %7$s steps in both</item>
     </plurals>
+    <string name="settings_group_evaluation">Evaluation</string>
+    <string name="settings_tool_blind_hint">Rate attempts from their pictures only, without the result of the app</string>
+    <string name="blind_title">Blind review</string>
+    <string name="blind_subtitle">Look at the pictures and say what you see. The result of the app is hidden.</string>
+    <string name="blind_progress">Rated %1$s of %2$s</string>
+    <string name="blind_step">Step</string>
+    <string name="blind_done">Done</string>
+    <string name="blind_not_done">Not done</string>
+    <string name="blind_cannot_tell">Cannot tell</string>
+    <string name="blind_skip">Skip for now</string>
+    <string name="blind_empty">No attempts with pictures yet.</string>
+    <string name="blind_all_rated">All %1$s attempts are rated. Thank you.</string>
+    <string name="blind_error">Could not load the attempts (%1$s).</string>
+    <string name="blind_write_failed">The rating was not saved. Try again.</string>
+    <string name="blind_clip">Attempt video</string>
 </resources>

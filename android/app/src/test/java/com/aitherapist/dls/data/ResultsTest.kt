@@ -27,6 +27,18 @@ class ResultsTest {
         SessionResult(session(SessionKind.ASSESSMENT, SessionState.DONE, id, taskId, startedAt), emptyMap())
 
     @Test
+    fun `blind ratings never change levels`() {
+        val attempts = listOf(attempt("a", 1, AttemptVerdict.DONE), attempt("b", 1, AttemptVerdict.NOT_DONE))
+        val corrections = listOf(correction("b", 2, 1))
+        val before = sessionLevels(attempts, corrections)
+        // Contradicting blind rows exist for every attempt; levels read only attempts and corrections.
+        val blind = attempts.map { BlindRatingEntity("x${it.id}", it.id, AttemptVerdict.CANNOT_TELL, 9) }
+        assertEquals(attempts.size, blind.size)
+        assertEquals(before, sessionLevels(attempts, corrections))
+        assertEquals(StepLevel.THREE, before["a"])
+    }
+
+    @Test
     fun `reward rows never change results`() {
         // AD-9: levels come only from attempts and corrections; sessionLevels takes no reward input, so reward rows
         // saved for the same session leave the computed levels identical.

@@ -70,8 +70,30 @@ class ArchitectureTest {
             }
     }
 
+    @Test
+    fun `only the blind review files and the export touch blind ratings`() {
+        // Story 5.7 / AD-9: blind ratings never change levels, reports, plans or compare; only corrections do.
+        productionFiles
+            .filter { file -> file.name !in BLIND_ALLOWED && !file.name.startsWith("BlindReview") }
+            .assertFalse(additionalMessage = "Blind ratings are read or written only by blind review and the CSV export.") { file ->
+                val text = file.text.lowercase()
+                text.contains("blindrating") || text.contains("blind_rating")
+            }
+    }
+
     private companion object {
-        val DATA_INTERNALS = setOf("ChildDao", "SessionDao", "AttemptDao", "CorrectionDao", "RewardDao", "TrainingResultDao", "AppDatabase")
+        val BLIND_ALLOWED = setOf("Daos", "Entities", "AppDatabase", "DataModule", "CsvExporter")
+        val DATA_INTERNALS =
+            setOf(
+                "ChildDao",
+                "SessionDao",
+                "AttemptDao",
+                "CorrectionDao",
+                "RewardDao",
+                "TrainingResultDao",
+                "BlindRatingDao",
+                "AppDatabase"
+            )
         const val ROOT = "com.aitherapist.dls"
         val CORE_PACKAGES = arrayOf("$ROOT.scoring..", "$ROOT.rewards..", "$ROOT.catalog..")
         val PURE_VISION_FILES =

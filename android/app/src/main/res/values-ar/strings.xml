@@ -527,4 +527,19 @@
         <item quantity="many">%1$s: %2$s %3$s، %4$s %5$s، %6$s، %7$s خطوة في الاتنين</item>
         <item quantity="other">%1$s: %2$s %3$s، %4$s %5$s، %6$s، %7$s خطوة في الاتنين</item>
     </plurals>
+    <string name="settings_group_evaluation">التقييم</string>
+    <string name="settings_tool_blind_hint">قيّم المحاولات من الصور بس، من غير نتيجة التطبيق</string>
+    <string name="blind_title">مراجعة عمياء</string>
+    <string name="blind_subtitle">بص على الصور وقول شايف إيه. نتيجة التطبيق مخفية.</string>
+    <string name="blind_progress">اتقيّم %1$s من %2$s</string>
+    <string name="blind_step">الخطوة</string>
+    <string name="blind_done">عملها</string>
+    <string name="blind_not_done">ما عملهاش</string>
+    <string name="blind_cannot_tell">مش واضح</string>
+    <string name="blind_skip">تخطي دلوقتي</string>
+    <string name="blind_empty">لسه مفيش محاولات فيها صور.</string>
+    <string name="blind_all_rated">كل الـ %1$s محاولة اتقيّموا. شكرًا.</string>
+    <string name="blind_error">مقدرناش نحمّل المحاولات (%1$s).</string>
+    <string name="blind_write_failed">التقييم ما اتحفظش. جرّب تاني.</string>
+    <string name="blind_clip">فيديو المحاولة</string>
 </resources>

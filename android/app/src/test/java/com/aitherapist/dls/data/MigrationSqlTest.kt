@@ -54,4 +54,15 @@ class MigrationSqlTest {
         assertEquals(5, AppDatabase.MIGRATION_5_6.startVersion)
         assertEquals(6, AppDatabase.MIGRATION_5_6.endVersion)
     }
+
+    @Test
+    fun `migration 6 to 7 matches the exported v7 blind_rating schema`() {
+        val schema = File("schemas/com.aitherapist.dls.data.AppDatabase/7.json").readText()
+        AppDatabase.SQL_6_7.forEach { sql ->
+            val exported = sql.replace("`blind_rating` (", "`\${TABLE_NAME}` (")
+            assertTrue(sql, schema.contains(exported))
+        }
+        assertEquals(6, AppDatabase.MIGRATION_6_7.startVersion)
+        assertEquals(7, AppDatabase.MIGRATION_6_7.endVersion)
+    }
 }

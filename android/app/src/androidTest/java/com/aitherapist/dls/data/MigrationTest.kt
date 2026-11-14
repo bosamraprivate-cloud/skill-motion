@@ -199,4 +199,42 @@ class MigrationTest {
             }
         }
     }
+
+    @Test
+    fun migrate6To7KeepsRowsAndAddsBlindRating() {
+        helper.createDatabase(DB, 6).use { db ->
+            db.execSQL(
+                "INSERT INTO child (id, name, code, ageYears, effectLevel, characterVariant, isEval, createdAt) " +
+                    "VALUES ('c', 'n', 'C1', 5, 'calm', 'boy', 0, 0)"
+            )
+            db.execSQL(
+                "INSERT INTO session (id, childId, taskId, kind, state, startedAt, endedAt, catalogVersion, rulesVersion, " +
+                    "stepIndex, attemptNumber, promptLevel, nextTaskId) VALUES ('s', 'c', 't', 'assessment', 'done', 0, 0, 'v', '3', 0, 1, 1, NULL)"
+            )
+            db.execSQL(
+                "INSERT INTO attempt (id, sessionId, stepId, number, promptLevel, helpPressed, verdict, reason, verifier, modelId, " +
+                    "promptVersion, latencyMs, framePaths, clipFile, createdAt, modelReason) " +
+                    "VALUES ('a', 's', 'st', 1, 1, 0, 'done', 'r', 'pose', NULL, NULL, 0, '[]', NULL, 1, NULL)"
+            )
+        }
+        helper.runMigrationsAndValidate(DB, 7, true, AppDatabase.MIGRATION_6_7).use { db ->
+            db.query("SELECT verdict FROM attempt WHERE id = 'a'").use { c ->
+                c.moveToFirst()
+                assertEquals("done", c.getString(0))
+            }
+            db.execSQL("INSERT INTO blind_rating (id, attemptId, verdict, createdAt) VALUES ('b1', 'a', 'not_done', 1)")
+            db.execSQL("INSERT OR REPLACE INTO blind_rating (id, attemptId, verdict, createdAt) VALUES ('b2', 'a', 'cannot_tell', 2)")
+            db.query("SELECT id, verdict FROM blind_rating").use { c ->
+                assertEquals("one row per attempt", 1, c.count)
+                c.moveToFirst()
+                assertEquals("cannot_tell", c.getString(1))
+            }
+            db.execSQL("PRAGMA foreign_keys = ON")
+            db.execSQL("DELETE FROM attempt WHERE id = 'a'")
+            db.query("SELECT COUNT(*) FROM blind_rating").use { c ->
+                c.moveToFirst()
+                assertEquals("blind ratings cascade with their attempt", 0, c.getInt(0))
+            }
+        }
+    }
 }

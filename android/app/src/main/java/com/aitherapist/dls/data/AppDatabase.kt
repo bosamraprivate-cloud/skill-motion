@@ -17,9 +17,10 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         AttemptEntity::class,
         CorrectionEntity::class,
         RewardEntity::class,
-        TrainingResultEntity::class
+        TrainingResultEntity::class,
+        BlindRatingEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -35,6 +36,8 @@ internal abstract class AppDatabase : RoomDatabase() {
     abstract fun rewardDao(): RewardDao
 
     abstract fun trainingResultDao(): TrainingResultDao
+
+    abstract fun blindRatingDao(): BlindRatingDao
 
     companion object {
         const val NAME = "dls.db"
@@ -120,7 +123,23 @@ internal abstract class AppDatabase : RoomDatabase() {
                 "CREATE UNIQUE INDEX IF NOT EXISTS `index_correction_sessionId_stepId` ON `correction` (`sessionId`, `stepId`)"
             )
 
-        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+        /** v6 -> v7 (Story 5.7): `blind_rating` table; existing rows are kept. */
+        val MIGRATION_6_7 =
+            object : Migration(6, 7) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    SQL_6_7.forEach(db::execSQL)
+                }
+            }
+
+        val SQL_6_7 =
+            listOf(
+                "CREATE TABLE IF NOT EXISTS `blind_rating` (`id` TEXT NOT NULL, `attemptId` TEXT NOT NULL, `verdict` TEXT NOT NULL, " +
+                    "`createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), " +
+                    "FOREIGN KEY(`attemptId`) REFERENCES `attempt`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_blind_rating_attemptId` ON `blind_rating` (`attemptId`)"
+            )
+
+        val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
 
         /** Opens (or creates) the SQLCipher database [name] keyed with [passphrase]. */
         fun build(context: Context, passphrase: ByteArray, name: String = NAME): AppDatabase {

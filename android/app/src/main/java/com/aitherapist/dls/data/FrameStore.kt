@@ -61,6 +61,13 @@ class FrameStore internal constructor(private val filesDir: File, private val ke
         return runCatching { read(sessionId, attemptId, n.toInt()) }.getOrNull()
     }
 
+    /** Whether the frame at a stored relative path exists on disk (no decryption); false for a malformed path. */
+    fun existsRelative(path: String): Boolean {
+        val match = RELATIVE.matchEntire(path) ?: return false
+        val (sessionId, attemptId, n) = match.destructured
+        return runCatching { file(sessionId, attemptId, n.toInt()).isFile }.getOrDefault(false)
+    }
+
     /** Deletes one frame by its stored relative path; only paths under the frames folder are touched. */
     fun deleteRelative(path: String): Boolean {
         val f = File(filesDir, path).canonicalFile

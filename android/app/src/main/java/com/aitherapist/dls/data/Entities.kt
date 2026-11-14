@@ -132,3 +132,17 @@ data class TrainingResultEntity(
     val criterionMet: Boolean,
     val createdAt: Long
 )
+
+/**
+ * Blind therapist rating of one attempt (Story 5.7, Goal 8), written only by the Blind review screen through
+ * [BlindReview]. One row per attempt (unique [attemptId], insert-or-replace). Ratings never feed levels, reports,
+ * plans or compare (AD-9): only `correction` rows do.
+ */
+@Entity(
+    tableName = "blind_rating",
+    foreignKeys = [
+        ForeignKey(entity = AttemptEntity::class, parentColumns = ["id"], childColumns = ["attemptId"], onDelete = ForeignKey.CASCADE)
+    ],
+    indices = [Index(value = ["attemptId"], unique = true)]
+)
+data class BlindRatingEntity(@PrimaryKey val id: String, val attemptId: String, val verdict: AttemptVerdict, val createdAt: Long)
