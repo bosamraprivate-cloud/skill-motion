@@ -5,9 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -72,7 +75,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aitherapist.dls.R
 import com.aitherapist.dls.data.ChildCharacter
 import com.aitherapist.dls.data.EffectLevel
+import com.aitherapist.dls.rewards.Stickers
 import com.aitherapist.dls.ui.child.CharacterView
+import com.aitherapist.dls.ui.child.StickerArt
 import com.aitherapist.dls.ui.child.StickerBookRoute
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.components.ErrorState
@@ -210,7 +215,15 @@ private fun ChildProfileForm(
                         ) {
                             when (tab) {
                                 ProfileTab.OVERVIEW -> {
-                                    ProfileHeaderCard(form, enabled = !state.busy, onStartSession = startSession)
+                                    val statsVm: SessionsViewModel = hiltViewModel(key = "sessions-$childId")
+                                    val statsState by statsVm.uiState.collectAsStateWithLifecycle()
+                                    ProfileHeaderCard(
+                                        form,
+                                        stickers = (statsState as? SessionsUiState.Content)?.stats?.stickers,
+                                        enabled = !state.busy,
+                                        onStartSession = startSession,
+                                        onStickerBook = { stickerBookOpen = true }
+                                    )
                                     state.message?.let { MessageText(it) }
                                     OverviewStatsSection(
                                         childId,
@@ -315,12 +328,12 @@ private fun OverviewStatsSection(
     // Newest finished assessment: the "last assessment" tile opens its session detail (UX pass C).
     val lastSession = content?.items?.firstOrNull { it.kind == HistoryKind.ASSESSMENT && it.state == HistoryState.DONE }
     val noSessions = content != null && content.items.isEmpty()
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.S3)) {
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Spacing.S3)) {
         StatTile(
             Icons.Filled.DateRange,
             stringResource(R.string.overview_last_assessment),
             stats?.let { s -> s.lastAssessmentAt?.let { formatDate(it) } ?: stringResource(R.string.overview_none_yet) },
-            Modifier.weight(1f),
+            Modifier.weight(1f).fillMaxHeight(),
             action = when {
                 lastSession != null -> stringResource(R.string.uxc_open_session)
                 noSessions -> stringResource(R.string.new_session)
@@ -334,13 +347,13 @@ private fun OverviewStatsSection(
             Icons.Filled.CheckCircle,
             stringResource(R.string.overview_tasks_finished),
             stats?.let { westernDigits(it.finishedTasks) },
-            Modifier.weight(1f)
+            Modifier.weight(1f).fillMaxHeight()
         )
         StatTile(
             Icons.Filled.Star,
             stringResource(R.string.overview_stickers),
             stats?.let { westernDigits(it.stickers) },
-            Modifier.weight(1f),
+            Modifier.weight(1f).fillMaxHeight(),
             action = stringResource(R.string.profile_sticker_book),
             onAction = onStickerBook
         )
@@ -401,60 +414,109 @@ private fun ProfileTabs(selected: ProfileTab, onSelect: (ProfileTab) -> Unit) {
     }
 }
 
-/** View mode: avatar, name, age, character and effect level, with the prominent "Start session" action. */
+/**
+ * View mode: avatar, name with the boy/girl mark, age and "Start session" on one side; the child's sticker cabinet
+ * (earned stickers in colour, the rest dimmed) on the other. Effect level and time ring live in the edit form.
+ */
 @Composable
-private fun ProfileHeaderCard(form: ChildForm, enabled: Boolean, onStartSession: () -> Unit) {
+private fun ProfileHeaderCard(form: ChildForm, stickers: Int?, enabled: Boolean, onStartSession: () -> Unit, onStickerBook: () -> Unit) {
     TCard {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
-            form.character?.let { CharacterAvatar(it, size = 112.dp) }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.S1)) {
-                Text(form.name, style = MaterialTheme.typography.headlineMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                form.age.trim().toIntOrNull()?.let { age ->
-                    Text(
-                        stringResource(R.string.child_row_details, westernDigits(age)),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Spacing.S5)) {
+            Column(Modifier.weight(0.4f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
+                    form.character?.let { CharacterAvatar(it, size = 96.dp) }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.S1)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+                            Text(
+                                form.name,
+                                style = MaterialTheme.typography.headlineMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            form.character?.let { CharacterMark(it) }
+                        }
+                        form.age.trim().toIntOrNull()?.let { age ->
+                            Text(
+                                stringResource(R.string.child_row_details, westernDigits(age)),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
-                Row(Modifier.padding(top = Spacing.S2), horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
-                    form.character?.let { InfoChip(stringResource(R.string.child_character), stringResource(characterLabel(it))) }
-                    InfoChip(stringResource(R.string.child_effect), stringResource(effectLabel(form.effectLevel)))
-                    InfoChip(
-                        stringResource(R.string.child_time_ring),
-                        stringResource(if (form.showTimeRing) R.string.child_time_ring_on else R.string.child_time_ring_off)
+                Button(
+                    onClick = onStartSession,
+                    enabled = enabled,
+                    shape = RoundedCornerShape(Radius.Sm),
+                    modifier = Modifier.padding(top = Spacing.S4).fillMaxWidth().height(56.dp)
+                ) {
+                    Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                    Text(
+                        stringResource(R.string.new_session),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = Spacing.S2)
                     )
                 }
             }
-        }
-        Button(
-            onClick = onStartSession,
-            enabled = enabled,
-            shape = RoundedCornerShape(Radius.Sm),
-            modifier = Modifier.fillMaxWidth().height(56.dp)
-        ) {
-            Icon(Icons.Filled.PlayArrow, contentDescription = null)
-            Text(
-                stringResource(R.string.new_session),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(start = Spacing.S2)
-            )
+            StickerCabinet(stickers ?: 0, Modifier.weight(0.6f), onStickerBook)
         }
     }
 }
 
-/** Label and value pill (display only), neutral so colour stays reserved for levels. */
+/** Small boy/girl mark beside the name: icon plus the word, never colour alone. */
 @Composable
-private fun InfoChip(label: String, value: String) {
+private fun CharacterMark(character: ChildCharacter) {
     Row(
         Modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(Radius.Sm))
-            .padding(horizontal = Spacing.S3, vertical = Spacing.S1),
+            .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(Radius.Sm))
+            .padding(horizontal = Spacing.S2, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.S1)
     ) {
-        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.labelLarge)
+        Icon(Icons.Filled.Face, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+        Text(
+            stringResource(characterLabel(character)),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
+
+/** The child's sticker cabinet: every slot; earned stickers open in colour, the rest stay dimmed. */
+@Composable
+private fun StickerCabinet(earned: Int, modifier: Modifier, onStickerBook: () -> Unit) {
+    val slots = maxOf(Stickers.BOOK_SLOTS, earned)
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.overview_stickers), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            Text(
+                "${westernDigits(earned)} / ${westernDigits(slots)}",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            TextButton(onClick = onStickerBook) { Text(stringResource(R.string.profile_sticker_book)) }
+        }
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(Radius.Sm))
+                .padding(Spacing.S2),
+            verticalArrangement = Arrangement.spacedBy(Spacing.S1)
+        ) {
+            (0 until slots).chunked(CABINET_COLUMNS).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S1)) {
+                    row.forEach { index ->
+                        StickerArt.Sticker(Stickers.idFor(index), earned = index < earned, modifier = Modifier.weight(1f).aspectRatio(1f))
+                    }
+                    repeat(CABINET_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+private const val CABINET_COLUMNS = 10
 
 /** Edit mode (and the add form): fields, character picker, effect level, Save; Delete for a saved child. */
 @Composable

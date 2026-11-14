@@ -4,8 +4,7 @@ import java.util.Locale
 
 /**
  * Sticker ids (Story 4.9). The n-th unlocked sticker (0-based) is `sticker.NN` with NN = n + 1; ids are never reused.
- * Sticker art does not exist yet (Story 2.6 deferred): `ui/child/StickerArt` draws placeholder badges by index, so real
- * art can replace them later without code changes elsewhere.
+ * Sticker art: `assets/stickers/sticker.NN.webp` (30 images, `tools/art/export_stickers.py`), drawn by `ui/child/StickerArt`.
  */
 object Stickers {
     /** Slots the sticker book always shows (more appear once earned). */
