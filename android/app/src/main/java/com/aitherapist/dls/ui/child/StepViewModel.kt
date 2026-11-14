@@ -76,6 +76,11 @@ constructor(
     /** The last step finished and the session is saved `done` (the host may chain the next task). */
     val completed: StateFlow<Boolean> = finishedFlow.asStateFlow()
 
+    private val nextTaskFlow = MutableStateFlow<String?>(null)
+
+    /** Jacket "both": the task to run after this one (new run: the chained task; continued run: the saved one). */
+    val nextTaskId: StateFlow<String?> = nextTaskFlow.asStateFlow()
+
     private val cameraFlow = MutableStateFlow(false)
 
     /** The camera should run (a camera-scored step is on screen and the run is not held); the host binds it. */
@@ -172,7 +177,7 @@ constructor(
      * Starts a new assessment session for [childId] on [taskId], or continues the saved session [sessionId]
      * (Story 2.15); later calls are ignored.
      */
-    fun start(childId: String, taskId: String, sessionId: String? = null) {
+    fun start(childId: String, taskId: String, sessionId: String? = null, thenTaskId: String? = null) {
         if (started) return
         started = true
         viewModelScope.launch {
@@ -190,7 +195,8 @@ constructor(
                     return@launch
                 }
                 requireNotNull(task) { "task missing" }
-                val created = runners.create(childId, taskId, loaded.catalogVersion, runSteps)
+                nextTaskFlow.value = thenTaskId
+                val created = runners.create(childId, taskId, loaded.catalogVersion, runSteps, thenTaskId)
                 runner = created
                 awaitingStart = true
                 launch { created.state.collect { sync() } }
@@ -229,6 +235,11 @@ constructor(
             return
         }
         runner = created
+        // A chained task already finished after this session started is not run again.
+        nextTaskFlow.value =
+            saved.nextTaskId?.takeUnless { next ->
+                runCatching { sessions.finishedSince(childId, next, saved.startedAt) }.getOrDefault(false)
+            }
         // A session interrupted before anything was recorded starts again from the task start screen.
         awaitingStart = saved.stepIndex == 0 && !created.hasAttempts()
         viewModelScope.launch { created.state.collect { sync() } }

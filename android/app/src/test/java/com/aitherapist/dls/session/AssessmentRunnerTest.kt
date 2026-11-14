@@ -124,9 +124,11 @@ class AssessmentRunnerTest {
     private fun TestScope.runner(
         verifier: Verifier,
         steps: List<Step> = listOf(Step("s1", Method.POSE), Step("s2", Method.POSE)),
-        kind: SessionKind = SessionKind.ASSESSMENT
+        kind: SessionKind = SessionKind.ASSESSMENT,
+        nextTaskId: String? = null
     ) = AssessmentRunner(
         kind = kind,
+        nextTaskId = nextTaskId,
         evidence = evidence,
         sessionId = "sess",
         childId = "child",
@@ -168,6 +170,12 @@ class AssessmentRunnerTest {
         done.complete()
         done.abandon()
         assertEquals(SessionState.DONE, store.session!!.state)
+    }
+
+    @Test
+    fun `chained task id is saved on the new session`() = runTest {
+        runner(FakeVerifier(Outcome.DONE), nextTaskId = "t.off").start()
+        assertEquals("t.off", store.session!!.nextTaskId)
     }
 
     @Test

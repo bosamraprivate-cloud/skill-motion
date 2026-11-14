@@ -140,8 +140,8 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                         childId = key.childId,
                         taskId = key.taskId,
                         sessionId = key.sessionId,
-                        hasNext = key.thenTaskId != null,
-                        onNext = { gate.nextChildTask(key) },
+                        thenTaskId = key.thenTaskId,
+                        onNext = { next -> gate.nextChildTask(key, next) },
                         onExit = gate::openChildPin
                     )
                 }

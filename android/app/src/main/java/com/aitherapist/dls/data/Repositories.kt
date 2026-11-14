@@ -106,6 +106,9 @@ interface ResumableSessions {
     fun observeResumable(): Flow<List<SessionEntity>>
 
     suspend fun session(id: String): SessionEntity?
+
+    /** Whether [childId] finished an assessment of [taskId] that started after [since] (a chained task already done). */
+    suspend fun finishedSince(childId: String, taskId: String, since: Long): Boolean = false
 }
 
 /** Sessions and attempts (written only by the assessment runner). */
@@ -122,6 +125,9 @@ internal constructor(private val holder: DatabaseHolder, private val frames: Fra
     suspend fun get(id: String): SessionEntity? = holder.get().sessionDao().byId(id)
 
     override suspend fun session(id: String): SessionEntity? = get(id)
+
+    override suspend fun finishedSince(childId: String, taskId: String, since: Long): Boolean =
+        holder.get().sessionDao().finishedSince(childId, taskId, since)
 
     override fun observeResumable(): Flow<List<SessionEntity>> = flow { emitAll(holder.get().sessionDao().observeResumable()) }
 

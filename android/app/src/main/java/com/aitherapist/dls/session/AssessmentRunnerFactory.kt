@@ -19,21 +19,23 @@ class AssessmentRunnerFactory(
     private val evidence: EvidenceWriter = EvidenceWriter.NONE,
     private val debugLog: (String) -> Unit = {}
 ) {
-    fun create(childId: String, taskId: String, catalogVersion: String, steps: List<Step>): AssessmentRunner = AssessmentRunner(
-        sessionId = newId(),
-        childId = childId,
-        taskId = taskId,
-        catalogVersion = catalogVersion,
-        steps = steps,
-        store = store,
-        verifier = verifier,
-        clock = clock,
-        dispatcher = dispatcher,
-        newId = newId,
-        wallClock = wallClock,
-        evidence = evidence,
-        debugLog = debugLog
-    )
+    fun create(childId: String, taskId: String, catalogVersion: String, steps: List<Step>, nextTaskId: String? = null): AssessmentRunner =
+        AssessmentRunner(
+            sessionId = newId(),
+            childId = childId,
+            taskId = taskId,
+            catalogVersion = catalogVersion,
+            steps = steps,
+            store = store,
+            verifier = verifier,
+            clock = clock,
+            dispatcher = dispatcher,
+            newId = newId,
+            wallClock = wallClock,
+            evidence = evidence,
+            debugLog = debugLog,
+            nextTaskId = nextTaskId
+        )
 
     /** A replay-mode runner (Story 3.7) for the hidden eval child: same router, gate, verifiers and evidence as live. */
     fun createReplay(childId: String, taskId: String, catalogVersion: String, steps: List<Step>): AssessmentRunner = AssessmentRunner(

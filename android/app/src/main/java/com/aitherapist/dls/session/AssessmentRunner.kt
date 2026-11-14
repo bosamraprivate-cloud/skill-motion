@@ -97,7 +97,9 @@ class AssessmentRunner(
     /** Debug-build trace of saved verdicts (step id, verdict, reason only; never child data). */
     private val debugLog: (String) -> Unit = {},
     /** [SessionKind.REPLAY] for replay mode ([startReplay] / [scoreClip]). */
-    private val kind: SessionKind = SessionKind.ASSESSMENT
+    private val kind: SessionKind = SessionKind.ASSESSMENT,
+    /** Jacket "both": the task chained after this one, saved on the session so Continue keeps it (Story 4.1). */
+    private val nextTaskId: String? = null
 ) {
     private val mutableState = MutableStateFlow<RunnerState>(RunnerState.Idle)
     val state: StateFlow<RunnerState> = mutableState.asStateFlow()
@@ -141,7 +143,8 @@ class AssessmentRunner(
                 rulesVersion = RulesEngine.RULES_VERSION,
                 stepIndex = 0,
                 attemptNumber = 1,
-                promptLevel = PromptState.MIN_LEVEL
+                promptLevel = PromptState.MIN_LEVEL,
+                nextTaskId = nextTaskId
             )
         guarded {
             // Save the new session first (a failed add keeps the old one resumable), then abandon older ones:

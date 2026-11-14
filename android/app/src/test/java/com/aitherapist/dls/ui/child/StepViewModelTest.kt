@@ -124,12 +124,22 @@ class StepViewModelTest {
             override fun observeResumable() = flowOf(store.sessions.values.toList())
 
             override suspend fun session(id: String) = store.sessions[id]
+
+            override suspend fun finishedSince(childId: String, taskId: String, since: Long) = store.sessions.values.any {
+                it.childId == childId && it.taskId == taskId && it.state == SessionState.DONE && it.startedAt > since
+            }
         }
 
     private fun vm(vararg steps: CatalogStep): StepViewModel = vmFor(null, *steps)
 
     /** Existing-flow tests tap Start at once; [tapStart] false keeps the task start screen. */
-    private fun vmFor(sessionId: String?, vararg steps: CatalogStep, tapStart: Boolean = true, named: Boolean = true): StepViewModel {
+    private fun vmFor(
+        sessionId: String?,
+        vararg steps: CatalogStep,
+        tapStart: Boolean = true,
+        named: Boolean = true,
+        thenTaskId: String? = null
+    ): StepViewModel {
         val catalog =
             object : CatalogRepository {
                 override suspend fun load() = Result.success(
@@ -143,7 +153,7 @@ class StepViewModelTest {
         val clock = Clock { scope.testScheduler.currentTime }
         val runners = AssessmentRunnerFactory(store, NoneVerifier, clock, dispatcher, newId = { "id${id++}" })
         return StepViewModel(catalog, children, { CharacterIndex(listOf(variant)) }, runners, resumable, audio, keys, clock, scope).also {
-            it.start("c1", "t.x", sessionId)
+            it.start("c1", "t.x", sessionId, thenTaskId)
             if (tapStart && sessionId == null) {
                 scope.testScheduler.runCurrent() // Start only counts once the run exists
                 it.beginTask()
@@ -573,6 +583,45 @@ class StepViewModelTest {
         ViewModelStore().apply { put("vm", vm) }.clear()
         runCurrent()
         assertEquals("leaving keeps it paused", SessionState.PAUSED, store.session?.state)
+    }
+
+    @Test
+    fun `jacket both chain is saved on the session and restored by continue`() = scope.runTest {
+        val first = vmFor(null, step(1), step(2), thenTaskId = "t.off")
+        runCurrent()
+        assertEquals("t.off", first.nextTaskId.value)
+        assertEquals("t.off", store.session!!.nextTaskId)
+        val paused = store.session!!.copy(state = SessionState.PAUSED)
+        store.sessions[paused.id] = paused
+        // Exit + PIN, then Continue: the new key carries no chain; the session does.
+        val again = vmFor(paused.id, step(1), step(2))
+        runCurrent()
+        assertEquals("t.off", again.nextTaskId.value)
+    }
+
+    @Test
+    fun `continue skips a chained task already finished after the session started`() = scope.runTest {
+        vmFor(null, step(1), step(2), thenTaskId = "t.off")
+        runCurrent()
+        val paused = store.session!!.copy(state = SessionState.PAUSED)
+        store.sessions[paused.id] = paused
+        store.sessions["off"] =
+            paused.copy(id = "off", taskId = "t.off", state = SessionState.DONE, startedAt = paused.startedAt + 1, nextTaskId = null)
+        val again = vmFor(paused.id, step(1), step(2))
+        runCurrent()
+        assertNull(again.nextTaskId.value)
+    }
+
+    @Test
+    fun `chain is dropped when the paused session is abandoned`() = scope.runTest {
+        vmFor(null, step(1), thenTaskId = "t.off")
+        runCurrent()
+        val corrupt = store.session!!.copy(state = SessionState.PAUSED, stepIndex = 7)
+        store.sessions[corrupt.id] = corrupt
+        val again = vmFor(corrupt.id, step(1))
+        runCurrent()
+        assertEquals(SessionState.ABANDONED, store.sessions[corrupt.id]!!.state)
+        assertNull(again.nextTaskId.value)
     }
 
     @Test

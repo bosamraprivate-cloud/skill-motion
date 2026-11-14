@@ -90,10 +90,11 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
 
     /**
      * The run [current] finished its last step: its chained task replaces it in place as a new session, so child
-     * mode (screen pinning) stays on. Ignored when [current] is not on top or has nothing chained.
+     * mode (screen pinning) stays on. [next] defaults to the key's chain; a continued session passes its saved
+     * `nextTaskId` (Story 4.1). Ignored when [current] is not on top or nothing is chained.
      */
-    fun nextChildTask(current: ChildModeKey) {
-        val next = current.thenTaskId ?: return
+    fun nextChildTask(current: ChildModeKey, next: String? = current.thenTaskId) {
+        next ?: return
         if (backStack.lastOrNull() != current) return
         // Pinning stays on; the chained task shows its framing check inside child mode (skipped if content-only).
         backStack[backStack.lastIndex] = ChildModeKey(current.childId, next, framingFirst = true)

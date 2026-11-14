@@ -22,8 +22,8 @@ import kotlinx.coroutines.launch
  * Child-mode host bound to one assessment run for [childId] on [taskId], or the continuation of saved session
  * [sessionId]. Screen pinning and hardware keys are handled by the activity while child mode is on. The adult corner
  * opens the pause sheet; its Exit pauses the session and calls [onExit] (the PIN). The ViewModel is scoped to this
- * nav entry (AppNavigation's ViewModelStore decorator), so every run gets a fresh one. When [hasNext] (jacket "both"),
- * [onNext] fires a moment after this run's last step has saved the session `done`.
+ * nav entry (AppNavigation's ViewModelStore decorator), so every run gets a fresh one. When a next task exists (jacket
+ * "both": [thenTaskId] for a new run, the session's saved `nextTaskId` for a continued one), [onNext] fires a moment after this run's last step has saved the session `done`.
  */
 @Composable
 fun ChildModeHost(
@@ -32,11 +32,11 @@ fun ChildModeHost(
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
     sessionId: String? = null,
-    hasNext: Boolean = false,
-    onNext: () -> Unit = {},
+    thenTaskId: String? = null,
+    onNext: (nextTaskId: String) -> Unit = {},
     viewModel: StepViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(childId, taskId, sessionId) { viewModel.start(childId, taskId, sessionId) }
+    LaunchedEffect(childId, taskId, sessionId) { viewModel.start(childId, taskId, sessionId, thenTaskId) }
     // Leaving composition (PIN screen on top) or the app stopping pauses audio and ticks; return restarts the prompt.
     LifecycleStartEffect(viewModel) {
         viewModel.setActive(true)
@@ -49,10 +49,12 @@ fun ChildModeHost(
     val cameraWanted by viewModel.cameraWanted.collectAsStateWithLifecycle()
     val cameraUnavailable by viewModel.cameraUnavailable.collectAsStateWithLifecycle()
     if (cameraWanted) BackgroundCamera(viewModel::onFrame, viewModel::onCameraError)
-    LaunchedEffect(completed, hasNext) {
-        if (completed && hasNext) {
+    val nextTaskId by viewModel.nextTaskId.collectAsStateWithLifecycle()
+    LaunchedEffect(completed, nextTaskId) {
+        val next = nextTaskId
+        if (completed && next != null) {
             delay(NEXT_TASK_DELAY_MS) // the calm end shows briefly before the next task's start screen
-            onNext()
+            onNext(next)
         }
     }
     Box(modifier) {

@@ -118,6 +118,18 @@ class AppGateViewModelTest {
     }
 
     @Test
+    fun `continued session runs its saved chained task`() {
+        val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
+        vm.enterShell()
+        vm.openFramingCheck("c1", "t.on", sessionId = "s1")
+        val framing = FramingCheckKey("c1", "t.on", sessionId = "s1")
+        vm.handToChild(framing)
+        val continued = ChildModeKey("c1", "t.on", "s1")
+        vm.nextChildTask(continued, "t.off")
+        assertEquals(listOf(ShellKey, ChildModeKey("c1", "t.off", framingFirst = true)), vm.backStack.toList())
+    }
+
+    @Test
     fun `framing check comes before child mode and hand to child replaces it`() {
         val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher)
         vm.enterShell()

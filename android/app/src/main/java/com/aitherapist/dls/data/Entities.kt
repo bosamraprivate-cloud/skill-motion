@@ -38,7 +38,9 @@ data class SessionEntity(
     val rulesVersion: String,
     val stepIndex: Int,
     val attemptNumber: Int,
-    val promptLevel: Int
+    val promptLevel: Int,
+    /** Jacket "both" (Story 2.16): the task chained after this one, kept so Continue still runs it (Story 4.1). */
+    val nextTaskId: String? = null
 )
 
 @Entity(
@@ -66,4 +68,24 @@ data class AttemptEntity(
     val createdAt: Long,
     /** The model's short free text when the verdict came from the model (reason is then `model`); never logged. */
     val modelReason: String? = null
+)
+
+/**
+ * Therapist correction of one step's level in one session (AD-9, Story 4.1). [level] 0..3 is a score, null means
+ * "not scored". The latest row per (sessionId, stepId) wins over the automatic Rule 1 level.
+ */
+@Entity(
+    tableName = "correction",
+    foreignKeys = [
+        ForeignKey(entity = SessionEntity::class, parentColumns = ["id"], childColumns = ["sessionId"], onDelete = ForeignKey.CASCADE)
+    ],
+    indices = [Index(value = ["sessionId", "stepId"])]
+)
+data class CorrectionEntity(
+    @PrimaryKey val id: String,
+    val sessionId: String,
+    val stepId: String,
+    val level: Int?,
+    val reason: String? = null,
+    val createdAt: Long
 )

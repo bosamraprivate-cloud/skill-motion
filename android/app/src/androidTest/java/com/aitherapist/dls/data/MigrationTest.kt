@@ -9,7 +9,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** v1 -> v2 keeps attempt rows and adds an empty `modelReason` (Story 3.6). */
+/** v1 -> v2 adds an empty `modelReason` (Story 3.6); v2 -> v3 adds `correction` and `session.nextTaskId` (Story 4.1). */
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
     @get:Rule
@@ -36,6 +36,68 @@ class MigrationTest {
             db.query("SELECT reason, modelReason FROM attempt WHERE id = 'a'").use { c ->
                 c.moveToFirst()
                 assertEquals("cup at lip", c.getString(0))
+                assertNull(c.getString(1))
+            }
+        }
+    }
+
+    @Test
+    fun migrate2To3KeepsRowsAndAddsCorrectionAndNextTask() {
+        helper.createDatabase(DB, 2).use { db ->
+            db.execSQL(
+                "INSERT INTO child (id, name, code, ageYears, effectLevel, characterVariant, isEval, createdAt) " +
+                    "VALUES ('c', 'n', 'C1', 5, 'calm', 'boy', 0, 0)"
+            )
+            db.execSQL(
+                "INSERT INTO session (id, childId, taskId, kind, state, startedAt, endedAt, catalogVersion, rulesVersion, " +
+                    "stepIndex, attemptNumber, promptLevel) VALUES ('s', 'c', 't', 'assessment', 'done', 0, 0, 'v', '2', 0, 1, 1)"
+            )
+            db.execSQL(
+                "INSERT INTO attempt (id, sessionId, stepId, number, promptLevel, helpPressed, verdict, reason, verifier, modelId, " +
+                    "promptVersion, latencyMs, framePaths, clipFile, createdAt, modelReason) VALUES ('a', 's', 'st', 1, 1, 0, 'done', " +
+                    "'cup at lip', 'pose', NULL, NULL, 5, '[]', NULL, 0, NULL)"
+            )
+        }
+        helper.runMigrationsAndValidate(DB, 3, true, AppDatabase.MIGRATION_2_3).use { db ->
+            db.query("SELECT taskId, nextTaskId FROM session WHERE id = 's'").use { c ->
+                c.moveToFirst()
+                assertEquals("t", c.getString(0))
+                assertNull(c.getString(1))
+            }
+            db.query("SELECT reason FROM attempt WHERE id = 'a'").use { c ->
+                c.moveToFirst()
+                assertEquals("cup at lip", c.getString(0))
+            }
+            db.execSQL("INSERT INTO correction (id, sessionId, stepId, level, reason, createdAt) VALUES ('k', 's', 'st', NULL, NULL, 1)")
+            db.query("SELECT COUNT(*) FROM correction").use { c ->
+                c.moveToFirst()
+                assertEquals(1, c.getInt(0))
+            }
+            db.execSQL("PRAGMA foreign_keys = ON")
+            db.execSQL("DELETE FROM session WHERE id = 's'")
+            db.query("SELECT COUNT(*) FROM correction").use { c ->
+                c.moveToFirst()
+                assertEquals("corrections cascade with their session", 0, c.getInt(0))
+            }
+        }
+    }
+
+    @Test
+    fun migrate1To3Chained() {
+        helper.createDatabase(DB, 1).use { db ->
+            db.execSQL(
+                "INSERT INTO child (id, name, code, ageYears, effectLevel, characterVariant, isEval, createdAt) " +
+                    "VALUES ('c', 'n', 'C1', 5, 'calm', 'boy', 0, 0)"
+            )
+            db.execSQL(
+                "INSERT INTO session (id, childId, taskId, kind, state, startedAt, endedAt, catalogVersion, rulesVersion, " +
+                    "stepIndex, attemptNumber, promptLevel) VALUES ('s', 'c', 't', 'assessment', 'paused', 0, NULL, 'v', '1', 0, 1, 1)"
+            )
+        }
+        helper.runMigrationsAndValidate(DB, 3, true, *AppDatabase.MIGRATIONS).use { db ->
+            db.query("SELECT state, nextTaskId FROM session WHERE id = 's'").use { c ->
+                c.moveToFirst()
+                assertEquals("paused", c.getString(0))
                 assertNull(c.getString(1))
             }
         }

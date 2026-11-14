@@ -42,6 +42,20 @@ internal interface SessionDao {
     @Query("SELECT * FROM session WHERE childId = :childId AND kind = 'assessment' ORDER BY startedAt DESC")
     suspend fun forChild(childId: String): List<SessionEntity>
 
+    /** The child's finished (`done`) assessment sessions, newest first; optionally one task only (Story 4.1). */
+    @Query(
+        "SELECT * FROM session WHERE childId = :childId AND kind = 'assessment' AND state = 'done' " +
+            "AND (:taskId IS NULL OR taskId = :taskId) ORDER BY startedAt DESC, rowid DESC"
+    )
+    suspend fun finishedAssessments(childId: String, taskId: String?): List<SessionEntity>
+
+    /** Whether the child has a finished assessment of [taskId] that started after [since] (jacket chain, Story 4.1). */
+    @Query(
+        "SELECT EXISTS(SELECT 1 FROM session WHERE childId = :childId AND taskId = :taskId AND kind = 'assessment' " +
+            "AND state = 'done' AND startedAt > :since)"
+    )
+    suspend fun finishedSince(childId: String, taskId: String, since: Long): Boolean
+
     /** Running or paused assessment sessions of visible children (resumable), newest first; replay and the eval child never show. */
     @Query(
         "SELECT * FROM session WHERE state IN ('running', 'paused') AND kind = 'assessment' " +
@@ -77,4 +91,16 @@ internal interface AttemptDao {
 
     @Query("DELETE FROM attempt WHERE id = :id")
     suspend fun delete(id: String)
+}
+
+@Dao
+internal interface CorrectionDao {
+    @Insert suspend fun insert(correction: CorrectionEntity)
+
+    /** Corrections of [sessionId] in saved order (the last per step wins). */
+    @Query("SELECT * FROM correction WHERE sessionId = :sessionId ORDER BY createdAt, rowid")
+    suspend fun forSession(sessionId: String): List<CorrectionEntity>
+
+    @Query("DELETE FROM correction WHERE sessionId = :sessionId AND stepId = :stepId")
+    suspend fun deleteFor(sessionId: String, stepId: String)
 }
