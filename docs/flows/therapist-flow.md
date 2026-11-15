@@ -4,7 +4,7 @@ Status as of 2026-11-14. Tags: **[BUILT]** = in the code now; **[PLANNED]** = in
 
 ## Overview
 
-The occupational therapist runs everything on one landscape tablet. On first launch the therapist sets a PIN and the cloud-check (proxy) address and secret. Every later launch starts at the PIN screen. The home screen is the children list. The therapist adds a child, opens the child's profile, and starts a session: picks a task (a garment can be "take off", "put on" or "both", default both), checks the camera framing, and hands the tablet to the child. Child mode is locked with screen pinning. To leave it, the adult holds a hidden corner for 2 seconds and enters the PIN. The therapist then sees a summary of that visit, and can read the report, open the treatment plan, start training, check each session's evidence and correct levels, compare assessments, and use Settings (PIN, proxy, zones, diagnostics, blind review). All child data stays on the tablet.
+The occupational therapist runs everything on one landscape tablet. On first launch the therapist sets a PIN and the cloud-check (proxy) address and secret. Every later launch starts at the PIN screen. The home screen is the children list. The therapist adds a child, opens the child's profile, and starts a session: picks a task (a garment can be "take off", "put on" or "both", default both), checks the camera framing, and hands the tablet to the child. Child mode is locked with screen pinning. To leave it, the adult holds a hidden corner for 2 seconds and enters the PIN. The therapist then sees a summary of that visit, and can read the report, open the treatment plan, start training, check each session's evidence and correct levels, compare assessments, and use Settings (session and PIN, camera and zones, AI connection, accuracy and review, data export, about). All child data stays on the tablet.
 
 ```mermaid
 flowchart TD
@@ -27,7 +27,7 @@ flowchart TD
     F --> M[Plan tab -> pick activities -> Start training]
     M --> G2[Training framing check] --> I2[Child training mode] -->|corner + PIN| F
     F --> N[Progress tab: compare + training history]
-    D --> S[Settings: PIN, proxy, zones, Diagnostics, Blind review, debug tools]
+    D --> S[Settings: session, camera and zones, AI connection, accuracy, data, about, debug tools]
 ```
 
 ---
@@ -101,7 +101,7 @@ Tabs (agreed IA 2026-11-13): **Overview**, **Sessions**, **Report**, **Plan**, *
 
 | Tab | Contents | Notes |
 |---|---|---|
-| Overview | Avatar, name, age, character, effect level, "Start session"; quick stats (last assessment, tasks finished, stickers); sticker book entry | Sticker book opens as a full dialog |
+| Overview | Avatar, name, age, character, effect level, "Start session"; sticker cabinet (stickers earned, sticker book entry); quick stats (last assessment, tasks finished — two equal tiles) | Sticker book opens as a full dialog. In portrait the top bar names the child and holds **Edit**; no second "Child profile" heading |
 | Sessions | Assessments and training runs, newest first; an assessment opens Session detail | Read-only list |
 | Report | Domain averages, plan levels, strengths and needs | Recomputed on every open |
 | Plan | Activities per weak domain, picker, "Start training (n)" | Draft selection saved per child |
@@ -115,7 +115,8 @@ Edge cases:
 ## 6. New session, garment choice, continue [BUILT]
 
 What happens:
-- "Start session" opens the New session dialog: task tiles grouped by area, in catalogue order. Each tile shows the first step's still for the child's character.
+- "Start session" opens the New session dialog: task tiles grouped by area. Each tile shows the first step's still for the child's character.
+- **Task readiness (2026-11-15):** a task is ready for the child's character when every step has its demonstration clip in the APK (paths from the catalogue's step media; the asset folders are listed once and cached). Ready tasks work as before. Not-ready tasks are greyed with a "Coming soon" badge and cannot be selected. Areas with no ready task still show so the owner sees what is coming; ready tasks come first inside an area and areas with a ready task come first. For a garment pair, a half without clips is disabled in take off / put on / both, and selection defaults to the ready half. No debug override.
 - Every garment with `.on` and `.off` tasks in the catalogue (jacket, T-shirt, shirt, trousers, socks, shoes) is one tile with **take off**, **put on** or **both** (in that order; a pair defaults to **both**). "Both" runs take-off first, then put-on as a second session, inside the same child-mode visit (owners' order, `docs/reference/owner-posture-and-order.md`). The take-off steps for T-shirt, shirt, trousers, socks and shoes come from the team draft `docs/reference/undressing-steps-team-draft.md`, pending owner review.
 - Start opens the framing check. It shows one positioning line from the task's catalogue posture: the child sits on a chair at the table (socks, shoes, eating, drinking), stands (jacket, T-shirt, shirt, handwashing, teeth), or stands and may sit if needed (trousers). Posture is staging only and never changes scoring. Content-only tasks (no camera check) skip the framing check, so they show no line.
 - Continue card (children list) opens the framing check for the saved session, which then resumes it.
@@ -154,7 +155,8 @@ What happens:
 - While on the child step screen, any key except volume and power counts as Done (Bluetooth clicker), and Back does nothing.
 
 Edge cases:
-- Screen pinning is not device-owner allow-listed: Android may show its own pinning prompt and it can be declined. If pinning is refused or fails (not active within about 6 s), the hand-off screen shows an adult-only notice: "Screen is not locked — the child could leave the app", with "Try again" (asks again) and "Start without lock" (child mode still starts, unpinned for this visit, no new prompt). The child never sees the notice (owner decision 2026-11-14). Device-owner setup is still deferred. Same for the training hand-off.
+- First hand-off on the tablet only: a short adult dialog explains screen pinning (keeps the child in the app), that Android shows its own "App is pinned" message, and how to finish (hold the adult corner, enter the PIN). "Start" goes on; it never shows again (a UI flag on the tablet, no child data). Settings > Session & child mode repeats the explanation.
+- Screen pinning is not device-owner allow-listed: Android shows its own pinning message and it can be declined. If pinning is refused or fails (not active within about 6 s), child mode **starts anyway**, unpinned for this visit (no new prompt, no blocking notice). After the visit, back on the therapist screen, a small dismissable hint says the last session ran without pinning. The child never sees it (owner decision 2026-11-15, replaces the 2026-11-14 notice with retry). Device-owner setup is still deferred. Same for the training hand-off.
 - Garment "both": after the first task's reward screen, the second task shows its framing check inside child mode (pinning stays on), then its start screen.
 
 ## 9. Return via PIN and session summary [BUILT]
@@ -273,21 +275,24 @@ Edge cases:
 - CSV holds no child data and never the model's free-text reason.
 - [PLANNED] Accuracy metrics script and dashboard (5.8), evaluation run and Goal 8 report (5.9). [PENDING ASSETS] volunteer clips.
 
-## 18. Settings [BUILT, export PLANNED]
+## 18. Settings [BUILT]
 
-What happens:
-- Change PIN (current + new twice).
-- Proxy: edit URL, replace secret (never shown). A Connection card says: not set up / ready / offline / last check failed. Changes apply without a restart.
-- Zones: draw, redraw, clear zones on the camera preview; saved at once (normalised, un-mirrored).
-- Diagnostics and Blind review entries.
-- Advanced tools (debug only): Replay & evaluation, Try step screen, Character preview.
-- [PLANNED] Anonymised CSV export (story 5.6, backlog). Not built.
-- [PLANNED] AI "suggest zones" button (owner request 2026-11-14): AI proposes rectangles, therapist confirms. Not built.
+Sections, in this order (2026-11-15). Landscape: section list on the start side, the chosen section beside it. Portrait: the section list, and a section opens as its own page with the detail top bar (back) and the calm slide.
+
+1. **Session & child mode:** change PIN (current + new twice; it is also the child-mode exit PIN); screen pinning explanation. Effect level is per child (child profile), so there is no default here.
+2. **Camera & zones:** draw, redraw, clear zones (saved at once, normalised, un-mirrored); Diagnostics (camera check, landmarks, speed, proxy).
+3. **AI connection:** status line (not set up / ready / offline / last check failed); **Test connection** runs the Diagnostics health ping (`POST /verify` with the secret and an empty body: no frames, no child data, nothing logged) and shows "Connected" or "Not reachable right now" with what to try and a calm note that sessions still run with "cannot tell" for review; proxy URL and secret (never shown).
+4. **Accuracy & review:** Accuracy metrics, Blind review.
+5. **Data:** Export results (anonymised CSV).
+6. **Developer tools (debug builds only):** Replay & evaluation, Try step screen, Character preview.
+7. **About.**
+
+Planned: AI "suggest zones" button (owner request 2026-11-14): AI proposes rectangles, therapist confirms. Not built.
 
 Edge cases:
 - Wrong current PIN: refused. New PINs that do not match: refused.
-- Settings unreadable: values show as blank; cloud checks then end as cannot tell.
-- Back from a sub-page returns to the main Settings page.
+- Settings unreadable: values show as blank; cloud checks then end as cannot tell; Test connection says the settings could not be read.
+- Back from a sub-page returns to the same section; in portrait Back from a section returns to the section list.
 
 ---
 
@@ -295,7 +300,7 @@ Edge cases:
 
 1. **Screen off or background during child mode.** Decided 2026-11-14: 60 s grace (see stage 9). Check on the phone: short screen-off returns to the child screen; long one shows the PIN and a Continue card.
 2. Landing on the Children list after a PIN lock instead of the last profile tab (known gap).
-3. Screen pinning can be declined; the adult notice with retry is built (2026-11-14). Confirm on the tablet and decide on device-owner setup.
+3. Screen pinning can be declined; child mode then starts unpinned and the adult sees a small hint afterwards (2026-11-15). Confirm on the tablet and decide on device-owner setup.
 4. Proxy with a wrong secret: during a session every cloud step becomes cannot tell `refused` (any non-200). Confirm Diagnostics clearly says "wrong secret" and the banner shows.
 5. Evidence frames load fast enough in Session detail with many attempts.
 6. Delete child really removes evidence frame folders (orphan sweep is deferred).

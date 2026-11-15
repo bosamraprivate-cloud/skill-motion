@@ -15,7 +15,7 @@ class ReleaseGatingTest {
     fun `settings gates replay, try step and the developer tools on debug`() {
         val settings = text("SettingsScreen")
         assertTrue(settings.contains("val debug = BuildConfig.DEBUG"))
-        assertTrue(settings.contains("page == SettingsPage.REPLAY && debug"))
+        assertTrue(Regex("""(page|shown) == SettingsPage.REPLAY && debug""").containsMatchIn(settings))
         assertTrue(settings.contains("showTryStep && debug"))
         assertTrue(Regex("""if \(debug\) \{\s*AdvancedTools\(""").containsMatchIn(settings))
     }

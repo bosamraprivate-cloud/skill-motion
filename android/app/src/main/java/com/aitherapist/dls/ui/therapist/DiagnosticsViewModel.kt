@@ -37,6 +37,7 @@ import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -504,10 +505,14 @@ constructor(
 }
 
 /** Reads proxy settings and pings; settings that cannot be read are reported as such, not as "not set up". */
-internal suspend fun proxyCheck(settings: TherapistSettings, ping: suspend (url: String, secret: String) -> HealthResult): ProxyCheck.Done {
+internal suspend fun proxyCheck(
+    settings: TherapistSettings,
+    io: CoroutineDispatcher = Dispatchers.IO,
+    ping: suspend (url: String, secret: String) -> HealthResult
+): ProxyCheck.Done {
     val (url, secret) =
         try {
-            withContext(Dispatchers.IO) { settings.proxyUrl().orEmpty() to settings.sharedSecret().orEmpty() }
+            withContext(io) { settings.proxyUrl().orEmpty() to settings.sharedSecret().orEmpty() }
         } catch (e: CancellationException) {
             throw e
         } catch (

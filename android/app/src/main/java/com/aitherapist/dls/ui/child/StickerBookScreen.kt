@@ -37,6 +37,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -48,6 +49,7 @@ import com.aitherapist.dls.rewards.RewardRules
 import com.aitherapist.dls.rewards.Stickers
 import com.aitherapist.dls.ui.theme.ChildColors
 import com.aitherapist.dls.ui.theme.ChildType
+import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -236,3 +238,9 @@ fun childNumber(value: Int, minDigits: Int = 1): String = NumberFormat.getIntege
     minimumIntegerDigits = minDigits
     isGroupingUsed = false
 }.format(value)
+
+@Preview(widthDp = 800, heightDp = 1280)
+@Composable
+private fun StickerBookPortraitPreview() {
+    DlsTheme { StickerBookScreen(StickerBookUiState.Content(unlocked = emptyList(), finishedTasks = 1), onBack = {}) }
+}

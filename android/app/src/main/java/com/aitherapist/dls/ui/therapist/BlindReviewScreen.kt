@@ -4,6 +4,8 @@ import android.widget.VideoView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -140,8 +142,10 @@ private fun AnswerButton(label: Int, enabled: Boolean, modifier: Modifier, onCli
 
 /** Only the frames that exist; one that fails to decode is left out silently (no placeholder, no path anywhere). */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun BlindFrames(paths: List<String>, loadFrame: FrameLoader) {
-    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S3)) {
+    // Wraps instead of overflowing when the window is narrow (portrait).
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.S3), verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
         paths.forEachIndexed { i, path ->
             // key + no early return: an early return after produceState breaks the slot table (crash on recompose).
             key(path) {

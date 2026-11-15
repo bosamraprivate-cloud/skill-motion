@@ -215,9 +215,6 @@
     <string name="replay_problem_too_long">المقطع أطول من 90 ثانية</string>
     <string name="replay_reason_no_zone_hint">خطوات المناطق بتظهر no_zone: الإعادة مابتستخدمش مناطق التجهيز.</string>
     <string name="settings_back">الإعدادات</string>
-    <string name="settings_group_security">الأمان</string>
-    <string name="settings_group_connection">الاتصال</string>
-    <string name="settings_group_zones">التجهيز</string>
     <string name="settings_pin_subtitle">الرقم السري بيفتح وضع الأخصائي وبيخرج من وضع الطفل.</string>
     <string name="settings_proxy_subtitle">عنوان البروكسي والكلمة السرية للفحص السحابي لخطوات الأدوات.</string>
     <string name="settings_status_ready">جاهز: الفحص السحابي شغال.</string>
@@ -534,7 +531,6 @@
         <item quantity="many">%1$s: %2$s %3$s، %4$s %5$s، %6$s، %7$s خطوة في الاتنين</item>
         <item quantity="other">%1$s: %2$s %3$s، %4$s %5$s، %6$s، %7$s خطوة في الاتنين</item>
     </plurals>
-    <string name="settings_group_evaluation">التقييم</string>
     <string name="settings_tool_blind_hint">قيّم المحاولات من الصور بس، من غير نتيجة التطبيق</string>
     <string name="blind_title">مراجعة عمياء</string>
     <string name="blind_subtitle">بص على الصور وقول شايف إيه. نتيجة التطبيق مخفية.</string>
@@ -566,9 +562,6 @@
         <item quantity="many">محاولات غلط كتير. استنى %1$s ثانية.</item>
         <item quantity="other">محاولات غلط كتير. استنى %1$s ثانية.</item>
     </plurals>
-    <string name="pinning_failed_notice">الشاشة مش مقفولة — الطفل ممكن يخرج من التطبيق.</string>
-    <string name="pinning_retry">جرّب تاني</string>
-    <string name="pinning_start_unlocked">ابدأ من غير قفل</string>
     <!-- Story 5.8 metrics dashboard -->
     <string name="settings_tool_metrics_title">الدقة</string>
     <string name="settings_tool_metrics_hint">قد إيه التطبيق بيتفق مع المراجعة العمياء (الهدف 8)</string>
@@ -645,4 +638,24 @@
     <string name="uxc_zones_title">مناطق الإعداد</string>
     <string name="uxc_zones_missing">لسه مفيش مناطق مرسومة</string>
     <string name="uxc_draw_zones">ارسم المناطق</string>
+    <string name="pinning_intro_title">تثبيت الشاشة</string>
+    <string name="pinning_intro_what">وقت ما الطفل بيلعب، التطبيق بيثبّت الشاشة علشان الطفل ما يخرجش منه بالغلط.</string>
+    <string name="pinning_intro_system">أندرويد هيطلّع رسالة &quot;تم تثبيت التطبيق&quot;. ده طبيعي، ممكن تدوس موافق.</string>
+    <string name="pinning_intro_exit">علشان تخلّص، اضغط مطوّل على ركن الكبار وبعدين اكتب الرقم السري.</string>
+    <string name="pinning_intro_ok">ابدأ</string>
+    <string name="pinning_unpinned_hint">الجلسة اللي فاتت اشتغلت من غير تثبيت الشاشة. مفيش مشكلة، بس الطفل كان ممكن يخرج من التطبيق.</string>
+    <string name="pinning_hint_dismiss">إخفاء</string>
+    <string name="settings_pinning_title">تثبيت الشاشة</string>
+    <string name="settings_pinning_body">كل جلسة للطفل بتثبّت الشاشة علشان الطفل يفضل جوه التطبيق. أندرويد بيطلّع رسالة &quot;تم تثبيت التطبيق&quot; أول مرة. علشان تخلّص الجلسة، اضغط مطوّل على ركن الكبار واكتب الرقم السري. لو التابلت مش بيسمح بالتثبيت، الجلسة بتبدأ عادي.</string>
+    <string name="new_session_coming_soon">قريبًا</string>
+    <string name="settings_group_session">الجلسة ووضع الطفل</string>
+    <string name="settings_group_camera">الكاميرا والمناطق</string>
+    <string name="settings_group_ai">اتصال الذكاء الاصطناعي</string>
+    <string name="settings_group_accuracy">الدقة والمراجعة</string>
+    <string name="settings_group_data">البيانات</string>
+    <string name="settings_test_connection">اختبر الاتصال</string>
+    <string name="settings_test_ok">متصل</string>
+    <string name="settings_test_unreachable">مش متاح دلوقتي</string>
+    <string name="settings_test_not_set_hint">ضيف عنوان السيرفر والرمز السري تحت، وبعدين اختبر تاني.</string>
+    <string name="settings_test_calm">الجلسات شغالة عادي؛ الخطوات اللي الكاميرا مش متأكدة منها بتتسجل &quot;مش واضح&quot; علشان تراجعها.</string>
 </resources>

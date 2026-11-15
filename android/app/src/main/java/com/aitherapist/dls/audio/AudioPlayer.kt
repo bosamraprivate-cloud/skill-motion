@@ -36,7 +36,8 @@ constructor(@ApplicationContext private val context: Context) : AudioPlayer {
                 true
             }
             // Prepared off the main thread; a player replaced or stopped meanwhile is never started.
-            media.setOnPreparedListener { mp -> if (player === mp) mp.start() }
+            // A start that throws still ends the sound, so the caller always gets its end callback.
+            media.setOnPreparedListener { mp -> if (player === mp && runCatching { mp.start() }.isFailure) finish(mp, onEnded) }
             player = media
             media.prepareAsync()
             true

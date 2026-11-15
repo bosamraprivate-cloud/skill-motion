@@ -1,5 +1,6 @@
 package com.aitherapist.dls.ui.therapist
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -44,6 +46,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -52,6 +55,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,11 +85,17 @@ import com.aitherapist.dls.ui.child.StickerArt
 import com.aitherapist.dls.ui.child.StickerBookRoute
 import com.aitherapist.dls.ui.components.EmptyState
 import com.aitherapist.dls.ui.components.ErrorState
+import com.aitherapist.dls.ui.components.LocalDetailBarActions
 import com.aitherapist.dls.ui.components.PageHeader
 import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
+import com.aitherapist.dls.ui.theme.calmSlide
+import com.aitherapist.dls.ui.theme.isForwardTab
+import com.aitherapist.dls.ui.theme.isPortrait
+import com.aitherapist.dls.ui.theme.isRtl
+import com.aitherapist.dls.ui.theme.rememberReducedMotion
 
 /** A request from outside the profile to show [tab] of [childId] (e.g. after the session summary); [nonce] repeats it. */
 data class ProfileTabRequest(val childId: String, val tab: ProfileTab, val nonce: Long = System.nanoTime())
@@ -181,20 +191,30 @@ private fun ChildProfileForm(
         newSessionOpen = true
     }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = Spacing.S4).widthIn(max = 880.dp)) {
-        PageHeader(
-            stringResource(if (state.isNew) R.string.child_new_title else R.string.child_edit_title),
-            modifier = Modifier.padding(top = Spacing.S3)
-        ) {
-            if (!showForm) {
-                OutlinedButton(
-                    onClick = { editing = true },
-                    enabled = !state.busy,
-                    shape = RoundedCornerShape(Radius.Sm),
-                    modifier = Modifier.height(48.dp)
-                ) {
-                    Icon(Icons.Filled.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text(stringResource(R.string.child_edit), modifier = Modifier.padding(start = Spacing.S2))
-                }
+        val topBar = LocalDetailBarActions.current
+        val editAction: @Composable RowScope.() -> Unit = {
+            OutlinedButton(
+                onClick = { editing = true },
+                enabled = !state.busy,
+                shape = RoundedCornerShape(Radius.Sm),
+                modifier = Modifier.height(48.dp)
+            ) {
+                Icon(Icons.Filled.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(stringResource(R.string.child_edit), modifier = Modifier.padding(start = Spacing.S2))
+            }
+        }
+        if (topBar != null) {
+            // Portrait single pane: the DetailTopBar already names the child; Edit moves into its actions (no second heading).
+            DisposableEffect(topBar, showForm, state.busy) {
+                topBar.content = if (showForm) null else editAction
+                onDispose { topBar.content = null }
+            }
+        } else {
+            PageHeader(
+                stringResource(if (state.isNew) R.string.child_new_title else R.string.child_edit_title),
+                modifier = Modifier.padding(top = Spacing.S3)
+            ) {
+                if (!showForm) editAction()
             }
         }
         val childId = state.childId
@@ -205,15 +225,24 @@ private fun ChildProfileForm(
             ) { ProfileEditCard(state, onEvent) }
         } else {
             ProfileTabs(tab) { tab = it }
-            Box(Modifier.weight(1f).fillMaxWidth()) {
-                when (tab) {
+            val rtl = isRtl()
+            val reduced = rememberReducedMotion()
+            // Tab change: a short slide in the tab's direction (RTL-aware) plus fade; none with animations off.
+            AnimatedContent(
+                targetState = tab,
+                transitionSpec = { calmSlide(isForwardTab(initialState.ordinal, targetState.ordinal), rtl, reduced) },
+                contentAlignment = Alignment.TopCenter,
+                label = "profileTab",
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            ) { shown ->
+                when (shown) {
                     ProfileTab.PLAN -> PlanRoute(childId, onStartTraining, onStartSession = startSession)
                     else ->
                         Column(
                             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(vertical = Spacing.S4),
                             verticalArrangement = Arrangement.spacedBy(Spacing.S4)
                         ) {
-                            when (tab) {
+                            when (shown) {
                                 ProfileTab.OVERVIEW -> {
                                     val statsVm: SessionsViewModel = hiltViewModel(key = "sessions-$childId")
                                     val statsState by statsVm.uiState.collectAsStateWithLifecycle()
@@ -227,7 +256,6 @@ private fun ChildProfileForm(
                                     state.message?.let { MessageText(it) }
                                     OverviewStatsSection(
                                         childId,
-                                        onStickerBook = { stickerBookOpen = true },
                                         onOpenSession = { summarySession = it },
                                         onStartSession = startSession
                                     )
@@ -248,8 +276,8 @@ private fun ChildProfileForm(
                                 else ->
                                     TCard {
                                         EmptyState(
-                                            icon = tab.icon,
-                                            message = stringResource(R.string.profile_tab_later, stringResource(tab.label))
+                                            icon = shown.icon,
+                                            message = stringResource(R.string.profile_tab_later, stringResource(shown.label))
                                         )
                                     }
                             }
@@ -312,14 +340,9 @@ private fun ChildProfileForm(
     }
 }
 
-/** Overview quick stats (last assessment, tasks finished, stickers) and the sticker book entry. */
+/** Overview quick stats: last assessment and tasks finished (stickers live in the sticker cabinet above). */
 @Composable
-private fun OverviewStatsSection(
-    childId: String,
-    onStickerBook: () -> Unit,
-    onOpenSession: (sessionId: String) -> Unit,
-    onStartSession: () -> Unit
-) {
+private fun OverviewStatsSection(childId: String, onOpenSession: (sessionId: String) -> Unit, onStartSession: () -> Unit) {
     val vm: SessionsViewModel = hiltViewModel(key = "sessions-$childId")
     LaunchedEffect(childId) { vm.load(childId) }
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -348,14 +371,6 @@ private fun OverviewStatsSection(
             stringResource(R.string.overview_tasks_finished),
             stats?.let { westernDigits(it.finishedTasks) },
             Modifier.weight(1f).fillMaxHeight()
-        )
-        StatTile(
-            Icons.Filled.Star,
-            stringResource(R.string.overview_stickers),
-            stats?.let { westernDigits(it.stickers) },
-            Modifier.weight(1f).fillMaxHeight(),
-            action = stringResource(R.string.profile_sticker_book),
-            onAction = onStickerBook
         )
     }
 }
@@ -396,22 +411,45 @@ enum class ProfileTab(val label: Int, val icon: ImageVector) {
 
 @Composable
 private fun ProfileTabs(selected: ProfileTab, onSelect: (ProfileTab) -> Unit) {
-    PrimaryScrollableTabRow(
-        selectedTabIndex = selected.ordinal,
-        edgePadding = 0.dp,
-        containerColor = Color.Transparent,
-        divider = { HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant) }
-    ) {
+    val divider = @Composable { HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant) }
+    val tabs = @Composable {
         ProfileTab.entries.forEach { tab ->
-            Tab(
-                selected = tab == selected,
-                onClick = { onSelect(tab) },
-                text = { Text(stringResource(tab.label), style = MaterialTheme.typography.labelLarge) },
-                selectedContentColor = MaterialTheme.colorScheme.primary,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            ProfileTabItem(tab, tab == selected, withIcon = isPortrait()) { onSelect(tab) }
         }
     }
+    if (isPortrait()) {
+        // Portrait: five fixed, equal-width tabs fill the width (icon above label) instead of a scrolling strip.
+        PrimaryTabRow(selectedTabIndex = selected.ordinal, containerColor = Color.Transparent, divider = divider) { tabs() }
+    } else {
+        PrimaryScrollableTabRow(
+            selectedTabIndex = selected.ordinal,
+            edgePadding = 0.dp,
+            containerColor = Color.Transparent,
+            divider = divider
+        ) { tabs() }
+    }
+}
+
+@Composable
+private fun ProfileTabItem(tab: ProfileTab, selected: Boolean, withIcon: Boolean, onClick: () -> Unit) {
+    Tab(
+        selected = selected,
+        onClick = onClick,
+        text = { Text(stringResource(tab.label), style = MaterialTheme.typography.labelLarge, maxLines = 1) },
+        icon = if (withIcon) {
+            { Icon(tab.icon, contentDescription = null, modifier = Modifier.size(22.dp)) }
+        } else {
+            null
+        },
+        selectedContentColor = MaterialTheme.colorScheme.primary,
+        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@Preview(widthDp = 704, heightDp = 1000, locale = "ar")
+@Composable
+private fun ProfileTabsPortraitPreview() {
+    DlsTheme { ProfileTabs(ProfileTab.REPORT) {} }
 }
 
 /**
@@ -420,46 +458,58 @@ private fun ProfileTabs(selected: ProfileTab, onSelect: (ProfileTab) -> Unit) {
  */
 @Composable
 private fun ProfileHeaderCard(form: ChildForm, stickers: Int?, enabled: Boolean, onStartSession: () -> Unit, onStickerBook: () -> Unit) {
-    TCard {
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Spacing.S5)) {
-            Column(Modifier.weight(0.4f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
-                    form.character?.let { CharacterAvatar(it, size = 96.dp) }
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.S1)) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
-                            Text(
-                                form.name,
-                                style = MaterialTheme.typography.headlineMedium,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f, fill = false)
-                            )
-                            form.character?.let { CharacterMark(it) }
-                        }
-                        form.age.trim().toIntOrNull()?.let { age ->
-                            Text(
-                                stringResource(R.string.child_row_details, westernDigits(age)),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+    val portrait = isPortrait()
+    val identity: @Composable (Modifier) -> Unit = { mod ->
+        Column(mod, verticalArrangement = Arrangement.SpaceBetween) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
+                form.character?.let { CharacterAvatar(it, size = 96.dp) }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.S1)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
+                        Text(
+                            form.name,
+                            style = MaterialTheme.typography.headlineMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        form.character?.let { CharacterMark(it) }
+                    }
+                    form.age.trim().toIntOrNull()?.let { age ->
+                        Text(
+                            stringResource(R.string.child_row_details, westernDigits(age)),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
-                Button(
-                    onClick = onStartSession,
-                    enabled = enabled,
-                    shape = RoundedCornerShape(Radius.Sm),
-                    modifier = Modifier.padding(top = Spacing.S4).fillMaxWidth().height(56.dp)
-                ) {
-                    Icon(Icons.Filled.PlayArrow, contentDescription = null)
-                    Text(
-                        stringResource(R.string.new_session),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(start = Spacing.S2)
-                    )
-                }
             }
-            StickerCabinet(stickers ?: 0, Modifier.weight(0.6f), onStickerBook)
+            Button(
+                onClick = onStartSession,
+                enabled = enabled,
+                shape = RoundedCornerShape(Radius.Sm),
+                modifier = Modifier.padding(top = Spacing.S4).fillMaxWidth().height(56.dp)
+            ) {
+                Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                Text(
+                    stringResource(R.string.new_session),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = Spacing.S2)
+                )
+            }
+        }
+    }
+    TCard {
+        if (portrait) {
+            // Portrait: identity and start button on top, the cabinet full width below it (fewer, larger columns).
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.S5)) {
+                identity(Modifier.fillMaxWidth())
+                StickerCabinet(stickers ?: 0, Modifier.fillMaxWidth(), onStickerBook, columns = CABINET_COLUMNS_PORTRAIT)
+            }
+        } else {
+            Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Spacing.S5)) {
+                identity(Modifier.weight(0.4f).fillMaxHeight())
+                StickerCabinet(stickers ?: 0, Modifier.weight(0.6f), onStickerBook, columns = CABINET_COLUMNS)
+            }
         }
     }
 }
@@ -485,7 +535,7 @@ private fun CharacterMark(character: ChildCharacter) {
 
 /** The child's sticker cabinet: every slot; earned stickers open in colour, the rest stay dimmed. */
 @Composable
-private fun StickerCabinet(earned: Int, modifier: Modifier, onStickerBook: () -> Unit) {
+private fun StickerCabinet(earned: Int, modifier: Modifier, onStickerBook: () -> Unit, columns: Int = CABINET_COLUMNS) {
     val slots = maxOf(Stickers.BOOK_SLOTS, earned)
     Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.S2)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -504,12 +554,12 @@ private fun StickerCabinet(earned: Int, modifier: Modifier, onStickerBook: () ->
                 .padding(Spacing.S2),
             verticalArrangement = Arrangement.spacedBy(Spacing.S1)
         ) {
-            (0 until slots).chunked(CABINET_COLUMNS).forEach { row ->
+            (0 until slots).chunked(columns).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S1)) {
                     row.forEach { index ->
                         StickerArt.Sticker(Stickers.idFor(index), earned = index < earned, modifier = Modifier.weight(1f).aspectRatio(1f))
                     }
-                    repeat(CABINET_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
+                    repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
@@ -517,6 +567,7 @@ private fun StickerCabinet(earned: Int, modifier: Modifier, onStickerBook: () ->
 }
 
 private const val CABINET_COLUMNS = 10
+private const val CABINET_COLUMNS_PORTRAIT = 6
 
 /** Edit mode (and the add form): fields, character picker, effect level, Save; Delete for a saved child. */
 @Composable
@@ -694,4 +745,10 @@ private fun ChildProfilePreview() {
             onEvent = {}
         )
     }
+}
+
+@Preview(widthDp = 800, heightDp = 1280)
+@Composable
+private fun ChildProfilePortraitPreview() {
+    ChildProfilePreview()
 }

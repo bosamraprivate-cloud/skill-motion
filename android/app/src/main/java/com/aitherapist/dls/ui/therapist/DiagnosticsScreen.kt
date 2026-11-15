@@ -78,6 +78,7 @@ import com.aitherapist.dls.ui.theme.LevelColors
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 import com.aitherapist.dls.ui.theme.Warning
+import com.aitherapist.dls.ui.theme.isPortrait
 import com.aitherapist.dls.vision.FpsMeter
 import com.aitherapist.dls.vision.FpsRunResult
 import com.aitherapist.dls.vision.GroupVisibility
@@ -297,14 +298,28 @@ private fun Message(text: String, actionRes: Int, onAction: () -> Unit) {
 
 @Composable
 private fun CameraContent(state: DiagnosticsUiState.Content, cameraPreview: @Composable (Modifier) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4), modifier = Modifier.fillMaxWidth()) {
-        Box(modifier = Modifier.width(PREVIEW_WIDTH).aspectRatio(state.frameAspect).clip(RoundedCornerShape(Radius.Sm))) {
+    val preview: @Composable (Modifier) -> Unit = { m ->
+        Box(modifier = m.aspectRatio(state.frameAspect).clip(RoundedCornerShape(Radius.Sm))) {
             cameraPreview(Modifier.fillMaxSize())
             LandmarkOverlay(state.posePoints, state.handPoints, Modifier.fillMaxSize())
         }
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.S3), modifier = Modifier.weight(1f)) {
+    }
+    val metrics: @Composable (Modifier) -> Unit = { m ->
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.S3), modifier = m) {
             Metric(stringResource(R.string.diag_camera_fps), stringResource(R.string.diag_fps_value, fps(state.combinedFps)))
             LandmarkGroup.entries.forEach { group -> GroupBar(group, state.groups[group] ?: 0) }
+        }
+    }
+    if (isPortrait()) {
+        // Portrait: preview full width (capped) on top, the visibility bars below it.
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.S4), modifier = Modifier.fillMaxWidth()) {
+            preview(Modifier.widthIn(max = PREVIEW_WIDTH_PORTRAIT).fillMaxWidth())
+            metrics(Modifier.fillMaxWidth())
+        }
+    } else {
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4), modifier = Modifier.fillMaxWidth()) {
+            preview(Modifier.width(PREVIEW_WIDTH))
+            metrics(Modifier.weight(1f))
         }
     }
 }
@@ -453,6 +468,7 @@ private fun fps(value: Double) = String.format(Locale.ROOT, "%.1f", value)
 
 private const val PERCENT = 100
 private val PREVIEW_WIDTH = 420.dp
+private val PREVIEW_WIDTH_PORTRAIT = 560.dp
 private val BAR_HEIGHT = 8.dp
 private const val RUN_SEC = (FpsMeter.RUN_DURATION_MS / 1_000L).toInt()
 private const val RETENTION_SEC = (FrameBuffer.DEFAULT_RETENTION_MS / 1_000L).toInt()

@@ -86,6 +86,7 @@ import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 import com.aitherapist.dls.ui.theme.Warning
 import com.aitherapist.dls.ui.theme.ZoneColors
+import com.aitherapist.dls.ui.theme.isPortrait
 import kotlin.math.abs
 
 private enum class CameraAccess { CHECKING, GRANTED, DENIED }
@@ -193,8 +194,9 @@ fun ZoneEditorScreen(
                         else -> PreviewArea(state, onEvent, cameraPreview, m)
                     }
                 }
+                val portrait = isPortrait()
                 BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                    if (maxWidth < COMPACT_WIDTH) {
+                    if (maxWidth < COMPACT_WIDTH || portrait) {
                         Column(verticalArrangement = Arrangement.spacedBy(Spacing.S3), modifier = Modifier.fillMaxSize()) {
                             camera(Modifier.weight(1f).fillMaxWidth())
                             ZoneList(state, onEvent, Modifier.fillMaxWidth().weight(1f))

@@ -3,6 +3,8 @@ package com.aitherapist.dls.ui.therapist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aitherapist.dls.data.TherapistSettings
+import com.aitherapist.dls.vision.HealthResult
+import com.aitherapist.dls.vision.ProxyProbe
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -14,11 +16,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+
+/** One HTTP client for the Settings connection test, created on first use. */
+private val sharedClient by lazy { OkHttpClient() }
 
 /** Therapist settings: change the PIN (current + new twice), edit the proxy URL, replace the secret (never shown). */
 @HiltViewModel
 class SettingsViewModel
-internal constructor(private val settings: TherapistSettings, private val io: CoroutineDispatcher) : ViewModel() {
+internal constructor(
+    private val settings: TherapistSettings,
+    private val io: CoroutineDispatcher,
+    /** Health ping (url, secret); the app uses [ProxyProbe.health], which sends no frames and logs nothing. */
+    private val ping: suspend (
+        url: String,
+        secret: String
+    ) -> HealthResult = { url, secret -> ProxyProbe(url, sharedClient).health(secret) }
+) : ViewModel() {
     @Inject constructor(settings: TherapistSettings) : this(settings, Dispatchers.IO)
 
     private val state = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
@@ -47,6 +61,7 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
             SettingsEvent.SaveProxyUrl -> if (current.canSaveProxy && isValidProxyUrl(current.proxyUrl)) saveProxy(current)
             is SettingsEvent.SecretChanged -> edit { it.copy(newSecret = event.value, secretSaved = false) }
             SettingsEvent.SaveSecret -> if (current.canSaveSecret) saveSecret(current)
+            SettingsEvent.TestConnection -> if (current.connectionTest != ProxyCheck.Running) testConnection()
             SettingsEvent.Retry -> Unit
         }
     }
@@ -101,6 +116,14 @@ internal constructor(private val settings: TherapistSettings, private val io: Co
         guarded {
             withContext(io) { settings.setSharedSecret(current.newSecret.trim()) }
             edit { it.copy(newSecret = "", secretSet = true, secretSaved = true, busy = false) }
+        }
+    }
+
+    private fun testConnection() {
+        edit { it.copy(connectionTest = ProxyCheck.Running) }
+        guarded {
+            val result = proxyCheck(settings, io, ping)
+            edit { it.copy(connectionTest = result) }
         }
     }
 

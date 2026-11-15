@@ -1,5 +1,6 @@
 package com.aitherapist.dls.ui.therapist
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -45,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -63,6 +66,11 @@ import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.ChildColors
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
+import com.aitherapist.dls.ui.theme.calmSlide
+import com.aitherapist.dls.ui.theme.isForwardTab
+import com.aitherapist.dls.ui.theme.isPortrait
+import com.aitherapist.dls.ui.theme.isRtl
+import com.aitherapist.dls.ui.theme.rememberReducedMotion
 import java.util.Locale
 
 /**
@@ -79,6 +87,8 @@ fun NewSessionDialog(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val content = state as? NewSessionUiState.Content
+    val variant = character?.name?.lowercase(Locale.ROOT)
+    val canStart = content?.selected?.choiceReady(content.choice, variant) == true
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             val expanded = maxWidth >= EXPANDED_MIN_WIDTH
@@ -113,7 +123,7 @@ fun NewSessionDialog(
                             Text(stringResource(R.string.new_session_cancel))
                         }
                         Button(
-                            enabled = content?.selected != null,
+                            enabled = canStart,
                             shape = RoundedCornerShape(Radius.Sm),
                             modifier = Modifier.height(BUTTON_HEIGHT).widthIn(min = START_MIN_WIDTH),
                             onClick = { viewModel.plan()?.let { (first, then) -> onStart(first, then) } }
@@ -127,14 +137,16 @@ fun NewSessionDialog(
 
 @Composable
 private fun TaskPicker(s: NewSessionUiState.Content, character: ChildCharacter?, onEvent: (NewSessionEvent) -> Unit) {
-    val groups = s.byArea
+    val variant = character?.name?.lowercase(Locale.ROOT)
+    // Ready tasks first; areas with nothing ready yet still show, last, so the therapist sees what is coming.
+    val groups = s.byAreaReadyFirst(variant)
     if (groups.isEmpty()) return
     // Open on the tab holding the current selection, else the first domain.
     val initialTab = groups.indexOfFirst { (_, options) -> options.any { it.id == s.selectedId } }.coerceAtLeast(0)
     var tab by rememberSaveable { mutableIntStateOf(initialTab) }
     val current = tab.coerceIn(0, groups.lastIndex)
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.S2)) {
-        PrimaryScrollableTabRow(selectedTabIndex = current, edgePadding = 0.dp) {
+        val tabs = @Composable {
             groups.forEachIndexed { index, (area, _) ->
                 Tab(
                     selected = index == current,
@@ -144,36 +156,72 @@ private fun TaskPicker(s: NewSessionUiState.Content, character: ChildCharacter?,
                 )
             }
         }
-        val options = groups[current].second
-        val selected = s.selected
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(TILE_MIN_WIDTH),
-            contentPadding = PaddingValues(vertical = Spacing.S3),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.S4), // DESIGN.md: 24dp gutters
-            verticalArrangement = Arrangement.spacedBy(Spacing.S4),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(options, key = { it.id }) { option ->
-                TaskTile(option, character, option.id == s.selectedId) { onEvent(NewSessionEvent.Select(option.id)) }
-            }
-            if (selected != null && selected.isPair && options.any { it.id == selected.id }) {
-                item(span = { GridItemSpan(maxLineSpan) }) { PairChoiceRow(selected, s.choice, onEvent) }
-            }
+        // Portrait: fixed equal-width domain tabs when they fit; otherwise (and in landscape) the scrolling strip.
+        if (isPortrait() && groups.size <= MAX_FIXED_TABS) {
+            PrimaryTabRow(selectedTabIndex = current) { tabs() }
+        } else {
+            PrimaryScrollableTabRow(selectedTabIndex = current, edgePadding = 0.dp) { tabs() }
+        }
+        val rtl = isRtl()
+        val reduced = rememberReducedMotion()
+        AnimatedContent(
+            targetState = current,
+            transitionSpec = { calmSlide(isForwardTab(initialState, targetState), rtl, reduced) },
+            contentAlignment = Alignment.TopCenter,
+            label = "domainTab"
+        ) { shown ->
+            TaskGrid(groups[shown].second, s, character, onEvent)
+        }
+    }
+}
+
+/** Domain tabs above this count fall back to a scrolling strip even in portrait. */
+private const val MAX_FIXED_TABS = 4
+
+@Composable
+private fun TaskGrid(
+    options: List<TaskOption>,
+    s: NewSessionUiState.Content,
+    character: ChildCharacter?,
+    onEvent: (NewSessionEvent) -> Unit
+) {
+    val selected = s.selected
+    val variant = character?.name?.lowercase(Locale.ROOT)
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(TILE_MIN_WIDTH),
+        contentPadding = PaddingValues(vertical = Spacing.S3),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.S4), // DESIGN.md: 24dp gutters
+        verticalArrangement = Arrangement.spacedBy(Spacing.S4),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(options, key = { it.id }) { option ->
+            val ready = option.isReady(variant)
+            TaskTile(option, character, option.id == s.selectedId, ready) { onEvent(NewSessionEvent.Select(option.id, variant)) }
+        }
+        if (selected != null && selected.isPair && options.any { it.id == selected.id }) {
+            item(span = { GridItemSpan(maxLineSpan) }) { PairChoiceRow(selected, s.choice, variant, onEvent) }
         }
     }
 }
 
 @Composable
-private fun TaskTile(option: TaskOption, character: ChildCharacter?, selected: Boolean, onClick: () -> Unit) {
+private fun TaskTile(option: TaskOption, character: ChildCharacter?, selected: Boolean, ready: Boolean, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val variant = character?.name?.lowercase(Locale.ROOT)
     val picture = variant?.let { option.pictures[it] }
     val name = if (option.isPair) "${option.nameAr} / ${option.offNameAr}" else option.nameAr
-    val label = if (selected) stringResource(R.string.new_session_task_selected, name) else name
+    val soon = stringResource(R.string.new_session_coming_soon)
+    val label = when {
+        !ready -> "$name, $soon"
+        selected -> stringResource(R.string.new_session_task_selected, name)
+        else -> name
+    }
+    // Not ready (step clips missing for this character): greyed, "Coming soon" badge, cannot be selected.
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .alpha(if (ready) 1f else NOT_READY_ALPHA)
+            .selectable(selected = selected, enabled = ready, role = Role.RadioButton, onClick = onClick)
             .semantics(mergeDescendants = true) { contentDescription = label },
         shape = RoundedCornerShape(Radius.Md),
         // Selection = thicker primary border + check icon, not colour alone. No shadow (therapist card).
@@ -194,6 +242,20 @@ private fun TaskTile(option: TaskOption, character: ChildCharacter?, selected: B
                 stillMode = true,
                 modifier = Modifier.fillMaxSize().padding(Spacing.S1)
             )
+            if (!ready) {
+                Surface(
+                    color = colors.secondaryContainer,
+                    contentColor = colors.onSecondaryContainer,
+                    shape = RoundedCornerShape(Radius.Sm),
+                    modifier = Modifier.align(Alignment.TopEnd).padding(Spacing.S2)
+                ) {
+                    Text(
+                        soon,
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(horizontal = Spacing.S2, vertical = Spacing.S1)
+                    )
+                }
+            }
             if (selected) {
                 Icon(
                     Icons.Filled.CheckCircle,
@@ -217,12 +279,14 @@ private fun TaskTile(option: TaskOption, character: ChildCharacter?, selected: B
 }
 
 @Composable
-private fun PairChoiceRow(option: TaskOption, choice: PairChoice, onEvent: (NewSessionEvent) -> Unit) {
+private fun PairChoiceRow(option: TaskOption, choice: PairChoice, variant: String?, onEvent: (NewSessionEvent) -> Unit) {
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(top = Spacing.S2)) {
         PairChoice.entries.forEachIndexed { index, c ->
             SegmentedButton(
                 selected = choice == c,
                 onClick = { onEvent(NewSessionEvent.Choose(c)) },
+                // A half whose step clips are missing cannot be started (coming soon).
+                enabled = option.choiceReady(c, variant),
                 shape = SegmentedButtonDefaults.itemShape(index, PairChoice.entries.size)
             ) {
                 Text(
@@ -244,3 +308,4 @@ private val BUTTON_HEIGHT = 48.dp
 private val START_MIN_WIDTH = 160.dp
 private val TILE_MIN_WIDTH = 208.dp
 private val TILE_PICTURE_HEIGHT = 160.dp
+private const val NOT_READY_ALPHA = 0.45f

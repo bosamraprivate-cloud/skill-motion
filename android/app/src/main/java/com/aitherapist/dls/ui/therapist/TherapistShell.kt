@@ -272,3 +272,9 @@ private fun TherapistShellPreview() {
         }
     }
 }
+
+@Preview(widthDp = 800, heightDp = 1280)
+@Composable
+private fun TherapistShellPortraitPreview() {
+    TherapistShellPreview()
+}

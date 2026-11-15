@@ -275,26 +275,23 @@ class AppGateViewModelTest {
     }
 
     @Test
-    fun `refused pinning shows the notice, retry and start without lock`() {
+    fun `refused pinning starts child mode unpinned and leaves a hint for the adult`() {
         val vm = AppGateViewModel(FakeTherapistSettings(pin = "1234"), dispatcher) { 0L }
         vm.enterShell()
         vm.openTraining("c", listOf("a"))
         val key = TrainingKey("c", listOf("a"))
         vm.requestHandOff(key)
         vm.onPinningResult(false)
-        assertEquals(PinningState.Failed, vm.pinning)
-        assertEquals(key, vm.pendingHandOff)
-        assertEquals(key, vm.backStack.last()) // still on the adult hand-off screen
-        assertFalse(vm.lockWanted)
-        vm.requestHandOff(key) // retry asks the system again
-        assertEquals(PinningState.Requesting, vm.pinning)
-        vm.onPinningResult(false)
-        vm.handOffUnpinned()
+        assertEquals(PinningState.Idle, vm.pinning)
         assertTrue(vm.backStack.last() is TrainingRunKey)
         assertTrue(vm.childModeActive)
         assertFalse(vm.lockWanted) // no new pinning prompt for this visit
+        assertTrue(vm.unpinnedHint)
         vm.openChildPin()
         vm.leaveChildMode()
         assertEquals(listOf(ShellKey), vm.backStack.toList())
+        assertTrue(vm.unpinnedHint) // shown on the therapist screen after the visit
+        vm.dismissUnpinnedHint()
+        assertFalse(vm.unpinnedHint)
     }
 }

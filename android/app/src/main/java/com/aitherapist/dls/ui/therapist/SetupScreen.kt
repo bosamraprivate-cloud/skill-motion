@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,7 +34,10 @@ import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.components.PinDots
 import com.aitherapist.dls.ui.components.PinPad
+import com.aitherapist.dls.ui.components.SideBySideOrStacked
 import com.aitherapist.dls.ui.theme.DlsTheme
+import com.aitherapist.dls.ui.theme.Spacing
+import com.aitherapist.dls.ui.theme.isPortrait
 
 /** Stateful entry: first-run setup; calls [onFinished] once everything is saved. */
 @Composable
@@ -57,7 +61,7 @@ fun SetupScreen(
     zoneStep: @Composable (Modifier, () -> Unit) -> Unit = { _, _ -> }
 ) {
     Scaffold(modifier = modifier) { padding ->
-        val inner = Modifier.fillMaxSize().padding(padding).padding(24.dp)
+        val inner = Modifier.fillMaxSize().padding(padding).padding(Spacing.S4)
         when (state) {
             is SetupUiState.Content ->
                 when (state.step) {
@@ -90,15 +94,26 @@ private fun WelcomeStep(onEvent: (SetupEvent) -> Unit, modifier: Modifier) {
 private fun PinStep(state: SetupUiState.Content, onEvent: (SetupEvent) -> Unit, modifier: Modifier) {
     val confirm = state.step == SetupStep.CONFIRM_PIN
     val value = if (confirm) state.confirmPin else state.pin
-    Row(modifier = modifier, horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.widthIn(max = 360.dp)) {
+    SideBySideOrStacked(modifier = modifier) {
+        // Portrait: title, dots and buttons centred on the same axis as the centred keypad below.
+        val portrait = isPortrait()
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Spacing.S3),
+            horizontalAlignment = if (portrait) Alignment.CenterHorizontally else Alignment.Start,
+            modifier = Modifier.widthIn(max = 360.dp)
+        ) {
             Text(
                 stringResource(if (confirm) R.string.setup_confirm_title else R.string.setup_pin_title),
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = if (portrait) TextAlign.Center else TextAlign.Start
             )
             PinDots(filled = value.length, total = PinRules.MAX_LENGTH)
             if (state.pinMismatch) {
-                Text(stringResource(R.string.setup_pin_mismatch), color = MaterialTheme.colorScheme.error)
+                Text(
+                    stringResource(R.string.setup_pin_mismatch),
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = if (portrait) TextAlign.Center else TextAlign.Start
+                )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedButton(onClick = { onEvent(SetupEvent.Back) }) { Text(stringResource(R.string.action_back)) }
@@ -177,4 +192,10 @@ private fun SetupPinPreview() {
 @Composable
 private fun SetupProxyPreview() {
     DlsTheme { SetupScreen(SetupUiState.Content(step = SetupStep.PROXY, proxyUrl = "http://x"), {}) }
+}
+
+@Preview(widthDp = 800, heightDp = 1280, locale = "ar")
+@Composable
+private fun SetupPinPortraitPreview() {
+    SetupPinPreview()
 }

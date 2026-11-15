@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,6 +87,7 @@ import com.aitherapist.dls.ui.components.Skeleton
 import com.aitherapist.dls.ui.theme.ChildColors
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
+import com.aitherapist.dls.ui.theme.isPortrait
 import com.aitherapist.dls.ui.therapist.ZoneEditorRoute
 import com.aitherapist.dls.ui.therapist.zoneLabel
 import com.aitherapist.dls.vision.Framing
@@ -198,12 +200,16 @@ fun FramingCheckScreen(
     cameraPreview: @Composable (Modifier) -> Unit = {}
 ) {
     val check = state as? FramingUiState.Check
-    BoxWithConstraints(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(Spacing.S4)) {
+    BoxWithConstraints(
+        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).systemBarsPadding().padding(Spacing.S4)
+    ) {
         val wide = maxWidth >= WIDE_LAYOUT
         val preview: @Composable (
             Modifier
         ) -> Unit = { m -> PreviewPane(state, cameraGranted, cameraDenied, onRequestPermission, onOpenSettings, cameraPreview, m) }
-        val panel: @Composable (Modifier) -> Unit = { m -> SidePanel(state, check, cameraGranted, onHandToChild, onDrawZones, m) }
+        val panel: @Composable (
+            Modifier
+        ) -> Unit = { m -> SidePanel(state, check, cameraGranted, onHandToChild, onDrawZones, m, fillHeight = wide) }
         if (wide) {
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4), modifier = Modifier.fillMaxSize()) {
                 preview(Modifier.weight(1f).fillMaxHeight())
@@ -244,7 +250,7 @@ private fun PreviewPane(
                         )
                         Box(
                             Modifier
-                                .aspectRatio(PREVIEW_ASPECT)
+                                .aspectRatio(framingAspect(isPortrait()), matchHeightConstraintsFirst = true)
                                 .clip(RoundedCornerShape(Radius.Lg))
                                 .background(Color.Black)
                                 .border(BorderStroke(4.dp, outline), RoundedCornerShape(Radius.Lg))
@@ -265,7 +271,8 @@ private fun SidePanel(
     cameraGranted: Boolean,
     onHandToChild: () -> Unit,
     onDrawZones: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    fillHeight: Boolean = true
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
         Text(
@@ -289,7 +296,8 @@ private fun SidePanel(
         }
         if (check != null && cameraGranted && check.engineError == null) GuidancePill(check)
         if (check != null && check.missingZones.isNotEmpty()) MissingZonesNotice(check.missingZones, onDrawZones)
-        Spacer(Modifier.weight(1f))
+        // Side panel (wide): the button sits at the bottom; stacked (portrait): it follows the text directly.
+        if (fillHeight) Spacer(Modifier.weight(1f))
         val framed = check?.framed == true
         Button(
             onClick = onHandToChild,
@@ -453,6 +461,9 @@ private fun DrawScope.drawSilhouette(framing: Framing, color: Color) {
 }
 
 private const val PREVIEW_ASPECT = 4f / 3f
+
+/** Story 6.3: the upright front preview is 4:3 in landscape and 3:4 in portrait; the frame box follows it. */
+internal fun framingAspect(portrait: Boolean): Float = if (portrait) 1f / PREVIEW_ASPECT else PREVIEW_ASPECT
 private const val OUTLINE_FADE_MS = 600
 private val PANEL_WIDTH = 360.dp
 private val WIDE_LAYOUT = 840.dp

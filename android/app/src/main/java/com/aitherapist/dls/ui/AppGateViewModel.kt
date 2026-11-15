@@ -96,8 +96,19 @@ internal constructor(
     var pinning: PinningState by mutableStateOf(PinningState.Idle)
         private set
 
-    /** The adult chose "Start without lock" after pinning failed: this visit runs unpinned (no new prompt). */
+    /** Pinning did not take hold at hand-off: this visit runs unpinned (no new prompt). */
     private var unpinnedVisit by mutableStateOf(false)
+
+    /**
+     * A recent hand-off started without screen pinning; the therapist screen shows a small, dismissable hint for the
+     * adult once child mode has ended (never during child mode, so the child never sees it).
+     */
+    var unpinnedHint: Boolean by mutableStateOf(false)
+        private set
+
+    fun dismissUnpinnedHint() {
+        unpinnedHint = false
+    }
 
     /** The activity should hold screen pinning: child mode on (unless started unpinned), or a hand-off is asking for it. */
     val lockWanted: Boolean get() = (childModeActive && !unpinnedVisit) || pinning == PinningState.Requesting
@@ -108,7 +119,7 @@ internal constructor(
 
     /**
      * "Hand to child" on [key] ([FramingCheckKey] or [TrainingKey]): pinning is tried first; the activity reports back
-     * with [onPinningResult]. Child mode starts on success; on failure the adult sees a notice with retry.
+     * with [onPinningResult]; child mode starts either way.
      */
     fun requestHandOff(key: NavKey) {
         if (backStack.lastOrNull() != key || pinning == PinningState.Requesting) return
@@ -116,18 +127,17 @@ internal constructor(
         pinning = PinningState.Requesting
     }
 
-    /** The activity's pinning attempt ended: [locked] true starts child mode; false shows the adult notice. */
+    /**
+     * The activity's pinning attempt ended. Either way child mode starts: pinned when [locked], otherwise unpinned for
+     * this visit with a calm hint for the adult afterwards (no blocking notice, no retry loop).
+     */
     fun onPinningResult(locked: Boolean) {
         if (pinning != PinningState.Requesting) return
         val key = pendingHandOff ?: return
-        if (locked) completeHandOff(key) else pinning = PinningState.Failed
-    }
-
-    /** Notice "Start without lock": child mode still starts, without screen pinning for this visit. */
-    fun handOffUnpinned() {
-        val key = pendingHandOff ?: return
-        if (pinning != PinningState.Failed) return
-        unpinnedVisit = true
+        if (!locked) {
+            unpinnedVisit = true
+            unpinnedHint = true
+        }
         completeHandOff(key)
     }
 
@@ -292,5 +302,5 @@ internal constructor(
     }
 }
 
-/** Screen pinning attempt at hand-off: none, waiting for the system, or refused/failed (adult notice shown). */
-enum class PinningState { Idle, Requesting, Failed }
+/** Screen pinning attempt at hand-off: none, or waiting for the system. */
+enum class PinningState { Idle, Requesting }

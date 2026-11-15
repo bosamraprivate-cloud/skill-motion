@@ -1,10 +1,13 @@
 package com.aitherapist.dls.data
 
 import android.content.Context
+import com.aitherapist.dls.catalog.AssetPresence
+import com.aitherapist.dls.catalog.CachedAssetPresence
 import com.aitherapist.dls.catalog.CachedCatalogRepository
 import com.aitherapist.dls.catalog.CatalogRepository
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -23,4 +26,12 @@ constructor(@ApplicationContext context: Context) :
 internal abstract class CatalogModule {
     @Binds
     abstract fun catalogRepository(impl: AssetCatalogRepository): CatalogRepository
+
+    companion object {
+        /** One cached asset-existence checker for the app (task readiness: step clips present). */
+        @Provides
+        @Singleton
+        fun assetPresence(@ApplicationContext context: Context): AssetPresence =
+            CachedAssetPresence { dir -> context.assets.list(dir)?.toList() }
+    }
 }

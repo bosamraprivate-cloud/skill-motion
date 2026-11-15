@@ -18,7 +18,7 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 
 ## Foundation
 
-- **Form factor:** one Android tablet (minSdk 30), landscape only, Kotlin + Jetpack Compose with Material 3 as the base system for therapist mode; child mode uses custom components on top.
+- **Form factor:** one Android tablet (minSdk 30), portrait or landscape (Story 6.3), Kotlin + Jetpack Compose with Material 3 as the base system for therapist mode; child mode uses custom components on top.
 - **Language:** Egyptian Arabic UI and audio, full right-to-left layout and mirrored navigation. Directional icons (back, progress) mirror; the check, replay and hand icons do not.
 - **Two modes, one device:** child mode (screen-pinned, no system navigation) and therapist mode (PIN). No accounts, no network needed except for object-step judging.
 - **Primary users:** the occupational therapist (operates everything, sets up, reviews) and the child with autism (only ever sees child mode).
@@ -29,9 +29,9 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 
 | Surface | Reached from | Purpose |
 |---|---|---|
-| Task start ("Start") | Therapist starts assessment/training | Character greets, task picture, big Start (source Stage 1) |
+| Task start ("Start") | Therapist starts assessment/training | Character large and centred, task name, big Start (no task picture: one image of the guide only, decided 2026-11-15) |
 | Framing check | Task start, camera-scored tasks | Preview with outline; one positioning line from the task posture (sits at the table / stands / stands, may sit); adult confirms position |
-| Step screen | Sequence | One step: character still frame, sentence, audio, Done / Help / Repeat; Help plays the character's demonstration clip |
+| Step screen | Sequence | One step: level 1 the character as the hero (no card), sentence, audio, Done / Help / Repeat; level 2-3 hand-off to the looping demonstration clip |
 | Step reward moment | After verdict saved | Stars and effect per effect level (overlay, 1.5–3 s) |
 | Task reward screen | After the last step | Stars earned, big celebration, sticker progress |
 | Sticker book | Task reward screen ("My stickers") | Earned stickers and progress path |
@@ -83,7 +83,8 @@ Never: "wrong", "no", "try harder", scores, levels, timers counting down at the 
 - **Done area** — tap anywhere in it, or Bluetooth key press, closes the attempt window. Debounced 1 s. Disabled (dimmed, not hidden) while instruction audio plays, so the window opens only after audio ends.
 - **Help** — moves to the next prompt level immediately, counts as a prompt (FR-12). At prompt level 3 Help replays level 3.
 - **Repeat** — replays the current prompt level's audio and character talk; does not count as a prompt.
-- **Prompt ladder presentation:** level 1 = illustration + sentence + audio, character `talk`; level 2 = the step's demonstration clip (the character performs the step) with the audio; level 3 = the demonstration clip large, slow audio (decided 2026-11-13: demonstration from the second attempt). Buttons remain visible at level 3 in the bottom band.
+- **Prompt staging (owner design 2026-11-15, supersedes the illustration at level 1):** level 1 = no step card; the side character is the hero, large and centred, `talk` during the sentence/audio, then `idle`; the time ring frames it. Level 2-3 = a 1.2 s hand-off: the character moves to the start side (RTL-aware) and `point`s at where the card appears, then shrinks and fades (~600 ms) as the card fades in; the clip then loops large (larger at level 3, slow audio) and the ring runs along the card. The hand-off plays once per step (Repeat and level 2 to 3 keep the card); time up and step-end reactions bring the character back as the hero. Calm effect level / reduced motion: crossfades only. A missing clip shows the still large after the hand-off.
+- **Prompt ladder presentation (earlier wording):** level 1 = illustration + sentence + audio, character `talk`; level 2 = the step's demonstration clip (the character performs the step) with the audio; level 3 = the demonstration clip large, slow audio (decided 2026-11-13: demonstration from the second attempt). Buttons remain visible at level 3 in the bottom band.
 - **Side character (decided 2026-11-14, owner):** the child's character (boy or girl) stays on one side of the step screen for the whole task, always visible and animated, and acts as the guide: `talk` while it says the step (instruction audio), `idle` while the child tries, `point` toward the main area when the step was not done (or Help) as the demonstration clip slides/fades in smoothly next to it, `celebrateSmall` on success, `encourage` after not done at attempt 3. The main area shows the step picture and sentence at level 1 and the demonstration clip from level 2. Transitions are smooth (cross-fade/slide, no hard cuts).
 - **Step schedule** — advances one dot per step; never shows outcome.
 - **Star bar** — counts stars per FR-37; stars only ever increase.
@@ -178,7 +179,7 @@ Settings → Advanced tools → Replay & evaluation (debug build) → import cli
 
 ## Responsive & Platform
 
-Landscape tablets 8–11 inch only; portrait is locked. Layout scales by width class (medium/expanded); child zones keep proportions. No phone layout in v1.
+Tablets 8–11 inch in landscape or portrait (Story 6.3): same tokens and touch targets, only the arrangement changes (portrait stacks the character above the main area). The framing check and a running child session hold the orientation they started in (zones are drawn on a frame of one orientation); it is released when child mode ends. Layout scales by width class (medium/expanded); child zones keep proportions. No phone layout in v1.
 
 ## Therapist information architecture (agreed 2026-11-13)
 

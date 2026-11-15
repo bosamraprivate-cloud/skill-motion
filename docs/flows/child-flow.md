@@ -4,16 +4,16 @@ Status as of 2026-11-14. Tags: **[BUILT]** = in the code now; **[PLANNED]** = in
 
 ## Overview
 
-The child only ever sees child mode, and only after the therapist hands over the tablet. The screen is pinned. A start screen shows the task picture and one big Start button. Then each step follows the same pattern: the side character says the step (audio), the Done button unlocks when the audio ends, the child tries, and the child taps Done (or presses a Bluetooth button). The camera judges the attempt on the tablet, or asks the cloud for object steps. If the step was not done, the next attempt shows the character's demonstration clip. A done step earns a star and a small celebration. Doubt is never failure: an unclear attempt repeats once with a neutral line, then the step is "not scored" and the task moves on. After the last step a reward screen shows the stars and progress toward a sticker. The child never sees levels, errors or network problems. The adult leaves child mode through a hidden corner and the PIN.
+The child only ever sees child mode, and only after the therapist hands over the tablet. The screen is pinned. A start screen shows the child's character large, the task name and one big Start button. Then each step follows the same pattern: the side character says the step (audio), the Done button unlocks when the audio ends, the child tries, and the child taps Done (or presses a Bluetooth button). The camera judges the attempt on the tablet, or asks the cloud for object steps. At level 1 the character itself is the big centre of the screen (no step picture). If the step was not done (or Help), the character points across, fades away, and the demonstration clip takes its place. A done step earns a star and a small celebration. Doubt is never failure: an unclear attempt repeats once with a neutral line, then the step is "not scored" and the task moves on. After the last step a reward screen shows the stars and progress toward a sticker. The child never sees levels, errors or network problems. The adult leaves child mode through a hidden corner and the PIN.
 
 ```mermaid
 flowchart TD
-    A[Therapist: Hand to child] --> B[Task start: character points, task picture, Start]
+    A[Therapist: Hand to child] --> B[Task start: character large, task name, Start]
     B --> C[Step: character talks, picture + sentence, audio]
     C -->|audio ends| D[Attempt window open: Done active]
     D -->|Done / Bluetooth key / step time up| E[Judging: local or cloud]
     E -->|done| F[Star + celebrateSmall]
-    E -->|not done, attempt 1-2| G[Next attempt: demonstration clip, character points]
+    E -->|not done, attempt 1-2| G[Next attempt: character points and hands off to the demonstration clip]
     G --> C
     E -->|cannot tell, first time| H[Same attempt repeats, neutral line]
     H --> C
@@ -32,14 +32,13 @@ flowchart TD
 ## 1. Task start screen [BUILT]
 
 What happens:
-- The side character (the child's boy or girl) points toward the task picture (the first step's still), with the task name and one big Start ("يلا نبدأ").
+- The child's character (boy or girl) large and centred, looping `idle`, with the task name and one big Start ("يلا نبدأ"). The first step's picture is no longer shown here (it was the same character again and only showed step 1; owner walk 2026-11-15). The same character then opens step 1 as the hero, so there is no jump.
 - Only Start can be pressed. A Bluetooth key press also counts as Start.
 - Shown for a new session, or for a continued session that has no saved attempt yet.
 
 Edge cases:
 - [PENDING ASSETS] Task-name audio is not generated (ElevenLabs blocked); the name is text only.
 - No task name in the catalogue: no text (never the raw task ID).
-- Missing still: the screen shows without a picture.
 - Adult corner (top band, 2 s hold) works here; Pause just dims and holds the screen.
 - Continued session with saved attempts: no start screen; it resumes at the saved step.
 
@@ -47,8 +46,10 @@ Edge cases:
 
 The layout is the same on every step (predictability):
 - Top band: star bar, step schedule (one dot per step, never shows outcome), adult corner.
-- Side zone: the side character, always visible and animated (decided 2026-11-14).
-- Main zone: step picture and sentence at prompt level 1; demonstration clip from level 2.
+- Main zone, staged per prompt level (owner design 2026-11-15, portrait and landscape alike):
+  - Level 1: no step picture or video card. The character is the hero: large, centred in a soft frame, `talk` while the sentence shows (and audio plays), then `idle` while the child acts. The time ring frames the character.
+  - Level 2-3: a short hand-off (1.2 s): the character moves toward the start side (right in RTL) and `point`s across to the centre, then shrinks and fades (~600 ms) while the demonstration card fades in; then the card plays its clip on a loop (larger at level 3) and the ring runs along the card. The audio starts after the hand-off.
+  - The sentence is always under the main zone.
 - Bottom band: **Done** (at least 220 x 160 dp), **Help**, **Repeat**.
 - The camera preview is never shown to the child during steps.
 
@@ -67,10 +68,10 @@ Edge cases:
 
 | Moment | Character state |
 |---|---|
-| Start screen | `point` toward the task picture |
-| Instruction audio | `talk` (any level) |
+| Start screen | `idle`, large and centred |
+| Instruction audio | `talk` (level 1, as the hero) |
 | Child is trying | `idle` |
-| Level rises to 2 or 3 (not done, or Help) | `point` toward the demonstration for 2 s, then `idle` |
+| Entering level 2-3 on a step (not done, cannot-tell/time-up retry, or Help) | `point` toward where the card appears, then fades away; it comes back as the hero for time up and step-end reactions |
 | Step done | `celebrateSmall` |
 | Not done after attempt 3 | `encourage` |
 | Task reward | `celebrateBig` |
@@ -79,13 +80,15 @@ Edge cases:
 Edge cases:
 - A missing state clip falls back to `idle`, then to the first clip available.
 - [PENDING ASSETS] Boy has 7 reaction clips and 81 step clips; the girl has 7 reaction clips and no step clips yet. Clips are animated WebP.
-- Talk wins over point if audio starts during the point.
+- The hand-off plays once per step: Repeat, level 2 to 3, or returning to the screen keep the card. After a time up the character returns to encourage, so a retry at level 2+ hands off again.
+- Calm effect level or system "remove animations": crossfades only, nothing moves or shrinks.
+- Every LISTEN reaches the attempt window: audio, the 1.5 s fallback, or a 30 s watchdog for a player that never reports its end; a cut prompt restarts (device bug 2026-11-15: Help left Done disabled).
 
 ## 5. Attempt window [BUILT]
 
 ### Time ring (Story 6.2) [BUILT, device check pending]
 
-- A calm sage ring runs along the edge of the step card. It starts at the top centre and fills clockwise (in RTL it grows from the right, counter-clockwise) over the step's time. No digits, no ticking, no countdown sound, no warning colour; a faint track shows the shape so colour is not the only signal.
+- A calm sage ring runs along the edge of the character frame (level 1) or of the demonstration card (level 2-3). It starts at the top centre and fills clockwise (in RTL it grows from the right, counter-clockwise) over the step's time. No digits, no ticking, no countdown sound, no warning colour; a faint track shows the shape so colour is not the only signal.
 - The ring waits empty while the instruction audio plays and fills only while the attempt window is open. Adult pause or the screen going inactive freezes it; on resume the attempt restarts with a fresh window, so the ring starts again.
 - Last 3 s: a gentle pulse only when the child's effect level is **full** (calm: static).
 - Done before the end: a small sparkle at the ring tip (full) or a soft glow along the ring (calm), then the normal star effect. No speed bonus stars.
@@ -107,7 +110,7 @@ Edge cases:
 - Window closed by stillness (older catalogue) and the check is not met: saved as **cannot tell** (`not_judgeable`), never "not done".
 - Camera fails to start: no frames arrive; camera steps end as cannot tell `out_of_frame`. Only the adult sees a notice, in the pause sheet.
 - Back button: does nothing on the step screen.
-- Rotation: landscape only; flipping sides keeps the run (ViewModel survives).
+- Rotation (Story 6.3): the tablet rotates freely (portrait or landscape) on therapist screens. From the framing check until child mode ends (PIN exit done), the activity holds the orientation it had when the framing check opened (`SCREEN_ORIENTATION_LOCKED`), so camera frames always match the zones drawn by the therapist and the run never restarts; flipping sides 180 degrees keeps the run (ViewModel survives). Child screens arrange themselves for portrait (character above, main area and buttons below) with the same sizes.
 
 ## 6. Help and Repeat [BUILT]
 
@@ -117,13 +120,13 @@ Edge cases:
 ## 7. Demonstration from attempt 2 [BUILT, PENDING ASSETS]
 
 What happens:
-- Level 1: still picture + sentence + audio.
-- Level 2 (second attempt, or Help): the step's demonstration clip (the character performs the step) in the main area, with audio. The side character points at it.
-- Level 3 (third attempt): the demonstration clip large, slow audio. Buttons stay in the bottom band.
+- Level 1: the character as the hero + sentence + audio (no step card).
+- Level 2 (second attempt, or Help): hand-off from the pointing character, then the step's demonstration clip (the character performs the step) large on a loop, with audio. Done works as soon as the attempt window opens.
+- Level 3 (third attempt): the same, the clip larger, slow audio. Buttons stay in the bottom band.
 - There is no end-of-task walkthrough (removed 2026-11-13).
 
 Edge cases:
-- [PENDING ASSETS] A step with no clip (all girl steps, many boy steps): the still picture is shown enlarged instead.
+- [PENDING ASSETS] A step with no clip (all girl steps, many boy steps): after the hand-off the still picture is shown enlarged instead. A step with no media at all keeps the character as the hero.
 - Transitions are cross-fades/slides, no hard cuts.
 
 ## 8. Judging [BUILT]

@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -46,8 +47,14 @@ class NewSessionViewModelTest {
         }
     }
 
+    private val dispatcher = UnconfinedTestDispatcher()
+
+    /** Every task ready for "boy" unless listed in [notReady]. */
+    private fun vm(repo: CatalogRepository = catalog(), notReady: Set<String> = emptySet()) =
+        NewSessionViewModel(repo, { task -> if (task.id in notReady) emptySet() else setOf("boy") }, dispatcher)
+
     @Before
-    fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
+    fun setUp() = Dispatchers.setMain(dispatcher)
 
     @After
     fun tearDown() = Dispatchers.resetMain()
@@ -56,7 +63,7 @@ class NewSessionViewModelTest {
 
     @Test
     fun `an on task with an off sibling folds into one option, grouped by area in catalogue order`() {
-        val vm = NewSessionViewModel(catalog())
+        val vm = vm()
         val c = content(vm)
         assertEquals(listOf("eat.cake", "dress.coat.on", "dress.hat.on", "eat.cup.on", "eat.cup.off"), c.options.map { it.id })
         assertEquals("different areas never fold", false, c.options[3].isPair)
@@ -72,7 +79,7 @@ class NewSessionViewModelTest {
 
     @Test
     fun `pair defaults to both, take off first then put on`() {
-        val vm = NewSessionViewModel(catalog())
+        val vm = vm()
         assertEquals(listOf(PairChoice.OFF, PairChoice.ON, PairChoice.BOTH), PairChoice.entries)
         vm.onEvent(NewSessionEvent.Select("dress.coat.on"))
         assertEquals(PairChoice.BOTH, content(vm).choice)
@@ -100,9 +107,37 @@ class NewSessionViewModelTest {
 
     @Test
     fun `unknown selection is ignored and a failing catalogue shows an error`() {
-        val vm = NewSessionViewModel(catalog())
+        val vm = vm()
         vm.onEvent(NewSessionEvent.Select("dress.coat.off"))
         assertNull(content(vm).selectedId)
-        assertEquals(NewSessionUiState.Error("IOException"), NewSessionViewModel(catalog(fail = true)).uiState.value)
+        assertEquals(NewSessionUiState.Error("IOException"), vm(catalog(fail = true)).uiState.value)
+    }
+
+    @Test
+    fun `a not-ready task cannot be selected and sorts after ready ones`() {
+        val vm = vm(notReady = setOf("eat.cake"))
+        vm.onEvent(NewSessionEvent.Select("eat.cake", "boy"))
+        assertNull(content(vm).selectedId)
+        val eat = content(vm).byAreaReadyFirst("boy").first { it.first == "eat" }.second
+        assertEquals(listOf("eat.cup.on", "eat.cake"), eat.map { it.id })
+        vm.onEvent(NewSessionEvent.Select("eat.cup.on", "girl"))
+        assertNull("ready only for boy", content(vm).selectedId)
+    }
+
+    @Test
+    fun `areas without a ready task stay listed but come last`() {
+        val vm = vm(notReady = setOf("eat.cake", "eat.cup.on"))
+        assertEquals(listOf("dress", "drink", "eat"), content(vm).byAreaReadyFirst("boy").map { it.first })
+    }
+
+    @Test
+    fun `a pair with only one ready half offers that half`() {
+        val vm = vm(notReady = setOf("dress.coat.off"))
+        vm.onEvent(NewSessionEvent.Select("dress.coat.on", "boy"))
+        val c = content(vm)
+        assertEquals(PairChoice.ON, c.choice)
+        assertTrue(c.selected!!.choiceReady(PairChoice.ON, "boy"))
+        assertFalse(c.selected!!.choiceReady(PairChoice.BOTH, "boy"))
+        assertFalse(c.selected!!.choiceReady(PairChoice.OFF, "boy"))
     }
 }

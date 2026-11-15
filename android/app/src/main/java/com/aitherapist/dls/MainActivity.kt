@@ -3,6 +3,7 @@ package com.aitherapist.dls
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -13,9 +14,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation3.runtime.NavKey
 import com.aitherapist.dls.ui.AppGateViewModel
 import com.aitherapist.dls.ui.AppNavigation
+import com.aitherapist.dls.ui.FramingCheckKey
 import com.aitherapist.dls.ui.PinningState
+import com.aitherapist.dls.ui.TrainingKey
 import com.aitherapist.dls.ui.child.ChildModeKeys
 import com.aitherapist.dls.ui.theme.DlsTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,6 +29,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+
+/**
+ * Story 6.3 orientation rule: hold the current orientation while child mode is on (its PIN exit included) or the
+ * framing check that leads into it is on top, so camera frames always match the zones and the frames the session began with.
+ */
+internal fun keepsOrientation(childModeActive: Boolean, top: NavKey?): Boolean =
+    childModeActive || top is FramingCheckKey || top is TrainingKey
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -52,6 +63,16 @@ class MainActivity : ComponentActivity() {
         // Screen pinning while child mode is on (step screen or its PIN exit) or a hand-off asks for it; off on leave.
         lifecycleScope.launch {
             snapshotFlow { gate.lockWanted }.distinctUntilChanged().collect { active -> setLockTask(active) }
+        }
+        // Story 6.3: zones are drawn on a camera frame of one orientation, so the framing check and a running child
+        // session keep the orientation they started in; the tablet rotates freely again once child mode ends.
+        lifecycleScope.launch {
+            snapshotFlow { keepsOrientation(gate.childModeActive, gate.backStack.lastOrNull()) }
+                .distinctUntilChanged()
+                .collect { hold ->
+                    requestedOrientation =
+                        if (hold) ActivityInfo.SCREEN_ORIENTATION_LOCKED else ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                }
         }
         // Hand-off: report whether pinning actually took hold, so the adult sees a notice when it did not.
         lifecycleScope.launch {

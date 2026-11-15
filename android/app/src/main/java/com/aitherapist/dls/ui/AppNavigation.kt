@@ -1,6 +1,7 @@
 package com.aitherapist.dls.ui
 
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.ContentTransform
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -23,15 +25,22 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.NavDisplay
 import com.aitherapist.dls.BuildConfig
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.child.ChildModeHost
 import com.aitherapist.dls.ui.child.FramingCheckRoute
-import com.aitherapist.dls.ui.child.PinningNotice
+import com.aitherapist.dls.ui.child.PinningExplainerDialog
+import com.aitherapist.dls.ui.child.PinningIntro
 import com.aitherapist.dls.ui.child.TrainingRoute
+import com.aitherapist.dls.ui.child.UnpinnedHint
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.sample.SampleRoute
+import com.aitherapist.dls.ui.theme.calmCrossfade
+import com.aitherapist.dls.ui.theme.calmSlide
+import com.aitherapist.dls.ui.theme.isRtl
+import com.aitherapist.dls.ui.theme.rememberReducedMotion
 import com.aitherapist.dls.ui.therapist.CharacterPreviewRoute
 import com.aitherapist.dls.ui.therapist.PinRoute
 import com.aitherapist.dls.ui.therapist.SetupRoute
@@ -126,10 +135,17 @@ fun AppNavigation(modifier: Modifier = Modifier, gate: AppGateViewModel = hiltVi
 @Composable
 private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
     val activity = LocalActivity.current
+    val rtl = isRtl()
+    val reduced = rememberReducedMotion()
     NavDisplay(
         backStack = gate.backStack,
         modifier = modifier,
         onBack = { if (!gate.back()) activity?.moveTaskToBack(true) },
+        // Calm, RTL-aware motion: therapist screens slide a short way (forward = the way Arabic reads) and fade;
+        // anything touching child mode only crossfades. System animations off = no motion.
+        transitionSpec = { navTransform(initialState, targetState, forward = true, rtl = rtl, reduced = reduced) },
+        popTransitionSpec = { navTransform(initialState, targetState, forward = false, rtl = rtl, reduced = reduced) },
+        predictivePopTransitionSpec = { _ -> navTransform(initialState, targetState, forward = false, rtl = rtl, reduced = reduced) },
         entryDecorators =
         listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
@@ -141,21 +157,25 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
             entry<PinKey> { PinRoute(onUnlocked = gate::enterShell) }
             entry<ShellKey> {
                 val pendingSummary by gate.pendingSummary.collectAsStateWithLifecycle()
-                TherapistShell(
-                    pendingSummary = pendingSummary,
-                    onSummaryShown = gate::consumeSummary,
-                    onOpenSample = { gate.open(SampleKey) },
-                    onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
-                    onOpenChildMode = { child, task -> gate.openFramingCheck(child, task) },
-                    onNewSession = { child, task, then -> gate.openFramingCheck(child, task, thenTaskId = then) },
-                    onContinueSession = { child, task, session -> gate.openFramingCheck(child, task, sessionId = session) },
-                    onStartTraining = gate::openTraining
-                )
+                Box(Modifier.fillMaxSize()) {
+                    TherapistShell(
+                        pendingSummary = pendingSummary,
+                        onSummaryShown = gate::consumeSummary,
+                        onOpenSample = { gate.open(SampleKey) },
+                        onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
+                        onOpenChildMode = { child, task -> gate.openFramingCheck(child, task) },
+                        onNewSession = { child, task, then -> gate.openFramingCheck(child, task, thenTaskId = then) },
+                        onContinueSession = { child, task, session -> gate.openFramingCheck(child, task, sessionId = session) },
+                        onStartTraining = gate::openTraining
+                    )
+                    // After a visit that ran without screen pinning: a small hint for the adult only (never in child mode).
+                    if (gate.unpinnedHint) UnpinnedHint(gate::dismissUnpinnedHint, Modifier.align(Alignment.BottomCenter))
+                }
             }
             entry<SampleKey> { SampleRoute() }
             // Character preview is a debug-only tool; release builds register no entry for it.
             if (BuildConfig.DEBUG) entry<CharacterPreviewKey> { CharacterPreviewRoute() }
-            entry<ChildModeKey> { key ->
+            entry<ChildModeKey>(metadata = CHILD_SCENE) { key ->
                 var framingDone by rememberSaveable(key) { mutableStateOf(!key.framingFirst) }
                 if (!framingDone) {
                     FramingCheckRoute(taskId = key.taskId, onHandToChild = { framingDone = true })
@@ -172,30 +192,49 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                 }
             }
             entry<FramingCheckKey> { key ->
-                HandOffFrame(gate, key) { FramingCheckRoute(taskId = key.taskId, onHandToChild = { gate.requestHandOff(key) }) }
+                HandOffFrame(gate, key) { handOff -> FramingCheckRoute(taskId = key.taskId, onHandToChild = handOff) }
             }
             entry<TrainingKey> { key ->
-                HandOffFrame(gate, key) {
-                    FramingCheckRoute(taskId = "", activityIds = key.activityIds, onHandToChild = { gate.requestHandOff(key) })
+                HandOffFrame(gate, key) { handOff ->
+                    FramingCheckRoute(taskId = "", activityIds = key.activityIds, onHandToChild = handOff)
                 }
             }
-            entry<TrainingRunKey> { key -> TrainingRoute(key.childId, key.activityIds, key.runId, onExit = gate::openChildPin) }
-            entry<ChildPinKey> { PinRoute(onUnlocked = gate::leaveChildMode) }
+            entry<TrainingRunKey>(metadata = CHILD_SCENE) { key ->
+                TrainingRoute(key.childId, key.activityIds, key.runId, onExit = gate::openChildPin)
+            }
+            entry<ChildPinKey>(metadata = CHILD_SCENE) { PinRoute(onUnlocked = gate::leaveChildMode) }
         }
     )
 }
 
-/** The adult hand-off screen [content] with the "screen is not locked" notice on top when pinning failed for [key]. */
+/** Entry metadata marking a child-mode screen: transitions to or from it only crossfade (no sliding for children). */
+private const val CHILD_SCENE_KEY = "dls.childScene"
+private val CHILD_SCENE: Map<String, Any> = mapOf(CHILD_SCENE_KEY to true)
+
+private fun Scene<*>.isChildScene(): Boolean = entries.any { it.metadata[CHILD_SCENE_KEY] == true }
+
+private fun navTransform(from: Scene<*>, to: Scene<*>, forward: Boolean, rtl: Boolean, reduced: Boolean): ContentTransform =
+    if (from.isChildScene() || to.isChildScene()) calmCrossfade(reduced) else calmSlide(forward, rtl, reduced)
+
+/**
+ * The adult hand-off screen [content]; its "Hand to child" callback asks for screen pinning. The very first time on
+ * this tablet the adult first reads a short explanation of pinning and how to exit; afterwards it never shows again.
+ */
 @Composable
-private fun HandOffFrame(gate: AppGateViewModel, key: NavKey, content: @Composable () -> Unit) {
-    Box(Modifier.fillMaxSize()) {
-        content()
-        if (gate.pinning == PinningState.Failed && gate.pendingHandOff == key) {
-            PinningNotice(
-                onRetry = { gate.requestHandOff(key) },
-                onStartAnyway = gate::handOffUnpinned,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
-        }
+private fun HandOffFrame(gate: AppGateViewModel, key: NavKey, content: @Composable (onHandToChild: () -> Unit) -> Unit) {
+    val context = LocalContext.current
+    var explaining by rememberSaveable { mutableStateOf(false) }
+    content {
+        if (PinningIntro.seen(context)) gate.requestHandOff(key) else explaining = true
+    }
+    if (explaining) {
+        PinningExplainerDialog(
+            onContinue = {
+                explaining = false
+                PinningIntro.markSeen(context)
+                gate.requestHandOff(key)
+            },
+            onDismiss = { explaining = false }
+        )
     }
 }

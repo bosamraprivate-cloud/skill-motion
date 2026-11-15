@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -51,8 +53,10 @@ import com.aitherapist.dls.rewards.RewardRules
 import com.aitherapist.dls.rewards.TaskReward
 import com.aitherapist.dls.ui.theme.ChildColors
 import com.aitherapist.dls.ui.theme.ChildType
+import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
+import com.aitherapist.dls.ui.theme.isPortrait
 import com.aitherapist.dls.ui.therapist.CharacterIndexSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
@@ -199,63 +203,30 @@ fun TaskRewardScreen(
     val fade = remember { Animatable(if (full) 1f else 0f) }
     LaunchedEffect(Unit) { fade.animateTo(1f, tween(CALM_FADE_MS, easing = LinearEasing)) }
     Box(modifier.fillMaxSize().background(ChildColors.Canvas)) {
-        // Landscape balance: the celebrating character on the start half, stars, sticker path and buttons on the end half.
-        Row(
-            Modifier.fillMaxSize().padding(Spacing.S5),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.S5)
-        ) {
-            Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
+        // Landscape balance: the celebrating character on the start half, stars, sticker path and buttons on the end
+        // half. Portrait (Story 6.3): the character on top, the same pieces stacked below it.
+        val character: @Composable (Modifier) -> Unit = { m ->
+            Box(m, contentAlignment = Alignment.Center) {
                 CharacterView(clip = state.clip, loop = true, modifier = Modifier.fillMaxSize().alpha(fade.value))
             }
+        }
+        if (isPortrait()) {
             Column(
-                Modifier.weight(1f),
+                Modifier.fillMaxSize().padding(Spacing.S5),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(Spacing.S5)
             ) {
-                val starsLabel = stringResource(R.string.reward_stars, childDigits(state.stars))
-                Row(
-                    Modifier
-                        .semantics { contentDescription = starsLabel }
-                        .background(ChildColors.Surface, RoundedCornerShape(percent = 50))
-                        .padding(horizontal = Spacing.S6, vertical = Spacing.S2),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.S3)
-                ) {
-                    Icon(Icons.Filled.Star, contentDescription = null, tint = ChildColors.Star, modifier = Modifier.size(96.dp))
-                    Text(childDigits(state.stars), style = ChildType.Count, color = ChildColors.Ink)
-                }
-                Row(
-                    Modifier.background(ChildColors.Surface, RoundedCornerShape(Radius.Lg)).padding(Spacing.S4),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.S4)
-                ) {
-                    StickerPath(RewardRules.pathFilled(state.finishedTasks))
-                    state.newSticker?.let { sticker ->
-                        val label = stringResource(R.string.reward_sticker_new)
-                        StickerArt.Sticker(
-                            sticker,
-                            earned = true,
-                            modifier = Modifier.size(112.dp).semantics {
-                                contentDescription = label
-                            }
-                        )
-                    }
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
-                    ChildBigButton(
-                        stringResource(R.string.reward_sticker_book),
-                        ChildColors.Repeat,
-                        onStickerBook,
-                        icon = Icons.Filled.Star
-                    )
-                    ChildBigButton(
-                        stringResource(R.string.reward_next),
-                        ChildColors.Done,
-                        onNext,
-                        icon = Icons.AutoMirrored.Filled.ArrowForward
-                    )
-                }
+                character(Modifier.weight(1f).fillMaxWidth())
+                RewardDetails(state, onNext, onStickerBook, Modifier.fillMaxWidth())
+            }
+        } else {
+            Row(
+                Modifier.fillMaxSize().padding(Spacing.S5),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.S5)
+            ) {
+                character(Modifier.weight(1f).fillMaxHeight())
+                RewardDetails(state, onNext, onStickerBook, Modifier.weight(1f))
             }
         }
         if (full) {
@@ -285,6 +256,60 @@ fun TaskRewardScreen(
     }
 }
 
+/** Stars, the sticker path (with a new sticker) and the two big buttons, in one column for both orientations. */
+@Composable
+private fun RewardDetails(state: TaskRewardUiState.Content, onNext: () -> Unit, onStickerBook: () -> Unit, modifier: Modifier) {
+    Column(
+        modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Spacing.S5)
+    ) {
+        val starsLabel = stringResource(R.string.reward_stars, childDigits(state.stars))
+        Row(
+            Modifier
+                .semantics { contentDescription = starsLabel }
+                .background(ChildColors.Surface, RoundedCornerShape(percent = 50))
+                .padding(horizontal = Spacing.S6, vertical = Spacing.S2),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.S3)
+        ) {
+            Icon(Icons.Filled.Star, contentDescription = null, tint = ChildColors.Star, modifier = Modifier.size(96.dp))
+            Text(childDigits(state.stars), style = ChildType.Count, color = ChildColors.Ink)
+        }
+        Row(
+            Modifier.background(ChildColors.Surface, RoundedCornerShape(Radius.Lg)).padding(Spacing.S4),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.S4)
+        ) {
+            StickerPath(RewardRules.pathFilled(state.finishedTasks))
+            state.newSticker?.let { sticker ->
+                val label = stringResource(R.string.reward_sticker_new)
+                StickerArt.Sticker(
+                    sticker,
+                    earned = true,
+                    modifier = Modifier.size(112.dp).semantics {
+                        contentDescription = label
+                    }
+                )
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4)) {
+            ChildBigButton(
+                stringResource(R.string.reward_sticker_book),
+                ChildColors.Repeat,
+                onStickerBook,
+                icon = Icons.Filled.Star
+            )
+            ChildBigButton(
+                stringResource(R.string.reward_next),
+                ChildColors.Done,
+                onNext,
+                icon = Icons.AutoMirrored.Filled.ArrowForward
+            )
+        }
+    }
+}
+
 /** Calm delay before the reward continues on its own. */
 const val AUTO_CONTINUE_MS = 10_000L
 private const val CALM_FADE_MS = 1_500
@@ -298,3 +323,23 @@ private const val CONFETTI_Y = 0.4
 
 // Calm palette only: gold, green, blue, lilac, mint (no red/orange).
 private val CONFETTI_COLORS = listOf(0xE8C26A, 0x5E9C8A, 0x7FA7C9, 0xB9A6D3, 0xA9CFC2)
+
+@Preview(widthDp = 1280, heightDp = 800)
+@Composable
+private fun TaskRewardLandscapePreview() {
+    DlsTheme { TaskRewardScreen(PREVIEW_REWARD, onNext = {}, onStickerBook = {}) }
+}
+
+@Preview(widthDp = 800, heightDp = 1280)
+@Composable
+private fun TaskRewardPortraitPreview() {
+    DlsTheme { TaskRewardScreen(PREVIEW_REWARD, onNext = {}, onStickerBook = {}) }
+}
+
+private val PREVIEW_REWARD = TaskRewardUiState.Content(
+    stars = 3,
+    finishedTasks = 2,
+    newSticker = null,
+    effectLevel = EffectLevel.CALM,
+    clip = null
+)

@@ -215,9 +215,6 @@
     <string name="replay_problem_too_long">clip is longer than 90 s</string>
     <string name="replay_reason_no_zone_hint">Zone steps show no_zone: replay uses no setup zones.</string>
     <string name="settings_back">Settings</string>
-    <string name="settings_group_security">Security</string>
-    <string name="settings_group_connection">Connection</string>
-    <string name="settings_group_zones">Setup</string>
     <string name="settings_pin_subtitle">The PIN opens therapist mode and leaves child mode.</string>
     <string name="settings_proxy_subtitle">Proxy address and secret for the cloud check of object steps.</string>
     <string name="settings_status_ready">Ready: the cloud check can be reached.</string>
@@ -482,7 +479,6 @@
         <item quantity="one">%1$s: %2$s %3$s, %4$s %5$s, %6$s, %7$s step in both</item>
         <item quantity="other">%1$s: %2$s %3$s, %4$s %5$s, %6$s, %7$s steps in both</item>
     </plurals>
-    <string name="settings_group_evaluation">Evaluation</string>
     <string name="settings_tool_blind_hint">Rate attempts from their pictures only, without the result of the app</string>
     <string name="blind_title">Blind review</string>
     <string name="blind_subtitle">Look at the pictures and say what you see. The result of the app is hidden.</string>
@@ -545,9 +541,6 @@
         <item quantity="one">Too many wrong tries. Please wait %1$s second.</item>
         <item quantity="other">Too many wrong tries. Please wait %1$s seconds.</item>
     </plurals>
-    <string name="pinning_failed_notice">Screen is not locked — the child could leave the app.</string>
-    <string name="pinning_retry">Try again</string>
-    <string name="pinning_start_unlocked">Start without lock</string>
     <string name="metrics_cell_header">blind %1$s, app %2$s</string>
     <plurals name="metrics_missing_codes">
         <item quantity="one">%1$s session has no child code. Accuracy cannot be computed until it is fixed.</item>
@@ -573,4 +566,24 @@
     <string name="uxc_zones_title">Setup zones</string>
     <string name="uxc_zones_missing">No zones drawn yet</string>
     <string name="uxc_draw_zones">Draw zones</string>
+    <string name="pinning_intro_title">Screen pinning</string>
+    <string name="pinning_intro_what">While the child plays, the app pins the screen so the child cannot leave it by mistake.</string>
+    <string name="pinning_intro_system">Android will show its own &quot;App is pinned&quot; message. That is normal; you can tap Got it.</string>
+    <string name="pinning_intro_exit">To finish, press and hold the adult corner, then enter your PIN.</string>
+    <string name="pinning_intro_ok">Start</string>
+    <string name="pinning_unpinned_hint">The last session ran without screen pinning. That is fine; it just means the child could leave the app.</string>
+    <string name="pinning_hint_dismiss">Dismiss</string>
+    <string name="settings_pinning_title">Screen pinning</string>
+    <string name="settings_pinning_body">Each child session pins the screen so the child stays in the app. Android shows its own &quot;App is pinned&quot; message the first time. To finish a session, press and hold the adult corner and enter your PIN. If the tablet does not allow pinning, the session starts anyway.</string>
+    <string name="new_session_coming_soon">Coming soon</string>
+    <string name="settings_group_session">Session &amp; child mode</string>
+    <string name="settings_group_camera">Camera &amp; zones</string>
+    <string name="settings_group_ai">AI connection</string>
+    <string name="settings_group_accuracy">Accuracy &amp; review</string>
+    <string name="settings_group_data">Data</string>
+    <string name="settings_test_connection">Test connection</string>
+    <string name="settings_test_ok">Connected</string>
+    <string name="settings_test_unreachable">Not reachable right now</string>
+    <string name="settings_test_not_set_hint">Add the proxy address and secret below, then test again.</string>
+    <string name="settings_test_calm">Sessions still run; steps the camera cannot judge are saved as &quot;cannot tell&quot; for your review.</string>
 </resources>

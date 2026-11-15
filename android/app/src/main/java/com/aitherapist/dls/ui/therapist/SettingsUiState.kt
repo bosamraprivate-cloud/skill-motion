@@ -16,7 +16,9 @@ sealed interface SettingsUiState {
         val secretSet: Boolean = false,
         val newSecret: String = "",
         val secretSaved: Boolean = false,
-        val busy: Boolean = false
+        val busy: Boolean = false,
+        /** "Test connection" result: null before the first test, [ProxyCheck.Running] while it runs. */
+        val connectionTest: ProxyCheck? = null
     ) : SettingsUiState {
         val proxyUrlValid: Boolean get() = isValidProxyUrl(proxyUrl)
         val canChangePin: Boolean
@@ -47,6 +49,9 @@ sealed interface SettingsEvent {
     data class SecretChanged(val value: String) : SettingsEvent
 
     data object SaveSecret : SettingsEvent
+
+    /** Health ping of the cloud check proxy (no frames, no child data). */
+    data object TestConnection : SettingsEvent
 
     data object Retry : SettingsEvent
 }

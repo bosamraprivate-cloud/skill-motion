@@ -111,7 +111,19 @@ class CameraController(private val context: Context) {
                 .setResolutionStrategy(
                     ResolutionStrategy(TARGET_SIZE, ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
                 ).build()
-        val preview = surfaceProvider?.let { Preview.Builder().setResolutionSelector(selector).build().apply { this.surfaceProvider = it } }
+        // Story 6.3: both use cases follow the display rotation at bind time (portrait or landscape), so the analysis
+        // frame's rotationDegrees and the upright frames match what the screen shows. Child mode holds the orientation
+        // while it runs, and a rotation outside it recreates the activity, which rebinds with the new rotation.
+        val rotation = ContextCompat.getDisplayOrDefault(context).rotation
+        val preview =
+            surfaceProvider?.let {
+                Preview
+                    .Builder()
+                    .setResolutionSelector(selector)
+                    .setTargetRotation(rotation)
+                    .build()
+                    .apply { this.surfaceProvider = it }
+            }
         if (onFrame == null) {
             checkNotNull(preview) { "nothing to bind" }
             cameraProvider.unbindAll()
@@ -123,6 +135,7 @@ class CameraController(private val context: Context) {
             ImageAnalysis
                 .Builder()
                 .setResolutionSelector(selector)
+                .setTargetRotation(rotation)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()

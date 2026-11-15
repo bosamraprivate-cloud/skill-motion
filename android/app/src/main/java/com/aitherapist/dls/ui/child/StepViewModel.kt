@@ -144,10 +144,10 @@ constructor(
     private var steps: List<CatalogStep> = emptyList()
     private var variant: CharacterVariant? = null
     private var variantId: String = ""
-    private var pointStep = -1
-    private var pointLevel = 0
-    private var pointing = false
-    private var pointJob: Job? = null
+
+    /** The step whose demonstration card is up (handoff started); -1 = the character is the hero. */
+    private var demoStep = -1
+    private var handoffJob: Job? = null
     private var taskName: String? = null
     private var starCount = 0
 
@@ -162,6 +162,10 @@ constructor(
 
     /** The LISTEN state the audio was started for (by reference: every prompt entry is a new object). */
     private var audioFor: RunnerState.Listen? = null
+
+    /** The LISTEN state AudioEnded was already sent for: never restart its audio while the runner moves on. */
+    private var endedFor: RunnerState.Listen? = null
+    private var watchdogJob: Job? = null
     private var audioPlaying = false
     private var audioToken = 0
     private var fallbackJob: Job? = null
@@ -335,11 +339,13 @@ constructor(
         ringEnd = end
         if (end.ending != TimeRing.Ending.TIME_UP || paused || localPaused) return
         timeUp = true
+        // The character comes back as the hero to encourage; a retry at level 2+ hands off to the card again.
+        demoStep = -1
         timeUpJob?.cancel()
         timeUpJob = viewModelScope.launch {
             delay(TIME_UP_MS)
             timeUp = false
-            runner?.let { state.value = render(it.state.value) }
+            sync()
         }
     }
 
@@ -471,7 +477,10 @@ constructor(
                 stopTicking()
             }
             // Effects never overlap instruction audio: the next step's audio starts when the effect ends.
-            current is RunnerState.Listen -> if (current !== audioFor && effectFlow.value == null) startAudio(current)
+            // Time up encourages first. A LISTEN whose audio, fallback or handoff was cut without AudioEnded (any
+            // path) is started again, so every LISTEN reaches AudioEnded and the attempt window opens.
+            current is RunnerState.Listen ->
+                if (effectFlow.value == null && !timeUp && (current !== audioFor || !listenLive(current))) beginListen(current)
             else -> stopAudio()
         }
         // Adult pause or screen gone cuts the effect; it is never replayed later.
@@ -487,9 +496,34 @@ constructor(
         state.value = render(current)
     }
 
-    private fun startAudio(listen: RunnerState.Listen) {
+    /** True while [listen] has its audio, fallback or handoff running, or has already sent AudioEnded. */
+    private fun listenLive(listen: RunnerState.Listen): Boolean =
+        endedFor === listen || audioPlaying || fallbackJob?.isActive == true || handoffJob?.isActive == true
+
+    /**
+     * Starts [listen]: at level 2+ on a step whose card is not up yet, the handoff (character points, fades away,
+     * card appears) runs first for [HANDOFF_MS]; then the instruction audio.
+     */
+    private fun beginListen(listen: RunnerState.Listen) {
         stopAudio()
         audioFor = listen
+        endedFor = null
+        if (listen.prompt.level >= 2 && demoStep != listen.stepIndex) {
+            demoStep = listen.stepIndex
+            val token = audioToken
+            handoffJob = viewModelScope.launch {
+                delay(HANDOFF_MS)
+                if (token != audioToken) return@launch
+                handoffJob = null
+                startAudio(listen)
+                runner?.let { state.value = render(it.state.value) }
+            }
+        } else {
+            startAudio(listen)
+        }
+    }
+
+    private fun startAudio(listen: RunnerState.Listen) {
         val token = ++audioToken
         val step = steps.getOrNull(listen.stepIndex)
         val path = step?.audio?.let { if (listen.prompt.level >= PromptState.MAX_LEVEL) it.slow else it.normal }
@@ -501,23 +535,44 @@ constructor(
                 delay(MISSING_AUDIO_DELAY_MS)
                 onAudioEnded(token)
             }
+        } else {
+            // A player that never reports its end (stalled prepare, lost callback) must not hold the child forever.
+            watchdogJob = viewModelScope.launch {
+                delay(AUDIO_WATCHDOG_MS)
+                onAudioEnded(token)
+            }
         }
     }
 
     private fun onAudioEnded(token: Int) {
         if (token != audioToken) return
+        audioToken++ // one end per start (callback, fallback or watchdog)
         audioPlaying = false
+        watchdogJob?.cancel()
+        watchdogJob = null
+        fallbackJob = null
         val target = runner ?: return
-        state.value = render(target.state.value)
+        val listen = audioFor
+        // Only the LISTEN this audio belongs to may open the window (a stale end never skips a newer prompt).
+        if (listen == null || target.state.value !== listen) {
+            sync()
+            return
+        }
+        endedFor = listen
+        state.value = render(listen)
         send(target, RunnerEvent.AudioEnded)
     }
 
     private fun stopAudio() {
-        if (!audioPlaying && fallbackJob == null) return
+        if (!audioPlaying && fallbackJob == null && handoffJob == null && watchdogJob == null) return
         audioToken++
         audioPlaying = false
         fallbackJob?.cancel()
         fallbackJob = null
+        handoffJob?.cancel()
+        handoffJob = null
+        watchdogJob?.cancel()
+        watchdogJob = null
         audio.stop()
     }
 
@@ -569,8 +624,10 @@ constructor(
         val effectOn = effectFlow.value
         if (effectOn != null && frozen != null) {
             // Step N's screen stays during its effect: the character reacts, no button opens a window, no clip plays.
+            // The character comes back as the hero for its step-end reaction.
             return frozen.copy(
                 visual = frozen.visual?.copy(animate = false),
+                stage = StepStage.CHARACTER_HERO,
                 reactionClip = effectReaction() ?: frozen.reactionClip,
                 ring = frozen.ring?.let { ringEnd?.takeIf { end -> end.key == it.key } ?: it.copy(running = false) },
                 doneEnabled = false,
@@ -583,13 +640,7 @@ constructor(
 
     private fun renderPlain(current: RunnerState): StepUiState = when {
         awaitingStart && current !is RunnerState.Error && current != RunnerState.Idle ->
-            StepUiState.Start(
-                taskName,
-                steps.firstOrNull()?.media(variantId)?.still,
-                reaction(POINT),
-                paused = localPaused,
-                portraitClip = reaction(IDLE)
-            )
+            StepUiState.Start(taskName, reaction(IDLE), paused = localPaused)
         current is RunnerState.OnStep -> renderStep(current)
         current == RunnerState.Completed -> StepUiState.Finished(reaction(IDLE))
         else -> StepUiState.Waiting
@@ -598,45 +649,51 @@ constructor(
     private fun renderStep(current: RunnerState.OnStep): StepUiState {
         val step = steps.getOrNull(current.stepIndex) ?: return StepUiState.Waiting
         val level = current.prompt.level
-        val media = step.media(variantId)
-        val demo = level >= 2
+        val paused = current is RunnerState.Paused
+        val stage = stage(current.stepIndex, level)
+        // Levels 2-3 only: the demonstration clip (loops once the card is up), large at level 3; a missing clip shows
+        // the still enlarged. During the handoff the card fades in on its still (one moving clip at a time).
         val visual =
-            media?.let {
-                when {
-                    // Levels 2-3: the demonstration clip segment, large at level 3; a missing clip shows the still enlarged.
-                    demo && it.clip != null -> StepVisual(it.clip, it.still, animate = true, large = level >= PromptState.MAX_LEVEL)
-                    demo -> StepVisual(null, it.still, animate = false, large = true)
-                    else -> StepVisual(it.clip, it.still, animate = false, large = false)
+            step.media(variantId)?.takeIf { level >= 2 }?.let {
+                if (it.clip != null) {
+                    StepVisual(it.clip, it.still, animate = stage == StepStage.CLIP && !paused, large = level >= PromptState.MAX_LEVEL)
+                } else {
+                    StepVisual(null, it.still, animate = false, large = true)
                 }
             }
         val listening = current is RunnerState.Listen && audioPlaying
-        val paused = current is RunnerState.Paused
-        trackPoint(current.stepIndex, level)
         val timeRing = ring(current, WindowRules.stepTimeoutMs(step.timeSec))
-        // The side character guides every step (EXPERIENCE "Side character"): talk while the instruction plays (any
-        // level), point toward the demonstration for a moment when the level rises to 2+, idle while the child tries.
+        // The character guides (EXPERIENCE "Side character"): talk while the instruction plays, point during the
+        // handoff toward where the card appears, idle while the child tries; time up encourages (never a failure).
         val reactionState =
             when {
                 paused -> IDLE
-                // Story 6.2: time up is never a failure: a short encourage, then the help path continues.
                 timeUp -> ENCOURAGE
+                stage == StepStage.HANDOFF -> POINT
                 listening -> TALK
-                pointing -> POINT
                 else -> IDLE
             }
         return StepUiState.Step(
             stepIndex = current.stepIndex,
             stepCount = steps.size,
             sentence = step.textAr,
-            visual = if (paused) visual?.copy(animate = false) else visual,
+            visual = visual,
             reactionClip = reaction(reactionState),
-            portraitClip = reaction(if (reactionState == POINT) IDLE else reactionState),
             doneEnabled = current is RunnerState.Attempt,
             promptLevel = level,
             stars = starCount,
             paused = paused,
-            ring = timeRing
+            ring = timeRing,
+            stage = stage,
+            calm = effectLevel == EffectLevel.CALM
         ).also { shownSteps[current.stepIndex] = it }
+    }
+
+    /** Level 1 or time up: the character is the hero; level 2+: the handoff while it runs, then the card. */
+    private fun stage(stepIndex: Int, level: Int): StepStage = when {
+        level < 2 || timeUp || demoStep != stepIndex -> StepStage.CHARACTER_HERO
+        handoffJob?.isActive == true -> StepStage.HANDOFF
+        else -> StepStage.CLIP
     }
 
     /** Story 6.2: the ring for [current]; time passes only in an open, unheld window. Null when hidden or untimed. */
@@ -646,30 +703,6 @@ constructor(
             is RunnerState.Attempt -> ringTracker.attempt(current.openedAtMs, totalMs, clock.nowMs(), paused || localPaused, effectLevel)
             is RunnerState.Paused -> ringTracker.paused(effectLevel)
             else -> ringTracker.waiting(totalMs, effectLevel)
-        }
-    }
-
-    /**
-     * Starts the short `point` when the prompt level rises to 2+ on a step; it ends after [POINT_MS] (or earlier in
-     * effect, because instruction audio wins with `talk`). A new step resets the tracking.
-     */
-    private fun trackPoint(stepIndex: Int, level: Int) {
-        if (stepIndex != pointStep) {
-            pointStep = stepIndex
-            pointLevel = level
-            pointing = false
-            pointJob?.cancel()
-            return
-        }
-        if (level == pointLevel) return
-        pointLevel = level
-        if (level < 2) return
-        pointing = true
-        pointJob?.cancel()
-        pointJob = viewModelScope.launch {
-            delay(POINT_MS)
-            pointing = false
-            runner?.let { state.value = render(it.state.value) }
         }
     }
 
@@ -698,8 +731,11 @@ constructor(
         private const val TAG = "DlsChild"
         const val MISSING_AUDIO_DELAY_MS = 1_500L
 
-        /** How long the side character points after the level rises to 2+ (unless the instruction audio starts). */
-        const val POINT_MS = 2_000L
+        /** Level 2+ handoff: the character points toward the card (~600 ms), then fades away as the card appears. */
+        const val HANDOFF_MS = 1_200L
+
+        /** Upper bound on one instruction sound: a player that never reports its end still opens the window. */
+        const val AUDIO_WATCHDOG_MS = 30_000L
 
         const val TICK_MS = 1_000L
 
@@ -713,7 +749,7 @@ constructor(
         private const val IDLE = "idle"
         private const val TALK = "talk"
 
-        // Points toward the main area: the Start button, or the demonstration from level 2.
+        // Points toward where the demonstration card appears (level 2+ handoff).
         private const val POINT = "point"
 
         // Story 4.8 step-end reactions.

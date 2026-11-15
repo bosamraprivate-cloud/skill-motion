@@ -1,5 +1,7 @@
 package com.aitherapist.dls.ui.therapist
 
+import com.aitherapist.dls.vision.HealthResult
+import com.aitherapist.dls.vision.ProxyHealth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -153,5 +155,26 @@ class SettingsViewModelTest {
         assertEquals(SettingsUiState.Error("IOException"), vm.uiState.value)
         vm.onEvent(SettingsEvent.Retry)
         assertEquals("https://old.example.dev", vm.content.proxyUrl)
+    }
+
+    @Test
+    fun `test connection reports the proxy health without sending child data`() {
+        var sent: Pair<String, String>? = null
+        val vm =
+            SettingsViewModel(settings(), dispatcher) { url, secret ->
+                sent = url to secret
+                HealthResult(ProxyHealth.OK, 12)
+            }
+        assertNull(vm.content.connectionTest)
+        vm.onEvent(SettingsEvent.TestConnection)
+        assertEquals(ProxyCheck.Done(ProxyHealth.OK, 12), vm.content.connectionTest)
+        assertEquals("https://old.example.dev" to "old-secret", sent)
+    }
+
+    @Test
+    fun `test connection when unreachable is a calm result, not an error screen`() {
+        val vm = SettingsViewModel(settings(), dispatcher) { _, _ -> HealthResult(ProxyHealth.OFFLINE, 0) }
+        vm.onEvent(SettingsEvent.TestConnection)
+        assertEquals(ProxyCheck.Done(ProxyHealth.OFFLINE, 0), vm.content.connectionTest)
     }
 }
