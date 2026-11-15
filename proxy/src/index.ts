@@ -1,5 +1,16 @@
 import OpenAI from "openai";
 import { PROMPT_VERSION, SYSTEM_PROMPT, framesNote, parseModelVerdict } from "./prompt";
+import {
+  KIND_RE,
+  LOCALE_RE,
+  MAX_KIND_CHARS,
+  MAX_SCENE_KINDS,
+  SCENE_PROMPT_VERSION,
+  SCENE_SYSTEM_PROMPT,
+  UNCLEAR,
+  parseSceneResult,
+  sceneUserText,
+} from "./scene";
 
 export interface Env {
   DEEPSEEK_API_KEY: string;
@@ -98,21 +109,27 @@ type Parsed = { ok: true; input: VerifyInput } | { ok: false; response: Response
 
 const fail = (status: number, code: string): Parsed => ({ ok: false, response: error(status, code) });
 
-async function parseBody(request: Request): Promise<Parsed> {
+/** Shared size-limited multipart read for /verify and /scene. */
+async function readForm(request: Request): Promise<{ ok: true; form: FormData } | { ok: false; response: Response }> {
+  const bad = (status: number, code: string) => ({ ok: false as const, response: error(status, code) });
   const contentType = request.headers.get("content-type") ?? "";
-  if (!contentType.toLowerCase().startsWith("multipart/form-data")) return fail(400, "malformed_body");
+  if (!contentType.toLowerCase().startsWith("multipart/form-data")) return bad(400, "malformed_body");
   const declared = Number(request.headers.get("content-length") ?? "0");
-  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) return fail(413, "too_large");
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) return bad(413, "too_large");
   const raw = await readLimited(request);
-  if (raw === null) return fail(413, "too_large");
-  if (raw === "aborted") return fail(400, "malformed_body");
-
-  let form: FormData;
+  if (raw === null) return bad(413, "too_large");
+  if (raw === "aborted") return bad(400, "malformed_body");
   try {
-    form = await new Response(raw, { headers: { "content-type": contentType } }).formData();
+    return { ok: true, form: await new Response(raw, { headers: { "content-type": contentType } }).formData() };
   } catch {
-    return fail(400, "malformed_body");
+    return bad(400, "malformed_body");
   }
+}
+
+async function parseBody(request: Request): Promise<Parsed> {
+  const read = await readForm(request);
+  if (!read.ok) return read;
+  const form = read.form;
 
   const parts = form.getAll("image");
   if (parts.length > MAX_IMAGES) return fail(413, "too_many_images");
@@ -188,11 +205,82 @@ async function verify(request: Request, env: Env): Promise<Response> {
   return json(200, { verdict: result.verdict, reason: result.reason, modelId, promptVersion: PROMPT_VERSION });
 }
 
+interface SceneInput {
+  kinds: string[];
+  locale: string;
+  image: Uint8Array;
+}
+
+async function parseSceneBody(
+  request: Request,
+): Promise<{ ok: true; input: SceneInput } | { ok: false; response: Response }> {
+  const read = await readForm(request);
+  if (!read.ok) return read;
+  const form = read.form;
+  const bad = (status: number, code: string) => ({ ok: false as const, response: error(status, code) });
+  const requestId = form.get("requestId");
+  if (typeof requestId !== "string" || !UUID_RE.test(requestId)) return bad(400, "invalid_request_id");
+  const kindsRaw = form.get("kinds");
+  const locale = form.get("locale");
+  if (typeof kindsRaw !== "string" || typeof locale !== "string" || !LOCALE_RE.test(locale)) {
+    return bad(400, "malformed_body");
+  }
+  const kinds = [...new Set(kindsRaw.split(",").map((k) => k.trim()).filter((k) => k))];
+  if (kinds.length === 0 || kinds.length > MAX_SCENE_KINDS) return bad(400, "malformed_body");
+  if (kinds.some((k) => k.length > MAX_KIND_CHARS || !KIND_RE.test(k))) return bad(400, "malformed_body");
+  const parts = form.getAll("image");
+  if (parts.length > 1) return bad(413, "too_many_images");
+  const part = parts[0];
+  if (part === undefined || typeof part === "string") return bad(400, "malformed_body");
+  const image = new Uint8Array(await part.arrayBuffer());
+  if (!isJpeg(image)) return bad(400, "malformed_body");
+  return { ok: true, input: { kinds, locale, image } };
+}
+
+async function scene(request: Request, env: Env): Promise<Response> {
+  if (!authorized(request, env)) return error(401, "unauthorized");
+  const parsed = await parseSceneBody(request);
+  if (!parsed.ok) return parsed.response;
+  const { kinds, locale, image } = parsed.input;
+  const model = env.MODEL_ID || DEFAULT_MODEL_ID;
+
+  let completion: OpenAI.Chat.Completions.ChatCompletion;
+  try {
+    const client = new OpenAI({
+      apiKey: env.DEEPSEEK_API_KEY,
+      baseURL: DEEPSEEK_BASE_URL,
+      maxRetries: 0,
+      timeout: UPSTREAM_TIMEOUT_MS,
+    });
+    completion = await client.chat.completions.create({
+      model,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: SCENE_SYSTEM_PROMPT },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: sceneUserText(kinds, locale) },
+            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${toBase64(image)}` } },
+          ],
+        },
+      ],
+    });
+  } catch {
+    return error(502, "upstream_failed");
+  }
+
+  const modelId = typeof completion?.model === "string" && completion.model ? completion.model : model;
+  const message = completion?.choices?.[0]?.message;
+  const result = message && !message.refusal ? parseSceneResult(message.content, kinds) : UNCLEAR;
+  return json(200, { ...result, modelId, promptVersion: SCENE_PROMPT_VERSION });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
-    if (pathname !== "/verify") return error(404, "not_found");
+    if (pathname !== "/verify" && pathname !== "/scene") return error(404, "not_found");
     if (request.method !== "POST") return json(405, { error: "method_not_allowed" }, { allow: "POST" });
-    return verify(request, env);
+    return pathname === "/scene" ? scene(request, env) : verify(request, env);
   },
 } satisfies ExportedHandler<Env>;

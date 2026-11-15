@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,14 +31,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -62,10 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -81,9 +73,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.aitherapist.dls.BuildConfig
 import com.aitherapist.dls.R
-import com.aitherapist.dls.data.Zone
 import com.aitherapist.dls.ui.components.DetailTopBar
 import com.aitherapist.dls.ui.components.ErrorState
 import com.aitherapist.dls.ui.components.PageHeader
@@ -93,16 +83,14 @@ import com.aitherapist.dls.ui.theme.DlsTheme
 import com.aitherapist.dls.ui.theme.LevelColors
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
-import com.aitherapist.dls.ui.theme.TSurfaceMuted
 import com.aitherapist.dls.ui.theme.Warning
-import com.aitherapist.dls.ui.theme.ZoneColors
 import com.aitherapist.dls.ui.theme.calmSlide
 import com.aitherapist.dls.ui.theme.isRtl
 import com.aitherapist.dls.ui.theme.rememberReducedMotion
 import com.aitherapist.dls.vision.ProxyHealth
 
-/** Pages reached from Settings; [REPLAY] is the only debug-only page (developer tools). */
-private enum class SettingsPage { MAIN, ZONES, DIAGNOSTICS, REPLAY, BLIND_REVIEW, ABOUT, METRICS }
+/** Pages reached from Settings (Story 6.4: no zone editor and no developer tools any more). */
+private enum class SettingsPage { MAIN, DIAGNOSTICS, BLIND_REVIEW, ABOUT, METRICS }
 
 /** What the Connection card says about reaching the cloud check. */
 enum class ConnectionStatus { NOT_SET_UP, READY, OFFLINE, LAST_CHECK_FAILED }
@@ -117,10 +105,7 @@ fun connectionStatus(configured: Boolean, banner: NetworkBanner): ConnectionStat
 @Composable
 fun SettingsRoute(
     onOpenSample: () -> Unit = {},
-    onOpenCharacterPreview: () -> Unit = {},
-    onOpenChildMode: (childId: String, taskId: String) -> Unit = { _, _ -> },
     viewModel: SettingsViewModel = hiltViewModel(),
-    zonesViewModel: ZoneEditorViewModel = hiltViewModel(),
     networkViewModel: NetworkBannerViewModel = hiltViewModel(),
     exportViewModel: ResultsExportViewModel = hiltViewModel()
 ) {
@@ -131,10 +116,8 @@ fun SettingsRoute(
         }
     DisposableEffect(exportViewModel) { onDispose { exportViewModel.reset() } }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val zonesState by zonesViewModel.uiState.collectAsStateWithLifecycle()
     val banner by networkViewModel.banner.collectAsStateWithLifecycle()
     var page by rememberSaveable { mutableStateOf(SettingsPage.MAIN) }
-    var showTryStep by rememberSaveable { mutableStateOf(false) }
     // Hoisted here (not inside SettingsScreen) so returning from a sub-page lands on the same section and scroll.
     var section by rememberSaveable { mutableStateOf(SettingsSection.SESSION) }
     // Portrait: the section page open on top of the section list (null = the list).
@@ -144,16 +127,6 @@ fun SettingsRoute(
     BackHandler(enabled = page != SettingsPage.MAIN) { page = SettingsPage.MAIN }
     // DONE/FAILED clears when the therapist opens another page or leaves Settings.
     LaunchedEffect(page) { if (page != SettingsPage.MAIN) exportViewModel.reset() }
-    val debug = BuildConfig.DEBUG
-    if (showTryStep && debug) {
-        TryStepScreenDialog(
-            onStart = { childId, taskId ->
-                showTryStep = false
-                onOpenChildMode(childId, taskId)
-            },
-            onDismiss = { showTryStep = false }
-        )
-    }
     val rtl = isRtl()
     val reduced = rememberReducedMotion()
     // Opening a sub-page slides forward (the way Arabic reads), Back slides it away; calm and short, none if animations are off.
@@ -164,21 +137,12 @@ fun SettingsRoute(
         label = "settingsPage"
     ) { shown ->
         when {
-            shown == SettingsPage.ZONES ->
-                ZoneEditorRoute(onDone = {
-                    page = SettingsPage.MAIN
-                }, doneLabel = stringResource(R.string.zones_done), viewModel = zonesViewModel)
-            // Advanced tools are debug-only; release builds have no entry.
-            shown == SettingsPage.REPLAY && debug -> SubPage(stringResource(R.string.replay_title), onBack = {
-                page = SettingsPage.MAIN
-            }) { ReplayRoute() }
             // Diagnostics is a therapist page in release too (Story 5.5); its developer tools stay debug-only inside it.
             shown == SettingsPage.DIAGNOSTICS ->
                 SubPage(stringResource(R.string.diagnostics_title), onBack = { page = SettingsPage.MAIN }) {
                     DiagnosticsRoute(
                         onOpenSample = onOpenSample,
-                        onOpenSettings = { page = SettingsPage.MAIN },
-                        onDrawZones = { page = SettingsPage.ZONES }
+                        onOpenSettings = { page = SettingsPage.MAIN }
                     )
                 }
             // Blind review is for the evaluating therapist in release too (Story 5.7), behind the PIN like all of Settings.
@@ -199,9 +163,7 @@ fun SettingsRoute(
                 SettingsScreen(
                     state = state,
                     onEvent = viewModel::onEvent,
-                    zones = (zonesState as? ZoneEditorUiState.Content)?.zones,
                     banner = banner,
-                    onOpenZones = { page = SettingsPage.ZONES },
                     onDiagnostics = { page = SettingsPage.DIAGNOSTICS },
                     onBlindReview = { page = SettingsPage.BLIND_REVIEW },
                     onMetrics = { page = SettingsPage.METRICS },
@@ -215,24 +177,11 @@ fun SettingsRoute(
                     onPortraitSection = { portraitSection = it },
                     onTestConnection = { viewModel.onEvent(SettingsEvent.TestConnection) },
                     listScroll = listScroll,
-                    contentScroll = contentScroll,
-                    advanced =
-                    if (debug) {
-                        AdvancedTools(
-                            onReplay = { page = SettingsPage.REPLAY },
-                            onTryStepScreen = { showTryStep = true },
-                            onCharacterPreview = onOpenCharacterPreview
-                        )
-                    } else {
-                        null
-                    }
+                    contentScroll = contentScroll
                 )
         }
     }
 }
-
-/** Entries of the debug-only "Advanced tools" card. */
-class AdvancedTools(val onReplay: () -> Unit, val onTryStepScreen: () -> Unit, val onCharacterPreview: () -> Unit)
 
 /** A Settings sub-page with the shared detail top bar (back icon + page title) above it, as on the portrait child detail. */
 @Composable
@@ -248,16 +197,13 @@ fun SettingsScreen(
     state: SettingsUiState,
     onEvent: (SettingsEvent) -> Unit,
     modifier: Modifier = Modifier,
-    zones: Map<String, Zone>? = null,
     banner: NetworkBanner = NetworkBanner.NONE,
-    onOpenZones: () -> Unit = {},
     onDiagnostics: () -> Unit = {},
     onBlindReview: () -> Unit = {},
     onMetrics: () -> Unit = {},
     exportBroken: Int = 0,
     exportStatus: ExportStatus = ExportStatus.IDLE,
     onExport: () -> Unit = {},
-    advanced: AdvancedTools? = null,
     onAbout: () -> Unit = {},
     selectedSection: SettingsSection? = null,
     onSelectSection: ((SettingsSection) -> Unit)? = null,
@@ -272,7 +218,7 @@ fun SettingsScreen(
     var localPortrait by rememberSaveable { mutableStateOf<SettingsSection?>(null) }
     val openPortrait = if (onPortraitSection != null) portraitSection else localPortrait
     val setPortrait: (SettingsSection?) -> Unit = onPortraitSection ?: { localPortrait = it }
-    val sections = SettingsSection.entries.filter { it != SettingsSection.ADVANCED || advanced != null }
+    val sections = SettingsSection.entries
     val requested = selectedSection ?: localSection
     val current = if (requested in sections) requested else SettingsSection.SESSION
     val select: (SettingsSection) -> Unit = onSelectSection ?: { localSection = it }
@@ -294,8 +240,8 @@ fun SettingsScreen(
         }
         val body: @Composable (SettingsSection) -> Unit = { s ->
             SectionBody(
-                s, state, onEvent, zones, banner, onOpenZones, onDiagnostics, onBlindReview, onMetrics,
-                exportBroken, exportStatus, onExport, advanced, onAbout, onTestConnection
+                s, state, onEvent, banner, onDiagnostics, onBlindReview, onMetrics,
+                exportBroken, exportStatus, onExport, onAbout, onTestConnection
             )
         }
         if (expanded) {
@@ -369,7 +315,7 @@ fun SettingsScreen(
 
 /**
  * The Settings sections, in list order (enterprise grouping agreed with the owner): session and child mode, camera
- * and zones, AI connection, accuracy and review, data, developer tools (debug builds only), about.
+ * and body tracking, AI connection, accuracy and review, data, about. Story 6.4 removed zones and developer tools.
  */
 enum class SettingsSection(val label: Int, val icon: ImageVector) {
     SESSION(R.string.settings_group_session, Icons.Filled.Lock),
@@ -377,7 +323,6 @@ enum class SettingsSection(val label: Int, val icon: ImageVector) {
     AI(R.string.settings_group_ai, Icons.Filled.Share),
     ACCURACY(R.string.settings_group_accuracy, Icons.Filled.Search),
     DATA(R.string.settings_group_data, Icons.Filled.DateRange),
-    ADVANCED(R.string.settings_advanced_section, Icons.Filled.Build),
     ABOUT(R.string.about_title, Icons.Filled.Info)
 }
 
@@ -424,16 +369,13 @@ private fun SectionBody(
     section: SettingsSection,
     state: SettingsUiState.Content,
     onEvent: (SettingsEvent) -> Unit,
-    zones: Map<String, Zone>?,
     banner: NetworkBanner,
-    onOpenZones: () -> Unit,
     onDiagnostics: () -> Unit,
     onBlindReview: () -> Unit,
     onMetrics: () -> Unit,
     exportBroken: Int,
     exportStatus: ExportStatus,
     onExport: () -> Unit,
-    advanced: AdvancedTools?,
     onAbout: () -> Unit,
     onTestConnection: () -> Unit
 ) {
@@ -443,7 +385,6 @@ private fun SectionBody(
             PinningInfoCard()
         }
         SettingsSection.CAMERA -> {
-            ZonesSection(zones, onOpenZones)
             SectionCard(stringResource(R.string.diag_health_title), CARD_WIDTH, icon = Icons.Filled.Settings) {
                 ToolRow(Icons.Filled.Settings, R.string.diagnostics_title, R.string.settings_tool_diagnostics_hint, onDiagnostics)
             }
@@ -476,7 +417,6 @@ private fun SectionBody(
                     )
                 }
             }
-        SettingsSection.ADVANCED -> advanced?.let { AdvancedSection(it) }
         SettingsSection.ABOUT ->
             SectionCard(stringResource(R.string.about_title), CARD_WIDTH, icon = Icons.Filled.Info) {
                 ToolRow(Icons.Filled.Info, R.string.about_app_name, R.string.about_row_hint, onAbout)
@@ -697,95 +637,6 @@ private fun StatusLine(status: ConnectionStatus) {
 }
 
 @Composable
-private fun ZonesSection(zones: Map<String, Zone>?, onOpenZones: () -> Unit) {
-    SectionCard(
-        stringResource(R.string.settings_zones_section),
-        CARD_WIDTH,
-        icon = Icons.Filled.LocationOn,
-        subtitle = stringResource(R.string.settings_zones_body)
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4), verticalAlignment = Alignment.CenterVertically) {
-            ZoneMiniPreview(zones.orEmpty(), Modifier.width(200.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.S2)) {
-                ZONE_NAMES.forEach { name ->
-                    val drawn = zones?.containsKey(name) == true
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.S2)) {
-                        Box(
-                            Modifier.size(
-                                12.dp
-                            ).clip(RoundedCornerShape(3.dp)).background(if (drawn) ZoneColors.of(name) else TSurfaceMuted)
-                        )
-                        Text(zoneLabel(name), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                        Text(
-                            stringResource(if (drawn) R.string.zones_drawn else R.string.zones_not_drawn),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-                Button(
-                    onClick = onOpenZones,
-                    shape = RoundedCornerShape(Radius.Sm),
-                    modifier = Modifier.padding(top = Spacing.S2).heightIn(min = 48.dp)
-                ) { Text(stringResource(R.string.settings_zones_open)) }
-            }
-        }
-    }
-}
-
-/** Saved zones on a 4:3 picture placeholder, in the same display orientation as the editor. */
-@Composable
-fun ZoneMiniPreview(zones: Map<String, Zone>, modifier: Modifier = Modifier) {
-    val frame = MaterialTheme.colorScheme.outlineVariant
-    Box(
-        modifier
-            .aspectRatio(DEFAULT_PREVIEW_ASPECT)
-            .clip(RoundedCornerShape(Radius.Sm))
-            .background(TSurfaceMuted)
-    ) {
-        Canvas(Modifier.fillMaxSize()) {
-            drawRect(frame, style = Stroke(width = 1.dp.toPx()))
-            zones.forEach { (name, zone) ->
-                val r = ZoneMath.toDisplay(zone)
-                val color: Color = ZoneColors.of(name)
-                val topLeft = Offset(r.left * size.width, r.top * size.height)
-                val s = Size((r.right - r.left) * size.width, (r.bottom - r.top) * size.height)
-                drawRect(color.copy(alpha = 0.22f), topLeft, s)
-                drawRect(color, topLeft, s, style = Stroke(width = 2.dp.toPx()))
-            }
-        }
-    }
-}
-
-@Composable
-private fun AdvancedSection(tools: AdvancedTools) {
-    SectionCard(
-        stringResource(R.string.settings_advanced_section),
-        CARD_WIDTH,
-        icon = Icons.Filled.Build,
-        subtitle = stringResource(R.string.settings_advanced_subtitle)
-    ) {
-        Column {
-            ToolRow(Icons.Filled.Refresh, R.string.settings_open_replay, R.string.settings_tool_replay_hint, tools.onReplay)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            ToolRow(
-                Icons.Filled.PlayArrow,
-                R.string.diagnostics_try_step_screen,
-                R.string.settings_tool_try_step_hint,
-                tools.onTryStepScreen
-            )
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            ToolRow(
-                Icons.Filled.Face,
-                R.string.diagnostics_open_character_preview,
-                R.string.settings_tool_character_hint,
-                tools.onCharacterPreview
-            )
-        }
-    }
-}
-
-@Composable
 private fun ToolRow(icon: ImageVector, title: Int, hint: Int, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable(onClick = onClick).padding(vertical = Spacing.S2),
@@ -806,8 +657,6 @@ private fun ToolRow(icon: ImageVector, title: Int, hint: Int, onClick: () -> Uni
     }
 }
 
-private const val DEFAULT_PREVIEW_ASPECT = 4f / 3f
-
 @Preview(device = Devices.TABLET)
 @Composable
 private fun SettingsPreview() {
@@ -818,9 +667,7 @@ private fun SettingsPreview() {
                 secretSet = true,
                 pinError = PinChangeError.WRONG_CURRENT
             ),
-            {},
-            zones = mapOf("mat" to Zone(0.2f, 0.6f, 0.7f, 0.9f)),
-            advanced = AdvancedTools({}, {}, {})
+            {}
         )
     }
 }

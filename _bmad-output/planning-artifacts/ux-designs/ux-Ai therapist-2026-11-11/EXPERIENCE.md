@@ -30,7 +30,7 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 | Surface | Reached from | Purpose |
 |---|---|---|
 | Task start ("Start") | Therapist starts assessment/training | Character large and centred, task name, big Start (no task picture: one image of the guide only, decided 2026-11-15) |
-| Framing check | Task start, camera-scored tasks | Preview with outline; one positioning line from the task posture (sits at the table / stands / stands, may sit); adult confirms position |
+| Framing check | Task start, camera-scored tasks | First an AI scene check for tasks that use zones (face blurred on the tablet; found boxes labelled; one Arabic message per problem; Check again / Start anyway), then the preview with outline; one positioning line from the task posture (sits at the table / stands / stands, may sit); adult confirms position |
 | Step screen | Sequence | One step: level 1 the character as the hero (no card), sentence, audio, Done / Help / Repeat; level 2-3 hand-off to the looping demonstration clip |
 | Step reward moment | After verdict saved | Stars and effect per effect level (overlay, 1.5–3 s) |
 | Task reward screen | After the last step | Stars earned, big celebration, sticker progress |
@@ -42,7 +42,7 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 
 | Surface | Reached from | Purpose |
 |---|---|---|
-| First-run setup | First launch | PIN, proxy address + secret, zones, framing check |
+| First-run setup | First launch | PIN, proxy address + secret |
 | PIN screen | App start, leaving child mode | Gate |
 | Child list | Rail "Children" (home) | Children, search by name, Add, "Continue" card for interrupted sessions |
 | Child profile | Child list row | Details, effect level, sessions tab, report, plan, training history, compare |
@@ -52,7 +52,7 @@ Terms (task, step, attempt, prompt level, verdict, level, not scored, cannot tel
 | Plan + activity picker | Profile | Activities per weak domain (weakest first), select for training |
 | Compare | Profile | Two assessments of the same task, per-domain averages and difference |
 | Training history | Profile | Activity, count, duration, criterion met |
-| Settings | Rail | PIN change, proxy, zones, CSV export, Diagnostics, Blind review, Advanced tools (debug only) |
+| Settings | Rail | PIN change, proxy, CSV export, Diagnostics (camera and body tracking), Blind review, accuracy, about |
 | Diagnostics | Settings | Frame rate, landmark visibility, proxy reachability/latency, cannot-tell rate (release builds too) |
 | Blind review | Settings | Rate attempts with verdict hidden (release builds too) |
 | Replay & evaluation | Settings → Advanced tools (debug only) | Import clips, replay sessions, accuracy metrics CSV |
@@ -172,18 +172,18 @@ Tablet on floor stand 1.8 m away. Each step plays audio; at level 3 the illustra
 Mona picks activities in the plan picker → Start training → hand-off. Camera-counted activity shows a large counter and ring; at the criterion, a calm reward; guided activities show illustration, timer and Done. Results appear in training history.
 
 ### Flow 5: First-run setup (CUJ 1)
-Welcome → set PIN (twice) → proxy address + secret → draw zones on preview → framing check → diagnostics shows proxy reachable → child list (empty state, "Add child").
+Welcome → set PIN (twice) → proxy address + secret → (first session) AI scene check → framing check → diagnostics shows proxy reachable → child list (empty state, "Add child").
 
 ### Flow 6: Accuracy evaluation (CUJ 6)
 Settings → Advanced tools → Replay & evaluation (debug build) → import clips → app scores → Settings → Blind review (verdict hidden, one attempt at a time, done / not done / cannot tell) → metrics: agreement, weighted kappa, cannot-tell rate, confusion matrix per step.
 
 ## Responsive & Platform
 
-Tablets 8–11 inch in landscape or portrait (Story 6.3): same tokens and touch targets, only the arrangement changes (portrait stacks the character above the main area). The framing check and a running child session hold the orientation they started in (zones are drawn on a frame of one orientation); it is released when child mode ends. Layout scales by width class (medium/expanded); child zones keep proportions. No phone layout in v1.
+Tablets 8–11 inch in landscape or portrait (Story 6.3): same tokens and touch targets, only the arrangement changes (portrait stacks the character above the main area). The framing check and a running child session hold the orientation they started in (the scene check finds zones on a frame of one orientation); it is released when child mode ends. Layout scales by width class (medium/expanded); child zones keep proportions. No phone layout in v1.
 
 ## Therapist information architecture (agreed 2026-11-13)
 
-- Rail: **Children** (home: Continue card, child list, quick start) and **Settings** (PIN, proxy, zones, export, Diagnostics and Blind review in all builds, and an "Advanced tools" section — debug builds only — with Replay & evaluation, Try step screen and Character preview).
+- Rail: **Children** (home: Continue card, child list, quick start) and **Settings** (PIN, proxy, export, Diagnostics and Blind review; no zone editor and no developer tools since Story 6.4 — zones come from the AI scene check).
 - Child profile tabs: **Overview** (avatar, name, age, last session, primary "Start" → assessment or training), **Sessions** (history → session detail with per-step levels, evidence, Correct), **Report** (domain averages, strengths/needs), **Plan** (activities, start training), **Progress** (compare, training history). Tabs whose content arrives in a later epic show a calm empty state.
 - After every child-mode session, the PIN returns to a read-only **session summary** (each step and its level; corrections are made in Session detail via the Correct sheet), then to the child's Overview.
 - New child: after save, open Overview with "Start first assessment".

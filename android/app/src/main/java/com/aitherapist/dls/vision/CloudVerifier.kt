@@ -76,9 +76,13 @@ class CloudVerifier(
                 val box =
                     FrameCropper.cropBox(image.width, image.height, FrameCropper.cropPoints(lm), ctx.zones.values)
                         ?: return Result(Outcome.CANNOT_TELL, VerdictReason.OUT_OF_FRAME) // never upload an uncropped frame
-                image to box
+                val face = FaceBlur.faceBox(lm.pose, ctx.zones[ScenePlan.PERSON])
+                Triple(image, box, listOfNotNull(face?.let { FaceBlur.inCrop(it, image.width, image.height, box) }))
             }
-        val jpegs = crops.map { (image, box) -> encoder.encode(image, box, FrameCropper.scaledSize(box), FrameCropper.JPEG_QUALITY) }
+        // Faces are pixelated on device before upload (Story 6.4); crops already include the scene-check zones.
+        val jpegs = crops.map { (image, box, blur) ->
+            encoder.encode(image, box, FrameCropper.scaledSize(box), FrameCropper.JPEG_QUALITY, blur)
+        }
         val body =
             MultipartBody
                 .Builder()

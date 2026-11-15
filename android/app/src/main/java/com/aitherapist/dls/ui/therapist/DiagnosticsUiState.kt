@@ -69,12 +69,7 @@ sealed interface AttemptState {
 }
 
 /** Proxy and data health, shown whatever the camera state (Story 5.5). */
-data class HealthState(
-    val proxy: ProxyCheck = ProxyCheck.Running,
-    val rate: RateState = RateState.Loading,
-    /** True when no setup zones are saved; null while unknown or unreadable (UX pass C). */
-    val zonesMissing: Boolean? = null
-)
+data class HealthState(val proxy: ProxyCheck = ProxyCheck.Running, val rate: RateState = RateState.Loading)
 
 /** Proxy health ping: runs on open and on "Check again" only. */
 sealed interface ProxyCheck {

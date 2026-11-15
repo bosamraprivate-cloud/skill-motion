@@ -77,9 +77,7 @@ enum class ShellDestination(val label: Int, val icon: ImageVector, val selectedI
 @Composable
 fun TherapistShell(
     onOpenSample: () -> Unit,
-    onOpenCharacterPreview: () -> Unit,
     modifier: Modifier = Modifier,
-    onOpenChildMode: (childId: String, taskId: String) -> Unit = { _, _ -> },
     onContinueSession: (childId: String, taskId: String, sessionId: String) -> Unit = { _, _, _ -> },
     onNewSession: (childId: String, taskId: String, thenTaskId: String?) -> Unit = { _, _, _ -> },
     onStartTraining: (childId: String, activityIds: List<String>) -> Boolean = { _, _ -> false },
@@ -107,11 +105,7 @@ fun TherapistShell(
                 onStartTraining = onStartTraining,
                 tabRequest = tabRequest
             )
-            ShellDestination.SETTINGS -> SettingsRoute(
-                onOpenSample = onOpenSample,
-                onOpenCharacterPreview = onOpenCharacterPreview,
-                onOpenChildMode = onOpenChildMode
-            )
+            ShellDestination.SETTINGS -> SettingsRoute(onOpenSample = onOpenSample)
         }
     }
     summary?.let { request ->

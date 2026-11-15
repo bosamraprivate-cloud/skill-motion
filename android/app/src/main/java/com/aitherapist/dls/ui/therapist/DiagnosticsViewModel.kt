@@ -13,7 +13,6 @@ import com.aitherapist.dls.catalog.Method
 import com.aitherapist.dls.catalog.Step
 import com.aitherapist.dls.data.AttemptStats
 import com.aitherapist.dls.data.TherapistSettings
-import com.aitherapist.dls.data.ZoneStore
 import com.aitherapist.dls.vision.BitmapImage
 import com.aitherapist.dls.vision.BitmapJpegEncoder
 import com.aitherapist.dls.vision.CloudVerifier
@@ -61,8 +60,7 @@ constructor(
     private val landmarkers: Landmarkers,
     @ApplicationContext private val context: Context,
     private val settings: TherapistSettings,
-    private val stats: AttemptStats,
-    private val zoneStore: ZoneStore
+    private val stats: AttemptStats
 ) : ViewModel() {
     private val clock: () -> Long = SystemClock::uptimeMillis
     private val fpsMeter = FpsMeter(clock)
@@ -188,19 +186,6 @@ constructor(
                     _health.update { it.copy(rate = rate) }
                 }
                 launch { _health.update { it.copy(proxy = ping()) } }
-                launch {
-                    val missing =
-                        try {
-                            withContext(Dispatchers.IO) { zoneStore.zones().isEmpty() }
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (
-                            @Suppress("TooGenericExceptionCaught") e: Exception
-                        ) {
-                            null
-                        }
-                    _health.update { it.copy(zonesMissing = missing) }
-                }
             }
     }
 

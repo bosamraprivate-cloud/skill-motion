@@ -22,6 +22,12 @@ import com.aitherapist.dls.vision.InferenceDelegate
 import com.aitherapist.dls.vision.LandmarkEngine
 import com.aitherapist.dls.vision.LandmarkPoint
 import com.aitherapist.dls.vision.LandmarkResult
+import com.aitherapist.dls.vision.SceneBox
+import com.aitherapist.dls.vision.SceneIssue
+import com.aitherapist.dls.vision.SceneIssueCode
+import com.aitherapist.dls.vision.SceneObject
+import com.aitherapist.dls.vision.SceneResult
+import com.aitherapist.dls.vision.Zone as VisionZone
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -105,21 +111,112 @@ class FramingCheckViewModelTest {
 
     private val cloud = step(1, Method.CLOUD, Check.Question("q"))
 
-    @Test
-    fun `a needed zone that is not drawn shows as missing until it is saved`() = runTest(dispatcher) {
-        val inMat = step(1, Method.POSE, Check.InZone(LandmarkRef.Lm("WRIST"), "mat", 0.3, Side.EITHER))
-        val vm = vm(FakeEngine(), inMat, cloud)
+    private val inMat = step(1, Method.POSE, Check.InZone(LandmarkRef.Lm("WRIST"), "mat", 0.3, Side.EITHER))
+    private val sent = mutableListOf<Pair<ByteArray, List<String>>>()
+    private var blurAsked: VisionZone? = null
+    private var answer: SceneResult = SceneResult.Unavailable("network")
+    private val service = SceneService { jpeg, kinds ->
+        sent += jpeg to kinds
+        answer
+    }
+    private val snapshot = SceneSnapshot { blur ->
+        blurAsked = blur
+        byteArrayOf(1, 2, 3)
+    }
+
+    private fun TestScope.sceneVm(): FramingCheckViewModel =
+        FramingCheckViewModel(repo(inMat, cloud), FakeEngine(), dispatcher, zoneStore, service).also {
+            it.load("t.x")
+            runCurrent()
+        }
+
+    private fun checked(ok: Boolean, vararg objects: SceneObject, issues: List<SceneIssue> = emptyList()) =
+        SceneResult.Checked(ok, objects.toList(), issues, "m", "scene-v2")
+
+    private val FramingCheckViewModel.check get() = uiState.value as FramingUiState.Check
+
+    /** First frame, a pose result (with a visible face), then the captured frame. */
+    private fun TestScope.capture(vm: FramingCheckViewModel) {
+        vm.onSnapshot { snapshot }
         runCurrent()
-        assertEquals(listOf("mat"), (vm.uiState.value as FramingUiState.Check).missingZones)
-        zoneStore.setZones(mapOf("mat" to Zone(0.1f, 0.1f, 0.5f, 0.5f)))
-        vm.refreshZones()
+        vm.onResult(LandmarkResult(FpsStream.POSE, 0, listOf(visiblePose)))
         runCurrent()
-        assertEquals(emptyList<String>(), (vm.uiState.value as FramingUiState.Check).missingZones)
+        vm.onSnapshot { snapshot }
+        runCurrent()
     }
 
     @Test
-    fun `a task without zone checks never shows the notice`() = runTest(dispatcher) {
-        assertEquals(emptyList<String>(), (vm(FakeEngine(), cloud).uiState.value as FramingUiState.Check).missingZones)
+    fun `scene phase comes first, then body framing, then hand-off`() = runTest(dispatcher) {
+        answer =
+            checked(
+                true,
+                SceneObject("mat", SceneBox(0.25f, 0.5f, 0.5f, 0.25f), 0.9f),
+                SceneObject("person", SceneBox(0.3f, 0.1f, 0.4f, 0.8f), 0.9f)
+            )
+        val vm = sceneVm()
+        assertEquals(SceneStatus.CAPTURING, vm.check.scene.status)
+        assertFalse(vm.check.bodyPhase)
+        capture(vm)
+        assertEquals(listOf("mat", "person"), sent.single().second)
+        assertTrue("the face is blurred before sending", blurAsked != null)
+        assertEquals(SceneStatus.ACCEPTED, vm.check.scene.status)
+        assertTrue(vm.check.bodyPhase)
+        assertEquals(Zone(0.25f, 0.5f, 0.75f, 0.75f), zoneStore.saved["mat"])
+        assertTrue("person box widens cloud crops", zoneStore.saved.containsKey("person"))
+        assertEquals(emptyList<String>(), vm.check.missingZones)
+    }
+
+    @Test
+    fun `a person in view does not block sending`() = runTest(dispatcher) {
+        answer =
+            checked(
+                false,
+                SceneObject("mat", SceneBox(0.25f, 0.5f, 0.5f, 0.25f), 0.9f),
+                issues = listOf(SceneIssue(SceneIssueCode.PERSON_IN_VIEW))
+            )
+        val vm = sceneVm()
+        capture(vm)
+        assertEquals(1, sent.size)
+        assertEquals(SceneStatus.ACCEPTED, vm.check.scene.status)
+    }
+
+    @Test
+    fun `issues block until check again succeeds`() = runTest(dispatcher) {
+        answer = checked(false, issues = listOf(SceneIssue(SceneIssueCode.MISSING_OBJECT, "mat")))
+        val vm = sceneVm()
+        capture(vm)
+        assertEquals(SceneStatus.ISSUES, vm.check.scene.status)
+        assertEquals(listOf(SceneIssue(SceneIssueCode.MISSING_OBJECT, "mat")), vm.check.scene.issues)
+        assertFalse(vm.check.bodyPhase)
+        answer = checked(true, SceneObject("mat", SceneBox(0.25f, 0.5f, 0.5f, 0.25f), 0.9f))
+        vm.recheckScene()
+        runCurrent()
+        vm.onSnapshot { snapshot }
+        runCurrent()
+        assertEquals(SceneStatus.ACCEPTED, vm.check.scene.status)
+        assertEquals(2, sent.size)
+    }
+
+    @Test
+    fun `unavailable offers start anyway which clears zones and moves on`() = runTest(dispatcher) {
+        zoneStore.setZones(mapOf("mat" to Zone(0.1f, 0.1f, 0.5f, 0.5f))) // stale zones from an earlier room
+        val vm = sceneVm()
+        capture(vm)
+        assertEquals(SceneStatus.UNAVAILABLE, vm.check.scene.status)
+        vm.skipScene()
+        runCurrent()
+        assertEquals(SceneStatus.SKIPPED, vm.check.scene.status)
+        assertTrue(vm.check.bodyPhase)
+        assertEquals(emptyMap<String, Zone>(), zoneStore.saved)
+        assertEquals("zone steps will end as cannot tell", listOf("mat"), vm.check.missingZones)
+    }
+
+    @Test
+    fun `a task without zone checks has no scene phase`() = runTest(dispatcher) {
+        val check = vm(FakeEngine(), cloud).uiState.value as FramingUiState.Check
+        assertEquals(emptyList<String>(), check.missingZones)
+        assertEquals(SceneStatus.NOT_NEEDED, check.scene.status)
+        assertTrue(check.bodyPhase)
     }
     private val visiblePose = List(33) { i -> LandmarkPoint(if (i % 2 == 0) 0.3f else 0.7f, if (i % 4 < 2) 0.3f else 0.7f, 0.9f) }
 

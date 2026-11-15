@@ -20,6 +20,8 @@ import com.aitherapist.dls.vision.HandVerifier
 import com.aitherapist.dls.vision.LiveCapture
 import com.aitherapist.dls.vision.PoseVerifier
 import com.aitherapist.dls.vision.ReportingVerifier
+import com.aitherapist.dls.vision.SceneChecker
+import com.aitherapist.dls.vision.SceneResult
 import com.aitherapist.dls.vision.VerifierRouter
 import com.aitherapist.dls.vision.Zone
 import dagger.Module
@@ -80,6 +82,18 @@ object ChildModeModule {
             },
             zones = { zones.zones().mapValues { (_, z) -> Zone(z.left, z.top, z.right, z.bottom) } }
         )
+
+    /** Story 6.4: the AI scene check, built from the current proxy settings per call (none set: unavailable). */
+    @Provides
+    fun sceneService(settings: TherapistSettings, http: CloudHttp): SceneService = SceneService { jpeg, kinds ->
+        val url = settings.proxyUrl()
+        val secret = settings.sharedSecret()
+        if (url.isNullOrBlank() || secret.isNullOrBlank()) {
+            SceneResult.Unavailable("not_configured")
+        } else {
+            SceneChecker(url, secret, http.client).check(jpeg, kinds)
+        }
+    }
 
     @Provides
     fun rewardRecorder(store: RewardStore): RewardRecorder = RewardRecorder(store)

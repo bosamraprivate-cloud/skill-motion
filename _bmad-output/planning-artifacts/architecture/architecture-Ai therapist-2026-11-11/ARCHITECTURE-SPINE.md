@@ -275,3 +275,7 @@ Environments: one deployed Worker (production) plus `wrangler dev` locally; the 
 - **Pose-plus-Hand fallback:** run only the needed landmarker if the M1 tablet is below 15 fps; decided once the tablet is chosen.
 - **DeepSeek endpoint, image limits and snapshot naming:** confirmed against DeepSeek's official docs in M1; a snapshot change during evaluation triggers re-scoring through replay.
 - **CI:** none decided; the Build and verification commands are the local gate.
+
+## Decision log addendum
+
+- **2026-11-15 — AI scene check replaces manual zones (Story 6.4).** Before each zone-using task the app sends one face-pixelated frame (blur done on device from pose face points) and the catalogue zone kinds plus `person` to the proxy `POST /scene`; the returned boxes become the session's zones in `data/SecureSettings` (ZoneStore), read unchanged by scoring and widening `/verify` crops (which are face-pixelated the same way). Offline: start anyway, zone steps end `cannot_tell`. The manual zone editor and the Settings developer tools are removed; `replay/` stays as infrastructure without an in-app entry.

@@ -12,17 +12,17 @@ class ReleaseGatingTest {
     private fun text(name: String): String = files.first { it.name == name }.text
 
     @Test
-    fun `settings gates replay, try step and the developer tools on debug`() {
+    fun `settings has no developer tools or manual zone editor (Story 6_4)`() {
         val settings = text("SettingsScreen")
-        assertTrue(settings.contains("val debug = BuildConfig.DEBUG"))
-        assertTrue(Regex("""(page|shown) == SettingsPage.REPLAY && debug""").containsMatchIn(settings))
-        assertTrue(settings.contains("showTryStep && debug"))
-        assertTrue(Regex("""if \(debug\) \{\s*AdvancedTools\(""").containsMatchIn(settings))
+        listOf("AdvancedTools", "SettingsPage.REPLAY", "TryStep", "ZoneEditor", "CharacterPreview").forEach {
+            assertTrue("SettingsScreen still references $it", !settings.contains(it))
+        }
+        assertTrue(files.none { it.name.startsWith("ZoneEditor") || it.name.startsWith("TryStep") })
     }
 
     @Test
-    fun `character preview route is registered only in debug`() {
-        assertTrue(text("AppNavigation").contains("if (BuildConfig.DEBUG) entry<CharacterPreviewKey>"))
+    fun `no character preview route is registered`() {
+        assertTrue(!text("AppNavigation").contains("CharacterPreviewKey"))
     }
 
     @Test

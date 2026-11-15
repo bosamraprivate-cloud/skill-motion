@@ -96,12 +96,7 @@ import java.util.Locale
  * landmarkers are released on stop and when leaving the screen; the proxy ping runs on open and on "Check again" only.
  */
 @Composable
-fun DiagnosticsRoute(
-    onOpenSample: () -> Unit,
-    onOpenSettings: () -> Unit = {},
-    onDrawZones: (() -> Unit)? = null,
-    viewModel: DiagnosticsViewModel = hiltViewModel()
-) {
+fun DiagnosticsRoute(onOpenSample: () -> Unit, onOpenSettings: () -> Unit = {}, viewModel: DiagnosticsViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val externalHop = LocalExternalHop.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -139,7 +134,6 @@ fun DiagnosticsRoute(
         },
         onOpenSettings = onOpenSettings,
         onOpenSample = onOpenSample,
-        onDrawZones = onDrawZones,
         cameraPreview = { modifier ->
             CameraPreview(onFrame = viewModel::onFrame, onCameraError = viewModel::onCameraError, modifier = modifier)
         }
@@ -177,7 +171,6 @@ fun DiagnosticsScreen(
     onOpenSample: () -> Unit,
     modifier: Modifier = Modifier,
     developer: Boolean = BuildConfig.DEBUG,
-    onDrawZones: (() -> Unit)? = null,
     cameraPreview: @Composable (Modifier) -> Unit = {}
 ) {
     Scaffold(modifier = modifier, containerColor = MaterialTheme.colorScheme.background) { padding ->
@@ -191,7 +184,7 @@ fun DiagnosticsScreen(
                     Text(stringResource(R.string.diag_check_again), modifier = Modifier.padding(start = Spacing.S2))
                 }
             }
-            HealthCards(health, onOpenSettings, onDrawZones)
+            HealthCards(health, onOpenSettings)
             SectionCard(stringResource(R.string.diag_camera_title), Modifier.fillMaxWidth()) {
                 when (state) {
                     DiagnosticsUiState.Loading -> Skeleton(rows = 3)
@@ -221,7 +214,7 @@ fun DiagnosticsScreen(
 }
 
 @Composable
-private fun HealthCards(health: HealthState, onOpenSettings: () -> Unit, onDrawZones: (() -> Unit)?) {
+private fun HealthCards(health: HealthState, onOpenSettings: () -> Unit) {
     val cardWidth = Modifier.widthIn(min = 320.dp, max = 520.dp)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.S4), verticalArrangement = Arrangement.spacedBy(Spacing.S4)) {
         SectionCard(stringResource(R.string.diag_proxy_title), cardWidth) { ProxyStatus(health.proxy, onOpenSettings) }
@@ -230,13 +223,6 @@ private fun HealthCards(health: HealthState, onOpenSettings: () -> Unit, onDrawZ
                 RateState.Loading -> StatusLine(Icons.Filled.Info, LevelColors.NotScored, stringResource(R.string.diag_proxy_checking))
                 RateState.Unavailable -> StatusLine(Icons.Filled.Warning, Warning, stringResource(R.string.diag_rate_unavailable))
                 is RateState.Ready -> RateLine(rate.counts)
-            }
-        }
-        // Missing zones: status plus its fix in the same card (UX pass C).
-        if (health.zonesMissing == true && onDrawZones != null) {
-            SectionCard(stringResource(R.string.uxc_zones_title), cardWidth) {
-                StatusLine(Icons.Filled.Warning, Warning, stringResource(R.string.uxc_zones_missing))
-                TextButton(onClick = onDrawZones) { Text(stringResource(R.string.uxc_draw_zones)) }
             }
         }
     }

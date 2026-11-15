@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.Settings
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.view.PreviewView
@@ -88,8 +87,6 @@ import com.aitherapist.dls.ui.theme.ChildColors
 import com.aitherapist.dls.ui.theme.Radius
 import com.aitherapist.dls.ui.theme.Spacing
 import com.aitherapist.dls.ui.theme.isPortrait
-import com.aitherapist.dls.ui.therapist.ZoneEditorRoute
-import com.aitherapist.dls.ui.therapist.zoneLabel
 import com.aitherapist.dls.vision.Framing
 import com.aitherapist.dls.vision.FramingGuidance
 
@@ -120,13 +117,7 @@ fun FramingCheckRoute(
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
             access = if (ok) CameraAccess.GRANTED else CameraAccess.DENIED
         }
-    // Missing-zone shortcut: the zone editor opens in place and returns here; the camera is released meanwhile.
-    var drawingZones by rememberSaveable { mutableStateOf(false) }
-    BackHandler(enabled = drawingZones) {
-        drawingZones = false
-        viewModel.refreshZones()
-    }
-    val needsCamera = state is FramingUiState.Check && !drawingZones
+    val needsCamera = state is FramingUiState.Check
     LaunchedEffect(needsCamera) {
         if (!needsCamera) return@LaunchedEffect
         when {
@@ -144,16 +135,6 @@ fun FramingCheckRoute(
             onStopOrDispose { viewModel.stop() }
         }
     }
-    if (drawingZones) {
-        ZoneEditorRoute(
-            onDone = {
-                drawingZones = false
-                viewModel.refreshZones()
-            },
-            doneLabel = stringResource(R.string.zones_done)
-        )
-        return
-    }
     FramingCheckScreen(
         state = state,
         cameraGranted = access == CameraAccess.GRANTED,
@@ -164,7 +145,8 @@ fun FramingCheckRoute(
             context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)))
         },
         onHandToChild = onHandToChild,
-        onDrawZones = { drawingZones = true },
+        onCheckSceneAgain = viewModel::recheckScene,
+        onSkipScene = viewModel::skipScene,
         cameraPreview = { m -> FramingCameraPreview(viewModel::onFrame, viewModel::onCameraError, m) }
     )
 }
@@ -196,7 +178,8 @@ fun FramingCheckScreen(
     onOpenSettings: () -> Unit,
     onHandToChild: () -> Unit,
     modifier: Modifier = Modifier,
-    onDrawZones: () -> Unit = {},
+    onCheckSceneAgain: () -> Unit = {},
+    onSkipScene: () -> Unit = {},
     cameraPreview: @Composable (Modifier) -> Unit = {}
 ) {
     val check = state as? FramingUiState.Check
@@ -209,7 +192,9 @@ fun FramingCheckScreen(
         ) -> Unit = { m -> PreviewPane(state, cameraGranted, cameraDenied, onRequestPermission, onOpenSettings, cameraPreview, m) }
         val panel: @Composable (
             Modifier
-        ) -> Unit = { m -> SidePanel(state, check, cameraGranted, onHandToChild, onDrawZones, m, fillHeight = wide) }
+        ) -> Unit = { m ->
+            SidePanel(state, check, cameraGranted, onHandToChild, SceneActions(onCheckSceneAgain, onSkipScene), m, fillHeight = wide)
+        }
         if (wide) {
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.S4), modifier = Modifier.fillMaxSize()) {
                 preview(Modifier.weight(1f).fillMaxHeight())
@@ -243,8 +228,9 @@ private fun PreviewPane(
                     !cameraGranted -> PermissionPanel(cameraDenied, onRequestPermission, onOpenSettings)
                     state.engineError != null -> NoticeText(stringResource(R.string.framing_engine_error, state.engineError))
                     else -> {
+                        val body = state.bodyPhase
                         val outline by animateColorAsState(
-                            if (state.framed) ChildColors.FramingOk else ChildColors.FramingWait,
+                            if (body && state.framed) ChildColors.FramingOk else ChildColors.FramingWait,
                             animationSpec = tween(OUTLINE_FADE_MS),
                             label = "framing-outline"
                         )
@@ -256,7 +242,8 @@ private fun PreviewPane(
                                 .border(BorderStroke(4.dp, outline), RoundedCornerShape(Radius.Lg))
                         ) {
                             cameraPreview(Modifier.fillMaxSize())
-                            Canvas(Modifier.fillMaxSize()) { drawSilhouette(state.framing, outline) }
+                            SceneBoxes(state.scene.objects, Modifier.fillMaxSize())
+                            if (body) Canvas(Modifier.fillMaxSize()) { drawSilhouette(state.framing, outline) }
                         }
                     }
                 }
@@ -270,10 +257,14 @@ private fun SidePanel(
     check: FramingUiState.Check?,
     cameraGranted: Boolean,
     onHandToChild: () -> Unit,
-    onDrawZones: () -> Unit,
+    scene: SceneActions,
     modifier: Modifier,
     fillHeight: Boolean = true
 ) {
+    if (check != null && !check.bodyPhase) {
+        ScenePanel(check.scene, cameraGranted, scene, modifier, fillHeight)
+        return
+    }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.S3)) {
         Text(
             stringResource(R.string.framing_title),
@@ -295,7 +286,7 @@ private fun SidePanel(
             }
         }
         if (check != null && cameraGranted && check.engineError == null) GuidancePill(check)
-        if (check != null && check.missingZones.isNotEmpty()) MissingZonesNotice(check.missingZones, onDrawZones)
+        if (check != null && check.missingZones.isNotEmpty()) MissingZonesNotice(check.missingZones)
         // Side panel (wide): the button sits at the bottom; stacked (portrait): it follows the text directly.
         if (fillHeight) Spacer(Modifier.weight(1f))
         val framed = check?.framed == true
@@ -351,9 +342,9 @@ private fun GuidancePill(check: FramingUiState.Check) {
     }
 }
 
-/** Advisory: a zone this task checks is not drawn, so those checks would end as cannot tell. The task can still start. */
+/** Advisory: the scene check found no zone (started anyway), so those checks end as cannot tell. The task can still start. */
 @Composable
-private fun MissingZonesNotice(missing: List<String>, onDrawZones: () -> Unit) {
+private fun MissingZonesNotice(missing: List<String>) {
     Surface(
         shape = RoundedCornerShape(Radius.Md),
         color = MaterialTheme.colorScheme.surface,
@@ -371,13 +362,10 @@ private fun MissingZonesNotice(missing: List<String>, onDrawZones: () -> Unit) {
                 Text(stringResource(R.string.framing_zone_missing_title), style = MaterialTheme.typography.titleSmall)
             }
             Text(
-                stringResource(R.string.framing_zone_missing_body, missing.map { zoneLabel(it) }.joinToString()),
+                stringResource(R.string.framing_zone_missing_body, missing.map { sceneKindLabel(it) }.joinToString()),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            OutlinedButton(onClick = onDrawZones, shape = RoundedCornerShape(Radius.Sm)) {
-                Text(stringResource(R.string.settings_zones_open))
-            }
         }
     }
 }

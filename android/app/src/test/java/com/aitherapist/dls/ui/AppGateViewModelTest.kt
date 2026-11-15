@@ -108,7 +108,7 @@ class AppGateViewModelTest {
         vm.onAppBackgrounded()
         assertEquals(listOf(PinKey), vm.backStack.toList())
         vm.enterShell()
-        vm.open(CharacterPreviewKey)
+        vm.open(SampleKey)
         vm.onAppBackgrounded()
         assertEquals(listOf(PinKey), vm.backStack.toList())
 

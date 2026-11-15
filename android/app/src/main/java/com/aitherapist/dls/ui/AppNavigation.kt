@@ -27,7 +27,6 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.NavDisplay
-import com.aitherapist.dls.BuildConfig
 import com.aitherapist.dls.R
 import com.aitherapist.dls.ui.child.ChildModeHost
 import com.aitherapist.dls.ui.child.FramingCheckRoute
@@ -41,7 +40,6 @@ import com.aitherapist.dls.ui.theme.calmCrossfade
 import com.aitherapist.dls.ui.theme.calmSlide
 import com.aitherapist.dls.ui.theme.isRtl
 import com.aitherapist.dls.ui.theme.rememberReducedMotion
-import com.aitherapist.dls.ui.therapist.CharacterPreviewRoute
 import com.aitherapist.dls.ui.therapist.PinRoute
 import com.aitherapist.dls.ui.therapist.SetupRoute
 import com.aitherapist.dls.ui.therapist.TherapistShell
@@ -62,10 +60,6 @@ data object ShellKey : NavKey
 /** Typed navigation key for the reference sample screen (AD-13). */
 @Serializable
 data object SampleKey : NavKey
-
-/** Typed navigation key for the therapist character clip preview (Story 2.3). */
-@Serializable
-data object CharacterPreviewKey : NavKey
 
 /**
  * Locked child mode: one assessment run (Story 2.14), or a continued session [sessionId] (Story 2.15). [thenTaskId]
@@ -162,8 +156,6 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                         pendingSummary = pendingSummary,
                         onSummaryShown = gate::consumeSummary,
                         onOpenSample = { gate.open(SampleKey) },
-                        onOpenCharacterPreview = { gate.open(CharacterPreviewKey) },
-                        onOpenChildMode = { child, task -> gate.openFramingCheck(child, task) },
                         onNewSession = { child, task, then -> gate.openFramingCheck(child, task, thenTaskId = then) },
                         onContinueSession = { child, task, session -> gate.openFramingCheck(child, task, sessionId = session) },
                         onStartTraining = gate::openTraining
@@ -173,8 +165,6 @@ private fun AppNavDisplay(gate: AppGateViewModel, modifier: Modifier) {
                 }
             }
             entry<SampleKey> { SampleRoute() }
-            // Character preview is a debug-only tool; release builds register no entry for it.
-            if (BuildConfig.DEBUG) entry<CharacterPreviewKey> { CharacterPreviewRoute() }
             entry<ChildModeKey>(metadata = CHILD_SCENE) { key ->
                 var framingDone by rememberSaveable(key) { mutableStateOf(!key.framingFirst) }
                 if (!framingDone) {

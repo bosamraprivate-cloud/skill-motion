@@ -97,4 +97,8 @@ object FrameCropper {
 /** Crops, scales and JPEG-encodes one attempt image (shell implementation wraps Bitmap). */
 fun interface JpegEncoder {
     fun encode(image: AttemptImage, box: CropBox, size: PixelSize, quality: Int): ByteArray
+
+    /** As [encode], with [blur] regions (pixels relative to [box]) pixelated first (Story 6.4 face blur). */
+    fun encode(image: AttemptImage, box: CropBox, size: PixelSize, quality: Int, blur: List<CropBox>): ByteArray =
+        encode(image, box, size, quality)
 }

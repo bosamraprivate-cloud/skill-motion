@@ -4,11 +4,11 @@ Status as of 2026-11-14. Tags: **[BUILT]** = in the code now; **[PLANNED]** = in
 
 ## Overview
 
-The occupational therapist runs everything on one landscape tablet. On first launch the therapist sets a PIN and the cloud-check (proxy) address and secret. Every later launch starts at the PIN screen. The home screen is the children list. The therapist adds a child, opens the child's profile, and starts a session: picks a task (a garment can be "take off", "put on" or "both", default both), checks the camera framing, and hands the tablet to the child. Child mode is locked with screen pinning. To leave it, the adult holds a hidden corner for 2 seconds and enters the PIN. The therapist then sees a summary of that visit, and can read the report, open the treatment plan, start training, check each session's evidence and correct levels, compare assessments, and use Settings (session and PIN, camera and zones, AI connection, accuracy and review, data export, about). All child data stays on the tablet.
+The occupational therapist runs everything on one landscape tablet. On first launch the therapist sets a PIN and the cloud-check (proxy) address and secret. Every later launch starts at the PIN screen. The home screen is the children list. The therapist adds a child, opens the child's profile, and starts a session: picks a task (a garment can be "take off", "put on" or "both", default both), lets the AI check the scene (it finds the table, sink and other zones itself), checks the camera framing, and hands the tablet to the child. Child mode is locked with screen pinning. To leave it, the adult holds a hidden corner for 2 seconds and enters the PIN. The therapist then sees a summary of that visit, and can read the report, open the treatment plan, start training, check each session's evidence and correct levels, compare assessments, and use Settings (session and PIN, camera and body tracking, AI connection, accuracy and review, data export, about). All child data stays on the tablet.
 
 ```mermaid
 flowchart TD
-    A[App start] -->|no PIN saved| B[First-run setup: PIN twice, proxy URL + secret, optional zones]
+    A[App start] -->|no PIN saved| B[First-run setup: PIN twice, proxy URL + secret]
     A -->|PIN saved| C[PIN screen]
     B --> D[Children list]
     C --> D
@@ -17,7 +17,7 @@ flowchart TD
     D -->|tap child| F
     D -->|Continue card| G
     F -->|Start session| H[New session dialog: task, garment take off/put on/both]
-    H --> G[Framing check]
+    H --> G[Framing check: AI scene check, then body framing]
     G -->|Hand to child / Start anyway| I[Child mode, screen pinned]
     I -->|adult corner 2 s + Exit + PIN| J[Session summary]
     J --> F
@@ -27,7 +27,7 @@ flowchart TD
     F --> M[Plan tab -> pick activities -> Start training]
     M --> G2[Training framing check] --> I2[Child training mode] -->|corner + PIN| F
     F --> N[Progress tab: compare + training history]
-    D --> S[Settings: session, camera and zones, AI connection, accuracy, data, about, debug tools]
+    D --> S[Settings: session, camera and body tracking, AI connection, accuracy, data, about]
 ```
 
 ---
@@ -38,7 +38,7 @@ What happens:
 - Shown when no PIN is saved (`AppGateViewModel` puts `SetupKey` on the stack).
 - Steps: welcome, PIN entered twice (4 to 6 digits), proxy URL (must be an absolute `https` URL with a host) and shared secret (masked, never shown again).
 - Everything is saved at once. The PIN is saved last; once it exists, setup counts as complete.
-- An optional zone step follows (draw mat / sink / place zones on the camera preview). Leaving this step ends setup and opens the children list.
+- Saving the connection and PIN ends setup and opens the children list. There is no zone step: zones come from the AI scene check before each session (Story 6.4, 2026-11-15).
 - Debug builds prefill proxy values from `local.properties`; release builds start empty.
 
 Edge cases:
@@ -46,7 +46,6 @@ Edge cases:
 - Bad proxy URL (http, no host): refused inline.
 - Save fails: error shown, typed values kept, can retry.
 - App killed during setup before the PIN is saved: setup starts again on next launch.
-- App killed after the PIN is saved but during the zone step: next launch goes to the PIN screen; zones can be drawn later in Settings.
 - Backgrounded during setup: setup is kept (the background lock only applies to the therapist shell).
 - Proxy left wrong: setup still finishes; cloud-judged steps will end as "cannot tell" until it is fixed in Settings. Diagnostics shows "wrong secret" for a 401.
 - Keystore key or settings file lost: the database cannot open. [PLANNED] a guarded "reset all data" path (deferred, not built).
@@ -133,17 +132,19 @@ Edge cases:
 ## 7. Framing check [BUILT]
 
 What happens:
-- Adult-facing screen, before child mode. Large mirrored camera preview with a body outline for the task's framing (table, standing or sink).
+- **Phase 1, AI scene check (Story 6.4, 2026-11-15; only for tasks whose steps use zones).** The app takes one camera photo. The child may already be in place: before sending, the face is pixelated on the tablet (pose face points padded; without face points, the top quarter of the body box), so no unblurred face leaves the tablet. The photo and the task's required kinds (the zone kinds its steps use in the catalogue, plus `person`) go to the proxy `POST /scene`. The found boxes are drawn and labelled over the preview. One clear message per problem names the missing thing ("مش لاقي الترابيزة — حطّ الترابيزة قدام الكاميرا", too dark, tilted, too far/close, unclear); "افحص تاني" checks again. When every zone kind is found, the boxes (and the child's box) are saved as this session's zones (replacing the old ones) and phase 2 starts. Person-related issues never block.
+- Offline or proxy error: a calm message plus "افحص تاني" and "ابدأ على أي حال". Start anyway clears the saved zones, so zone steps end as cannot tell `no_zone` (doubt is never failure). The same quiet Start anyway shows next to the issues.
+- **Phase 2, body framing.** Large mirrored camera preview with a body outline for the task's framing (table, standing or sink).
 - The outline is grey and turns sage once the task's needed body points stay visible for about 1 s.
 - A guidance pill gives one line of advice (step back, move closer, move left/right).
 - "Hand to child" starts child mode and screen pinning. A quiet "Start anyway" appears after 10 s without sage, or if the camera engine failed.
-- Nothing here is scored, stored or sent.
+- Nothing here is scored. Only the face-blurred scene photo is sent (phase 1); the found zones are stored for scoring and to aim the cloud crops.
 
 Edge cases:
 - Content-only task (every step `none`): no framing check; hands over at once.
 - Camera permission not yet asked: the system prompt shows. Denied: a message with "Allow" (asks again) and "Open settings". Going to system Settings does not trigger the PIN lock. (Deferred: a rationale screen before sending to settings.)
 - Landmarks out of frame: outline stays grey; advice pill helps; "Start anyway" after 10 s. Steps then often end as cannot tell `out_of_frame`.
-- Missing zone: if the task has an `inZone` check and that zone is not drawn, an advisory "no zone" notice shows with a shortcut to the zone editor (opens in place and returns). Starting is still allowed; those checks will end as cannot tell `no_zone`.
+- Missing zone after Start anyway: an advisory notice names the zones the task checks; starting is allowed and those checks end as cannot tell `no_zone`. There is no manual zone editor any more.
 - Catalogue cannot load: message plus "Start anyway".
 - Back: returns to the profile; camera and landmarkers are released.
 - Landmark stream gap over 300 ms resets the 1 s hold.
@@ -244,7 +245,7 @@ Edge cases:
 What happens:
 - Settings -> Diagnostics (in release builds too). Shows frame rate, landmark group visibility, proxy reachability and latency, and the cannot-tell rate.
 - Proxy ping and cannot-tell rate run on open and on "Check again" only, never polled.
-- Developer tools inside Diagnostics (spike attempt, sample screen) are debug builds only.
+- Developer metrics inside Diagnostics (frame rates, spike attempt, sample screen) are debug builds only. The zones card and its "draw zones" link were removed in Story 6.4.
 
 Edge cases:
 - Proxy health results: OK, wrong secret (HTTP 401), not configured, settings unreadable, offline, timeout, unexpected.
@@ -262,10 +263,10 @@ Edge cases:
 - Attempt deleted meanwhile (child or session removed): dropped, counts refresh.
 - Ratings never feed levels, reports, plans or compare.
 
-## 17. Replay and evaluation [BUILT, debug only]
+## 17. Replay and evaluation [INFRASTRUCTURE ONLY since Story 6.4]
 
 What happens:
-- Settings -> Advanced tools -> Replay & evaluation (debug builds only). Import volunteer clips, score them through the same runner as live sessions, and export a CSV for `tools/eval/accuracy_report.py`.
+- The in-app entry (Settings -> Advanced tools -> Replay & evaluation) was removed with the developer tools in Story 6.4; the replay code in `replay/` and its tests stay for evaluation. It imports volunteer clips, scores them through the same runner as live sessions and exports a CSV for `tools/eval/accuracy_report.py`.
 - Replay sessions belong to the hidden eval child.
 
 Edge cases:
@@ -280,14 +281,15 @@ Edge cases:
 Sections, in this order (2026-11-15). Landscape: section list on the start side, the chosen section beside it. Portrait: the section list, and a section opens as its own page with the detail top bar (back) and the calm slide.
 
 1. **Session & child mode:** change PIN (current + new twice; it is also the child-mode exit PIN); screen pinning explanation. Effect level is per child (child profile), so there is no default here.
-2. **Camera & zones:** draw, redraw, clear zones (saved at once, normalised, un-mirrored); Diagnostics (camera check, landmarks, speed, proxy).
+2. **Camera & body tracking:** Diagnostics (camera check, landmarks, speed, proxy). Zones are not edited here any more: the AI scene check finds them before each session.
 3. **AI connection:** status line (not set up / ready / offline / last check failed); **Test connection** runs the Diagnostics health ping (`POST /verify` with the secret and an empty body: no frames, no child data, nothing logged) and shows "Connected" or "Not reachable right now" with what to try and a calm note that sessions still run with "cannot tell" for review; proxy URL and secret (never shown).
 4. **Accuracy & review:** Accuracy metrics, Blind review.
 5. **Data:** Export results (anonymised CSV).
-6. **Developer tools (debug builds only):** Replay & evaluation, Try step screen, Character preview.
-7. **About.**
+6. **About.**
 
-Planned: AI "suggest zones" button (owner request 2026-11-14): AI proposes rectangles, therapist confirms. Not built.
+Removed in Story 6.4 (2026-11-15): the manual zone editor and the Developer tools section (Replay & evaluation, Try step screen, Character preview).
+
+Built instead (Story 6.4): the AI scene check finds the zones before every session; see section 7.
 
 Edge cases:
 - Wrong current PIN: refused. New PINs that do not match: refused.

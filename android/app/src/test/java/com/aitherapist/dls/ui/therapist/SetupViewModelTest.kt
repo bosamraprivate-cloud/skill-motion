@@ -84,7 +84,7 @@ class SetupViewModelTest {
         vm.onEvent(SetupEvent.Continue)
         vm.enterPin("1234")
         vm.enterPin("1234")
-        assertEquals(SetupStep.ZONES, vm.content.step)
+        assertEquals(SetupUiState.Done, vm.uiState.value)
         assertEquals("https://proxy.example.dev", settings.url)
         assertEquals("built-in-secret", settings.secret)
         assertTrue(settings.pinHash != null)
@@ -119,12 +119,7 @@ class SetupViewModelTest {
         vm.onEvent(SetupEvent.ProxyUrlChanged(" https://proxy.example.dev "))
         vm.onEvent(SetupEvent.SecretChanged("s3cret"))
         vm.onEvent(SetupEvent.Continue)
-        // Saved; the optional zone step follows and can be skipped.
-        assertEquals(SetupStep.ZONES, vm.content.step)
-        assertEquals("", vm.content.secret)
-        vm.onEvent(SetupEvent.Back)
-        assertEquals(SetupStep.ZONES, vm.content.step)
-        vm.onEvent(SetupEvent.Continue)
+        // Saved: setup ends (zones come from the AI scene check, Story 6.4).
         assertEquals(SetupUiState.Done, vm.uiState.value)
         assertTrue(settings.verifyPin("123456"))
         assertEquals("https://proxy.example.dev", settings.url)
@@ -151,8 +146,9 @@ class SetupViewModelTest {
         vm.onEvent(SetupEvent.Continue)
         vm.enterPin("1234")
         vm.enterPin("1234")
-        assertTrue(vm.content.proxyUrlValid)
-        vm.onEvent(SetupEvent.Continue)
+        // The built-in connection is saved with the PIN; setup ends (no zone step since Story 6.4).
+        assertEquals(SetupUiState.Done, vm.uiState.value)
+        assertEquals("https://proxy_1.example.dev/", settings.url)
         assertEquals("s3cret", settings.secret)
     }
 

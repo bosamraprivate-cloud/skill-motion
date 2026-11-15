@@ -110,7 +110,7 @@ Edge cases:
 - Window closed by stillness (older catalogue) and the check is not met: saved as **cannot tell** (`not_judgeable`), never "not done".
 - Camera fails to start: no frames arrive; camera steps end as cannot tell `out_of_frame`. Only the adult sees a notice, in the pause sheet.
 - Back button: does nothing on the step screen.
-- Rotation (Story 6.3): the tablet rotates freely (portrait or landscape) on therapist screens. From the framing check until child mode ends (PIN exit done), the activity holds the orientation it had when the framing check opened (`SCREEN_ORIENTATION_LOCKED`), so camera frames always match the zones drawn by the therapist and the run never restarts; flipping sides 180 degrees keeps the run (ViewModel survives). Child screens arrange themselves for portrait (character above, main area and buttons below) with the same sizes.
+- Rotation (Story 6.3): the tablet rotates freely (portrait or landscape) on therapist screens. From the framing check until child mode ends (PIN exit done), the activity holds the orientation it had when the framing check opened (`SCREEN_ORIENTATION_LOCKED`), so camera frames always match the zones the AI scene check found for this session and the run never restarts; flipping sides 180 degrees keeps the run (ViewModel survives). Child screens arrange themselves for portrait (character above, main area and buttons below) with the same sizes.
 
 ## 6. Help and Repeat [BUILT]
 
@@ -142,7 +142,7 @@ Edge cases (all become **cannot tell**, never "not done"):
 | Situation | Reason saved |
 |---|---|
 | Body out of frame | `out_of_frame` |
-| Zone needed but not drawn | `no_zone` |
+| Zone needed but not found by the scene check (therapist started anyway) | `no_zone` |
 | Proxy not set up, no network | `network` |
 | Cloud call over 8 s, or verifier hangs over 10 s | `timeout` |
 | Proxy answers non-200 (for example 401 wrong secret) | `refused` |

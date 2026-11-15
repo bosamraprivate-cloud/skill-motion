@@ -1,0 +1,23 @@
+{
+  "_source": "Staging only (what must be visible before a session); derived from each task's name and docs/reference/owner-posture-and-order.md. Never changes scoring.",
+  "eat.sandwich": ["table", "chair", "plate", "sandwich"],
+  "eat.spoon": ["table", "chair", "bowl", "spoon"],
+  "eat.fork": ["table", "chair", "plate", "fork"],
+  "drink.cup": ["table", "chair", "cup"],
+  "drink.bottle": ["table", "chair", "bottle"],
+  "drink.straw": ["table", "chair", "cup", "straw"],
+  "hygiene.handwash": ["sink", "soap", "towel"],
+  "hygiene.teeth": ["sink", "toothbrush", "toothpaste", "cup"],
+  "dress.jacket.on": ["jacket"],
+  "dress.jacket.off": [],
+  "dress.tshirt.on": ["tshirt"],
+  "dress.shirt.on": ["shirt"],
+  "dress.trousers.on": ["trousers", "chair"],
+  "dress.socks.on": ["chair", "socks"],
+  "dress.shoes.on": ["chair", "shoes"],
+  "dress.tshirt.off": [],
+  "dress.shirt.off": [],
+  "dress.trousers.off": ["chair"],
+  "dress.socks.off": ["chair"],
+  "dress.shoes.off": ["chair"]
+}
