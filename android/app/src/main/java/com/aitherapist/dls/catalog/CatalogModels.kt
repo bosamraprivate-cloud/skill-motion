@@ -197,7 +197,14 @@ data class AreaEntry(val id: String, val nameAr: String?)
 
 /** One task header from the builder; [nameAr] is null only in a dev catalogue missing the name (Story 2.16). */
 @Serializable
-data class TaskEntry(val id: String, val area: String, val nameAr: String?, val source: String, val posture: String? = null)
+data class TaskEntry(
+    val id: String,
+    val area: String,
+    val nameAr: String?,
+    val source: String,
+    val posture: String? = null,
+    val sceneObjects: List<String>? = null
+)
 
 /** `activities.json`: `{"activities": [...]}`. */
 @Serializable
@@ -288,7 +295,9 @@ data class CatalogTask(
     val nameAr: String = id,
     val hasName: Boolean = true,
     /** How the child is positioned (staging only, never scoring); [Posture.UNKNOWN] for older catalogues. */
-    val posture: Posture = Posture.UNKNOWN
+    val posture: Posture = Posture.UNKNOWN,
+    /** Object kinds that must be visible before a session (AI scene check, staging only); empty for older catalogues. */
+    val sceneObjects: List<String> = emptyList()
 )
 
 /** Task posture from the catalogue's `posture` field (owner staging source, Story 6.1). */
@@ -365,7 +374,12 @@ object CatalogDecoder {
                 check(entry.area == task.area, ASSESSMENT) { "task ${task.id} area ${entry.area} but steps say ${task.area}" }
                 if (version.complete) check(!entry.nameAr.isNullOrBlank(), ASSESSMENT) { "complete=true but task ${task.id} has no name" }
                 val name = entry.nameAr?.takeIf { it.isNotBlank() }
-                task.copy(nameAr = name ?: task.id, hasName = name != null, posture = Posture.parse(entry.posture))
+                task.copy(
+                    nameAr = name ?: task.id,
+                    hasName = name != null,
+                    posture = Posture.parse(entry.posture),
+                    sceneObjects = entry.sceneObjects.orEmpty()
+                )
             }
         check(assessment.areas.map { it.id } == named.map { it.area }.distinct(), ASSESSMENT) {
             "areas ${assessment.areas.map { it.id }} do not match the task areas"

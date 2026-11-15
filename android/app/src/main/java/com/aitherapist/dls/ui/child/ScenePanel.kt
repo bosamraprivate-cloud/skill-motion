@@ -184,6 +184,26 @@ internal fun sceneKindRes(kind: String?): Int = when (kind) {
     "mat" -> R.string.scene_kind_mat
     "sink" -> R.string.scene_kind_sink
     "place" -> R.string.scene_kind_place
+    "table" -> R.string.scene_kind_table
+    "chair" -> R.string.scene_kind_chair
+    "cup" -> R.string.scene_kind_cup
+    "plate" -> R.string.scene_kind_plate
+    "bowl" -> R.string.scene_kind_bowl
+    "spoon" -> R.string.scene_kind_spoon
+    "fork" -> R.string.scene_kind_fork
+    "sandwich" -> R.string.scene_kind_sandwich
+    "bottle" -> R.string.scene_kind_bottle
+    "straw" -> R.string.scene_kind_straw
+    "soap" -> R.string.scene_kind_soap
+    "towel" -> R.string.scene_kind_towel
+    "toothbrush" -> R.string.scene_kind_toothbrush
+    "toothpaste" -> R.string.scene_kind_toothpaste
+    "jacket" -> R.string.scene_kind_jacket
+    "tshirt" -> R.string.scene_kind_tshirt
+    "shirt" -> R.string.scene_kind_shirt
+    "trousers" -> R.string.scene_kind_trousers
+    "socks" -> R.string.scene_kind_socks
+    "shoes" -> R.string.scene_kind_shoes
     ScenePlan.PERSON -> R.string.scene_kind_person
     else -> R.string.scene_kind_unknown
 }

@@ -152,6 +152,9 @@ internal constructor(
     private var stopJob: Job? = null
 
     private var zoneKinds: List<String> = emptyList()
+
+    /** Zone kinds plus the task's scene objects: each needs a box before the session (person never blocks). */
+    private var requiredKinds: List<String> = emptyList()
     private var sceneJob: Job? = null
     private var overrideJob: Job? = null
     private val firstFrame = CompletableDeferred<Unit>()
@@ -167,7 +170,8 @@ internal constructor(
     /** Loads [taskId]'s needed landmarks once; starts the 10 s override timer. */
     fun load(taskId: String) = load(
         taskId,
-        postureOf = { catalog -> catalog.tasks.firstOrNull { it.id == taskId }?.posture ?: Posture.UNKNOWN }
+        postureOf = { catalog -> catalog.tasks.firstOrNull { it.id == taskId }?.posture ?: Posture.UNKNOWN },
+        sceneObjectsOf = { catalog -> catalog.tasks.firstOrNull { it.id == taskId }?.sceneObjects.orEmpty() }
     ) { catalog -> catalog.tasks.firstOrNull { it.id == taskId }?.steps?.map { it.detector } }
 
     /**
@@ -180,7 +184,12 @@ internal constructor(
         }.mapNotNull { a -> a.counter?.let { StepDetector(Method.POSE, check = it.check) } }
     }
 
-    private fun load(key: String, postureOf: (Catalog) -> Posture = { Posture.UNKNOWN }, detectorsOf: (Catalog) -> List<StepDetector>?) {
+    private fun load(
+        key: String,
+        postureOf: (Catalog) -> Posture = { Posture.UNKNOWN },
+        sceneObjectsOf: (Catalog) -> List<String> = { emptyList() },
+        detectorsOf: (Catalog) -> List<StepDetector>?
+    ) {
         if (loadedTask == key) return
         loadedTask = key
         viewModelScope.launch {
@@ -207,11 +216,12 @@ internal constructor(
             }
             neededZones = ScenePlan.zoneKinds(detectors)
             zoneKinds = neededZones
-            val sceneNeeded = ScenePlan.requestKinds(zoneKinds).isNotEmpty()
+            requiredKinds = ScenePlan.requiredKinds(zoneKinds, sceneObjectsOf(loaded))
+            val sceneNeeded = requiredKinds.isNotEmpty()
             state.value = FramingUiState.Check(
                 Framing.of(detectors.firstNotNullOfOrNull { it.framing }),
                 posture = postureOf(loaded),
-                scene = SceneUi(if (sceneNeeded) SceneStatus.CAPTURING else SceneStatus.NOT_NEEDED, zoneKinds)
+                scene = SceneUi(if (sceneNeeded) SceneStatus.CAPTURING else SceneStatus.NOT_NEEDED, requiredKinds)
             )
             if (sceneNeeded) runScene() else startBodyPhase()
         }
@@ -265,7 +275,7 @@ internal constructor(
                 val result =
                     try {
                         val jpeg = withContext(compute) { snapshot.jpeg(blur) }
-                        sceneService.check(jpeg, ScenePlan.requestKinds(zoneKinds))
+                        sceneService.check(jpeg, ScenePlan.requestKinds(requiredKinds))
                     } catch (e: CancellationException) {
                         throw e
                     } catch (
@@ -282,13 +292,13 @@ internal constructor(
             is SceneResult.Unavailable -> edit { it.copy(scene = it.scene.copy(status = SceneStatus.UNAVAILABLE)) }
             is SceneResult.Checked -> {
                 val objects = result.objects
-                if (ScenePlan.accepted(result, zoneKinds)) {
-                    saveZones(ScenePlan.zonesOf(result))
+                if (ScenePlan.accepted(result, requiredKinds)) {
+                    saveZones(ScenePlan.zonesOf(result, zoneKinds))
                     edit { it.copy(scene = it.scene.copy(status = SceneStatus.ACCEPTED, objects = objects, issues = emptyList())) }
                     startBodyPhase()
                 } else {
                     val issues = ScenePlan.blockingIssues(result).ifEmpty {
-                        zoneKinds.filter { k -> objects.none { it.kind == k } }.map { SceneIssue(SceneIssueCode.MISSING_OBJECT, it) }
+                        requiredKinds.filter { k -> objects.none { it.kind == k } }.map { SceneIssue(SceneIssueCode.MISSING_OBJECT, it) }
                     }
                     edit { it.copy(scene = it.scene.copy(status = SceneStatus.ISSUES, objects = objects, issues = issues)) }
                 }

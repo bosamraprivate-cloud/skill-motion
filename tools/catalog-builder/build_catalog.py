@@ -507,6 +507,7 @@ class Paths:
     detectors: Path = TOOL_DIR / "detectors.json"
     activity_counters: Path = TOOL_DIR / "activity_counters.json"
     task_posture: Path = TOOL_DIR / "task_posture.json"
+    task_scene: Path = TOOL_DIR / "task_scene.json"
     step_timing: Path = TOOL_DIR / "step_timing.json"
     check_schema: Path = TOOL_DIR / "schema" / "check.schema.json"
     criterion_schema: Path = TOOL_DIR / "schema" / "criterion.schema.json"
@@ -560,6 +561,37 @@ def _validate_posture(data: Any, task_ids: list[str]) -> dict[str, str]:
         raise CatalogError(
             f"task_posture.json: unknown posture for: {', '.join(bad)} (allowed: {', '.join(POSTURES)})"
         )
+    return data
+
+
+SCENE_KINDS = (
+    "table", "chair", "cup", "plate", "bowl", "spoon", "fork", "sandwich", "bottle", "straw",
+    "sink", "soap", "towel", "toothbrush", "toothpaste",
+    "jacket", "tshirt", "shirt", "trousers", "socks", "shoes",
+)  # fmt: skip
+SCENE_KIND_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+
+
+def _validate_scene(data: Any, task_ids: list[str]) -> dict[str, list[str]]:
+    """Story 6.4 follow-up: objects that must be visible before a task's session (staging only)."""
+    name = "task_scene.json"
+    if not isinstance(data, dict):
+        raise CatalogError(f"{name}: top level must be an object of task id -> list of object kinds")
+    data = {k: v for k, v in data.items() if not k.startswith("_")}
+    unknown = sorted(set(data) - set(task_ids))
+    if unknown:
+        raise CatalogError(f"{name}: unknown task id(s): {', '.join(unknown)}")
+    missing = [t for t in task_ids if t not in data]
+    if missing:
+        raise CatalogError(f"{name}: missing task id(s): {', '.join(missing)}")
+    for task, kinds in data.items():
+        if not isinstance(kinds, list) or not all(isinstance(k, str) for k in kinds):
+            raise CatalogError(f"{name}: {task} must be a list of object kinds")
+        bad = [k for k in kinds if not SCENE_KIND_RE.match(k) or k not in SCENE_KINDS]
+        if bad:
+            raise CatalogError(f"{name}: unknown object kind(s) for {task}: {', '.join(bad)}")
+        if len(set(kinds)) != len(kinds):
+            raise CatalogError(f"{name}: duplicate object kind for {task}")
     return data
 
 
@@ -770,6 +802,7 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
     steps = sorted(steps, key=lambda s: rank[s.task])  # stable: step order inside a task kept
     area_order = list(dict.fromkeys(s.area for s in steps))
     posture = _validate_posture(_load_json(paths.task_posture), [t.task for t in task_order])
+    scene = _validate_scene(_load_json(paths.task_scene), [t.task for t in task_order])
     timing = _validate_timing(_load_json(paths.step_timing), [t.task for t in task_order], steps)
     for section, table, known in (
         ("steps", step_text, set(step_ids)),
@@ -814,6 +847,7 @@ def build(paths: Paths, *, allow_missing_media: bool = False) -> tuple[dict[str,
                 "area": first.area,
                 "nameAr": name or None,
                 "posture": posture[first.task],
+                "sceneObjects": scene[first.task],
                 "source": first.source,
             }
         )

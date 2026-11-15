@@ -45,6 +45,14 @@ class CatalogRepositoryTest {
     }
 
     @Test
+    fun `real tasks carry their scene objects`() {
+        val c = real()
+        assertTrue(c.tasks.any { it.sceneObjects.isNotEmpty() })
+        assertTrue(c.tasks.all { t -> t.sceneObjects.all { Regex("^[a-z][a-z0-9_]*$").matches(it) } })
+        assertEquals(TaskEntry("x", "a", null, "s").sceneObjects, null)
+    }
+
+    @Test
     fun `every real step carries a step time that reaches the runtime step`() {
         val c = real()
         c.steps.forEach { s ->

@@ -877,6 +877,45 @@ def test_posture_validation(full, tmp_path, mutate, needle):
         bc.build(replace(full, task_posture=p))
 
 
+# --- Story 6.4 follow-up: per-task scene objects ------------------------------
+
+
+def test_tasks_carry_scene_objects(full):
+    files, _ = bc.build(full)
+    tasks = {t["id"]: t for t in json.loads(files["assessment.json"])["tasks"]}
+    assert tasks["eat.spoon"]["sceneObjects"] == ["table", "chair", "bowl", "spoon"]
+    assert tasks["dress.jacket.off"]["sceneObjects"] == []
+    assert all(set(t["sceneObjects"]) <= set(bc.SCENE_KINDS) for t in tasks.values())
+
+
+@pytest.mark.parametrize(
+    "mutate, needle",
+    [
+        (lambda d: d.pop("eat.fork"), "missing task id(s): eat.fork"),
+        (lambda d: d.update({"dress.hat.on": []}), "unknown task id(s): dress.hat.on"),
+        (lambda d: d.update({"eat.fork": ["rocket"]}), "unknown object kind(s) for eat.fork: rocket"),
+        (lambda d: d.update({"eat.fork": ["Table"]}), "unknown object kind(s) for eat.fork: Table"),
+        (lambda d: d.update({"eat.fork": "table"}), "eat.fork must be a list"),
+        (lambda d: d.update({"eat.fork": ["cup", "cup"]}), "duplicate object kind for eat.fork"),
+    ],
+)
+def test_scene_validation(full, tmp_path, mutate, needle):
+    src = json.loads(bc.Paths().task_scene.read_text(encoding="utf-8"))
+    mutate(src)
+    p = tmp_path / "scene.json"
+    p.write_text(json.dumps(src), encoding="utf-8")
+    with pytest.raises(bc.CatalogError, match=re.escape(needle)):
+        bc.build(replace(full, task_scene=p))
+
+
+def test_task_scene_matches_schema():
+    import jsonschema
+
+    schema = json.loads((bc.TOOL_DIR / "schema" / "task-scene.schema.json").read_text(encoding="utf-8"))
+    data = json.loads(bc.Paths().task_scene.read_text(encoding="utf-8"))
+    jsonschema.Draft202012Validator(schema).validate(data)
+
+
 # --- Story 6.2: per-step time (time ring) --------------------------------------
 
 

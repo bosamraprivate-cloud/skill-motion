@@ -90,7 +90,31 @@ class SceneCheckTest {
         assertEquals(Zone(0.8f, 0.8f, 1f, 1f), SceneBox(0.8f, 0.8f, 0.5f, 0.5f).toZone())
         assertNull(SceneBox(1f, 0.5f, 0f, 0.1f).toZone())
         val r = SceneResult.Checked(true, listOf(SceneObject("mat", SceneBox(0.25f, 0.5f, 0.5f, 0.25f), 0.9f)), emptyList(), "m", "p")
-        assertEquals(mapOf("mat" to Zone(0.25f, 0.5f, 0.75f, 0.75f)), ScenePlan.zonesOf(r))
+        assertEquals(mapOf("mat" to Zone(0.25f, 0.5f, 0.75f, 0.75f)), ScenePlan.zonesOf(r, listOf("mat")))
+        val withScene =
+            r.copy(
+                objects = r.objects + SceneObject("cup", SceneBox(0.1f, 0.1f, 0.1f, 0.1f), 0.9f) +
+                    SceneObject("person", SceneBox(0f, 0f, 0.5f, 1f), 0.9f)
+            )
+        assertEquals("scene objects are not saved for scoring", setOf("mat", "person"), ScenePlan.zonesOf(withScene, listOf("mat")).keys)
+    }
+
+    @Test
+    fun `required kinds join zones and scene objects, deduplicated, person appended for the request`() {
+        assertEquals(listOf("mat", "table", "chair", "cup"), ScenePlan.requiredKinds(listOf("mat"), listOf("table", "chair", "mat", "cup")))
+        assertEquals(listOf("table", "chair", "person"), ScenePlan.requestKinds(emptyList(), listOf("table", "chair", "person")))
+        assertEquals(listOf("mat", "person"), ScenePlan.requestKinds(listOf("mat"), emptyList()))
+        assertEquals(emptyList<String>(), ScenePlan.requestKinds(emptyList(), listOf("person")))
+        assertEquals(emptyList<String>(), ScenePlan.requiredKinds(emptyList(), emptyList()))
+    }
+
+    @Test
+    fun `acceptance needs every scene object box but never the person`() {
+        val box = SceneBox(0.1f, 0.1f, 0.2f, 0.2f)
+        val required = ScenePlan.requiredKinds(emptyList(), listOf("table", "cup"))
+        val both = listOf(SceneObject("table", box, 0.9f), SceneObject("cup", box, 0.9f))
+        assertTrue(ScenePlan.accepted(SceneResult.Checked(true, both, emptyList(), "m", "p"), required + "person"))
+        assertFalse(ScenePlan.accepted(SceneResult.Checked(true, both.take(1), emptyList(), "m", "p"), required))
     }
 
     @Test
@@ -108,16 +132,37 @@ class SceneCheckTest {
     }
 
     @Test
-    fun `face blur box pads the face points or falls back to the head of the person box`() {
+    fun `face blur covers the eye band ear to ear but not the mouth, or the top of the person box`() {
         val pose = List(33) { LandmarkPoint(0.5f, 0.9f, 0f) }.toMutableList()
-        pose[0] = LandmarkPoint(0.5f, 0.2f, 0.9f)
-        pose[7] = LandmarkPoint(0.45f, 0.2f, 0.9f)
-        pose[8] = LandmarkPoint(0.55f, 0.2f, 0.9f)
+        pose[0] = LandmarkPoint(0.5f, 0.25f, 0.9f) // nose
+        for (i in 1..3) pose[i] = LandmarkPoint(0.47f, 0.2f, 0.9f) // left eye
+        for (i in 4..6) pose[i] = LandmarkPoint(0.53f, 0.2f, 0.9f) // right eye
+        pose[7] = LandmarkPoint(0.4f, 0.21f, 0.9f) // ears
+        pose[8] = LandmarkPoint(0.6f, 0.21f, 0.9f)
+        pose[9] = LandmarkPoint(0.48f, 0.3f, 0.9f) // mouth
+        pose[10] = LandmarkPoint(0.52f, 0.3f, 0.9f)
         val face = requireNotNull(FaceBlur.faceBox(pose, null))
-        assertTrue(face.left < 0.45f && face.right > 0.55f && face.top < 0.2f && face.bottom > 0.2f)
-        assertTrue("at least the minimum side", face.right - face.left >= FaceBlur.MIN_SIDE)
+        // width 0.2 padded 0.04 per side; unit = eye-to-mouth 0.1: top 0.2 - 0.11, bottom 0.2 + 0.045
+        assertEquals(0.36f, face.left, 1e-4f)
+        assertEquals(0.64f, face.right, 1e-4f)
+        assertEquals(0.09f, face.top, 1e-4f)
+        assertEquals(0.245f, face.bottom, 1e-4f)
+        assertTrue("mouth stays visible", face.bottom < 0.3f)
+        assertTrue("forehead covered", face.top < 0.2f - 0.05f)
+
+        val noMouth = pose.toMutableList().also {
+            it[9] = LandmarkPoint(0f, 0f, 0f)
+            it[10] = LandmarkPoint(0f, 0f, 0f)
+        }
+        val viaNose = requireNotNull(FaceBlur.faceBox(noMouth, null))
+        assertEquals(0.245f, viaNose.bottom, 1e-4f) // unit = 2 * eye-to-nose = 0.1
+
+        val tiny = List(33) { LandmarkPoint(0f, 0f, 0f) }.toMutableList().also { it[2] = LandmarkPoint(0.5f, 0.5f, 0.9f) }
+        val minimum = requireNotNull(FaceBlur.faceBox(tiny, null))
+        assertTrue("at least the minimum side", minimum.right - minimum.left >= FaceBlur.MIN_SIDE - 1e-6f)
+
         val person = Zone(0.25f, 0f, 0.75f, 1f)
-        assertEquals(Zone(0.25f, 0f, 0.75f, 0.25f), FaceBlur.faceBox(List(33) { LandmarkPoint(0f, 0f, 0f) }, person))
+        assertEquals(Zone(0.25f, 0f, 0.75f, 0.15f), FaceBlur.faceBox(List(33) { LandmarkPoint(0f, 0f, 0f) }, person))
         assertNull(FaceBlur.faceBox(null, null))
     }
 
@@ -136,6 +181,14 @@ class SceneCheckTest {
         assertEquals(R.string.scene_kind_mat, sceneKindRes("mat"))
         assertEquals(R.string.scene_kind_sink, sceneKindRes("sink"))
         assertEquals(R.string.scene_kind_person, sceneKindRes("person"))
+        assertEquals(R.string.scene_kind_table, sceneKindRes("table"))
+        assertEquals(R.string.scene_kind_toothpaste, sceneKindRes("toothpaste"))
+        val sceneKinds = listOf(
+            "table", "chair", "cup", "plate", "bowl", "spoon", "fork", "sandwich", "bottle", "straw", "sink", "soap", "towel",
+            "toothbrush", "toothpaste", "jacket", "tshirt", "shirt", "trousers", "socks", "shoes"
+        )
+        assertEquals("every scene object kind has its own label", sceneKinds.size, sceneKinds.map { sceneKindRes(it) }.toSet().size)
+        assertFalse(sceneKinds.any { sceneKindRes(it) == R.string.scene_kind_unknown })
         assertEquals(R.string.scene_kind_unknown, sceneKindRes("rocket"))
         assertEquals(R.string.scene_kind_unknown, sceneKindRes(null))
     }

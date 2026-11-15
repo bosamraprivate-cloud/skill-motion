@@ -4719,6 +4719,12 @@
       "id": "eat.sandwich",
       "nameAr": "أكل الساندوتش",
       "posture": "seated",
+      "sceneObjects": [
+        "table",
+        "chair",
+        "plate",
+        "sandwich"
+      ],
       "source": "eating-drinking-assessment-scale.md#Eating a sandwich"
     },
     {
@@ -4726,6 +4732,12 @@
       "id": "eat.spoon",
       "nameAr": "الأكل بالمعلقة",
       "posture": "seated",
+      "sceneObjects": [
+        "table",
+        "chair",
+        "bowl",
+        "spoon"
+      ],
       "source": "eating-drinking-assessment-scale.md#Eating with a spoon"
     },
     {
@@ -4733,6 +4745,12 @@
       "id": "eat.fork",
       "nameAr": "الأكل بالشوكة",
       "posture": "seated",
+      "sceneObjects": [
+        "table",
+        "chair",
+        "plate",
+        "fork"
+      ],
       "source": "eating-drinking-assessment-scale.md#Eating with a fork"
     },
     {
@@ -4740,6 +4758,11 @@
       "id": "drink.cup",
       "nameAr": "الشرب من الكوباية",
       "posture": "seated",
+      "sceneObjects": [
+        "table",
+        "chair",
+        "cup"
+      ],
       "source": "eating-drinking-assessment-scale.md#Drinking from a cup"
     },
     {
@@ -4747,6 +4770,11 @@
       "id": "drink.bottle",
       "nameAr": "الشرب من الإزازة",
       "posture": "seated",
+      "sceneObjects": [
+        "table",
+        "chair",
+        "bottle"
+      ],
       "source": "eating-drinking-assessment-scale.md#Drinking from a bottle"
     },
     {
@@ -4754,6 +4782,12 @@
       "id": "drink.straw",
       "nameAr": "الشرب بالشفاطة",
       "posture": "seated",
+      "sceneObjects": [
+        "table",
+        "chair",
+        "cup",
+        "straw"
+      ],
       "source": "eating-drinking-assessment-scale.md#Drinking with a straw"
     },
     {
@@ -4761,6 +4795,11 @@
       "id": "hygiene.handwash",
       "nameAr": "غسيل الإيدين",
       "posture": "standing",
+      "sceneObjects": [
+        "sink",
+        "soap",
+        "towel"
+      ],
       "source": "personal-hygiene-assessment-scale.md#Handwashing"
     },
     {
@@ -4768,6 +4807,12 @@
       "id": "hygiene.teeth",
       "nameAr": "غسيل السنان",
       "posture": "standing",
+      "sceneObjects": [
+        "sink",
+        "toothbrush",
+        "toothpaste",
+        "cup"
+      ],
       "source": "personal-hygiene-assessment-scale.md#Toothbrushing"
     },
     {
@@ -4775,6 +4820,7 @@
       "id": "dress.jacket.off",
       "nameAr": "قلع الجاكيت",
       "posture": "standing",
+      "sceneObjects": [],
       "source": "dressing-assessment-scale.md#Taking off the jacket"
     },
     {
@@ -4782,6 +4828,9 @@
       "id": "dress.jacket.on",
       "nameAr": "لبس الجاكيت",
       "posture": "standing",
+      "sceneObjects": [
+        "jacket"
+      ],
       "source": "dressing-assessment-scale.md#Putting on the jacket"
     },
     {
@@ -4789,6 +4838,7 @@
       "id": "dress.tshirt.off",
       "nameAr": "قلع التيشيرت",
       "posture": "standing",
+      "sceneObjects": [],
       "source": "dressing-assessment-scale.md#Taking off the T-shirt"
     },
     {
@@ -4796,6 +4846,9 @@
       "id": "dress.tshirt.on",
       "nameAr": "لبس التيشيرت",
       "posture": "standing",
+      "sceneObjects": [
+        "tshirt"
+      ],
       "source": "dressing-assessment-scale.md#Putting on the T-shirt"
     },
     {
@@ -4803,6 +4856,7 @@
       "id": "dress.shirt.off",
       "nameAr": "قلع القميص",
       "posture": "standing",
+      "sceneObjects": [],
       "source": "dressing-assessment-scale.md#Taking off the shirt"
     },
     {
@@ -4810,6 +4864,9 @@
       "id": "dress.shirt.on",
       "nameAr": "لبس القميص",
       "posture": "standing",
+      "sceneObjects": [
+        "shirt"
+      ],
       "source": "dressing-assessment-scale.md#Putting on the shirt"
     },
     {
@@ -4817,6 +4874,9 @@
       "id": "dress.trousers.off",
       "nameAr": "قلع البنطلون",
       "posture": "standing_or_seated",
+      "sceneObjects": [
+        "chair"
+      ],
       "source": "dressing-assessment-scale.md#Taking off the trousers"
     },
     {
@@ -4824,6 +4884,10 @@
       "id": "dress.trousers.on",
       "nameAr": "لبس البنطلون",
       "posture": "standing_or_seated",
+      "sceneObjects": [
+        "trousers",
+        "chair"
+      ],
       "source": "dressing-assessment-scale.md#Putting on the trousers"
     },
     {
@@ -4831,6 +4895,9 @@
       "id": "dress.socks.off",
       "nameAr": "قلع الشراب",
       "posture": "seated",
+      "sceneObjects": [
+        "chair"
+      ],
       "source": "dressing-assessment-scale.md#Taking off the socks"
     },
     {
@@ -4838,6 +4905,10 @@
       "id": "dress.socks.on",
       "nameAr": "لبس الشراب",
       "posture": "seated",
+      "sceneObjects": [
+        "chair",
+        "socks"
+      ],
       "source": "dressing-assessment-scale.md#Putting on the socks"
     },
     {
@@ -4845,6 +4916,9 @@
       "id": "dress.shoes.off",
       "nameAr": "قلع الجزمة",
       "posture": "seated",
+      "sceneObjects": [
+        "chair"
+      ],
       "source": "dressing-assessment-scale.md#Taking off the shoes"
     },
     {
@@ -4852,6 +4926,10 @@
       "id": "dress.shoes.on",
       "nameAr": "لبس الجزمة",
       "posture": "seated",
+      "sceneObjects": [
+        "chair",
+        "shoes"
+      ],
       "source": "dressing-assessment-scale.md#Putting on the shoes"
     }
   ]
